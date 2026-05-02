@@ -4,43 +4,66 @@
 
 #pragma once
 
+#include "TaechangDefine.h"
 
 class CSageTaechangView : public CView
 {
-protected: // serialization에서만 만들어집니다.
-	CSageTaechangView() noexcept;
-	DECLARE_DYNCREATE(CSageTaechangView)
-
-// 특성입니다.
-public:
-	CSageTaechangDoc* GetDocument() const;
-
-// 작업입니다.
-public:
-
-// 재정의입니다.
-public:
-	virtual void OnDraw(CDC* pDC);  // 이 뷰를 그리기 위해 재정의되었습니다.
-	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 protected:
+    CSageTaechangView() noexcept;
+    DECLARE_DYNCREATE(CSageTaechangView)
 
-// 구현입니다.
 public:
-	virtual ~CSageTaechangView();
+    CSageTaechangDoc* GetDocument() const;
+
+public:
+    virtual void OnDraw(CDC* pDC);
+    virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+
+public:
+    virtual ~CSageTaechangView();
 #ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
+    virtual void AssertValid() const;
+    virtual void Dump(CDumpContext& dc) const;
 #endif
 
 protected:
+    CStatic m_wndTitle;
+    CStatic m_wndInputLabel;
+    CStatic m_wndOutputLabel;
+    CEdit m_wndInputPath;
+    CEdit m_wndOutputFolder;
+    CButton m_wndSelectInput;
+    CButton m_wndSelectOutput;
+    CButton m_wndLoad;
+    CButton m_wndGenerate;
+    CProgressCtrl m_wndProgress;
+    CListCtrl m_wndResultList;
+    CEdit m_wndDetail;
+    BOOL m_bRunning;
 
-// 생성된 메시지 맵 함수
 protected:
-	DECLARE_MESSAGE_MAP()
+    void CreateChildControls();
+    void LayoutChildControls();
+    void SetRunningState(BOOL bRunning);
+    void SetStatusText(const CString& strStatus);
+    BOOL ValidateInputPath(CString& strInputPath);
+    BOOL ValidateOutputFolder(CString& strOutputFolder);
+    void RunReceivablesTask(int nTaskType);
+    void DisplayResponse(int nTaskType, const CString& strResponseJson);
+    void InsertResultRow(const CString& strField, const CString& strValue);
+
+protected:
+    afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+    afx_msg void OnSize(UINT nType, int cx, int cy);
+    afx_msg void OnSelectInput();
+    afx_msg void OnSelectOutput();
+    afx_msg void OnLoadReceivables();
+    afx_msg void OnGenerateReceivables();
+    afx_msg LRESULT OnReceivablesComplete(WPARAM wParam, LPARAM lParam);
+    DECLARE_MESSAGE_MAP()
 };
 
-#ifndef _DEBUG  // SageTaechangView.cpp의 디버그 버전
+#ifndef _DEBUG
 inline CSageTaechangDoc* CSageTaechangView::GetDocument() const
    { return reinterpret_cast<CSageTaechangDoc*>(m_pDocument); }
 #endif
-

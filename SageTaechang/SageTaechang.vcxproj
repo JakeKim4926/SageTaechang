@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-   <ItemGroup Label="ProjectConfigurations">
+  <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
@@ -74,26 +74,26 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-	  <LinkIncremental>true</LinkIncremental>
-	  <OutDir>$(SolutionDir)Debug_x64\</OutDir>
-	  <IntDir>$(SolutionDir)Intermediate\SageTaechang\Debug_x64\</IntDir>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-	  <LinkIncremental>false</LinkIncremental>
-	  <OutDir>$(SolutionDir)Release_x64\</OutDir>
-	  <IntDir>$(SolutionDir)Intermediate\SageTaechang\Release_x64\</IntDir>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-	  <LinkIncremental>true</LinkIncremental>
-	  <OutDir>$(SolutionDir)Debug_x32\</OutDir>
-	  <IntDir>$(SolutionDir)Intermediate\SageTaechang\Debug_x32\</IntDir>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-	  <LinkIncremental>false</LinkIncremental>
-	  <OutDir>$(SolutionDir)Release_x32\</OutDir>
-	  <IntDir>$(SolutionDir)Intermediate\SageTaechang\Release_x32\</IntDir>
-	</PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)Debug_x64\</OutDir>
+    <IntDir>$(SolutionDir)Intermediate\SageTaechang\Debug_x64\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)Release_x64\</OutDir>
+    <IntDir>$(SolutionDir)Intermediate\SageTaechang\Release_x64\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)Debug_x32\</OutDir>
+    <IntDir>$(SolutionDir)Intermediate\SageTaechang\Debug_x32\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)Release_x32\</OutDir>
+    <IntDir>$(SolutionDir)Intermediate\SageTaechang\Release_x32\</IntDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -101,6 +101,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -115,6 +118,10 @@
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <PostBuildEvent>
+      <Command>if exist "$(ProjectDir)tools" xcopy "$(ProjectDir)tools" "$(OutDir)tools\" /E /I /Y &gt;nul
+if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templates\" /E /I /Y &gt;nul</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -123,6 +130,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -137,6 +147,10 @@
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <PostBuildEvent>
+      <Command>if exist "$(ProjectDir)tools" xcopy "$(ProjectDir)tools" "$(OutDir)tools\" /E /I /Y &gt;nul
+if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templates\" /E /I /Y &gt;nul</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -147,6 +161,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -163,6 +180,10 @@
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <PostBuildEvent>
+      <Command>if exist "$(ProjectDir)tools" xcopy "$(ProjectDir)tools" "$(OutDir)tools\" /E /I /Y &gt;nul
+if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templates\" /E /I /Y &gt;nul</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -173,6 +194,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -189,6 +213,10 @@
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <PostBuildEvent>
+      <Command>if exist "$(ProjectDir)tools" xcopy "$(ProjectDir)tools" "$(OutDir)tools\" /E /I /Y &gt;nul
+if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templates\" /E /I /Y &gt;nul</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="framework.h" />
@@ -199,6 +227,10 @@
     <ClInclude Include="SageTaechangDoc.h" />
     <ClInclude Include="SageTaechangView.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TaechangDefine.h" />
+    <ClInclude Include="app\application\services\TaechangReceivablesExcelService.h" />
+    <ClInclude Include="app\common\TaechangJson.h" />
+    <ClInclude Include="app\infrastructure\bridge\TaechangBridgeResponse.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MainFrm.cpp" />
@@ -211,6 +243,9 @@
     <ClCompile Include="SageTaechang.cpp" />
     <ClCompile Include="SageTaechangDoc.cpp" />
     <ClCompile Include="SageTaechangView.cpp" />
+    <ClCompile Include="app\application\services\TaechangReceivablesExcelService.cpp" />
+    <ClCompile Include="app\common\TaechangJson.cpp" />
+    <ClCompile Include="app\infrastructure\bridge\TaechangBridgeResponse.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SageTaechang.rc" />

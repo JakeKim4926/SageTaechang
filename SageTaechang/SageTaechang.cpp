@@ -60,6 +60,9 @@ BOOL CSageTaechangApp::InitInstance()
 {
 	CWinApp::InitInstance();
 
+	if (!AfxOleInit())
+		return FALSE;
+
 
 	EnableTaskbarInteraction(FALSE);
 
@@ -150,6 +153,7 @@ void CSageTaechangApp::OnAppAbout()
 }
 
 // CSageTaechangApp 메시지 처리기
+
 
 
 
