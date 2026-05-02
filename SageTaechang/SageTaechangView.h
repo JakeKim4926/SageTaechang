@@ -28,6 +28,8 @@ public:
 
 protected:
     CStatic m_wndTitle;
+    CStatic m_wndWorkflowLabel;
+    CComboBox m_wndWorkflow;
     CStatic m_wndInputLabel;
     CStatic m_wndOutputLabel;
     CEdit m_wndInputPath;
@@ -46,20 +48,23 @@ protected:
     void LayoutChildControls();
     void SetRunningState(BOOL bRunning);
     void SetStatusText(const CString& strStatus);
+    int GetSelectedWorkflow() const;
+    void UpdateWorkflowLabels();
     BOOL ValidateInputPath(CString& strInputPath);
     BOOL ValidateOutputFolder(CString& strOutputFolder);
-    void RunReceivablesTask(int nTaskType);
-    void DisplayResponse(int nTaskType, const CString& strResponseJson);
+    void RunWorkflowTask(int nTaskType);
+    void DisplayResponse(int nWorkflowType, int nTaskType, const CString& strResponseJson);
     void InsertResultRow(const CString& strField, const CString& strValue);
 
 protected:
     afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
     afx_msg void OnSize(UINT nType, int cx, int cy);
+    afx_msg void OnWorkflowChanged();
     afx_msg void OnSelectInput();
     afx_msg void OnSelectOutput();
-    afx_msg void OnLoadReceivables();
-    afx_msg void OnGenerateReceivables();
-    afx_msg LRESULT OnReceivablesComplete(WPARAM wParam, LPARAM lParam);
+    afx_msg void OnLoadWorkflow();
+    afx_msg void OnGenerateWorkflow();
+    afx_msg LRESULT OnWorkflowComplete(WPARAM wParam, LPARAM lParam);
     DECLARE_MESSAGE_MAP()
 };
 

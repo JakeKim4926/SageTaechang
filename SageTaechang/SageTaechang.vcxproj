@@ -231,6 +231,7 @@ if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templ
     <ClInclude Include="app\application\services\TaechangReceivablesExcelService.h" />
     <ClInclude Include="app\common\TaechangJson.h" />
     <ClInclude Include="app\infrastructure\bridge\TaechangBridgeResponse.h" />
+    <ClInclude Include="app\application\services\TaechangDeliveryExcelService.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MainFrm.cpp" />
@@ -246,6 +247,7 @@ if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templ
     <ClCompile Include="app\application\services\TaechangReceivablesExcelService.cpp" />
     <ClCompile Include="app\common\TaechangJson.cpp" />
     <ClCompile Include="app\infrastructure\bridge\TaechangBridgeResponse.cpp" />
+    <ClCompile Include="app\application\services\TaechangDeliveryExcelService.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SageTaechang.rc" />
