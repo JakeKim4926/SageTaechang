@@ -1,0 +1,158 @@
+# =========================
+# Visual Studio / C++ / MFC
+# =========================
+
+# User-specific files
+.vs/
+*.VC.db
+*.VC.opendb
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+Debug_x64/
+Release_x64/
+Debug_x32/
+Release_x32/
+Debug-*_x64/
+Release-*_x64/
+ARM/
+ARM64/
+Win32/
+out/
+build/
+deploy/
+[Bb]in/
+[Oo]bj/
+
+# Intermediate / compiler files
+*.obj
+*.iobj
+*.ipdb
+*.pch
+*.pdb
+*.ilk
+*.idb
+*.exp
+*.lib
+*.dll
+*.exe
+*.appx
+*.aps
+*.ncb
+*.opendb
+*.tlog
+*.lastbuildstate
+*.unsuccessfulbuild
+*.cache
+*.log
+
+# Visual C++ generated
+*.sdf
+*.opensdf
+*.tmp
+*.temp
+
+# CMake (혹시 같이 쓰게 될 경우)
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+compile_commands.json
+CTestTestfile.cmake
+Makefile
+
+# Ninja
+.ninja_deps
+.ninja_log
+
+# MSBuild
+*.vcxproj.user
+*.vcxproj.filters.user
+
+# NuGet / packages
+packages/
+*.nupkg
+
+# Test / coverage
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+# Crash / profiling
+*.dmp
+*.mdmp
+
+# ReSharper / Rider / VS extensions
+_ReSharper*/
+*.DotSettings.user
+
+# Generated docs / local exports
+*.pdf
+*.xlsx
+*.xls
+*.csv
+*.bak
+*.zip
+
+# SQLite / local DB / temp data
+*.db
+*.sqlite
+*.sqlite3
+
+# Local config / secret
+.env
+.env.*
+*.local.json
+secrets.json
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+#claude
+.claude/
+
+#codex
+.codex/
+.agents/
+
+# Solution format: .slnx only (VS 2022 17.x+)
+*.sln
+
+# =========================
+# Node.js / Web
+# =========================
+node_modules/
+webui/dist/
+webui/.env
+webui/.env.*
+webui/.env.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.parcel-cache/
+.next/
+.nuxt/
+.vite/
+
+# =========================
+# Keep these in Git
+# =========================
+#!*.slnx
+#!*.vcxproj
+#!*.vcxproj.filters
+#!*.rc
+#!*.ico
+#!*.bmp
+#!*.png
+#!res/**
+# SageNexus: build-time profile copy (selected from SageNexus/profiles/*.json)
+SageNexus/profile.json
