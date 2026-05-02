@@ -16,6 +16,7 @@
 #include "app/application/services/TaechangPdfCompareService.h"
 #include "app/application/services/TaechangReceivablesExcelService.h"
 #include "app/common/TaechangJson.h"
+#include "app/presentation/TaechangWorkflowResultPresenter.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -192,8 +193,10 @@ void CSageTaechangView::CreateChildControls()
     m_wndResultList.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SINGLESEL, rectEmpty, this, ID_TAECHANG_RESULT_LIST);
     m_wndDetail.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | WS_VSCROLL, rectEmpty, this, ID_TAECHANG_DETAIL_EDIT);
 
-    m_wndResultList.InsertColumn(0, TAECHANG_UI_RESULT_FIELD, LVCFMT_LEFT, 160);
-    m_wndResultList.InsertColumn(1, TAECHANG_UI_RESULT_VALUE, LVCFMT_LEFT, 520);
+    m_wndResultList.InsertColumn(0, TAECHANG_UI_RESULT_FIELD, LVCFMT_LEFT, 120);
+    m_wndResultList.InsertColumn(1, TAECHANG_UI_RESULT_VALUE, LVCFMT_LEFT, 260);
+    m_wndResultList.InsertColumn(2, TAECHANG_UI_RESULT_STATUS, LVCFMT_LEFT, 110);
+    m_wndResultList.InsertColumn(3, TAECHANG_UI_RESULT_REASON, LVCFMT_LEFT, 430);
     m_wndProgress.SetMarquee(FALSE, 0);
     UpdateWorkflowLabels();
 }
@@ -434,36 +437,36 @@ LRESULT CSageTaechangView::OnWorkflowComplete(WPARAM wParam, LPARAM lParam)
 
 void CSageTaechangView::DisplayResponse(int nWorkflowType, int nTaskType, const CString& strResponseJson)
 {
-    UNREFERENCED_PARAMETER(nWorkflowType);
-    UNREFERENCED_PARAMETER(nTaskType);
     m_wndResultList.DeleteAllItems();
-    m_wndDetail.SetWindowTextW(strResponseJson);
 
-    BOOL bSuccess = JsonExtractBool(strResponseJson, L"success");
-    InsertResultRow(TAECHANG_UI_RESULT_STATUS, bSuccess ? TAECHANG_UI_COMPLETED : TAECHANG_UI_FAILED);
+    TaechangWorkflowResultPresenter presenter;
+    std::vector<TaechangResultRow> arrRows;
+    CString strDetailText;
+    BOOL bSuccess = presenter.BuildRows(nWorkflowType, nTaskType, strResponseJson, arrRows, strDetailText);
+    m_wndDetail.SetWindowTextW(strDetailText);
 
-    if (bSuccess)
+    for (int i = 0; i < static_cast<int>(arrRows.size()); ++i)
     {
-        CString strFileName = JsonExtractString(strResponseJson, L"fileName");
-        CString strFolder = JsonExtractString(strResponseJson, L"outputFolder");
-        if (!strFileName.IsEmpty())
-            InsertResultRow(TAECHANG_UI_RESULT_FILE, strFileName);
-        if (!strFolder.IsEmpty())
-            InsertResultRow(TAECHANG_UI_RESULT_FOLDER, strFolder);
-        SetStatusText(TAECHANG_UI_COMPLETED);
+        InsertResultRow(
+            arrRows[i].m_strField,
+            arrRows[i].m_strValue,
+            arrRows[i].m_strStatus,
+            arrRows[i].m_strReason);
     }
-    else
-    {
-        CString strMessage = JsonExtractString(strResponseJson, L"message");
-        InsertResultRow(TAECHANG_UI_RESULT_ERROR, strMessage);
-        SetStatusText(TAECHANG_UI_FAILED);
-    }
+
+    SetStatusText(bSuccess ? TAECHANG_UI_COMPLETED : TAECHANG_UI_FAILED);
 }
 
-void CSageTaechangView::InsertResultRow(const CString& strField, const CString& strValue)
+void CSageTaechangView::InsertResultRow(
+    const CString& strField,
+    const CString& strValue,
+    const CString& strStatus,
+    const CString& strReason)
 {
     int nIndex = m_wndResultList.InsertItem(m_wndResultList.GetItemCount(), strField);
     m_wndResultList.SetItemText(nIndex, 1, strValue);
+    m_wndResultList.SetItemText(nIndex, 2, strStatus);
+    m_wndResultList.SetItemText(nIndex, 3, strReason);
 }
 
 #ifdef _DEBUG

@@ -65,6 +65,7 @@ constexpr LPCWSTR TAECHANG_UI_HWP_FILTER = L"HWP Files (*.hwp)|*.hwp|All Files (
 constexpr LPCWSTR TAECHANG_UI_RESULT_FIELD = L"항목";
 constexpr LPCWSTR TAECHANG_UI_RESULT_VALUE = L"값";
 constexpr LPCWSTR TAECHANG_UI_RESULT_STATUS = L"Status";
+constexpr LPCWSTR TAECHANG_UI_RESULT_REASON = L"Reason";
 constexpr LPCWSTR TAECHANG_UI_RESULT_FILE = L"File";
 constexpr LPCWSTR TAECHANG_UI_RESULT_FOLDER = L"Folder";
 constexpr LPCWSTR TAECHANG_UI_RESULT_ERROR = L"Error";
@@ -76,5 +77,6 @@ constexpr LPCWSTR TAECHANG_REQUEST_ESTIMATE_LOAD = L"mfc-estimate-load";
 constexpr LPCWSTR TAECHANG_REQUEST_ESTIMATE_GENERATE = L"mfc-estimate-generate";
 constexpr LPCWSTR TAECHANG_REQUEST_PDF_COMPARE = L"mfc-pdf-compare";
 constexpr LPCWSTR TAECHANG_REQUEST_HWP_COMPARE = L"mfc-hwp-compare";
+
 
 
