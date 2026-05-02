@@ -38,10 +38,14 @@ protected:
     CButton m_wndSelectOutput;
     CButton m_wndLoad;
     CButton m_wndGenerate;
+    CButton m_wndExportCsv;
     CProgressCtrl m_wndProgress;
     CListCtrl m_wndResultList;
     CEdit m_wndDetail;
     BOOL m_bRunning;
+    int m_nLastWorkflowType;
+    int m_nLastTaskType;
+    CString m_strLastResponseJson;
 
 protected:
     void CreateChildControls();
@@ -50,6 +54,8 @@ protected:
     void SetStatusText(const CString& strStatus);
     int GetSelectedWorkflow() const;
     void UpdateWorkflowLabels();
+    void UpdateExportButtonState();
+    BOOL IsCompareWorkflow(int nWorkflowType) const;
     BOOL ValidateInputPath(CString& strInputPath);
     BOOL ValidateOutputFolder(CString& strOutputFolder);
     void RunWorkflowTask(int nTaskType);
@@ -68,6 +74,7 @@ protected:
     afx_msg void OnSelectOutput();
     afx_msg void OnLoadWorkflow();
     afx_msg void OnGenerateWorkflow();
+    afx_msg void OnExportCsv();
     afx_msg LRESULT OnWorkflowComplete(WPARAM wParam, LPARAM lParam);
     DECLARE_MESSAGE_MAP()
 };

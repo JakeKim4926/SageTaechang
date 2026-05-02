@@ -10,6 +10,7 @@
 
 #include "SageTaechangDoc.h"
 #include "SageTaechangView.h"
+#include "app/application/services/TaechangCompareCsvExportService.h"
 #include "app/application/services/TaechangDeliveryExcelService.h"
 #include "app/application/services/TaechangEstimateExcelService.h"
 #include "app/application/services/TaechangHwpCompareService.h"
@@ -142,11 +143,14 @@ BEGIN_MESSAGE_MAP(CSageTaechangView, CView)
     ON_BN_CLICKED(ID_TAECHANG_SELECT_OUTPUT, &CSageTaechangView::OnSelectOutput)
     ON_BN_CLICKED(ID_TAECHANG_LOAD_WORKFLOW, &CSageTaechangView::OnLoadWorkflow)
     ON_BN_CLICKED(ID_TAECHANG_GENERATE_WORKFLOW, &CSageTaechangView::OnGenerateWorkflow)
+    ON_BN_CLICKED(ID_TAECHANG_EXPORT_CSV, &CSageTaechangView::OnExportCsv)
     ON_MESSAGE(WM_TAECHANG_WORKFLOW_COMPLETE, &CSageTaechangView::OnWorkflowComplete)
 END_MESSAGE_MAP()
 
 CSageTaechangView::CSageTaechangView() noexcept
     : m_bRunning(FALSE)
+    , m_nLastWorkflowType(0)
+    , m_nLastTaskType(0)
 {
 }
 
@@ -189,6 +193,7 @@ void CSageTaechangView::CreateChildControls()
     m_wndSelectOutput.Create(TAECHANG_UI_OUTPUT_BUTTON, WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rectEmpty, this, ID_TAECHANG_SELECT_OUTPUT);
     m_wndLoad.Create(TAECHANG_UI_LOAD_BUTTON, WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rectEmpty, this, ID_TAECHANG_LOAD_WORKFLOW);
     m_wndGenerate.Create(TAECHANG_UI_RECEIVABLES_GENERATE_BUTTON, WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rectEmpty, this, ID_TAECHANG_GENERATE_WORKFLOW);
+    m_wndExportCsv.Create(TAECHANG_UI_EXPORT_CSV_BUTTON, WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rectEmpty, this, ID_TAECHANG_EXPORT_CSV);
     m_wndProgress.Create(WS_CHILD | WS_VISIBLE | PBS_MARQUEE, rectEmpty, this, ID_TAECHANG_PROGRESS);
     m_wndResultList.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SINGLESEL, rectEmpty, this, ID_TAECHANG_RESULT_LIST);
     m_wndDetail.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | WS_VSCROLL, rectEmpty, this, ID_TAECHANG_DETAIL_EDIT);
@@ -199,6 +204,7 @@ void CSageTaechangView::CreateChildControls()
     m_wndResultList.InsertColumn(3, TAECHANG_UI_RESULT_REASON, LVCFMT_LEFT, 430);
     m_wndProgress.SetMarquee(FALSE, 0);
     UpdateWorkflowLabels();
+    UpdateExportButtonState();
 }
 
 void CSageTaechangView::OnSize(UINT nType, int cx, int cy)
@@ -239,7 +245,8 @@ void CSageTaechangView::LayoutChildControls()
 
     m_wndLoad.MoveWindow(nLeft, nTop, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
     m_wndGenerate.MoveWindow(nLeft + TAECHANG_BUTTON_WIDTH + TAECHANG_ROW_GAP, nTop, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
-    m_wndProgress.MoveWindow(nLeft + (TAECHANG_BUTTON_WIDTH + TAECHANG_ROW_GAP) * 2, nTop + 5, nWidth - ((TAECHANG_BUTTON_WIDTH + TAECHANG_ROW_GAP) * 2), TAECHANG_PROGRESS_HEIGHT);
+    m_wndExportCsv.MoveWindow(nLeft + (TAECHANG_BUTTON_WIDTH + TAECHANG_ROW_GAP) * 2, nTop, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
+    m_wndProgress.MoveWindow(nLeft + (TAECHANG_BUTTON_WIDTH + TAECHANG_ROW_GAP) * 3, nTop + 5, nWidth - ((TAECHANG_BUTTON_WIDTH + TAECHANG_ROW_GAP) * 3), TAECHANG_PROGRESS_HEIGHT);
     nTop += TAECHANG_BUTTON_HEIGHT + TAECHANG_ROW_GAP;
 
     int nResultHeight = max(TAECHANG_RESULT_MIN_HEIGHT, (nHeight - nTop) / 2);
@@ -283,11 +290,28 @@ void CSageTaechangView::UpdateWorkflowLabels()
         m_wndGenerate.SetWindowTextW(TAECHANG_UI_RECEIVABLES_GENERATE_BUTTON);
     m_wndResultList.DeleteAllItems();
     m_wndDetail.SetWindowTextW(L"");
+    UpdateExportButtonState();
+}
+
+BOOL CSageTaechangView::IsCompareWorkflow(int nWorkflowType) const
+{
+    return (nWorkflowType == TAECHANG_WORKFLOW_PDF_COMPARE || nWorkflowType == TAECHANG_WORKFLOW_HWP_COMPARE) ? TRUE : FALSE;
+}
+
+void CSageTaechangView::UpdateExportButtonState()
+{
+    BOOL bEnabled = (!m_bRunning && IsCompareWorkflow(GetSelectedWorkflow()) && !m_strLastResponseJson.IsEmpty()) ? TRUE : FALSE;
+    if (::IsWindow(m_wndExportCsv.GetSafeHwnd()))
+        m_wndExportCsv.EnableWindow(bEnabled);
 }
 
 void CSageTaechangView::OnWorkflowChanged()
 {
+    m_strLastResponseJson.Empty();
+    m_nLastWorkflowType = 0;
+    m_nLastTaskType = 0;
     UpdateWorkflowLabels();
+    UpdateExportButtonState();
 }
 
 void CSageTaechangView::OnSelectInput()
@@ -374,6 +398,40 @@ void CSageTaechangView::OnGenerateWorkflow()
     RunWorkflowTask(TAECHANG_TASK_GENERATE);
 }
 
+void CSageTaechangView::OnExportCsv()
+{
+    if (m_strLastResponseJson.IsEmpty() || !IsCompareWorkflow(m_nLastWorkflowType))
+    {
+        AfxMessageBox(TAECHANG_UI_EXPORT_RESULT_REQUIRED, MB_ICONWARNING);
+        return;
+    }
+
+    COMDLG_FILTERSPEC arrTypes[] =
+    {
+        { L"CSV Files", L"*.csv" },
+        { L"All Files", L"*.*" }
+    };
+    CString strPath = ShowIFileSaveDialog(
+        GetSafeHwnd(),
+        TAECHANG_UI_SELECT_CSV_OUTPUT_TITLE,
+        L"csv",
+        arrTypes,
+        2,
+        L"taechang-compare-result.csv");
+    if (strPath.IsEmpty())
+        return;
+
+    CString strError;
+    TaechangCompareCsvExportService service;
+    if (!service.ExportCompareResult(m_strLastResponseJson, strPath, strError))
+    {
+        AfxMessageBox(strError, MB_ICONERROR);
+        return;
+    }
+
+    SetStatusText(TAECHANG_UI_EXPORT_COMPLETED);
+}
+
 void CSageTaechangView::RunWorkflowTask(int nTaskType)
 {
     if (m_bRunning)
@@ -412,6 +470,7 @@ void CSageTaechangView::SetRunningState(BOOL bRunning)
     m_wndLoad.EnableWindow(!bRunning);
     m_wndGenerate.EnableWindow(!bRunning);
     m_wndProgress.SetMarquee(bRunning, 30);
+    UpdateExportButtonState();
     SetStatusText(bRunning ? TAECHANG_UI_RUNNING : TAECHANG_UI_READY);
 }
 
@@ -438,6 +497,9 @@ LRESULT CSageTaechangView::OnWorkflowComplete(WPARAM wParam, LPARAM lParam)
 void CSageTaechangView::DisplayResponse(int nWorkflowType, int nTaskType, const CString& strResponseJson)
 {
     m_wndResultList.DeleteAllItems();
+    m_nLastWorkflowType = nWorkflowType;
+    m_nLastTaskType = nTaskType;
+    m_strLastResponseJson = strResponseJson;
 
     TaechangWorkflowResultPresenter presenter;
     std::vector<TaechangResultRow> arrRows;
@@ -455,6 +517,7 @@ void CSageTaechangView::DisplayResponse(int nWorkflowType, int nTaskType, const 
     }
 
     SetStatusText(bSuccess ? TAECHANG_UI_COMPLETED : TAECHANG_UI_FAILED);
+    UpdateExportButtonState();
 }
 
 void CSageTaechangView::InsertResultRow(

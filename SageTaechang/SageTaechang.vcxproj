@@ -235,6 +235,7 @@ if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templ
     <ClInclude Include="app\application\services\TaechangEstimateExcelService.h" />
     <ClInclude Include="app\application\services\TaechangPdfCompareService.h" />
     <ClInclude Include="app\application\services\TaechangHwpCompareService.h" />
+    <ClInclude Include="app\application\services\TaechangCompareCsvExportService.h" />
     <ClInclude Include="app\presentation\TaechangWorkflowResultPresenter.h" />
   </ItemGroup>
   <ItemGroup>
@@ -255,6 +256,7 @@ if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templ
     <ClCompile Include="app\application\services\TaechangEstimateExcelService.cpp" />
     <ClCompile Include="app\application\services\TaechangPdfCompareService.cpp" />
     <ClCompile Include="app\application\services\TaechangHwpCompareService.cpp" />
+    <ClCompile Include="app\application\services\TaechangCompareCsvExportService.cpp" />
     <ClCompile Include="app\presentation\TaechangWorkflowResultPresenter.cpp" />
   </ItemGroup>
   <ItemGroup>
