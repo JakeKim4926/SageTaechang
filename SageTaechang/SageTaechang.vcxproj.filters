@@ -28,6 +28,9 @@
     <Filter Include="소스 파일\app\infrastructure">
       <UniqueIdentifier>{BD8A6B14-D7B9-4C28-ABB1-8B1C6948C85E}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\app\presentation">
+      <UniqueIdentifier>{D89B4C8B-7B71-4E77-A493-91B4B7CDB211}</UniqueIdentifier>
+    </Filter>
     <Filter Include="소스 파일\app\infrastructure\bridge">
       <UniqueIdentifier>{D97AF64B-4747-4AD5-A980-3BB4F3C929B0}</UniqueIdentifier>
     </Filter>
@@ -45,6 +48,9 @@
     </Filter>
     <Filter Include="헤더 파일\app\infrastructure">
       <UniqueIdentifier>{89D07C9A-F33C-4D60-A30B-A4E1F81E3289}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\app\presentation">
+      <UniqueIdentifier>{CB0D56E5-3533-4B33-B4FE-1D87545ED237}</UniqueIdentifier>
     </Filter>
     <Filter Include="헤더 파일\app\infrastructure\bridge">
       <UniqueIdentifier>{71FAB409-1284-4252-8F01-BD4E81F6EE4F}</UniqueIdentifier>
@@ -99,6 +105,9 @@
     <ClInclude Include="app\application\services\TaechangHwpCompareService.h">
       <Filter>헤더 파일\app\application\services</Filter>
     </ClInclude>
+    <ClInclude Include="app\presentation\TaechangWorkflowResultPresenter.h">
+      <Filter>헤더 파일\app\presentation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SageTaechang.cpp">
@@ -136,6 +145,9 @@
     </ClCompile>
     <ClCompile Include="app\application\services\TaechangHwpCompareService.cpp">
       <Filter>소스 파일\app\application\services</Filter>
+    </ClCompile>
+    <ClCompile Include="app\presentation\TaechangWorkflowResultPresenter.cpp">
+      <Filter>소스 파일\app\presentation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

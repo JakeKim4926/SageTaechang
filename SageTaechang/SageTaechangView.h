@@ -54,7 +54,11 @@ protected:
     BOOL ValidateOutputFolder(CString& strOutputFolder);
     void RunWorkflowTask(int nTaskType);
     void DisplayResponse(int nWorkflowType, int nTaskType, const CString& strResponseJson);
-    void InsertResultRow(const CString& strField, const CString& strValue);
+    void InsertResultRow(
+        const CString& strField,
+        const CString& strValue,
+        const CString& strStatus,
+        const CString& strReason);
 
 protected:
     afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
@@ -72,3 +76,4 @@ protected:
 inline CSageTaechangDoc* CSageTaechangView::GetDocument() const
    { return reinterpret_cast<CSageTaechangDoc*>(m_pDocument); }
 #endif
+
