@@ -13,6 +13,42 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="소스 파일\app">
+      <UniqueIdentifier>{089DBB6E-EF01-4A0B-B263-91FF4F91CC86}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\app\application">
+      <UniqueIdentifier>{E4FCD92B-41BE-4CF0-9620-45ECC3157273}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\app\application\services">
+      <UniqueIdentifier>{CFE708AE-7A92-46F1-B3FC-D550C523787D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\app\common">
+      <UniqueIdentifier>{2C385120-CDA5-47CB-8C87-E32CECB8B3D5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\app\infrastructure">
+      <UniqueIdentifier>{BD8A6B14-D7B9-4C28-ABB1-8B1C6948C85E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\app\infrastructure\bridge">
+      <UniqueIdentifier>{D97AF64B-4747-4AD5-A980-3BB4F3C929B0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\app">
+      <UniqueIdentifier>{CCD13766-768F-4A3F-9A02-9757B521E402}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\app\application">
+      <UniqueIdentifier>{F449F2D7-2CFC-46FB-B2FA-E45499E489D3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\app\application\services">
+      <UniqueIdentifier>{EB1E3C8D-B67E-485F-BBC2-8385025A7CF5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\app\common">
+      <UniqueIdentifier>{B480D12C-4D04-4D8C-83F2-42B4EEFB6E4E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\app\infrastructure">
+      <UniqueIdentifier>{89D07C9A-F33C-4D60-A30B-A4E1F81E3289}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\app\infrastructure\bridge">
+      <UniqueIdentifier>{71FAB409-1284-4252-8F01-BD4E81F6EE4F}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SageTaechang.h">
@@ -39,6 +75,18 @@
     <ClInclude Include="pch.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="TaechangDefine.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="app\common\TaechangJson.h">
+      <Filter>헤더 파일\app\common</Filter>
+    </ClInclude>
+    <ClInclude Include="app\application\services\TaechangReceivablesExcelService.h">
+      <Filter>헤더 파일\app\application\services</Filter>
+    </ClInclude>
+    <ClInclude Include="app\infrastructure\bridge\TaechangBridgeResponse.h">
+      <Filter>헤더 파일\app\infrastructure\bridge</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SageTaechang.cpp">
@@ -55,6 +103,15 @@
     </ClCompile>
     <ClCompile Include="pch.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="app\application\services\TaechangReceivablesExcelService.cpp">
+      <Filter>소스 파일\app\application\services</Filter>
+    </ClCompile>
+    <ClCompile Include="app\common\TaechangJson.cpp">
+      <Filter>소스 파일\app\common</Filter>
+    </ClCompile>
+    <ClCompile Include="app\infrastructure\bridge\TaechangBridgeResponse.cpp">
+      <Filter>소스 파일\app\infrastructure\bridge</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
