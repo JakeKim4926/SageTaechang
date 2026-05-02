@@ -11,6 +11,7 @@
 #include "SageTaechangDoc.h"
 #include "SageTaechangView.h"
 #include "app/application/services/TaechangDeliveryExcelService.h"
+#include "app/application/services/TaechangEstimateExcelService.h"
 #include "app/application/services/TaechangReceivablesExcelService.h"
 #include "app/common/TaechangJson.h"
 
@@ -51,7 +52,15 @@ static UINT RunWorkflowWorker(LPVOID pParam)
     pResult->m_nTaskType = pTask->m_nTaskType;
 
     CString strPayload = BuildWorkflowPayload(pTask->m_strInputPath, pTask->m_strOutputFolder);
-    if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_DELIVERY)
+    if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE)
+    {
+        TaechangEstimateExcelService service;
+        if (pTask->m_nTaskType == TAECHANG_TASK_LOAD)
+            pResult->m_strResponseJson = service.BuildLoadInputDataResponse(TAECHANG_REQUEST_ESTIMATE_LOAD, strPayload);
+        else
+            pResult->m_strResponseJson = service.BuildGenerateResponse(TAECHANG_REQUEST_ESTIMATE_GENERATE, strPayload);
+    }
+    else if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_DELIVERY)
     {
         TaechangDeliveryExcelService service;
         if (pTask->m_nTaskType == TAECHANG_TASK_LOAD)
@@ -124,6 +133,7 @@ void CSageTaechangView::CreateChildControls()
     m_wndWorkflow.Create(WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, rectEmpty, this, ID_TAECHANG_WORKFLOW_COMBO);
     m_wndWorkflow.AddString(TAECHANG_UI_RECEIVABLES_NAME);
     m_wndWorkflow.AddString(TAECHANG_UI_DELIVERY_NAME);
+    m_wndWorkflow.AddString(TAECHANG_UI_ESTIMATE_NAME);
     m_wndWorkflow.SetCurSel(0);
     m_wndInputLabel.Create(TAECHANG_UI_INPUT_LABEL, WS_CHILD | WS_VISIBLE, rectEmpty, this);
     m_wndOutputLabel.Create(TAECHANG_UI_OUTPUT_LABEL, WS_CHILD | WS_VISIBLE, rectEmpty, this);
@@ -199,12 +209,19 @@ void CSageTaechangView::OnDraw(CDC* pDC)
 
 int CSageTaechangView::GetSelectedWorkflow() const
 {
-    return m_wndWorkflow.GetCurSel() == 1 ? TAECHANG_WORKFLOW_DELIVERY : TAECHANG_WORKFLOW_RECEIVABLES;
+    if (m_wndWorkflow.GetCurSel() == 2)
+        return TAECHANG_WORKFLOW_ESTIMATE;
+    if (m_wndWorkflow.GetCurSel() == 1)
+        return TAECHANG_WORKFLOW_DELIVERY;
+    return TAECHANG_WORKFLOW_RECEIVABLES;
 }
 
 void CSageTaechangView::UpdateWorkflowLabels()
 {
-    if (GetSelectedWorkflow() == TAECHANG_WORKFLOW_DELIVERY)
+    int nWorkflowType = GetSelectedWorkflow();
+    if (nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE)
+        m_wndGenerate.SetWindowTextW(TAECHANG_UI_ESTIMATE_GENERATE_BUTTON);
+    else if (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY)
         m_wndGenerate.SetWindowTextW(TAECHANG_UI_DELIVERY_GENERATE_BUTTON);
     else
         m_wndGenerate.SetWindowTextW(TAECHANG_UI_RECEIVABLES_GENERATE_BUTTON);
@@ -220,7 +237,13 @@ void CSageTaechangView::OnWorkflowChanged()
 void CSageTaechangView::OnSelectInput()
 {
     CFileDialog dlg(TRUE, L"xls", NULL, OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST, TAECHANG_UI_EXCEL_FILTER, this);
-    dlg.m_ofn.lpstrTitle = GetSelectedWorkflow() == TAECHANG_WORKFLOW_DELIVERY ? TAECHANG_UI_SELECT_DELIVERY_INPUT_TITLE : TAECHANG_UI_SELECT_RECEIVABLES_INPUT_TITLE;
+    int nWorkflowType = GetSelectedWorkflow();
+    if (nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE)
+        dlg.m_ofn.lpstrTitle = TAECHANG_UI_SELECT_ESTIMATE_INPUT_TITLE;
+    else if (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY)
+        dlg.m_ofn.lpstrTitle = TAECHANG_UI_SELECT_DELIVERY_INPUT_TITLE;
+    else
+        dlg.m_ofn.lpstrTitle = TAECHANG_UI_SELECT_RECEIVABLES_INPUT_TITLE;
     if (dlg.DoModal() == IDOK)
         m_wndInputPath.SetWindowTextW(dlg.GetPathName());
 }
@@ -374,3 +397,4 @@ CSageTaechangDoc* CSageTaechangView::GetDocument() const
     return (CSageTaechangDoc*)m_pDocument;
 }
 #endif
+
