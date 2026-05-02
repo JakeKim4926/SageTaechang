@@ -12,6 +12,7 @@
 #include "SageTaechangView.h"
 #include "app/application/services/TaechangDeliveryExcelService.h"
 #include "app/application/services/TaechangEstimateExcelService.h"
+#include "app/application/services/TaechangPdfCompareService.h"
 #include "app/application/services/TaechangReceivablesExcelService.h"
 #include "app/common/TaechangJson.h"
 
@@ -26,6 +27,7 @@ struct TaechangWorkflowTask
     int m_nTaskType;
     CString m_strInputPath;
     CString m_strOutputFolder;
+    CString m_strPdfFilePaths;
 };
 
 struct TaechangWorkflowResult
@@ -44,6 +46,29 @@ static CString BuildWorkflowPayload(const CString& strInputPath, const CString& 
     return strPayload;
 }
 
+static CString BuildPdfComparePayload(const CString& strPdfFilePaths)
+{
+    CString strPayload = L"{\"pdfFilePaths\":[";
+    CString strRemaining = strPdfFilePaths;
+    int nIndex = 0;
+    BOOL bFirst = TRUE;
+    while (TRUE)
+    {
+        CString strPath = strRemaining.Tokenize(L"\r\n", nIndex);
+        if (strPath.IsEmpty())
+            break;
+        strPath.Trim();
+        if (strPath.IsEmpty())
+            continue;
+        if (!bFirst)
+            strPayload += L",";
+        strPayload += L"\"" + JsonEscapeString(strPath) + L"\"";
+        bFirst = FALSE;
+    }
+    strPayload += L"]}";
+    return strPayload;
+}
+
 static UINT RunWorkflowWorker(LPVOID pParam)
 {
     TaechangWorkflowTask* pTask = reinterpret_cast<TaechangWorkflowTask*>(pParam);
@@ -51,8 +76,15 @@ static UINT RunWorkflowWorker(LPVOID pParam)
     pResult->m_nWorkflowType = pTask->m_nWorkflowType;
     pResult->m_nTaskType = pTask->m_nTaskType;
 
-    CString strPayload = BuildWorkflowPayload(pTask->m_strInputPath, pTask->m_strOutputFolder);
-    if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE)
+    CString strPayload = pTask->m_nWorkflowType == TAECHANG_WORKFLOW_PDF_COMPARE
+        ? BuildPdfComparePayload(pTask->m_strPdfFilePaths)
+        : BuildWorkflowPayload(pTask->m_strInputPath, pTask->m_strOutputFolder);
+    if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_PDF_COMPARE)
+    {
+        TaechangPdfCompareService service;
+        pResult->m_strResponseJson = service.BuildRunCompareResponse(TAECHANG_REQUEST_PDF_COMPARE, strPayload);
+    }
+    else if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE)
     {
         TaechangEstimateExcelService service;
         if (pTask->m_nTaskType == TAECHANG_TASK_LOAD)
@@ -134,6 +166,7 @@ void CSageTaechangView::CreateChildControls()
     m_wndWorkflow.AddString(TAECHANG_UI_RECEIVABLES_NAME);
     m_wndWorkflow.AddString(TAECHANG_UI_DELIVERY_NAME);
     m_wndWorkflow.AddString(TAECHANG_UI_ESTIMATE_NAME);
+    m_wndWorkflow.AddString(TAECHANG_UI_PDF_COMPARE_NAME);
     m_wndWorkflow.SetCurSel(0);
     m_wndInputLabel.Create(TAECHANG_UI_INPUT_LABEL, WS_CHILD | WS_VISIBLE, rectEmpty, this);
     m_wndOutputLabel.Create(TAECHANG_UI_OUTPUT_LABEL, WS_CHILD | WS_VISIBLE, rectEmpty, this);
@@ -209,6 +242,8 @@ void CSageTaechangView::OnDraw(CDC* pDC)
 
 int CSageTaechangView::GetSelectedWorkflow() const
 {
+    if (m_wndWorkflow.GetCurSel() == 3)
+        return TAECHANG_WORKFLOW_PDF_COMPARE;
     if (m_wndWorkflow.GetCurSel() == 2)
         return TAECHANG_WORKFLOW_ESTIMATE;
     if (m_wndWorkflow.GetCurSel() == 1)
@@ -219,7 +254,9 @@ int CSageTaechangView::GetSelectedWorkflow() const
 void CSageTaechangView::UpdateWorkflowLabels()
 {
     int nWorkflowType = GetSelectedWorkflow();
-    if (nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE)
+    if (nWorkflowType == TAECHANG_WORKFLOW_PDF_COMPARE)
+        m_wndGenerate.SetWindowTextW(TAECHANG_UI_PDF_COMPARE_BUTTON);
+    else if (nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE)
         m_wndGenerate.SetWindowTextW(TAECHANG_UI_ESTIMATE_GENERATE_BUTTON);
     else if (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY)
         m_wndGenerate.SetWindowTextW(TAECHANG_UI_DELIVERY_GENERATE_BUTTON);
@@ -236,8 +273,33 @@ void CSageTaechangView::OnWorkflowChanged()
 
 void CSageTaechangView::OnSelectInput()
 {
-    CFileDialog dlg(TRUE, L"xls", NULL, OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST, TAECHANG_UI_EXCEL_FILTER, this);
     int nWorkflowType = GetSelectedWorkflow();
+    if (nWorkflowType == TAECHANG_WORKFLOW_PDF_COMPARE)
+    {
+        CFileDialog dlg(TRUE, L"pdf", NULL, OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_ALLOWMULTISELECT, TAECHANG_UI_PDF_FILTER, this);
+        CString strBuffer;
+        LPTSTR pszBuffer = strBuffer.GetBuffer(32768);
+        ZeroMemory(pszBuffer, sizeof(TCHAR) * 32768);
+        dlg.m_ofn.lpstrFile = pszBuffer;
+        dlg.m_ofn.nMaxFile = 32768;
+        dlg.m_ofn.lpstrTitle = TAECHANG_UI_SELECT_PDF_INPUT_TITLE;
+        if (dlg.DoModal() == IDOK)
+        {
+            POSITION pos = dlg.GetStartPosition();
+            CString strPaths;
+            while (pos != NULL)
+            {
+                if (!strPaths.IsEmpty())
+                    strPaths += L"\r\n";
+                strPaths += dlg.GetNextPathName(pos);
+            }
+            m_wndInputPath.SetWindowTextW(strPaths);
+        }
+        strBuffer.ReleaseBuffer();
+        return;
+    }
+
+    CFileDialog dlg(TRUE, L"xls", NULL, OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST, TAECHANG_UI_EXCEL_FILTER, this);
     if (nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE)
         dlg.m_ofn.lpstrTitle = TAECHANG_UI_SELECT_ESTIMATE_INPUT_TITLE;
     else if (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY)
@@ -300,7 +362,7 @@ void CSageTaechangView::RunWorkflowTask(int nTaskType)
     if (!ValidateInputPath(strInputPath))
         return;
 
-    if (nTaskType == TAECHANG_TASK_GENERATE && !ValidateOutputFolder(strOutputFolder))
+    if (nTaskType == TAECHANG_TASK_GENERATE && GetSelectedWorkflow() != TAECHANG_WORKFLOW_PDF_COMPARE && !ValidateOutputFolder(strOutputFolder))
         return;
 
     TaechangWorkflowTask* pTask = new TaechangWorkflowTask();
@@ -309,6 +371,8 @@ void CSageTaechangView::RunWorkflowTask(int nTaskType)
     pTask->m_nTaskType = nTaskType;
     pTask->m_strInputPath = strInputPath;
     pTask->m_strOutputFolder = strOutputFolder;
+    if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_PDF_COMPARE)
+        pTask->m_strPdfFilePaths = strInputPath;
 
     SetRunningState(TRUE);
     AfxBeginThread(RunWorkflowWorker, pTask, THREAD_PRIORITY_NORMAL, 0, 0, NULL);
@@ -397,4 +461,5 @@ CSageTaechangDoc* CSageTaechangView::GetDocument() const
     return (CSageTaechangDoc*)m_pDocument;
 }
 #endif
+
 

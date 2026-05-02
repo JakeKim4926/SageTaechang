@@ -93,6 +93,9 @@
     <ClInclude Include="app\application\services\TaechangEstimateExcelService.h">
       <Filter>헤더 파일\app\application\services</Filter>
     </ClInclude>
+    <ClInclude Include="app\application\services\TaechangPdfCompareService.h">
+      <Filter>헤더 파일\app\application\services</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SageTaechang.cpp">
@@ -123,6 +126,9 @@
       <Filter>소스 파일\app\application\services</Filter>
     </ClCompile>
     <ClCompile Include="app\application\services\TaechangEstimateExcelService.cpp">
+      <Filter>소스 파일\app\application\services</Filter>
+    </ClCompile>
+    <ClCompile Include="app\application\services\TaechangPdfCompareService.cpp">
       <Filter>소스 파일\app\application\services</Filter>
     </ClCompile>
   </ItemGroup>
