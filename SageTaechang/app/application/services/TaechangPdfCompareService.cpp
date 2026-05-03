@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "app/application/services/TaechangPdfCompareService.h"
+#include "app/application/services/TaechangAppSettingsService.h"
 #include "app/common/TaechangJson.h"
 #include "app/infrastructure/bridge/TaechangBridgeResponse.h"
 #include <filesystem>
@@ -7,7 +8,6 @@
 namespace
 {
     constexpr int TAECHANG_PDF_TIMEOUT_MS = 600000;
-    constexpr LPCWSTR TAECHANG_PDFTOTEXT_PATH = L"C:\\Program Files\\Git\\mingw64\\bin\\pdftotext.exe";
     constexpr LPCWSTR TAECHANG_PDF_ERR_INPUT_REQUIRED = L"SNX_TAECHANG_PDF_001";
     constexpr LPCWSTR TAECHANG_PDF_ERR_EXTRACT_FAILED = L"SNX_TAECHANG_PDF_002";
     constexpr LPCWSTR TAECHANG_PDF_ERR_PROCESS_FAILED = L"SNX_TAECHANG_PDF_003";
@@ -132,14 +132,17 @@ namespace
 
     BOOL ExtractPdfText(const CString& strPdfPath, CString& outText, CString& strError)
     {
-        if (!FileExists(TAECHANG_PDFTOTEXT_PATH))
+        TaechangAppSettingsService settingsService;
+        TaechangAppSettings settings;
+        settingsService.Load(settings);
+        if (!FileExists(settings.m_strPdfToTextPath))
         {
-            strError = L"pdftotext.exe was not found.";
+            strError = L"pdftotext.exe was not found. Check " + settingsService.GetSettingsPath();
             return FALSE;
         }
 
         CString strOutputPath = BuildTempTextPath();
-        CString strCommandLine = QuoteArgument(TAECHANG_PDFTOTEXT_PATH) +
+        CString strCommandLine = QuoteArgument(settings.m_strPdfToTextPath) +
             L" -layout -enc UTF-8 -q " + QuoteArgument(strPdfPath) + L" " + QuoteArgument(strOutputPath);
 
         DWORD dwExitCode = 0;
