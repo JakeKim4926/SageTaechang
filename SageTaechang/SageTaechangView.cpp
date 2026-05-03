@@ -157,6 +157,7 @@ CSageTaechangView::CSageTaechangView() noexcept
     , m_nSelectedTaskTab(TAECHANG_TAB_INDEX_INPUT)
     , m_nLastWorkflowType(0)
     , m_nLastTaskType(0)
+    , m_colorHeaderStatus(TAECHANG_COLOR_SECONDARY_TEXT)
 {
     m_brushAppBackground.CreateSolidBrush(TAECHANG_COLOR_APP_BACKGROUND);
     m_brushPanel.CreateSolidBrush(TAECHANG_COLOR_PANEL);
@@ -194,7 +195,7 @@ void CSageTaechangView::CreateChildControls()
     m_wndWorkflowMenu.AddString(TAECHANG_UI_HWP_COMPARE_NAME);
     m_wndWorkflowMenu.SetCurSel(0);
     m_wndHeaderTitle.Create(TAECHANG_UI_RECEIVABLES_NAME, WS_CHILD | WS_VISIBLE, rectEmpty, this);
-    m_wndHeaderStatus.Create(TAECHANG_UI_WORKSPACE_STATUS, WS_CHILD | WS_VISIBLE | SS_RIGHT, rectEmpty, this);
+    m_wndHeaderStatus.Create(TAECHANG_UI_READY, WS_CHILD | WS_VISIBLE | SS_RIGHT, rectEmpty, this);
     m_wndTaskTabs.Create(WS_CHILD | WS_VISIBLE | TCS_FIXEDWIDTH, rectEmpty, this, ID_TAECHANG_TASK_TABS);
     m_wndInputSection.Create(TAECHANG_UI_SECTION_INPUT, WS_CHILD | WS_VISIBLE, rectEmpty, this);
     m_wndOutputSection.Create(TAECHANG_UI_SECTION_OUTPUT, WS_CHILD | WS_VISIBLE, rectEmpty, this);
@@ -824,6 +825,12 @@ HBRUSH CSageTaechangView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
         pDC->SetBkColor(TAECHANG_COLOR_SIDEBAR);
         return m_brushSidebar;
     }
+    if (pWnd->GetSafeHwnd() == m_wndHeaderStatus.GetSafeHwnd())
+    {
+        pDC->SetTextColor(m_colorHeaderStatus);
+        pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
+        return m_brushAppBackground;
+    }
     if (nCtlColor == CTLCOLOR_STATIC)
     {
         pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
@@ -842,6 +849,26 @@ void CSageTaechangView::SetStatusText(const CString& strStatus)
     CFrameWnd* pFrame = GetParentFrame();
     if (pFrame != NULL)
         pFrame->SetMessageText(strStatus);
+
+    if (::IsWindow(m_wndHeaderStatus.GetSafeHwnd()))
+    {
+        m_colorHeaderStatus = ResolveStatusColor(strStatus);
+        m_wndHeaderStatus.SetWindowTextW(strStatus);
+        m_wndHeaderStatus.Invalidate();
+    }
+}
+
+COLORREF CSageTaechangView::ResolveStatusColor(const CString& strStatus) const
+{
+    if (strStatus == TAECHANG_UI_RUNNING)
+        return TAECHANG_COLOR_PRIMARY;
+    if (strStatus == TAECHANG_UI_COMPLETED ||
+        strStatus == TAECHANG_UI_EXPORT_COMPLETED ||
+        strStatus == TAECHANG_UI_SETTINGS_SAVED)
+        return TAECHANG_COLOR_SUCCESS;
+    if (strStatus == TAECHANG_UI_FAILED)
+        return TAECHANG_COLOR_ERROR;
+    return TAECHANG_COLOR_SECONDARY_TEXT;
 }
 
 LRESULT CSageTaechangView::OnWorkflowComplete(WPARAM wParam, LPARAM lParam)

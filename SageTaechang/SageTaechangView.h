@@ -63,6 +63,7 @@ protected:
     int m_nSelectedTaskTab;
     int m_nLastWorkflowType;
     int m_nLastTaskType;
+    COLORREF m_colorHeaderStatus;
     CString m_strLastResponseJson;
 
 protected:
@@ -88,6 +89,7 @@ protected:
     BOOL IsExportTab() const;
     BOOL IsActionTabVisible() const;
     BOOL IsSettingsButtonVisible() const;
+    COLORREF ResolveStatusColor(const CString& strStatus) const;
     BOOL ValidateInputPath(CString& strInputPath);
     BOOL ValidateOutputFolder(CString& strOutputFolder);
     void RunWorkflowTask(int nTaskType);
