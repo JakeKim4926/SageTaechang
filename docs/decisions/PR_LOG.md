@@ -20,4 +20,10 @@
 - **목적**: 가이드의 검수 결과 컬럼(파일명/항목/값/상태/사유)을 적용
 - **변경 내용**: TaechangResultRow에 m_strFile 추가, ApplyResultColumns로 워크플로우별 동적 컬럼 구성(검수 5컬럼/문서 생성 4컬럼), AddCompareFileRows 매핑 재정의(fileName→m_strFile, leftValue→m_strValue), 사유 prefix를 "기준="으로 변경, 관련 상수 추가
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/14
+- **결과**: merged
+
+## [2026-05-03] fix/header-status-update
+- **목적**: 헤더 우측 상태 영역이 정적 텍스트로 고정돼 있던 문제 해결
+- **변경 내용**: 상태별 색 상수(SUCCESS/WARNING/ERROR) 추가, 미사용 WORKSPACE_STATUS 상수 제거, m_colorHeaderStatus 멤버와 ResolveStatusColor helper 도입, SetStatusText에서 헤더 텍스트/색 갱신, OnCtlColor에 헤더 상태 분기 추가
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/15
 - **결과**: pending
