@@ -266,6 +266,9 @@ if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templ
   </ItemGroup>
   <ItemGroup>
     <None Include="res\SageTaechang.rc2" />
+    <None Include="resources\GmarketSansTTFBold.ttf" />
+    <None Include="resources\GmarketSansTTFLight.ttf" />
+    <None Include="resources\GmarketSansTTFMedium.ttf" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\SageTaechang.ico" />

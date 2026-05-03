@@ -177,6 +177,15 @@
     <None Include="res\SageTaechang.rc2">
       <Filter>리소스 파일</Filter>
     </None>
+    <None Include="resources\GmarketSansTTFBold.ttf">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="resources\GmarketSansTTFLight.ttf">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="resources\GmarketSansTTFMedium.ttf">
+      <Filter>리소스 파일</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\SageTaechangDoc.ico">

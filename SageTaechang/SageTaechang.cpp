@@ -30,6 +30,9 @@ END_MESSAGE_MAP()
 // CSageTaechangApp 생성
 
 CSageTaechangApp::CSageTaechangApp() noexcept
+	: m_hFontBold(NULL)
+	, m_hFontLight(NULL)
+	, m_hFontMedium(NULL)
 {
 
 	// 다시 시작 관리자 지원
@@ -63,6 +66,7 @@ BOOL CSageTaechangApp::InitInstance()
 	if (!AfxOleInit())
 		return FALSE;
 
+	LoadPrivateFonts();
 
 	EnableTaskbarInteraction(FALSE);
 
@@ -108,6 +112,52 @@ BOOL CSageTaechangApp::InitInstance()
 	m_pMainWnd->ShowWindow(SW_SHOW);
 	m_pMainWnd->UpdateWindow();
 	return TRUE;
+}
+
+int CSageTaechangApp::ExitInstance()
+{
+	ReleasePrivateFonts();
+	return CWinApp::ExitInstance();
+}
+
+HANDLE CSageTaechangApp::LoadPrivateFont(UINT nResourceId)
+{
+	HMODULE hModule = AfxGetResourceHandle();
+	HRSRC hResource = ::FindResourceW(hModule, MAKEINTRESOURCEW(nResourceId), L"TTF");
+	if (hResource == NULL)
+		return NULL;
+
+	HGLOBAL hGlobal = ::LoadResource(hModule, hResource);
+	if (hGlobal == NULL)
+		return NULL;
+
+	void* pData = ::LockResource(hGlobal);
+	DWORD dwSize = ::SizeofResource(hModule, hResource);
+	if (pData == NULL || dwSize == 0)
+		return NULL;
+
+	DWORD dwFontCount = 0;
+	return ::AddFontMemResourceEx(pData, dwSize, NULL, &dwFontCount);
+}
+
+void CSageTaechangApp::LoadPrivateFonts()
+{
+	m_hFontBold = LoadPrivateFont(IDR_GMARKET_SANS_TTF_BOLD);
+	m_hFontLight = LoadPrivateFont(IDR_GMARKET_SANS_TTF_LIGHT);
+	m_hFontMedium = LoadPrivateFont(IDR_GMARKET_SANS_TTF_MEDIUM);
+}
+
+void CSageTaechangApp::ReleasePrivateFonts()
+{
+	if (m_hFontBold != NULL)
+		::RemoveFontMemResourceEx(m_hFontBold);
+	if (m_hFontLight != NULL)
+		::RemoveFontMemResourceEx(m_hFontLight);
+	if (m_hFontMedium != NULL)
+		::RemoveFontMemResourceEx(m_hFontMedium);
+	m_hFontBold = NULL;
+	m_hFontLight = NULL;
+	m_hFontMedium = NULL;
 }
 
 // CSageTaechangApp 메시지 처리기
