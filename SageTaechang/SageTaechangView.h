@@ -43,6 +43,8 @@ protected:
     CProgressCtrl m_wndProgress;
     CListCtrl m_wndResultList;
     CEdit m_wndDetail;
+    CFont m_fontTitle;
+    CFont m_fontControl;
     BOOL m_bRunning;
     int m_nLastWorkflowType;
     int m_nLastTaskType;
@@ -50,6 +52,7 @@ protected:
 
 protected:
     void CreateChildControls();
+    void ApplyControlFonts();
     void LayoutChildControls();
     void SetRunningState(BOOL bRunning);
     void SetStatusText(const CString& strStatus);

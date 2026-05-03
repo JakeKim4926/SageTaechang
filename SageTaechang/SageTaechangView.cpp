@@ -206,8 +206,33 @@ void CSageTaechangView::CreateChildControls()
     m_wndResultList.InsertColumn(2, TAECHANG_UI_RESULT_STATUS, LVCFMT_LEFT, 110);
     m_wndResultList.InsertColumn(3, TAECHANG_UI_RESULT_REASON, LVCFMT_LEFT, 430);
     m_wndProgress.SetMarquee(FALSE, 0);
+    ApplyControlFonts();
     UpdateWorkflowLabels();
     UpdateExportButtonState();
+}
+
+void CSageTaechangView::ApplyControlFonts()
+{
+    if (m_fontTitle.CreatePointFont(TAECHANG_TITLE_FONT_POINT_SIZE, TAECHANG_TITLE_FONT_FACE))
+        m_wndTitle.SetFont(&m_fontTitle);
+
+    if (!m_fontControl.CreatePointFont(TAECHANG_CONTROL_FONT_POINT_SIZE, TAECHANG_CONTROL_FONT_FACE))
+        return;
+
+    m_wndWorkflowLabel.SetFont(&m_fontControl);
+    m_wndWorkflow.SetFont(&m_fontControl);
+    m_wndInputLabel.SetFont(&m_fontControl);
+    m_wndOutputLabel.SetFont(&m_fontControl);
+    m_wndInputPath.SetFont(&m_fontControl);
+    m_wndOutputFolder.SetFont(&m_fontControl);
+    m_wndSelectInput.SetFont(&m_fontControl);
+    m_wndSelectOutput.SetFont(&m_fontControl);
+    m_wndLoad.SetFont(&m_fontControl);
+    m_wndGenerate.SetFont(&m_fontControl);
+    m_wndExportCsv.SetFont(&m_fontControl);
+    m_wndSettings.SetFont(&m_fontControl);
+    m_wndResultList.SetFont(&m_fontControl);
+    m_wndDetail.SetFont(&m_fontControl);
 }
 
 void CSageTaechangView::OnSize(UINT nType, int cx, int cy)
