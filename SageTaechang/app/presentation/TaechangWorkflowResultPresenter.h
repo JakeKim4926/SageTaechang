@@ -2,6 +2,7 @@
 
 struct TaechangResultRow
 {
+    CString m_strFile;
     CString m_strField;
     CString m_strValue;
     CString m_strStatus;

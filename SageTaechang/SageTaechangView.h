@@ -6,6 +6,8 @@
 
 #include "TaechangDefine.h"
 
+struct TaechangResultRow;
+
 class CSageTaechangView : public CView
 {
 protected:
@@ -67,6 +69,7 @@ protected:
     void CreateChildControls();
     void ApplyControlFonts();
     void ApplyWorkflowTabs();
+    void ApplyResultColumns();
     void UpdateTaskTabVisibility();
     void UpdateResultColumns();
     void LayoutChildControls();
@@ -89,11 +92,7 @@ protected:
     BOOL ValidateOutputFolder(CString& strOutputFolder);
     void RunWorkflowTask(int nTaskType);
     void DisplayResponse(int nWorkflowType, int nTaskType, const CString& strResponseJson);
-    void InsertResultRow(
-        const CString& strField,
-        const CString& strValue,
-        const CString& strStatus,
-        const CString& strReason);
+    void InsertResultRow(const TaechangResultRow& row);
 
 protected:
     afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);

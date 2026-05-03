@@ -124,14 +124,14 @@ namespace
         return Utf8ToWide(json.substr(nStart, nEnd - nStart));
     }
 
-    CString ComposeReason(const CString& strReason, const CString& strLeftValue, const CString& strRightValue)
+    CString ComposeReason(const CString& strReason, const CString& strRightValue)
     {
         CString strResult = strReason;
-        if (!strLeftValue.IsEmpty() || !strRightValue.IsEmpty())
+        if (!strRightValue.IsEmpty())
         {
             if (!strResult.IsEmpty())
                 strResult += L" | ";
-            strResult += L"L=" + strLeftValue.Left(80) + L" / R=" + strRightValue.Left(80);
+            strResult += TAECHANG_UI_RESULT_BASELINE_PREFIX + strRightValue.Left(80);
         }
         return strResult;
     }
@@ -211,14 +211,19 @@ void TaechangWorkflowResultPresenter::AddCompareFileRows(
     SplitJsonObjectArray(strFilesJson, arrObjects);
     for (int i = 0; i < static_cast<int>(arrObjects.size()); ++i)
     {
-        CString strField;
-        strField.Format(L"File %d", i + 1);
         CString strFileName = JsonExtractString(arrObjects[i], L"fileName");
         CString strStatus = JsonExtractString(arrObjects[i], L"status");
         CString strReason = JsonExtractString(arrObjects[i], L"reason");
         CString strLeftValue = JsonExtractString(arrObjects[i], L"leftValue");
         CString strRightValue = JsonExtractString(arrObjects[i], L"rightValue");
-        AddRow(outRows, strField, strFileName, strStatus, ComposeReason(strReason, strLeftValue, strRightValue));
+        CString strItemLabel = JsonExtractString(arrObjects[i], L"itemLabel");
+        TaechangResultRow row;
+        row.m_strFile = strFileName;
+        row.m_strField = strItemLabel;
+        row.m_strValue = strLeftValue;
+        row.m_strStatus = strStatus;
+        row.m_strReason = ComposeReason(strReason, strRightValue);
+        outRows.push_back(row);
     }
 }
 
