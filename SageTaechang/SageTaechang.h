@@ -23,10 +23,20 @@ public:
 // 재정의입니다.
 public:
 	virtual BOOL InitInstance();
+	virtual int ExitInstance();
 
 // 구현입니다.
 	afx_msg void OnAppAbout();
 	DECLARE_MESSAGE_MAP()
+
+private:
+	HANDLE m_hFontBold;
+	HANDLE m_hFontLight;
+	HANDLE m_hFontMedium;
+
+	HANDLE LoadPrivateFont(UINT nResourceId);
+	void LoadPrivateFonts();
+	void ReleasePrivateFonts();
 };
 
 extern CSageTaechangApp theApp;
