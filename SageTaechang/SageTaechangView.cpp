@@ -216,13 +216,10 @@ void CSageTaechangView::CreateChildControls()
     m_wndResultList.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SINGLESEL, rectEmpty, this, ID_TAECHANG_RESULT_LIST);
     m_wndDetail.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | WS_VSCROLL, rectEmpty, this, ID_TAECHANG_DETAIL_EDIT);
 
-    m_wndResultList.InsertColumn(0, TAECHANG_UI_RESULT_FIELD, LVCFMT_LEFT, 120);
-    m_wndResultList.InsertColumn(1, TAECHANG_UI_RESULT_VALUE, LVCFMT_LEFT, 260);
-    m_wndResultList.InsertColumn(2, TAECHANG_UI_RESULT_STATUS, LVCFMT_LEFT, 110);
-    m_wndResultList.InsertColumn(3, TAECHANG_UI_RESULT_REASON, LVCFMT_LEFT, 430);
     m_wndProgress.SetMarquee(FALSE, 0);
     ApplyControlFonts();
     ApplyWorkflowTabs();
+    ApplyResultColumns();
     UpdateWorkflowLabels();
     UpdateResultColumns();
     UpdateExportButtonState();
@@ -288,6 +285,27 @@ void CSageTaechangView::ApplyWorkflowTabs()
     UpdateTaskTabVisibility();
 }
 
+void CSageTaechangView::ApplyResultColumns()
+{
+    if (!::IsWindow(m_wndResultList.GetSafeHwnd()))
+        return;
+
+    m_wndResultList.DeleteAllItems();
+    CHeaderCtrl* pHeader = m_wndResultList.GetHeaderCtrl();
+    int nColumnCount = (pHeader != NULL) ? pHeader->GetItemCount() : 0;
+    for (int i = nColumnCount - 1; i >= 0; --i)
+        m_wndResultList.DeleteColumn(i);
+
+    BOOL bIsCompare = IsCompareWorkflow(GetSelectedWorkflow());
+    int nIndex = 0;
+    if (bIsCompare)
+        m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RESULT_FILENAME, LVCFMT_LEFT, TAECHANG_RESULT_FILE_WIDTH);
+    m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RESULT_FIELD, LVCFMT_LEFT, TAECHANG_RESULT_FIELD_WIDTH);
+    m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RESULT_VALUE, LVCFMT_LEFT, TAECHANG_RESULT_MIN_VALUE_WIDTH);
+    m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RESULT_STATUS, LVCFMT_LEFT, TAECHANG_RESULT_STATUS_WIDTH);
+    m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RESULT_REASON, LVCFMT_LEFT, TAECHANG_RESULT_REASON_WIDTH);
+}
+
 void CSageTaechangView::UpdateTaskTabVisibility()
 {
     BOOL bIsCompare = IsCompareWorkflow(GetSelectedWorkflow());
@@ -331,14 +349,21 @@ void CSageTaechangView::UpdateResultColumns()
     if (nWidth <= 0)
         return;
 
-    int nValueWidth = nWidth - TAECHANG_RESULT_FIELD_WIDTH - TAECHANG_RESULT_STATUS_WIDTH - TAECHANG_RESULT_REASON_WIDTH;
+    BOOL bIsCompare = IsCompareWorkflow(GetSelectedWorkflow());
+    int nFixedWidth = TAECHANG_RESULT_FIELD_WIDTH + TAECHANG_RESULT_STATUS_WIDTH + TAECHANG_RESULT_REASON_WIDTH;
+    if (bIsCompare)
+        nFixedWidth += TAECHANG_RESULT_FILE_WIDTH;
+    int nValueWidth = nWidth - nFixedWidth;
     if (nValueWidth < TAECHANG_RESULT_MIN_VALUE_WIDTH)
         nValueWidth = TAECHANG_RESULT_MIN_VALUE_WIDTH;
 
-    m_wndResultList.SetColumnWidth(0, TAECHANG_RESULT_FIELD_WIDTH);
-    m_wndResultList.SetColumnWidth(1, nValueWidth);
-    m_wndResultList.SetColumnWidth(2, TAECHANG_RESULT_STATUS_WIDTH);
-    m_wndResultList.SetColumnWidth(3, TAECHANG_RESULT_REASON_WIDTH);
+    int nCol = 0;
+    if (bIsCompare)
+        m_wndResultList.SetColumnWidth(nCol++, TAECHANG_RESULT_FILE_WIDTH);
+    m_wndResultList.SetColumnWidth(nCol++, TAECHANG_RESULT_FIELD_WIDTH);
+    m_wndResultList.SetColumnWidth(nCol++, nValueWidth);
+    m_wndResultList.SetColumnWidth(nCol++, TAECHANG_RESULT_STATUS_WIDTH);
+    m_wndResultList.SetColumnWidth(nCol++, TAECHANG_RESULT_REASON_WIDTH);
 }
 
 void CSageTaechangView::OnSize(UINT nType, int cx, int cy)
@@ -522,9 +547,9 @@ void CSageTaechangView::UpdateWorkflowLabels()
         m_wndInputSection.SetWindowTextW(TAECHANG_UI_SECTION_INPUT);
         m_wndGenerate.SetWindowTextW(TAECHANG_UI_RECEIVABLES_GENERATE_BUTTON);
     }
-    m_wndResultList.DeleteAllItems();
     m_wndDetail.SetWindowTextW(L"");
     ApplyWorkflowTabs();
+    ApplyResultColumns();
     LayoutChildControls();
     UpdateExportButtonState();
 }
@@ -846,28 +871,32 @@ void CSageTaechangView::DisplayResponse(int nWorkflowType, int nTaskType, const 
     m_wndDetail.SetWindowTextW(strDetailText);
 
     for (int i = 0; i < static_cast<int>(arrRows.size()); ++i)
-    {
-        InsertResultRow(
-            arrRows[i].m_strField,
-            arrRows[i].m_strValue,
-            arrRows[i].m_strStatus,
-            arrRows[i].m_strReason);
-    }
+        InsertResultRow(arrRows[i]);
 
     SetStatusText(bSuccess ? TAECHANG_UI_COMPLETED : TAECHANG_UI_FAILED);
     UpdateExportButtonState();
 }
 
-void CSageTaechangView::InsertResultRow(
-    const CString& strField,
-    const CString& strValue,
-    const CString& strStatus,
-    const CString& strReason)
+void CSageTaechangView::InsertResultRow(const TaechangResultRow& row)
 {
-    int nIndex = m_wndResultList.InsertItem(m_wndResultList.GetItemCount(), strField);
-    m_wndResultList.SetItemText(nIndex, 1, strValue);
-    m_wndResultList.SetItemText(nIndex, 2, strStatus);
-    m_wndResultList.SetItemText(nIndex, 3, strReason);
+    BOOL bIsCompare = IsCompareWorkflow(GetSelectedWorkflow());
+    int nCount = m_wndResultList.GetItemCount();
+    int nCol = 0;
+    int nIndex;
+    if (bIsCompare)
+    {
+        nIndex = m_wndResultList.InsertItem(nCount, row.m_strFile);
+        ++nCol;
+        m_wndResultList.SetItemText(nIndex, nCol++, row.m_strField);
+    }
+    else
+    {
+        nIndex = m_wndResultList.InsertItem(nCount, row.m_strField);
+        ++nCol;
+    }
+    m_wndResultList.SetItemText(nIndex, nCol++, row.m_strValue);
+    m_wndResultList.SetItemText(nIndex, nCol++, row.m_strStatus);
+    m_wndResultList.SetItemText(nIndex, nCol++, row.m_strReason);
 }
 
 #ifdef _DEBUG
