@@ -10,6 +10,7 @@
 
 #include "SageTaechangDoc.h"
 #include "SageTaechangView.h"
+#include "app/application/services/TaechangAppSettingsService.h"
 #include "app/application/services/TaechangCompareCsvExportService.h"
 #include "app/application/services/TaechangDeliveryExcelService.h"
 #include "app/application/services/TaechangEstimateExcelService.h"
@@ -144,6 +145,7 @@ BEGIN_MESSAGE_MAP(CSageTaechangView, CView)
     ON_BN_CLICKED(ID_TAECHANG_LOAD_WORKFLOW, &CSageTaechangView::OnLoadWorkflow)
     ON_BN_CLICKED(ID_TAECHANG_GENERATE_WORKFLOW, &CSageTaechangView::OnGenerateWorkflow)
     ON_BN_CLICKED(ID_TAECHANG_EXPORT_CSV, &CSageTaechangView::OnExportCsv)
+    ON_BN_CLICKED(ID_TAECHANG_SETTINGS, &CSageTaechangView::OnSettings)
     ON_MESSAGE(WM_TAECHANG_WORKFLOW_COMPLETE, &CSageTaechangView::OnWorkflowComplete)
 END_MESSAGE_MAP()
 
@@ -194,6 +196,7 @@ void CSageTaechangView::CreateChildControls()
     m_wndLoad.Create(TAECHANG_UI_LOAD_BUTTON, WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rectEmpty, this, ID_TAECHANG_LOAD_WORKFLOW);
     m_wndGenerate.Create(TAECHANG_UI_RECEIVABLES_GENERATE_BUTTON, WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rectEmpty, this, ID_TAECHANG_GENERATE_WORKFLOW);
     m_wndExportCsv.Create(TAECHANG_UI_EXPORT_CSV_BUTTON, WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rectEmpty, this, ID_TAECHANG_EXPORT_CSV);
+    m_wndSettings.Create(TAECHANG_UI_SETTINGS_BUTTON, WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rectEmpty, this, ID_TAECHANG_SETTINGS);
     m_wndProgress.Create(WS_CHILD | WS_VISIBLE | PBS_MARQUEE, rectEmpty, this, ID_TAECHANG_PROGRESS);
     m_wndResultList.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SINGLESEL, rectEmpty, this, ID_TAECHANG_RESULT_LIST);
     m_wndDetail.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | WS_VSCROLL, rectEmpty, this, ID_TAECHANG_DETAIL_EDIT);
@@ -246,7 +249,8 @@ void CSageTaechangView::LayoutChildControls()
     m_wndLoad.MoveWindow(nLeft, nTop, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
     m_wndGenerate.MoveWindow(nLeft + TAECHANG_BUTTON_WIDTH + TAECHANG_ROW_GAP, nTop, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
     m_wndExportCsv.MoveWindow(nLeft + (TAECHANG_BUTTON_WIDTH + TAECHANG_ROW_GAP) * 2, nTop, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
-    m_wndProgress.MoveWindow(nLeft + (TAECHANG_BUTTON_WIDTH + TAECHANG_ROW_GAP) * 3, nTop + 5, nWidth - ((TAECHANG_BUTTON_WIDTH + TAECHANG_ROW_GAP) * 3), TAECHANG_PROGRESS_HEIGHT);
+    m_wndSettings.MoveWindow(nLeft + (TAECHANG_BUTTON_WIDTH + TAECHANG_ROW_GAP) * 3, nTop, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
+    m_wndProgress.MoveWindow(nLeft + (TAECHANG_BUTTON_WIDTH + TAECHANG_ROW_GAP) * 4, nTop + 5, nWidth - ((TAECHANG_BUTTON_WIDTH + TAECHANG_ROW_GAP) * 4), TAECHANG_PROGRESS_HEIGHT);
     nTop += TAECHANG_BUTTON_HEIGHT + TAECHANG_ROW_GAP;
 
     int nResultHeight = max(TAECHANG_RESULT_MIN_HEIGHT, (nHeight - nTop) / 2);
@@ -432,6 +436,28 @@ void CSageTaechangView::OnExportCsv()
     SetStatusText(TAECHANG_UI_EXPORT_COMPLETED);
 }
 
+void CSageTaechangView::OnSettings()
+{
+    TaechangAppSettingsService settingsService;
+    TaechangAppSettings settings;
+    settingsService.Load(settings);
+
+    CFileDialog dlg(TRUE, L"exe", settings.m_strPdfToTextPath, OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST, TAECHANG_UI_EXE_FILTER, this);
+    dlg.m_ofn.lpstrTitle = TAECHANG_UI_SELECT_PDFTOTEXT_TITLE;
+    if (dlg.DoModal() != IDOK)
+        return;
+
+    settings.m_strPdfToTextPath = dlg.GetPathName();
+    CString strError;
+    if (!settingsService.Save(settings, strError))
+    {
+        AfxMessageBox(strError, MB_ICONERROR);
+        return;
+    }
+
+    SetStatusText(TAECHANG_UI_SETTINGS_SAVED);
+}
+
 void CSageTaechangView::RunWorkflowTask(int nTaskType)
 {
     if (m_bRunning)
@@ -469,6 +495,7 @@ void CSageTaechangView::SetRunningState(BOOL bRunning)
     m_wndSelectOutput.EnableWindow(!bRunning);
     m_wndLoad.EnableWindow(!bRunning);
     m_wndGenerate.EnableWindow(!bRunning);
+    m_wndSettings.EnableWindow(!bRunning);
     m_wndProgress.SetMarquee(bRunning, 30);
     UpdateExportButtonState();
     SetStatusText(bRunning ? TAECHANG_UI_RUNNING : TAECHANG_UI_READY);

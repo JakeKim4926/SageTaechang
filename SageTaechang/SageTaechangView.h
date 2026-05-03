@@ -39,6 +39,7 @@ protected:
     CButton m_wndLoad;
     CButton m_wndGenerate;
     CButton m_wndExportCsv;
+    CButton m_wndSettings;
     CProgressCtrl m_wndProgress;
     CListCtrl m_wndResultList;
     CEdit m_wndDetail;
@@ -75,6 +76,7 @@ protected:
     afx_msg void OnLoadWorkflow();
     afx_msg void OnGenerateWorkflow();
     afx_msg void OnExportCsv();
+    afx_msg void OnSettings();
     afx_msg LRESULT OnWorkflowComplete(WPARAM wParam, LPARAM lParam);
     DECLARE_MESSAGE_MAP()
 };

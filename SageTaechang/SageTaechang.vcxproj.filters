@@ -93,6 +93,9 @@
     <ClInclude Include="app\application\services\TaechangHwpCompareService.h">
       <Filter>헤더 파일\app\application\services</Filter>
     </ClInclude>
+    <ClInclude Include="app\application\services\TaechangAppSettingsService.h">
+      <Filter>헤더 파일\app\application\services</Filter>
+    </ClInclude>
     <ClInclude Include="app\application\services\TaechangCompareCsvExportService.h">
       <Filter>헤더 파일\app\application\services</Filter>
     </ClInclude>
@@ -138,6 +141,9 @@
       <Filter>소스 파일\app\application\services</Filter>
     </ClCompile>
     <ClCompile Include="app\application\services\TaechangHwpCompareService.cpp">
+      <Filter>소스 파일\app\application\services</Filter>
+    </ClCompile>
+    <ClCompile Include="app\application\services\TaechangAppSettingsService.cpp">
       <Filter>소스 파일\app\application\services</Filter>
     </ClCompile>
     <ClCompile Include="app\application\services\TaechangCompareCsvExportService.cpp">
