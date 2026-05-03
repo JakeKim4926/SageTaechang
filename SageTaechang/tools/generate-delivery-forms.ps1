@@ -39,7 +39,20 @@ function Get-CellText($sheet, $row, $col) {
     return ConvertTo-TextValue $sheet.Cells.Item($row, $col).Text
 }
 
+function Get-MatrixValue($values, $row, $col) {
+    try { return $values[$row, $col] } catch { return $null }
+}
+
 function Split-DateParts($value) {
+    if ($null -ne $value) {
+        try {
+            $serial = [double]$value
+            if ($serial -gt 0) {
+                $dateValue = [datetime]::FromOADate($serial)
+                return @{ Year = $dateValue.Year; Month = $dateValue.Month; Day = $dateValue.Day }
+            }
+        } catch {}
+    }
     $text = (ConvertTo-TextValue $value).Trim()
     $result = @{ Year = ''; Month = ''; Day = '' }
     if ($text -match '(\d{4})[-./](\d{1,2})[-./](\d{1,2})') {
@@ -69,7 +82,7 @@ function Set-CellValue($sheet, $address, $value) {
 $excel = $null
 $inputWorkbook = $null
 $templateWorkbook = $null
-$items = @()
+$items = New-Object System.Collections.ArrayList
 
 try {
     if (-not (Test-Path -LiteralPath $InputPath)) {
@@ -85,41 +98,48 @@ try {
     $excel = New-Object -ComObject Excel.Application
     $excel.Visible = $false
     $excel.DisplayAlerts = $false
+    try { $excel.ScreenUpdating = $false } catch {}
+    try { $excel.EnableEvents = $false } catch {}
+    try { $excel.Calculation = -4135 } catch {}
 
     $inputWorkbook = $excel.Workbooks.Open($InputPath)
     $inputSheet = $inputWorkbook.Worksheets.Item(1)
     $used = $inputSheet.UsedRange
-    $rowCount = $used.Rows.Count
+    $rowCount = $used.Row + $used.Rows.Count - 1
     $colCount = $used.Columns.Count
+    if ($colCount -lt 17) { $colCount = 17 }
+    $inputValues = $inputSheet.Range(('A1:Q{0}' -f $rowCount)).Value2
+    $templateWorkbook = $excel.Workbooks.Open($TemplatePath)
+    $sheet = $templateWorkbook.Worksheets.Item(1)
 
     for ($rowIndex = 2; $rowIndex -le $rowCount; $rowIndex++) {
         if ($filterByRows -and -not $allowedRows.ContainsKey($rowIndex)) { continue }
 
         $hasValue = $false
         for ($col = 1; $col -le $colCount; $col++) {
-            $value = Get-CellText $inputSheet $rowIndex $col
+            $value = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowIndex $col)
             if ($value.Trim().Length -gt 0) {
                 $hasValue = $true
             }
         }
         if (-not $hasValue) { continue }
 
-        $companyName = Get-CellText $inputSheet $rowIndex 2
-        $department = Get-CellText $inputSheet $rowIndex 3
-        $orderDate = Split-DateParts (Get-CellText $inputSheet $rowIndex 4)
-        $deliveryDate = Split-DateParts (Get-CellText $inputSheet $rowIndex 5)
-        $deliveryTime = (Get-CellText $inputSheet $rowIndex 6).Replace(' ', '')
-        $itemName = Get-CellText $inputSheet $rowIndex 7
-        $productType = Get-CellText $inputSheet $rowIndex 8
-        $companyCopies = Get-CellText $inputSheet $rowIndex 9
-        $corporationCopies = Get-CellText $inputSheet $rowIndex 10
-        $totalCopies = Get-CellText $inputSheet $rowIndex 11
-        $destination = Get-CellText $inputSheet $rowIndex 12
-        $manager = Get-CellText $inputSheet $rowIndex 13
-        $phone = Get-CellText $inputSheet $rowIndex 14
-        $invoice = Get-CellText $inputSheet $rowIndex 15
-        $memo = Get-CellText $inputSheet $rowIndex 16
-        $numberValue = Get-CellText $inputSheet $rowIndex 17
+        $companyName = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowIndex 2)
+        $department = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowIndex 3)
+        $orderDate = Split-DateParts (Get-MatrixValue $inputValues $rowIndex 4)
+        $deliveryDate = Split-DateParts (Get-MatrixValue $inputValues $rowIndex 5)
+        $deliveryTime = (ConvertTo-TextValue (Get-MatrixValue $inputValues $rowIndex 6)).Replace(' ', '')
+        $itemName = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowIndex 7)
+        $productType = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowIndex 8)
+        $companyCopies = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowIndex 9)
+        $corporationCopies = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowIndex 10)
+        $totalCopies = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowIndex 11)
+        $destination = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowIndex 12)
+        $manager = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowIndex 13)
+        $phone = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowIndex 14)
+        $invoice = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowIndex 15)
+        $memo = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowIndex 16)
+        $numberValue = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowIndex 17)
         if ($numberValue.Trim().Length -eq 0) {
             $numberValue = ConvertTo-TextValue ($rowIndex - 1)
         }
@@ -132,8 +152,6 @@ try {
             $suffix++
         }
 
-        $templateWorkbook = $excel.Workbooks.Open($TemplatePath)
-        $sheet = $templateWorkbook.Worksheets.Item(1)
         Set-CellValue $sheet 'C4' $companyName
         Set-CellValue $sheet 'C5' $department
         Set-CellValue $sheet 'H4' $orderDate.Year
@@ -160,19 +178,20 @@ try {
         Set-CellValue $sheet 'C25' $invoice
         Set-CellValue $sheet 'C28' $memo
         Set-CellValue $sheet 'O38' $numberValue
-        $templateWorkbook.SaveAs($outputPath, 56)
-        $templateWorkbook.Close($false)
-        $templateWorkbook = $null
+        $templateWorkbook.SaveCopyAs($outputPath)
 
-        $items += [ordered]@{
+        [void]$items.Add([ordered]@{
             rowIndex = $rowIndex
             filePath = $outputPath
             fileName = [System.IO.Path]::GetFileName($outputPath)
             companyName = $companyName
             itemName = $itemName
             status = 'success'
-        }
+        })
     }
+
+    $templateWorkbook.Close($false)
+    $templateWorkbook = $null
 
     if ($inputWorkbook -ne $null) {
         $inputWorkbook.Close($false)

@@ -14,9 +14,23 @@ function Get-CellText($sheet, $row, $col) {
     return ConvertTo-TextValue $sheet.Cells.Item($row, $col).Text
 }
 
+function Get-MatrixValue($values, $row, $col) {
+    try { return $values[$row, $col] } catch { return $null }
+}
+
+function ConvertTo-DateTextValue($value) {
+    if ($null -ne $value) {
+        try {
+            $serial = [double]$value
+            if ($serial -gt 0) { return [datetime]::FromOADate($serial).ToString('yyyy-MM-dd') }
+        } catch {}
+    }
+    return ConvertTo-TextValue $value
+}
+
 $excel = $null
 $inputWorkbook = $null
-$rows = @()
+$rows = New-Object System.Collections.ArrayList
 
 try {
     if (-not [System.IO.File]::Exists($InputPath)) {
@@ -30,23 +44,26 @@ try {
     $inputWorkbook = $excel.Workbooks.Open($InputPath)
     $inputSheet = $inputWorkbook.Worksheets.Item(1)
     $used = $inputSheet.UsedRange
-    $rowCount = $used.Rows.Count
+    $rowCount = $used.Row + $used.Rows.Count - 1
+    $colCount = $used.Columns.Count
+    if ($colCount -lt 11) { $colCount = 11 }
+    $inputValues = $inputSheet.Range(('A1:K{0}' -f $rowCount)).Value2
 
     for ($rowIndex = 2; $rowIndex -le $rowCount; $rowIndex++) {
-        $companyName = Get-CellText $inputSheet $rowIndex 2
-        $itemName    = Get-CellText $inputSheet $rowIndex 7
+        $companyName = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowIndex 2)
+        $itemName    = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowIndex 7)
         if ($companyName.Trim().Length -eq 0 -and $itemName.Trim().Length -eq 0) { continue }
 
-        $department        = Get-CellText $inputSheet $rowIndex 3
-        $orderDate         = Get-CellText $inputSheet $rowIndex 4
-        $deliveryDate      = Get-CellText $inputSheet $rowIndex 5
-        $deliveryTime      = Get-CellText $inputSheet $rowIndex 6
-        $productType       = Get-CellText $inputSheet $rowIndex 8
-        $companyCopies     = Get-CellText $inputSheet $rowIndex 9
-        $corporationCopies = Get-CellText $inputSheet $rowIndex 10
-        $totalCopies       = Get-CellText $inputSheet $rowIndex 11
+        $department        = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowIndex 3)
+        $orderDate         = ConvertTo-DateTextValue (Get-MatrixValue $inputValues $rowIndex 4)
+        $deliveryDate      = ConvertTo-DateTextValue (Get-MatrixValue $inputValues $rowIndex 5)
+        $deliveryTime      = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowIndex 6)
+        $productType       = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowIndex 8)
+        $companyCopies     = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowIndex 9)
+        $corporationCopies = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowIndex 10)
+        $totalCopies       = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowIndex 11)
 
-        $rows += [ordered]@{
+        [void]$rows.Add([ordered]@{
             rowIndex           = $rowIndex
             companyName        = $companyName
             department         = $department
@@ -58,7 +75,7 @@ try {
             companyCopies      = $companyCopies
             corporationCopies  = $corporationCopies
             totalCopies        = $totalCopies
-        }
+        })
     }
 
     $inputWorkbook.Close($false)
