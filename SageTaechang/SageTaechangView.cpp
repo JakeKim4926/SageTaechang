@@ -18,6 +18,7 @@
 #include "app/application/services/TaechangPdfCompareService.h"
 #include "app/application/services/TaechangReceivablesExcelService.h"
 #include "app/common/TaechangJson.h"
+#include "app/infrastructure/bridge/TaechangBridgeResponse.h"
 #include "app/presentation/TaechangWorkflowResultPresenter.h"
 
 #ifdef _DEBUG
@@ -74,6 +75,29 @@ static CString BuildComparePayload(const CString& strJsonKey, const CString& str
     return strPayload;
 }
 
+static CString GetTaskRequestId(const TaechangWorkflowTask* pTask)
+{
+    if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_PDF_COMPARE)
+        return TAECHANG_REQUEST_PDF_COMPARE;
+    if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_HWP_COMPARE)
+        return TAECHANG_REQUEST_HWP_COMPARE;
+    if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE)
+    {
+        if (pTask->m_nTaskType == TAECHANG_TASK_LOAD)
+            return TAECHANG_REQUEST_ESTIMATE_LOAD;
+        return TAECHANG_REQUEST_ESTIMATE_GENERATE;
+    }
+    if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_DELIVERY)
+    {
+        if (pTask->m_nTaskType == TAECHANG_TASK_LOAD)
+            return TAECHANG_REQUEST_DELIVERY_LOAD;
+        return TAECHANG_REQUEST_DELIVERY_GENERATE;
+    }
+    if (pTask->m_nTaskType == TAECHANG_TASK_LOAD)
+        return TAECHANG_REQUEST_RECEIVABLES_LOAD;
+    return TAECHANG_REQUEST_RECEIVABLES_GENERATE;
+}
+
 static UINT RunWorkflowWorker(LPVOID pParam)
 {
     TaechangWorkflowTask* pTask = reinterpret_cast<TaechangWorkflowTask*>(pParam);
@@ -81,46 +105,56 @@ static UINT RunWorkflowWorker(LPVOID pParam)
     pResult->m_nWorkflowType = pTask->m_nWorkflowType;
     pResult->m_nTaskType = pTask->m_nTaskType;
 
-    CString strPayload;
-    if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_PDF_COMPARE)
-        strPayload = BuildComparePayload(L"pdfFilePaths", pTask->m_strPdfFilePaths);
-    else if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_HWP_COMPARE)
-        strPayload = BuildComparePayload(L"hwpFilePaths", pTask->m_strHwpFilePaths);
-    else
-        strPayload = BuildWorkflowPayload(pTask->m_strInputPath, pTask->m_strOutputFolder);
-    if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_PDF_COMPARE)
+    try
     {
-        TaechangPdfCompareService service;
-        pResult->m_strResponseJson = service.BuildRunCompareResponse(TAECHANG_REQUEST_PDF_COMPARE, strPayload);
-    }
-    else if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_HWP_COMPARE)
-    {
-        TaechangHwpCompareService service;
-        pResult->m_strResponseJson = service.BuildRunCompareResponse(TAECHANG_REQUEST_HWP_COMPARE, strPayload);
-    }
-    else if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE)
-    {
-        TaechangEstimateExcelService service;
-        if (pTask->m_nTaskType == TAECHANG_TASK_LOAD)
-            pResult->m_strResponseJson = service.BuildLoadInputDataResponse(TAECHANG_REQUEST_ESTIMATE_LOAD, strPayload);
+        CString strPayload;
+        if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_PDF_COMPARE)
+            strPayload = BuildComparePayload(L"pdfFilePaths", pTask->m_strPdfFilePaths);
+        else if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_HWP_COMPARE)
+            strPayload = BuildComparePayload(L"hwpFilePaths", pTask->m_strHwpFilePaths);
         else
-            pResult->m_strResponseJson = service.BuildGenerateResponse(TAECHANG_REQUEST_ESTIMATE_GENERATE, strPayload);
-    }
-    else if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_DELIVERY)
-    {
-        TaechangDeliveryExcelService service;
-        if (pTask->m_nTaskType == TAECHANG_TASK_LOAD)
-            pResult->m_strResponseJson = service.BuildLoadInputDataResponse(TAECHANG_REQUEST_DELIVERY_LOAD, strPayload);
+            strPayload = BuildWorkflowPayload(pTask->m_strInputPath, pTask->m_strOutputFolder);
+        if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_PDF_COMPARE)
+        {
+            TaechangPdfCompareService service;
+            pResult->m_strResponseJson = service.BuildRunCompareResponse(TAECHANG_REQUEST_PDF_COMPARE, strPayload);
+        }
+        else if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_HWP_COMPARE)
+        {
+            TaechangHwpCompareService service;
+            pResult->m_strResponseJson = service.BuildRunCompareResponse(TAECHANG_REQUEST_HWP_COMPARE, strPayload);
+        }
+        else if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE)
+        {
+            TaechangEstimateExcelService service;
+            if (pTask->m_nTaskType == TAECHANG_TASK_LOAD)
+                pResult->m_strResponseJson = service.BuildLoadInputDataResponse(TAECHANG_REQUEST_ESTIMATE_LOAD, strPayload);
+            else
+                pResult->m_strResponseJson = service.BuildGenerateResponse(TAECHANG_REQUEST_ESTIMATE_GENERATE, strPayload);
+        }
+        else if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_DELIVERY)
+        {
+            TaechangDeliveryExcelService service;
+            if (pTask->m_nTaskType == TAECHANG_TASK_LOAD)
+                pResult->m_strResponseJson = service.BuildLoadInputDataResponse(TAECHANG_REQUEST_DELIVERY_LOAD, strPayload);
+            else
+                pResult->m_strResponseJson = service.BuildGenerateResponse(TAECHANG_REQUEST_DELIVERY_GENERATE, strPayload);
+        }
         else
-            pResult->m_strResponseJson = service.BuildGenerateResponse(TAECHANG_REQUEST_DELIVERY_GENERATE, strPayload);
+        {
+            TaechangReceivablesExcelService service;
+            if (pTask->m_nTaskType == TAECHANG_TASK_LOAD)
+                pResult->m_strResponseJson = service.BuildLoadInputDataResponse(TAECHANG_REQUEST_RECEIVABLES_LOAD, strPayload);
+            else
+                pResult->m_strResponseJson = service.BuildGenerateResponse(TAECHANG_REQUEST_RECEIVABLES_GENERATE, strPayload);
+        }
     }
-    else
+    catch (...)
     {
-        TaechangReceivablesExcelService service;
-        if (pTask->m_nTaskType == TAECHANG_TASK_LOAD)
-            pResult->m_strResponseJson = service.BuildLoadInputDataResponse(TAECHANG_REQUEST_RECEIVABLES_LOAD, strPayload);
-        else
-            pResult->m_strResponseJson = service.BuildGenerateResponse(TAECHANG_REQUEST_RECEIVABLES_GENERATE, strPayload);
+        pResult->m_strResponseJson = BuildErrorResponse(
+            GetTaskRequestId(pTask),
+            L"SNX_TAECHANG_WORKFLOW_001",
+            TAECHANG_UI_WORKFLOW_EXCEPTION);
     }
 
     HWND hWnd = pTask->m_hWnd;
@@ -139,6 +173,7 @@ IMPLEMENT_DYNCREATE(CSageTaechangView, CView)
 BEGIN_MESSAGE_MAP(CSageTaechangView, CView)
     ON_WM_CREATE()
     ON_WM_SIZE()
+    ON_WM_TIMER()
     ON_WM_ERASEBKGND()
     ON_WM_CTLCOLOR()
     ON_LBN_SELCHANGE(ID_TAECHANG_WORKFLOW_MENU, &CSageTaechangView::OnWorkflowChanged)
@@ -154,6 +189,7 @@ END_MESSAGE_MAP()
 
 CSageTaechangView::CSageTaechangView() noexcept
     : m_bRunning(FALSE)
+    , m_nProgressPercent(0)
     , m_nSelectedTaskTab(TAECHANG_TAB_INDEX_INPUT)
     , m_nLastWorkflowType(0)
     , m_nLastTaskType(0)
@@ -214,10 +250,13 @@ void CSageTaechangView::CreateChildControls()
     m_wndExportCsv.Create(TAECHANG_UI_EXPORT_CSV_BUTTON, WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rectEmpty, this, ID_TAECHANG_EXPORT_CSV);
     m_wndSettings.Create(TAECHANG_UI_SETTINGS_BUTTON, WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rectEmpty, this, ID_TAECHANG_SETTINGS);
     m_wndProgress.Create(WS_CHILD | WS_VISIBLE | PBS_MARQUEE, rectEmpty, this, ID_TAECHANG_PROGRESS);
+    m_wndProgressText.Create(L"", WS_CHILD | WS_VISIBLE | SS_RIGHT, rectEmpty, this);
     m_wndResultList.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SINGLESEL, rectEmpty, this, ID_TAECHANG_RESULT_LIST);
     m_wndDetail.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | WS_VSCROLL, rectEmpty, this, ID_TAECHANG_DETAIL_EDIT);
 
     m_wndProgress.SetMarquee(FALSE, 0);
+    m_wndProgress.SetRange(0, TAECHANG_PROGRESS_COMPLETE);
+    UpdateProgressPercent(0);
     ApplyControlFonts();
     ApplyWorkflowTabs();
     ApplyResultColumns();
@@ -260,6 +299,7 @@ void CSageTaechangView::ApplyControlFonts()
     m_wndGenerate.SetFont(&m_fontControl);
     m_wndExportCsv.SetFont(&m_fontControl);
     m_wndSettings.SetFont(&m_fontControl);
+    m_wndProgressText.SetFont(&m_fontControl);
     m_wndResultList.SetFont(&m_fontControl);
     m_wndDetail.SetFont(&m_fontControl);
 }
@@ -332,6 +372,7 @@ void CSageTaechangView::UpdateTaskTabVisibility()
     m_wndExportCsv.ShowWindow(bShowExport ? SW_SHOW : SW_HIDE);
     m_wndSettings.ShowWindow(bShowSettings ? SW_SHOW : SW_HIDE);
     m_wndProgress.ShowWindow(bShowAction ? SW_SHOW : SW_HIDE);
+    m_wndProgressText.ShowWindow(bShowAction ? SW_SHOW : SW_HIDE);
 
     m_wndResultSection.ShowWindow(bShowResult ? SW_SHOW : SW_HIDE);
     m_wndResultList.ShowWindow(bShowResult ? SW_SHOW : SW_HIDE);
@@ -469,10 +510,11 @@ void CSageTaechangView::LayoutActionSection(int nLeft, int nTop, int nWidth)
     if (bShowAction)
     {
         int nProgressLeft = nX;
-        int nProgressWidth = nWidth - (nProgressLeft - nLeft);
+        int nProgressWidth = nWidth - (nProgressLeft - nLeft) - TAECHANG_PROGRESS_TEXT_WIDTH - TAECHANG_ACTION_GAP;
         if (nProgressWidth < 0)
             nProgressWidth = 0;
         m_wndProgress.MoveWindow(nProgressLeft, nTop + 5, nProgressWidth, TAECHANG_PROGRESS_HEIGHT);
+        m_wndProgressText.MoveWindow(nProgressLeft + nProgressWidth + TAECHANG_ACTION_GAP, nTop + 3, TAECHANG_PROGRESS_TEXT_WIDTH, TAECHANG_EDIT_HEIGHT);
     }
 }
 
@@ -800,9 +842,44 @@ void CSageTaechangView::SetRunningState(BOOL bRunning)
     m_wndLoad.EnableWindow(!bRunning);
     m_wndGenerate.EnableWindow(!bRunning);
     m_wndSettings.EnableWindow(!bRunning);
-    m_wndProgress.SetMarquee(bRunning, 30);
+    if (bRunning)
+    {
+        UpdateProgressPercent(0);
+        SetTimer(ID_TAECHANG_PROGRESS_TIMER, TAECHANG_PROGRESS_TIMER_MS, NULL);
+    }
+    else
+    {
+        KillTimer(ID_TAECHANG_PROGRESS_TIMER);
+        UpdateProgressPercent(TAECHANG_PROGRESS_COMPLETE);
+    }
     UpdateExportButtonState();
-    SetStatusText(bRunning ? TAECHANG_UI_RUNNING : TAECHANG_UI_READY);
+    if (bRunning)
+        SetStatusText(TAECHANG_UI_RUNNING);
+}
+
+void CSageTaechangView::UpdateProgressPercent(int nPercent)
+{
+    m_nProgressPercent = nPercent;
+    m_wndProgress.SetPos(m_nProgressPercent);
+    CString strProgress;
+    strProgress.Format(TAECHANG_UI_PROGRESS_FORMAT, m_nProgressPercent);
+    m_wndProgressText.SetWindowTextW(strProgress);
+}
+
+void CSageTaechangView::OnTimer(UINT_PTR nIDEvent)
+{
+    if (nIDEvent == ID_TAECHANG_PROGRESS_TIMER)
+    {
+        if (m_bRunning && m_nProgressPercent < TAECHANG_PROGRESS_RUNNING_MAX)
+        {
+            int nNextPercent = m_nProgressPercent + TAECHANG_PROGRESS_STEP;
+            if (nNextPercent > TAECHANG_PROGRESS_RUNNING_MAX)
+                nNextPercent = TAECHANG_PROGRESS_RUNNING_MAX;
+            UpdateProgressPercent(nNextPercent);
+        }
+        return;
+    }
+    CView::OnTimer(nIDEvent);
 }
 
 BOOL CSageTaechangView::OnEraseBkgnd(CDC* pDC)

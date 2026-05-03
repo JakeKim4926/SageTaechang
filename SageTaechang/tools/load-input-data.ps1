@@ -15,6 +15,10 @@ function Get-CellText($sheet, $row, $col) {
     return ConvertTo-TextValue $sheet.Cells.Item($row, $col).Text
 }
 
+function Get-MatrixValue($values, $row, $col) {
+    try { return $values[$row, $col] } catch { return $null }
+}
+
 function Get-DateSerial($value) {
     if ($null -eq $value) { return 0 }
     if ($value -is [datetime]) { return [int][math]::Floor($value.ToOADate()) }
@@ -23,7 +27,7 @@ function Get-DateSerial($value) {
 
 $excel = $null
 $inputWorkbook = $null
-$rows = @()
+$rows = New-Object System.Collections.ArrayList
 
 try {
     if (-not [System.IO.File]::Exists($InputPath)) {
@@ -41,25 +45,26 @@ try {
     if ($lastRow -lt 6) {
         $lastRow = 5
     }
+    $inputValues = $inputSheet.Range(('A1:J{0}' -f $lastRow)).Value2
 
     for ($rowNum = 6; $rowNum -le $lastRow; $rowNum++) {
-        $companyName = Get-CellText $inputSheet $rowNum 2
-        $itemName    = Get-CellText $inputSheet $rowNum 4
+        $companyName = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowNum 2)
+        $itemName    = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowNum 4)
         if ($companyName.Trim().Length -eq 0 -and $itemName.Trim().Length -eq 0) { continue }
 
-        $dateSerial = Get-DateSerial ($inputSheet.Cells.Item($rowNum, 3).Value2)
+        $dateSerial = Get-DateSerial (Get-MatrixValue $inputValues $rowNum 3)
         $dateText = ''
         if ($dateSerial -gt 0) {
             $dateText = [datetime]::FromOADate($dateSerial).ToString("yyyy-MM-dd")
         }
 
-        $copies    = ConvertTo-TextValue $inputSheet.Cells.Item($rowNum, 5).Value2
-        $pages     = ConvertTo-TextValue $inputSheet.Cells.Item($rowNum, 6).Value2
-        $unitPrice = ConvertTo-TextValue $inputSheet.Cells.Item($rowNum, 7).Value2
-        $coverCost = ConvertTo-TextValue $inputSheet.Cells.Item($rowNum, 9).Value2
-        $freight   = ConvertTo-TextValue $inputSheet.Cells.Item($rowNum, 10).Value2
+        $copies    = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowNum 5)
+        $pages     = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowNum 6)
+        $unitPrice = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowNum 7)
+        $coverCost = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowNum 9)
+        $freight   = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowNum 10)
 
-        $rows += [ordered]@{
+        [void]$rows.Add([ordered]@{
             rowNum      = $rowNum
             companyName = $companyName
             dateText    = $dateText
@@ -70,7 +75,7 @@ try {
             unitPrice   = $unitPrice
             coverCost   = $coverCost
             freight     = $freight
-        }
+        })
     }
 
     $inputWorkbook.Close($false)

@@ -51,6 +51,7 @@ protected:
     CButton m_wndExportCsv;
     CButton m_wndSettings;
     CProgressCtrl m_wndProgress;
+    CStatic m_wndProgressText;
     CListCtrl m_wndResultList;
     CEdit m_wndDetail;
     CFont m_fontTitle;
@@ -60,6 +61,7 @@ protected:
     CBrush m_brushPanel;
     CBrush m_brushSidebar;
     BOOL m_bRunning;
+    int m_nProgressPercent;
     int m_nSelectedTaskTab;
     int m_nLastWorkflowType;
     int m_nLastTaskType;
@@ -78,6 +80,7 @@ protected:
     void LayoutActionSection(int nLeft, int nTop, int nWidth);
     void LayoutResultSection(int nLeft, int nTop, int nWidth, int nHeight);
     void SetRunningState(BOOL bRunning);
+    void UpdateProgressPercent(int nPercent);
     void SetStatusText(const CString& strStatus);
     int GetSelectedWorkflow() const;
     void UpdateWorkflowLabels();
@@ -99,6 +102,7 @@ protected:
 protected:
     afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
     afx_msg void OnSize(UINT nType, int cx, int cy);
+    afx_msg void OnTimer(UINT_PTR nIDEvent);
     afx_msg BOOL OnEraseBkgnd(CDC* pDC);
     afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
     afx_msg void OnWorkflowChanged();

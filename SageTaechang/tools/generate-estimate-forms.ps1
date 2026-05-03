@@ -24,6 +24,10 @@ function Get-CellText($sheet, $row, $col) {
     return ConvertTo-TextValue $sheet.Cells.Item($row, $col).Text
 }
 
+function Get-MatrixValue($values, $row, $col) {
+    try { return $values[$row, $col] } catch { return $null }
+}
+
 function Get-DateSerial($value) {
     if ($null -eq $value) { return 0 }
     if ($value -is [datetime]) { return [int][math]::Floor($value.ToOADate()) }
@@ -47,7 +51,10 @@ function Set-CellText($sheet, $address, $value) {
 }
 
 function Set-CellNumber($sheet, $address, $value) {
-    if ($null -eq $value) { return }
+    if ($null -eq $value) {
+        $sheet.Range($address).Value2 = ''
+        return
+    }
     try {
         $sheet.Range($address).Value2 = [double]$value
     } catch {
@@ -58,7 +65,7 @@ function Set-CellNumber($sheet, $address, $value) {
 $excel            = $null
 $inputWorkbook    = $null
 $templateWorkbook = $null
-$items            = @()
+$items            = New-Object System.Collections.ArrayList
 
 try {
     if (-not [System.IO.File]::Exists($InputPath))    { throw "Input file was not found: $InputPath" }
@@ -70,6 +77,9 @@ try {
     $excel = New-Object -ComObject Excel.Application
     $excel.Visible = $false
     $excel.DisplayAlerts = $false
+    try { $excel.ScreenUpdating = $false } catch {}
+    try { $excel.EnableEvents = $false } catch {}
+    try { $excel.Calculation = -4135 } catch {}
 
     $inputWorkbook = $excel.Workbooks.Open($InputPath)
     $inputSheet    = $inputWorkbook.Worksheets.Item(1)
@@ -80,16 +90,23 @@ try {
             $rowNumList = 6..$lastRow
         }
     }
+    $lastInputRow = 5
+    if ($rowNumList.Count -gt 0) {
+        $lastInputRow = ($rowNumList | Measure-Object -Maximum).Maximum
+    }
+    $inputValues = $inputSheet.Range(('A1:J{0}' -f $lastInputRow)).Value2
+    $templateWorkbook = $excel.Workbooks.Open($TemplatePath)
+    $sheet = $templateWorkbook.Worksheets.Item(1)
 
     foreach ($rowNum in $rowNumList) {
-        $companyName = Get-CellText $inputSheet $rowNum 2
-        $dateSerial  = Get-DateSerial ($inputSheet.Cells.Item($rowNum, 3).Value2)
-        $itemName    = Get-CellText $inputSheet $rowNum 4
-        $copies      = $inputSheet.Cells.Item($rowNum, 5).Value2
-        $pages       = $inputSheet.Cells.Item($rowNum, 6).Value2
-        $unitPrice   = $inputSheet.Cells.Item($rowNum, 7).Value2
-        $coverCost   = $inputSheet.Cells.Item($rowNum, 9).Value2
-        $freight     = $inputSheet.Cells.Item($rowNum, 10).Value2
+        $companyName = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowNum 2)
+        $dateSerial  = Get-DateSerial (Get-MatrixValue $inputValues $rowNum 3)
+        $itemName    = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowNum 4)
+        $copies      = Get-MatrixValue $inputValues $rowNum 5
+        $pages       = Get-MatrixValue $inputValues $rowNum 6
+        $unitPrice   = Get-MatrixValue $inputValues $rowNum 7
+        $coverCost   = Get-MatrixValue $inputValues $rowNum 9
+        $freight     = Get-MatrixValue $inputValues $rowNum 10
 
         $dateStr = ''
         if ($dateSerial -gt 0) {
@@ -104,16 +121,13 @@ try {
             $suffix++
         }
 
-        [System.IO.File]::Copy($TemplatePath, $outputPath, $true)
-
-        $templateWorkbook = $excel.Workbooks.Open($outputPath)
-        $sheet = $templateWorkbook.Worksheets.Item(1)
-
         $kika = [char]0x8CB4 + [char]0x4E0B
         Set-CellText $sheet 'A4' ($companyName + $kika)
 
         if ($dateSerial -gt 0) {
             $sheet.Range('A2').Value2 = $dateSerial
+        } else {
+            $sheet.Range('A2').Value2 = ''
         }
 
         Set-CellText   $sheet 'A9'  $itemName
@@ -127,19 +141,20 @@ try {
         Set-CellText $sheet 'G10' ([char]0xD45C+[char]0xC9C0+' '+[char]0xC778+[char]0xC1C4+' '+[char]0xBC0F+' '+[char]0xC81C+[char]0xBCF8)
         Set-CellText $sheet 'G11' ([char]0xC6B4+[char]0xC784)
 
-        $templateWorkbook.Save()
-        $templateWorkbook.Close($false)
-        $templateWorkbook = $null
+        $templateWorkbook.SaveCopyAs($outputPath)
 
-        $items += [ordered]@{
+        [void]$items.Add([ordered]@{
             rowNum      = $rowNum
             filePath    = $outputPath
             fileName    = [System.IO.Path]::GetFileName($outputPath)
             companyName = $companyName
             itemName    = $itemName
             status      = 'success'
-        }
+        })
     }
+
+    $templateWorkbook.Close($false)
+    $templateWorkbook = $null
 
     $inputWorkbook.Close($false)
     $inputWorkbook = $null
