@@ -30,7 +30,7 @@ public:
 
 protected:
     CStatic m_wndSidebarTitle;
-    CListBox m_wndWorkflowMenu;
+    CTreeCtrl m_wndSidebarTree;
     CStatic m_wndHeaderTitle;
     CStatic m_wndHeaderStatus;
     CTabCtrl m_wndTaskTabs;
@@ -49,7 +49,6 @@ protected:
     CButton m_wndLoad;
     CButton m_wndGenerate;
     CButton m_wndExportCsv;
-    CButton m_wndSettings;
     CProgressCtrl m_wndProgress;
     CStatic m_wndProgressText;
     CListCtrl m_wndResultList;
@@ -65,11 +64,14 @@ protected:
     int m_nSelectedTaskTab;
     int m_nLastWorkflowType;
     int m_nLastTaskType;
+    int m_nCurrentWorkflow;
+    HTREEITEM m_hLastWorkflowItem;
     COLORREF m_colorHeaderStatus;
     CString m_strLastResponseJson;
 
 protected:
     void CreateChildControls();
+    void BuildSidebarTree();
     void ApplyControlFonts();
     void ApplyWorkflowTabs();
     void ApplyResultColumns();
@@ -91,7 +93,6 @@ protected:
     BOOL IsDetailTab() const;
     BOOL IsExportTab() const;
     BOOL IsActionTabVisible() const;
-    BOOL IsSettingsButtonVisible() const;
     COLORREF ResolveStatusColor(const CString& strStatus) const;
     BOOL ValidateInputPath(CString& strInputPath);
     BOOL ValidateOutputFolder(CString& strOutputFolder);
@@ -106,6 +107,7 @@ protected:
     afx_msg BOOL OnEraseBkgnd(CDC* pDC);
     afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
     afx_msg void OnWorkflowChanged();
+    afx_msg void OnSidebarSelectionChanged(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnTaskTabChanged(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnSelectInput();
     afx_msg void OnSelectOutput();
