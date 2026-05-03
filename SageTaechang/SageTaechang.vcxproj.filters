@@ -55,30 +55,18 @@
     <Filter Include="헤더 파일\app\infrastructure\bridge">
       <UniqueIdentifier>{71FAB409-1284-4252-8F01-BD4E81F6EE4F}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\default">
+      <UniqueIdentifier>{f0d91be8-90ae-49b2-864d-a77985e2c82f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\default">
+      <UniqueIdentifier>{e317d8ca-bc0a-478c-8b38-efd030de12cf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SageTaechang.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="framework.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="targetver.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="MainFrm.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SageTaechangDoc.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SageTaechangView.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Resource.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="pch.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="TaechangDefine.h">
@@ -111,23 +99,26 @@
     <ClInclude Include="app\presentation\TaechangWorkflowResultPresenter.h">
       <Filter>헤더 파일\app\presentation</Filter>
     </ClInclude>
+    <ClInclude Include="framework.h">
+      <Filter>헤더 파일\default</Filter>
+    </ClInclude>
+    <ClInclude Include="MainFrm.h">
+      <Filter>헤더 파일\default</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>헤더 파일\default</Filter>
+    </ClInclude>
+    <ClInclude Include="SageTaechang.h">
+      <Filter>헤더 파일\default</Filter>
+    </ClInclude>
+    <ClInclude Include="SageTaechangDoc.h">
+      <Filter>헤더 파일\default</Filter>
+    </ClInclude>
+    <ClInclude Include="SageTaechangView.h">
+      <Filter>헤더 파일\default</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SageTaechang.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="MainFrm.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="SageTaechangDoc.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="SageTaechangView.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="pch.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="app\application\services\TaechangReceivablesExcelService.cpp">
       <Filter>소스 파일\app\application\services</Filter>
     </ClCompile>
@@ -154,6 +145,21 @@
     </ClCompile>
     <ClCompile Include="app\presentation\TaechangWorkflowResultPresenter.cpp">
       <Filter>소스 파일\app\presentation</Filter>
+    </ClCompile>
+    <ClCompile Include="SageTaechang.cpp">
+      <Filter>소스 파일\default</Filter>
+    </ClCompile>
+    <ClCompile Include="SageTaechangDoc.cpp">
+      <Filter>소스 파일\default</Filter>
+    </ClCompile>
+    <ClCompile Include="SageTaechangView.cpp">
+      <Filter>소스 파일\default</Filter>
+    </ClCompile>
+    <ClCompile Include="MainFrm.cpp">
+      <Filter>소스 파일\default</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>소스 파일\default</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
