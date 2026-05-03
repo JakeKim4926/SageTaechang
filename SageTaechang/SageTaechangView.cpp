@@ -290,13 +290,14 @@ void CSageTaechangView::ApplyWorkflowTabs()
 
 void CSageTaechangView::UpdateTaskTabVisibility()
 {
-    BOOL bIsCompareWorkflow = IsCompareWorkflow(GetSelectedWorkflow());
-    BOOL bShowInput = (m_nSelectedTaskTab == TAECHANG_TAB_INDEX_INPUT || m_nSelectedTaskTab == TAECHANG_TAB_INDEX_PREVIEW) ? TRUE : FALSE;
-    BOOL bShowOutput = (bShowInput && !bIsCompareWorkflow) ? TRUE : FALSE;
-    BOOL bShowRunAction = (m_nSelectedTaskTab == TAECHANG_TAB_INDEX_INPUT || m_nSelectedTaskTab == TAECHANG_TAB_INDEX_PREVIEW) ? TRUE : FALSE;
-    BOOL bShowExportAction = (bIsCompareWorkflow && m_nSelectedTaskTab == TAECHANG_TAB_INDEX_DETAIL) ? TRUE : FALSE;
-    BOOL bShowResult = (m_nSelectedTaskTab != TAECHANG_TAB_INDEX_DETAIL || bIsCompareWorkflow) ? TRUE : FALSE;
-    BOOL bShowDetail = (m_nSelectedTaskTab != TAECHANG_TAB_INDEX_INPUT || !m_strLastResponseJson.IsEmpty()) ? TRUE : FALSE;
+    BOOL bIsCompare = IsCompareWorkflow(GetSelectedWorkflow());
+    BOOL bShowInput = IsInputTabSelected();
+    BOOL bShowOutput = (bShowInput && !bIsCompare) ? TRUE : FALSE;
+    BOOL bShowAction = IsActionTabVisible();
+    BOOL bShowResult = IsResultTab();
+    BOOL bShowDetail = IsDetailTab();
+    BOOL bShowExport = IsExportTab();
+    BOOL bShowSettings = IsSettingsButtonVisible();
 
     m_wndInputSection.ShowWindow(bShowInput ? SW_SHOW : SW_HIDE);
     m_wndInputLabel.ShowWindow(bShowInput ? SW_SHOW : SW_HIDE);
@@ -307,11 +308,11 @@ void CSageTaechangView::UpdateTaskTabVisibility()
     m_wndOutputFolder.ShowWindow(bShowOutput ? SW_SHOW : SW_HIDE);
     m_wndSelectOutput.ShowWindow(bShowOutput ? SW_SHOW : SW_HIDE);
 
-    m_wndLoad.ShowWindow((bShowRunAction && !bIsCompareWorkflow) ? SW_SHOW : SW_HIDE);
-    m_wndGenerate.ShowWindow(bShowRunAction ? SW_SHOW : SW_HIDE);
-    m_wndExportCsv.ShowWindow((bShowExportAction || (bIsCompareWorkflow && !m_strLastResponseJson.IsEmpty())) ? SW_SHOW : SW_HIDE);
-    m_wndSettings.ShowWindow((m_nSelectedTaskTab == TAECHANG_TAB_INDEX_INPUT) ? SW_SHOW : SW_HIDE);
-    m_wndProgress.ShowWindow(bShowRunAction ? SW_SHOW : SW_HIDE);
+    m_wndLoad.ShowWindow((bShowAction && !bIsCompare) ? SW_SHOW : SW_HIDE);
+    m_wndGenerate.ShowWindow(bShowAction ? SW_SHOW : SW_HIDE);
+    m_wndExportCsv.ShowWindow(bShowExport ? SW_SHOW : SW_HIDE);
+    m_wndSettings.ShowWindow(bShowSettings ? SW_SHOW : SW_HIDE);
+    m_wndProgress.ShowWindow(bShowAction ? SW_SHOW : SW_HIDE);
 
     m_wndResultSection.ShowWindow(bShowResult ? SW_SHOW : SW_HIDE);
     m_wndResultList.ShowWindow(bShowResult ? SW_SHOW : SW_HIDE);
@@ -373,16 +374,14 @@ void CSageTaechangView::LayoutChildControls()
     m_wndTaskTabs.MoveWindow(nContentLeft, nContentTop, nContentWidth, TAECHANG_TAB_HEIGHT);
     nContentTop += TAECHANG_TAB_HEIGHT + TAECHANG_PANEL_GAP;
 
-    BOOL bIsCompareWorkflow = IsCompareWorkflow(GetSelectedWorkflow());
-    if (m_nSelectedTaskTab == TAECHANG_TAB_INDEX_INPUT || m_nSelectedTaskTab == TAECHANG_TAB_INDEX_PREVIEW)
+    BOOL bIsCompare = IsCompareWorkflow(GetSelectedWorkflow());
+    if (IsInputTabSelected())
     {
-        LayoutInputSection(nContentLeft, nContentTop, nContentWidth, !bIsCompareWorkflow);
-        nContentTop += (bIsCompareWorkflow ? TAECHANG_INPUT_PANEL_HEIGHT / 2 : TAECHANG_INPUT_PANEL_HEIGHT) + TAECHANG_PANEL_GAP;
+        LayoutInputSection(nContentLeft, nContentTop, nContentWidth, !bIsCompare);
+        nContentTop += (bIsCompare ? TAECHANG_INPUT_PANEL_HEIGHT / 2 : TAECHANG_INPUT_PANEL_HEIGHT) + TAECHANG_PANEL_GAP;
     }
 
-    if (m_nSelectedTaskTab == TAECHANG_TAB_INDEX_INPUT ||
-        m_nSelectedTaskTab == TAECHANG_TAB_INDEX_PREVIEW ||
-        (bIsCompareWorkflow && m_nSelectedTaskTab == TAECHANG_TAB_INDEX_DETAIL))
+    if (IsActionTabVisible() || IsExportTab())
     {
         LayoutActionSection(nContentLeft, nContentTop, nContentWidth);
         nContentTop += TAECHANG_BUTTON_HEIGHT + TAECHANG_PANEL_GAP;
@@ -413,24 +412,58 @@ void CSageTaechangView::LayoutInputSection(int nLeft, int nTop, int nWidth, BOOL
 
 void CSageTaechangView::LayoutActionSection(int nLeft, int nTop, int nWidth)
 {
-    m_wndLoad.MoveWindow(nLeft, nTop, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
-    m_wndGenerate.MoveWindow(nLeft + TAECHANG_BUTTON_WIDTH + TAECHANG_ACTION_GAP, nTop, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
-    m_wndExportCsv.MoveWindow(nLeft + (TAECHANG_BUTTON_WIDTH + TAECHANG_ACTION_GAP) * 2, nTop, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
-    m_wndSettings.MoveWindow(nLeft + (TAECHANG_BUTTON_WIDTH + TAECHANG_ACTION_GAP) * 3, nTop, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
-    m_wndProgress.MoveWindow(nLeft + (TAECHANG_BUTTON_WIDTH + TAECHANG_ACTION_GAP) * 4, nTop + 5, nWidth - ((TAECHANG_BUTTON_WIDTH + TAECHANG_ACTION_GAP) * 4), TAECHANG_PROGRESS_HEIGHT);
+    BOOL bIsCompare = IsCompareWorkflow(GetSelectedWorkflow());
+    BOOL bShowAction = IsActionTabVisible();
+    BOOL bShowLoad = (bShowAction && !bIsCompare) ? TRUE : FALSE;
+    BOOL bShowGenerate = bShowAction;
+    BOOL bShowExport = IsExportTab();
+    BOOL bShowSettings = IsSettingsButtonVisible();
+
+    int nX = nLeft;
+    if (bShowLoad)
+    {
+        m_wndLoad.MoveWindow(nX, nTop, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
+        nX += TAECHANG_BUTTON_WIDTH + TAECHANG_ACTION_GAP;
+    }
+    if (bShowGenerate)
+    {
+        m_wndGenerate.MoveWindow(nX, nTop, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
+        nX += TAECHANG_BUTTON_WIDTH + TAECHANG_ACTION_GAP;
+    }
+    if (bShowExport)
+    {
+        m_wndExportCsv.MoveWindow(nX, nTop, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
+        nX += TAECHANG_BUTTON_WIDTH + TAECHANG_ACTION_GAP;
+    }
+    if (bShowSettings)
+    {
+        m_wndSettings.MoveWindow(nX, nTop, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
+        nX += TAECHANG_BUTTON_WIDTH + TAECHANG_ACTION_GAP;
+    }
+    if (bShowAction)
+    {
+        int nProgressLeft = nX;
+        int nProgressWidth = nWidth - (nProgressLeft - nLeft);
+        if (nProgressWidth < 0)
+            nProgressWidth = 0;
+        m_wndProgress.MoveWindow(nProgressLeft, nTop + 5, nProgressWidth, TAECHANG_PROGRESS_HEIGHT);
+    }
 }
 
 void CSageTaechangView::LayoutResultSection(int nLeft, int nTop, int nWidth, int nHeight)
 {
-    int nResultHeight = max(TAECHANG_RESULT_MIN_HEIGHT, nHeight / 2);
-    m_wndResultSection.MoveWindow(nLeft, nTop, nWidth, TAECHANG_RESULT_HEADER_HEIGHT);
-    nTop += TAECHANG_RESULT_HEADER_HEIGHT;
-    m_wndResultList.MoveWindow(nLeft, nTop, nWidth, nResultHeight);
-    UpdateResultColumns();
-    nTop += nResultHeight + TAECHANG_PANEL_GAP;
-    m_wndDetailSection.MoveWindow(nLeft, nTop, nWidth, TAECHANG_RESULT_HEADER_HEIGHT);
-    nTop += TAECHANG_RESULT_HEADER_HEIGHT;
-    m_wndDetail.MoveWindow(nLeft, nTop, nWidth, max(TAECHANG_RESULT_MIN_HEIGHT, nHeight - nResultHeight - (TAECHANG_RESULT_HEADER_HEIGHT * 2) - TAECHANG_PANEL_GAP));
+    int nBodyHeight = max(TAECHANG_RESULT_MIN_HEIGHT, nHeight - TAECHANG_RESULT_HEADER_HEIGHT);
+    if (IsResultTab())
+    {
+        m_wndResultSection.MoveWindow(nLeft, nTop, nWidth, TAECHANG_RESULT_HEADER_HEIGHT);
+        m_wndResultList.MoveWindow(nLeft, nTop + TAECHANG_RESULT_HEADER_HEIGHT, nWidth, nBodyHeight);
+        UpdateResultColumns();
+    }
+    if (IsDetailTab())
+    {
+        m_wndDetailSection.MoveWindow(nLeft, nTop, nWidth, TAECHANG_RESULT_HEADER_HEIGHT);
+        m_wndDetail.MoveWindow(nLeft, nTop + TAECHANG_RESULT_HEADER_HEIGHT, nWidth, nBodyHeight);
+    }
 }
 
 void CSageTaechangView::OnDraw(CDC* pDC)
@@ -499,6 +532,42 @@ void CSageTaechangView::UpdateWorkflowLabels()
 BOOL CSageTaechangView::IsCompareWorkflow(int nWorkflowType) const
 {
     return (nWorkflowType == TAECHANG_WORKFLOW_PDF_COMPARE || nWorkflowType == TAECHANG_WORKFLOW_HWP_COMPARE) ? TRUE : FALSE;
+}
+
+BOOL CSageTaechangView::IsInputTabSelected() const
+{
+    return (m_nSelectedTaskTab == TAECHANG_TAB_INDEX_INPUT) ? TRUE : FALSE;
+}
+
+BOOL CSageTaechangView::IsResultTab() const
+{
+    if (m_nSelectedTaskTab == TAECHANG_TAB_INDEX_PREVIEW)
+        return TRUE;
+    if (!IsCompareWorkflow(GetSelectedWorkflow()) && m_nSelectedTaskTab == TAECHANG_TAB_INDEX_RESULT)
+        return TRUE;
+    return FALSE;
+}
+
+BOOL CSageTaechangView::IsDetailTab() const
+{
+    if (IsCompareWorkflow(GetSelectedWorkflow()))
+        return (m_nSelectedTaskTab == TAECHANG_TAB_INDEX_RESULT) ? TRUE : FALSE;
+    return (m_nSelectedTaskTab == TAECHANG_TAB_INDEX_DETAIL) ? TRUE : FALSE;
+}
+
+BOOL CSageTaechangView::IsExportTab() const
+{
+    return (IsCompareWorkflow(GetSelectedWorkflow()) && m_nSelectedTaskTab == TAECHANG_TAB_INDEX_DETAIL) ? TRUE : FALSE;
+}
+
+BOOL CSageTaechangView::IsActionTabVisible() const
+{
+    return (IsInputTabSelected() || IsResultTab()) ? TRUE : FALSE;
+}
+
+BOOL CSageTaechangView::IsSettingsButtonVisible() const
+{
+    return (IsInputTabSelected() && GetSelectedWorkflow() == TAECHANG_WORKFLOW_PDF_COMPARE) ? TRUE : FALSE;
 }
 
 void CSageTaechangView::UpdateExportButtonState()

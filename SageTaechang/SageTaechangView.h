@@ -79,6 +79,12 @@ protected:
     void UpdateWorkflowLabels();
     void UpdateExportButtonState();
     BOOL IsCompareWorkflow(int nWorkflowType) const;
+    BOOL IsInputTabSelected() const;
+    BOOL IsResultTab() const;
+    BOOL IsDetailTab() const;
+    BOOL IsExportTab() const;
+    BOOL IsActionTabVisible() const;
+    BOOL IsSettingsButtonVisible() const;
     BOOL ValidateInputPath(CString& strInputPath);
     BOOL ValidateOutputFolder(CString& strOutputFolder);
     void RunWorkflowTask(int nTaskType);
