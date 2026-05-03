@@ -176,14 +176,13 @@ BEGIN_MESSAGE_MAP(CSageTaechangView, CView)
     ON_WM_TIMER()
     ON_WM_ERASEBKGND()
     ON_WM_CTLCOLOR()
-    ON_LBN_SELCHANGE(ID_TAECHANG_WORKFLOW_MENU, &CSageTaechangView::OnWorkflowChanged)
+    ON_NOTIFY(TVN_SELCHANGED, ID_TAECHANG_SIDEBAR_TREE, &CSageTaechangView::OnSidebarSelectionChanged)
     ON_NOTIFY(TCN_SELCHANGE, ID_TAECHANG_TASK_TABS, &CSageTaechangView::OnTaskTabChanged)
     ON_BN_CLICKED(ID_TAECHANG_SELECT_INPUT, &CSageTaechangView::OnSelectInput)
     ON_BN_CLICKED(ID_TAECHANG_SELECT_OUTPUT, &CSageTaechangView::OnSelectOutput)
     ON_BN_CLICKED(ID_TAECHANG_LOAD_WORKFLOW, &CSageTaechangView::OnLoadWorkflow)
     ON_BN_CLICKED(ID_TAECHANG_GENERATE_WORKFLOW, &CSageTaechangView::OnGenerateWorkflow)
     ON_BN_CLICKED(ID_TAECHANG_EXPORT_CSV, &CSageTaechangView::OnExportCsv)
-    ON_BN_CLICKED(ID_TAECHANG_SETTINGS, &CSageTaechangView::OnSettings)
     ON_MESSAGE(WM_TAECHANG_WORKFLOW_COMPLETE, &CSageTaechangView::OnWorkflowComplete)
 END_MESSAGE_MAP()
 
@@ -193,6 +192,8 @@ CSageTaechangView::CSageTaechangView() noexcept
     , m_nSelectedTaskTab(TAECHANG_TAB_INDEX_INPUT)
     , m_nLastWorkflowType(0)
     , m_nLastTaskType(0)
+    , m_nCurrentWorkflow(TAECHANG_WORKFLOW_RECEIVABLES)
+    , m_hLastWorkflowItem(NULL)
     , m_colorHeaderStatus(TAECHANG_COLOR_SECONDARY_TEXT)
 {
     m_brushAppBackground.CreateSolidBrush(TAECHANG_COLOR_APP_BACKGROUND);
@@ -223,13 +224,9 @@ void CSageTaechangView::CreateChildControls()
 {
     CRect rectEmpty(0, 0, 0, 0);
     m_wndSidebarTitle.Create(TAECHANG_UI_SIDEBAR_TITLE, WS_CHILD | WS_VISIBLE, rectEmpty, this);
-    m_wndWorkflowMenu.Create(WS_CHILD | WS_VISIBLE | LBS_NOTIFY | LBS_NOINTEGRALHEIGHT | WS_BORDER, rectEmpty, this, ID_TAECHANG_WORKFLOW_MENU);
-    m_wndWorkflowMenu.AddString(TAECHANG_UI_RECEIVABLES_NAME);
-    m_wndWorkflowMenu.AddString(TAECHANG_UI_DELIVERY_NAME);
-    m_wndWorkflowMenu.AddString(TAECHANG_UI_ESTIMATE_NAME);
-    m_wndWorkflowMenu.AddString(TAECHANG_UI_PDF_COMPARE_NAME);
-    m_wndWorkflowMenu.AddString(TAECHANG_UI_HWP_COMPARE_NAME);
-    m_wndWorkflowMenu.SetCurSel(0);
+    m_wndSidebarTree.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | TVS_FULLROWSELECT | TVS_SHOWSELALWAYS | TVS_DISABLEDRAGDROP, rectEmpty, this, ID_TAECHANG_SIDEBAR_TREE);
+    m_wndSidebarTree.SetBkColor(TAECHANG_COLOR_SIDEBAR);
+    m_wndSidebarTree.SetTextColor(TAECHANG_COLOR_TEXT);
     m_wndHeaderTitle.Create(TAECHANG_UI_RECEIVABLES_NAME, WS_CHILD | WS_VISIBLE, rectEmpty, this);
     m_wndHeaderStatus.Create(TAECHANG_UI_READY, WS_CHILD | WS_VISIBLE | SS_RIGHT, rectEmpty, this);
     m_wndTaskTabs.Create(WS_CHILD | WS_VISIBLE | TCS_FIXEDWIDTH, rectEmpty, this, ID_TAECHANG_TASK_TABS);
@@ -248,7 +245,6 @@ void CSageTaechangView::CreateChildControls()
     m_wndLoad.Create(TAECHANG_UI_LOAD_BUTTON, WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rectEmpty, this, ID_TAECHANG_LOAD_WORKFLOW);
     m_wndGenerate.Create(TAECHANG_UI_RECEIVABLES_GENERATE_BUTTON, WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rectEmpty, this, ID_TAECHANG_GENERATE_WORKFLOW);
     m_wndExportCsv.Create(TAECHANG_UI_EXPORT_CSV_BUTTON, WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rectEmpty, this, ID_TAECHANG_EXPORT_CSV);
-    m_wndSettings.Create(TAECHANG_UI_SETTINGS_BUTTON, WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rectEmpty, this, ID_TAECHANG_SETTINGS);
     m_wndProgress.Create(WS_CHILD | WS_VISIBLE | PBS_MARQUEE, rectEmpty, this, ID_TAECHANG_PROGRESS);
     m_wndProgressText.Create(L"", WS_CHILD | WS_VISIBLE | SS_RIGHT, rectEmpty, this);
     m_wndResultList.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SINGLESEL, rectEmpty, this, ID_TAECHANG_RESULT_LIST);
@@ -263,6 +259,38 @@ void CSageTaechangView::CreateChildControls()
     UpdateWorkflowLabels();
     UpdateResultColumns();
     UpdateExportButtonState();
+    BuildSidebarTree();
+}
+
+void CSageTaechangView::BuildSidebarTree()
+{
+    HTREEITEM hDocument = m_wndSidebarTree.InsertItem(TAECHANG_UI_SIDEBAR_GROUP_DOCUMENT, TVI_ROOT, TVI_LAST);
+    m_wndSidebarTree.SetItemData(hDocument, TAECHANG_SIDEBAR_ACTION_NONE);
+    HTREEITEM hReceivables = m_wndSidebarTree.InsertItem(TAECHANG_UI_RECEIVABLES_NAME, hDocument, TVI_LAST);
+    m_wndSidebarTree.SetItemData(hReceivables, TAECHANG_WORKFLOW_RECEIVABLES);
+    HTREEITEM hDelivery = m_wndSidebarTree.InsertItem(TAECHANG_UI_DELIVERY_NAME, hDocument, TVI_LAST);
+    m_wndSidebarTree.SetItemData(hDelivery, TAECHANG_WORKFLOW_DELIVERY);
+    HTREEITEM hEstimate = m_wndSidebarTree.InsertItem(TAECHANG_UI_ESTIMATE_NAME, hDocument, TVI_LAST);
+    m_wndSidebarTree.SetItemData(hEstimate, TAECHANG_WORKFLOW_ESTIMATE);
+
+    HTREEITEM hInspection = m_wndSidebarTree.InsertItem(TAECHANG_UI_SIDEBAR_GROUP_INSPECTION, TVI_ROOT, TVI_LAST);
+    m_wndSidebarTree.SetItemData(hInspection, TAECHANG_SIDEBAR_ACTION_NONE);
+    HTREEITEM hPdf = m_wndSidebarTree.InsertItem(TAECHANG_UI_PDF_COMPARE_NAME, hInspection, TVI_LAST);
+    m_wndSidebarTree.SetItemData(hPdf, TAECHANG_WORKFLOW_PDF_COMPARE);
+    HTREEITEM hHwp = m_wndSidebarTree.InsertItem(TAECHANG_UI_HWP_COMPARE_NAME, hInspection, TVI_LAST);
+    m_wndSidebarTree.SetItemData(hHwp, TAECHANG_WORKFLOW_HWP_COMPARE);
+
+    HTREEITEM hManagement = m_wndSidebarTree.InsertItem(TAECHANG_UI_SIDEBAR_GROUP_MANAGEMENT, TVI_ROOT, TVI_LAST);
+    m_wndSidebarTree.SetItemData(hManagement, TAECHANG_SIDEBAR_ACTION_NONE);
+    HTREEITEM hSettings = m_wndSidebarTree.InsertItem(TAECHANG_UI_SETTINGS_LABEL, hManagement, TVI_LAST);
+    m_wndSidebarTree.SetItemData(hSettings, TAECHANG_SIDEBAR_ACTION_SETTINGS);
+
+    m_wndSidebarTree.Expand(hDocument, TVE_EXPAND);
+    m_wndSidebarTree.Expand(hInspection, TVE_EXPAND);
+    m_wndSidebarTree.Expand(hManagement, TVE_EXPAND);
+
+    m_hLastWorkflowItem = hReceivables;
+    m_wndSidebarTree.SelectItem(hReceivables);
 }
 
 void CSageTaechangView::ApplyControlFonts()
@@ -281,7 +309,7 @@ void CSageTaechangView::ApplyControlFonts()
     if (!m_fontControl.CreatePointFont(TAECHANG_CONTROL_FONT_POINT_SIZE, TAECHANG_CONTROL_FONT_FACE))
         return;
 
-    m_wndWorkflowMenu.SetFont(&m_fontControl);
+    m_wndSidebarTree.SetFont(&m_fontControl);
     m_wndHeaderStatus.SetFont(&m_fontControl);
     m_wndTaskTabs.SetFont(&m_fontControl);
     m_wndInputSection.SetFont(&m_fontControl);
@@ -298,7 +326,6 @@ void CSageTaechangView::ApplyControlFonts()
     m_wndLoad.SetFont(&m_fontControl);
     m_wndGenerate.SetFont(&m_fontControl);
     m_wndExportCsv.SetFont(&m_fontControl);
-    m_wndSettings.SetFont(&m_fontControl);
     m_wndProgressText.SetFont(&m_fontControl);
     m_wndResultList.SetFont(&m_fontControl);
     m_wndDetail.SetFont(&m_fontControl);
@@ -356,7 +383,6 @@ void CSageTaechangView::UpdateTaskTabVisibility()
     BOOL bShowResult = IsResultTab();
     BOOL bShowDetail = IsDetailTab();
     BOOL bShowExport = IsExportTab();
-    BOOL bShowSettings = IsSettingsButtonVisible();
 
     m_wndInputSection.ShowWindow(bShowInput ? SW_SHOW : SW_HIDE);
     m_wndInputLabel.ShowWindow(bShowInput ? SW_SHOW : SW_HIDE);
@@ -370,7 +396,6 @@ void CSageTaechangView::UpdateTaskTabVisibility()
     m_wndLoad.ShowWindow((bShowAction && !bIsCompare) ? SW_SHOW : SW_HIDE);
     m_wndGenerate.ShowWindow(bShowAction ? SW_SHOW : SW_HIDE);
     m_wndExportCsv.ShowWindow(bShowExport ? SW_SHOW : SW_HIDE);
-    m_wndSettings.ShowWindow(bShowSettings ? SW_SHOW : SW_HIDE);
     m_wndProgress.ShowWindow(bShowAction ? SW_SHOW : SW_HIDE);
     m_wndProgressText.ShowWindow(bShowAction ? SW_SHOW : SW_HIDE);
 
@@ -416,7 +441,7 @@ void CSageTaechangView::OnSize(UINT nType, int cx, int cy)
 
 void CSageTaechangView::LayoutChildControls()
 {
-    if (!::IsWindow(m_wndWorkflowMenu.GetSafeHwnd()))
+    if (!::IsWindow(m_wndSidebarTree.GetSafeHwnd()))
         return;
 
     CRect rectClient;
@@ -432,7 +457,7 @@ void CSageTaechangView::LayoutChildControls()
 
     m_wndTitle.MoveWindow(TAECHANG_MARGIN, nSidebarTop + TAECHANG_MARGIN, TAECHANG_SIDEBAR_WIDTH - (TAECHANG_MARGIN * 2), TAECHANG_SECTION_TITLE_HEIGHT);
     m_wndSidebarTitle.MoveWindow(TAECHANG_MARGIN, TAECHANG_TOP_BAR_HEIGHT, TAECHANG_SIDEBAR_WIDTH - (TAECHANG_MARGIN * 2), TAECHANG_SIDEBAR_TITLE_HEIGHT);
-    m_wndWorkflowMenu.MoveWindow(TAECHANG_MARGIN, TAECHANG_TOP_BAR_HEIGHT + TAECHANG_SIDEBAR_TITLE_HEIGHT, TAECHANG_SIDEBAR_WIDTH - (TAECHANG_MARGIN * 2), nSidebarHeight - TAECHANG_TOP_BAR_HEIGHT - TAECHANG_SIDEBAR_TITLE_HEIGHT - TAECHANG_MARGIN);
+    m_wndSidebarTree.MoveWindow(TAECHANG_MARGIN, TAECHANG_TOP_BAR_HEIGHT + TAECHANG_SIDEBAR_TITLE_HEIGHT, TAECHANG_SIDEBAR_WIDTH - (TAECHANG_MARGIN * 2), nSidebarHeight - TAECHANG_TOP_BAR_HEIGHT - TAECHANG_SIDEBAR_TITLE_HEIGHT - TAECHANG_MARGIN);
 
     m_wndHeaderTitle.MoveWindow(nContentLeft, nContentTop, nContentWidth - TAECHANG_HEADER_STATUS_WIDTH, TAECHANG_SECTION_TITLE_HEIGHT);
     m_wndHeaderStatus.MoveWindow(nContentLeft + nContentWidth - TAECHANG_HEADER_STATUS_WIDTH, nContentTop, TAECHANG_HEADER_STATUS_WIDTH, TAECHANG_SECTION_TITLE_HEIGHT);
@@ -484,7 +509,6 @@ void CSageTaechangView::LayoutActionSection(int nLeft, int nTop, int nWidth)
     BOOL bShowLoad = (bShowAction && !bIsCompare) ? TRUE : FALSE;
     BOOL bShowGenerate = bShowAction;
     BOOL bShowExport = IsExportTab();
-    BOOL bShowSettings = IsSettingsButtonVisible();
 
     int nX = nLeft;
     if (bShowLoad)
@@ -500,11 +524,6 @@ void CSageTaechangView::LayoutActionSection(int nLeft, int nTop, int nWidth)
     if (bShowExport)
     {
         m_wndExportCsv.MoveWindow(nX, nTop, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
-        nX += TAECHANG_BUTTON_WIDTH + TAECHANG_ACTION_GAP;
-    }
-    if (bShowSettings)
-    {
-        m_wndSettings.MoveWindow(nX, nTop, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
         nX += TAECHANG_BUTTON_WIDTH + TAECHANG_ACTION_GAP;
     }
     if (bShowAction)
@@ -546,15 +565,7 @@ void CSageTaechangView::OnDraw(CDC* pDC)
 
 int CSageTaechangView::GetSelectedWorkflow() const
 {
-    if (m_wndWorkflowMenu.GetCurSel() == 4)
-        return TAECHANG_WORKFLOW_HWP_COMPARE;
-    if (m_wndWorkflowMenu.GetCurSel() == 3)
-        return TAECHANG_WORKFLOW_PDF_COMPARE;
-    if (m_wndWorkflowMenu.GetCurSel() == 2)
-        return TAECHANG_WORKFLOW_ESTIMATE;
-    if (m_wndWorkflowMenu.GetCurSel() == 1)
-        return TAECHANG_WORKFLOW_DELIVERY;
-    return TAECHANG_WORKFLOW_RECEIVABLES;
+    return m_nCurrentWorkflow;
 }
 
 void CSageTaechangView::UpdateWorkflowLabels()
@@ -633,11 +644,6 @@ BOOL CSageTaechangView::IsActionTabVisible() const
     return (IsInputTabSelected() || IsResultTab()) ? TRUE : FALSE;
 }
 
-BOOL CSageTaechangView::IsSettingsButtonVisible() const
-{
-    return (IsInputTabSelected() && GetSelectedWorkflow() == TAECHANG_WORKFLOW_PDF_COMPARE) ? TRUE : FALSE;
-}
-
 void CSageTaechangView::UpdateExportButtonState()
 {
     BOOL bEnabled = (!m_bRunning && IsCompareWorkflow(GetSelectedWorkflow()) && !m_strLastResponseJson.IsEmpty()) ? TRUE : FALSE;
@@ -653,6 +659,31 @@ void CSageTaechangView::OnWorkflowChanged()
     UpdateWorkflowLabels();
     UpdateExportButtonState();
     UpdateResultColumns();
+}
+
+void CSageTaechangView::OnSidebarSelectionChanged(NMHDR* pNMHDR, LRESULT* pResult)
+{
+    UNREFERENCED_PARAMETER(pNMHDR);
+    *pResult = 0;
+    HTREEITEM hItem = m_wndSidebarTree.GetSelectedItem();
+    if (hItem == NULL)
+        return;
+    DWORD_PTR nItemData = m_wndSidebarTree.GetItemData(hItem);
+    if (nItemData == TAECHANG_SIDEBAR_ACTION_NONE)
+        return;
+    if (nItemData == TAECHANG_SIDEBAR_ACTION_SETTINGS)
+    {
+        OnSettings();
+        if (m_hLastWorkflowItem != NULL)
+            m_wndSidebarTree.SelectItem(m_hLastWorkflowItem);
+        return;
+    }
+    int nNewWorkflow = static_cast<int>(nItemData);
+    m_hLastWorkflowItem = hItem;
+    if (nNewWorkflow == m_nCurrentWorkflow)
+        return;
+    m_nCurrentWorkflow = nNewWorkflow;
+    OnWorkflowChanged();
 }
 
 void CSageTaechangView::OnTaskTabChanged(NMHDR* pNMHDR, LRESULT* pResult)
@@ -836,12 +867,11 @@ void CSageTaechangView::RunWorkflowTask(int nTaskType)
 void CSageTaechangView::SetRunningState(BOOL bRunning)
 {
     m_bRunning = bRunning;
-    m_wndWorkflowMenu.EnableWindow(!bRunning);
+    m_wndSidebarTree.EnableWindow(!bRunning);
     m_wndSelectInput.EnableWindow(!bRunning);
     m_wndSelectOutput.EnableWindow(!bRunning);
     m_wndLoad.EnableWindow(!bRunning);
     m_wndGenerate.EnableWindow(!bRunning);
-    m_wndSettings.EnableWindow(!bRunning);
     if (bRunning)
     {
         UpdateProgressPercent(0);
@@ -896,8 +926,7 @@ HBRUSH CSageTaechangView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
     HBRUSH hBrush = CView::OnCtlColor(pDC, pWnd, nCtlColor);
     pDC->SetTextColor(TAECHANG_COLOR_TEXT);
     if (pWnd->GetSafeHwnd() == m_wndSidebarTitle.GetSafeHwnd() ||
-        pWnd->GetSafeHwnd() == m_wndTitle.GetSafeHwnd() ||
-        pWnd->GetSafeHwnd() == m_wndWorkflowMenu.GetSafeHwnd())
+        pWnd->GetSafeHwnd() == m_wndTitle.GetSafeHwnd())
     {
         pDC->SetBkColor(TAECHANG_COLOR_SIDEBAR);
         return m_brushSidebar;
