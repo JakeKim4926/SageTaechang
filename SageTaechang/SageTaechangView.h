@@ -27,9 +27,17 @@ public:
 #endif
 
 protected:
+    CStatic m_wndSidebarTitle;
+    CListBox m_wndWorkflowMenu;
+    CStatic m_wndHeaderTitle;
+    CStatic m_wndHeaderStatus;
+    CTabCtrl m_wndTaskTabs;
+    CStatic m_wndInputSection;
+    CStatic m_wndOutputSection;
+    CStatic m_wndResultSection;
+    CStatic m_wndDetailSection;
     CStatic m_wndTitle;
     CStatic m_wndWorkflowLabel;
-    CComboBox m_wndWorkflow;
     CStatic m_wndInputLabel;
     CStatic m_wndOutputLabel;
     CEdit m_wndInputPath;
@@ -44,8 +52,13 @@ protected:
     CListCtrl m_wndResultList;
     CEdit m_wndDetail;
     CFont m_fontTitle;
+    CFont m_fontHeader;
     CFont m_fontControl;
+    CBrush m_brushAppBackground;
+    CBrush m_brushPanel;
+    CBrush m_brushSidebar;
     BOOL m_bRunning;
+    int m_nSelectedTaskTab;
     int m_nLastWorkflowType;
     int m_nLastTaskType;
     CString m_strLastResponseJson;
@@ -53,7 +66,13 @@ protected:
 protected:
     void CreateChildControls();
     void ApplyControlFonts();
+    void ApplyWorkflowTabs();
+    void UpdateTaskTabVisibility();
+    void UpdateResultColumns();
     void LayoutChildControls();
+    void LayoutInputSection(int nLeft, int nTop, int nWidth, BOOL bShowOutput);
+    void LayoutActionSection(int nLeft, int nTop, int nWidth);
+    void LayoutResultSection(int nLeft, int nTop, int nWidth, int nHeight);
     void SetRunningState(BOOL bRunning);
     void SetStatusText(const CString& strStatus);
     int GetSelectedWorkflow() const;
@@ -73,7 +92,10 @@ protected:
 protected:
     afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
     afx_msg void OnSize(UINT nType, int cx, int cy);
+    afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+    afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
     afx_msg void OnWorkflowChanged();
+    afx_msg void OnTaskTabChanged(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnSelectInput();
     afx_msg void OnSelectOutput();
     afx_msg void OnLoadWorkflow();
