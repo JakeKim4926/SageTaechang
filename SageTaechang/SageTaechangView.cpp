@@ -169,20 +169,6 @@ static UINT RunWorkflowWorker(LPVOID pParam)
     return 0;
 }
 
-BEGIN_MESSAGE_MAP(CTaechangEdit, CEdit)
-    ON_WM_NCPAINT()
-END_MESSAGE_MAP()
-
-void CTaechangEdit::OnNcPaint()
-{
-    CWindowDC dc(this);
-    CRect rect;
-    GetWindowRect(&rect);
-    rect.OffsetRect(-rect.left, -rect.top);
-    CBrush brush(TAECHANG_COLOR_BORDER);
-    dc.FrameRect(&rect, &brush);
-}
-
 BEGIN_MESSAGE_MAP(CTaechangTabCtrl, CTabCtrl)
     ON_WM_PAINT()
 END_MESSAGE_MAP()
@@ -308,10 +294,8 @@ void CSageTaechangView::CreateChildControls()
     m_wndWorkflowLabel.Create(TAECHANG_UI_WORKFLOW_LABEL, WS_CHILD, rectEmpty, this);
     m_wndInputLabel.Create(TAECHANG_UI_INPUT_LABEL, WS_CHILD | WS_VISIBLE, rectEmpty, this);
     m_wndOutputLabel.Create(TAECHANG_UI_OUTPUT_LABEL, WS_CHILD | WS_VISIBLE, rectEmpty, this);
-    m_wndInputPath.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL | ES_READONLY, rectEmpty, this, ID_TAECHANG_INPUT_EDIT);
-    m_wndOutputFolder.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL | ES_READONLY, rectEmpty, this, ID_TAECHANG_OUTPUT_EDIT);
-    SetWindowTheme(m_wndInputPath.GetSafeHwnd(), L"", L"");
-    SetWindowTheme(m_wndOutputFolder.GetSafeHwnd(), L"", L"");
+    m_wndInputPath.Create(WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL | ES_READONLY, rectEmpty, this, ID_TAECHANG_INPUT_EDIT);
+    m_wndOutputFolder.Create(WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL | ES_READONLY, rectEmpty, this, ID_TAECHANG_OUTPUT_EDIT);
     m_wndSelectInput.Create(TAECHANG_UI_INPUT_BUTTON, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_SELECT_INPUT);
     m_wndSelectOutput.Create(TAECHANG_UI_OUTPUT_BUTTON, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_SELECT_OUTPUT);
     m_wndLoad.Create(TAECHANG_UI_LOAD_BUTTON, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_LOAD_WORKFLOW);
@@ -731,6 +715,22 @@ void CSageTaechangView::OnDraw(CDC* pDC)
     pDC->FillSolidRect(0, 0, TAECHANG_SIDEBAR_WIDTH, rectClient.Height(), TAECHANG_COLOR_SIDEBAR);
     pDC->FillSolidRect(TAECHANG_SIDEBAR_WIDTH, 0, 1, rectClient.Height(), TAECHANG_COLOR_BORDER);
     pDC->FillSolidRect(TAECHANG_SIDEBAR_WIDTH + 1, TAECHANG_MARGIN + TAECHANG_HEADER_HEIGHT, rectClient.Width() - TAECHANG_SIDEBAR_WIDTH - 1, 1, TAECHANG_COLOR_BORDER);
+    DrawEditBorder(pDC, m_wndInputPath);
+    DrawEditBorder(pDC, m_wndOutputFolder);
+}
+
+void CSageTaechangView::DrawEditBorder(CDC* pDC, CWnd& wnd)
+{
+    if (!::IsWindow(wnd.GetSafeHwnd()) || !wnd.IsWindowVisible())
+        return;
+    CRect rect;
+    wnd.GetWindowRect(&rect);
+    ScreenToClient(&rect);
+    rect.InflateRect(1, 1);
+    pDC->FillSolidRect(rect.left, rect.top, rect.Width(), 1, TAECHANG_COLOR_BORDER);
+    pDC->FillSolidRect(rect.left, rect.bottom - 1, rect.Width(), 1, TAECHANG_COLOR_BORDER);
+    pDC->FillSolidRect(rect.left, rect.top, 1, rect.Height(), TAECHANG_COLOR_BORDER);
+    pDC->FillSolidRect(rect.right - 1, rect.top, 1, rect.Height(), TAECHANG_COLOR_BORDER);
 }
 
 int CSageTaechangView::GetSelectedWorkflow() const
@@ -1165,6 +1165,8 @@ BOOL CSageTaechangView::OnEraseBkgnd(CDC* pDC)
     pDC->FillSolidRect(0, 0, TAECHANG_SIDEBAR_WIDTH, rectClient.Height(), TAECHANG_COLOR_SIDEBAR);
     pDC->FillSolidRect(TAECHANG_SIDEBAR_WIDTH, 0, 1, rectClient.Height(), TAECHANG_COLOR_BORDER);
     pDC->FillSolidRect(TAECHANG_SIDEBAR_WIDTH + 1, TAECHANG_MARGIN + TAECHANG_HEADER_HEIGHT, rectClient.Width() - TAECHANG_SIDEBAR_WIDTH - 1, 1, TAECHANG_COLOR_BORDER);
+    DrawEditBorder(pDC, m_wndInputPath);
+    DrawEditBorder(pDC, m_wndOutputFolder);
     return TRUE;
 }
 

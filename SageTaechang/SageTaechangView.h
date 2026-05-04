@@ -12,12 +12,6 @@ protected:
     afx_msg void OnPaint();
 };
 
-class CTaechangEdit : public CEdit
-{
-    DECLARE_MESSAGE_MAP()
-protected:
-    afx_msg void OnNcPaint();
-};
 
 class CSageTaechangView : public CView
 {
@@ -53,8 +47,8 @@ protected:
     CStatic m_wndWorkflowLabel;
     CStatic m_wndInputLabel;
     CStatic m_wndOutputLabel;
-    CTaechangEdit m_wndInputPath;
-    CTaechangEdit m_wndOutputFolder;
+    CEdit m_wndInputPath;
+    CEdit m_wndOutputFolder;
     CButton m_wndSelectInput;
     CButton m_wndSelectOutput;
     CButton m_wndLoad;
@@ -113,6 +107,7 @@ protected:
     BOOL IsDeliveryInputTable() const;
     BOOL IsEstimateInputTable() const;
     COLORREF ResolveStatusColor(const CString& strStatus) const;
+    void DrawEditBorder(CDC* pDC, CWnd& wnd);
     BOOL ValidateInputPath(CString& strInputPath);
     BOOL ValidateOutputFolder(CString& strOutputFolder);
     void RunWorkflowTask(int nTaskType);
