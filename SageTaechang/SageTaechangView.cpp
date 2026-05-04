@@ -417,9 +417,12 @@ void CSageTaechangView::ApplyResultColumns()
         return;
 
     BOOL bNeedCheckbox = (IsDeliveryInputTable() || IsEstimateInputTable()) ? TRUE : FALSE;
+    BOOL bNeedGridLines = (IsReceivablesResultTable() || IsDeliveryInputTable() || IsEstimateInputTable()) ? TRUE : FALSE;
     DWORD dwExtStyle = LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER;
     if (bNeedCheckbox)
         dwExtStyle |= LVS_EX_CHECKBOXES;
+    if (bNeedGridLines)
+        dwExtStyle |= LVS_EX_GRIDLINES;
     m_wndResultList.SetExtendedStyle(dwExtStyle);
 
     m_wndResultList.DeleteAllItems();
@@ -1519,6 +1522,24 @@ void CSageTaechangView::OnListCustomDraw(NMHDR* pNMHDR, LRESULT* pResult)
         if (!(uState & LVIS_SELECTED))
         {
             pCD->clrTextBk = (nItem % 2 == 1) ? TAECHANG_COLOR_LIST_ROW_ALT : TAECHANG_COLOR_PANEL;
+            pCD->clrText = TAECHANG_COLOR_TEXT;
+            *pResult = CDRF_NEWFONT;
+            if (IsReceivablesResultTable())
+                *pResult |= CDRF_NOTIFYSUBITEMDRAW;
+        }
+        break;
+    }
+    case CDDS_SUBITEM | CDDS_ITEMPREPAINT:
+    {
+        int nItem = static_cast<int>(pCD->nmcd.dwItemSpec);
+        int nSubItem = pCD->iSubItem;
+        UINT uState = ListView_GetItemState(pCD->nmcd.hdr.hwndFrom, nItem, LVIS_SELECTED);
+        if (!(uState & LVIS_SELECTED) &&
+            (nSubItem == TAECHANG_RECEIVABLES_COL_IDX_TOTAL_AMOUNT ||
+             nSubItem == TAECHANG_RECEIVABLES_COL_IDX_DEPOSIT_AMOUNT ||
+             nSubItem == TAECHANG_RECEIVABLES_COL_IDX_RECEIVABLE_AMOUNT))
+        {
+            pCD->clrTextBk = (nItem % 2 == 1) ? TAECHANG_COLOR_LIST_AMOUNT_COL_ALT : TAECHANG_COLOR_LIST_AMOUNT_COL;
             pCD->clrText = TAECHANG_COLOR_TEXT;
             *pResult = CDRF_NEWFONT;
         }
