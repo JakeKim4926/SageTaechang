@@ -46,6 +46,7 @@ constexpr int TAECHANG_SIDEBAR_WIDTH = 220;
 constexpr int TAECHANG_TOP_BAR_HEIGHT = 58;
 constexpr int TAECHANG_SECTION_TITLE_HEIGHT = 22;
 constexpr int TAECHANG_TAB_HEIGHT = 32;
+constexpr int TAECHANG_TAB_INDICATOR_HEIGHT = 2;
 constexpr int TAECHANG_PANEL_GAP = 14;
 constexpr int TAECHANG_ACTION_GAP = 8;
 constexpr int TAECHANG_SIDEBAR_TITLE_HEIGHT = 38;
