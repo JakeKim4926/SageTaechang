@@ -28,6 +28,9 @@
     <Filter Include="소스 파일\app\infrastructure">
       <UniqueIdentifier>{BD8A6B14-D7B9-4C28-ABB1-8B1C6948C85E}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\app\presentation">
+      <UniqueIdentifier>{D89B4C8B-7B71-4E77-A493-91B4B7CDB211}</UniqueIdentifier>
+    </Filter>
     <Filter Include="소스 파일\app\infrastructure\bridge">
       <UniqueIdentifier>{D97AF64B-4747-4AD5-A980-3BB4F3C929B0}</UniqueIdentifier>
     </Filter>
@@ -46,33 +49,24 @@
     <Filter Include="헤더 파일\app\infrastructure">
       <UniqueIdentifier>{89D07C9A-F33C-4D60-A30B-A4E1F81E3289}</UniqueIdentifier>
     </Filter>
+    <Filter Include="헤더 파일\app\presentation">
+      <UniqueIdentifier>{CB0D56E5-3533-4B33-B4FE-1D87545ED237}</UniqueIdentifier>
+    </Filter>
     <Filter Include="헤더 파일\app\infrastructure\bridge">
       <UniqueIdentifier>{71FAB409-1284-4252-8F01-BD4E81F6EE4F}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\default">
+      <UniqueIdentifier>{f0d91be8-90ae-49b2-864d-a77985e2c82f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\default">
+      <UniqueIdentifier>{e317d8ca-bc0a-478c-8b38-efd030de12cf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SageTaechang.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="framework.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="targetver.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="MainFrm.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SageTaechangDoc.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SageTaechangView.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Resource.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="pch.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="TaechangDefine.h">
@@ -90,23 +84,44 @@
     <ClInclude Include="app\application\services\TaechangDeliveryExcelService.h">
       <Filter>헤더 파일\app\application\services</Filter>
     </ClInclude>
+    <ClInclude Include="app\application\services\TaechangEstimateExcelService.h">
+      <Filter>헤더 파일\app\application\services</Filter>
+    </ClInclude>
+    <ClInclude Include="app\application\services\TaechangPdfCompareService.h">
+      <Filter>헤더 파일\app\application\services</Filter>
+    </ClInclude>
+    <ClInclude Include="app\application\services\TaechangHwpCompareService.h">
+      <Filter>헤더 파일\app\application\services</Filter>
+    </ClInclude>
+    <ClInclude Include="app\application\services\TaechangAppSettingsService.h">
+      <Filter>헤더 파일\app\application\services</Filter>
+    </ClInclude>
+    <ClInclude Include="app\application\services\TaechangCompareCsvExportService.h">
+      <Filter>헤더 파일\app\application\services</Filter>
+    </ClInclude>
+    <ClInclude Include="app\presentation\TaechangWorkflowResultPresenter.h">
+      <Filter>헤더 파일\app\presentation</Filter>
+    </ClInclude>
+    <ClInclude Include="framework.h">
+      <Filter>헤더 파일\default</Filter>
+    </ClInclude>
+    <ClInclude Include="MainFrm.h">
+      <Filter>헤더 파일\default</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>헤더 파일\default</Filter>
+    </ClInclude>
+    <ClInclude Include="SageTaechang.h">
+      <Filter>헤더 파일\default</Filter>
+    </ClInclude>
+    <ClInclude Include="SageTaechangDoc.h">
+      <Filter>헤더 파일\default</Filter>
+    </ClInclude>
+    <ClInclude Include="SageTaechangView.h">
+      <Filter>헤더 파일\default</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SageTaechang.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="MainFrm.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="SageTaechangDoc.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="SageTaechangView.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="pch.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="app\application\services\TaechangReceivablesExcelService.cpp">
       <Filter>소스 파일\app\application\services</Filter>
     </ClCompile>
@@ -119,6 +134,39 @@
     <ClCompile Include="app\application\services\TaechangDeliveryExcelService.cpp">
       <Filter>소스 파일\app\application\services</Filter>
     </ClCompile>
+    <ClCompile Include="app\application\services\TaechangEstimateExcelService.cpp">
+      <Filter>소스 파일\app\application\services</Filter>
+    </ClCompile>
+    <ClCompile Include="app\application\services\TaechangPdfCompareService.cpp">
+      <Filter>소스 파일\app\application\services</Filter>
+    </ClCompile>
+    <ClCompile Include="app\application\services\TaechangHwpCompareService.cpp">
+      <Filter>소스 파일\app\application\services</Filter>
+    </ClCompile>
+    <ClCompile Include="app\application\services\TaechangAppSettingsService.cpp">
+      <Filter>소스 파일\app\application\services</Filter>
+    </ClCompile>
+    <ClCompile Include="app\application\services\TaechangCompareCsvExportService.cpp">
+      <Filter>소스 파일\app\application\services</Filter>
+    </ClCompile>
+    <ClCompile Include="app\presentation\TaechangWorkflowResultPresenter.cpp">
+      <Filter>소스 파일\app\presentation</Filter>
+    </ClCompile>
+    <ClCompile Include="SageTaechang.cpp">
+      <Filter>소스 파일\default</Filter>
+    </ClCompile>
+    <ClCompile Include="SageTaechangDoc.cpp">
+      <Filter>소스 파일\default</Filter>
+    </ClCompile>
+    <ClCompile Include="SageTaechangView.cpp">
+      <Filter>소스 파일\default</Filter>
+    </ClCompile>
+    <ClCompile Include="MainFrm.cpp">
+      <Filter>소스 파일\default</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>소스 파일\default</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SageTaechang.rc">
@@ -127,6 +175,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="res\SageTaechang.rc2">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="resources\GmarketSansTTFBold.ttf">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="resources\GmarketSansTTFLight.ttf">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="resources\GmarketSansTTFMedium.ttf">
       <Filter>리소스 파일</Filter>
     </None>
   </ItemGroup>

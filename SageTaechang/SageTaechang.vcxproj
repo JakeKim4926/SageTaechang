@@ -232,6 +232,12 @@ if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templ
     <ClInclude Include="app\common\TaechangJson.h" />
     <ClInclude Include="app\infrastructure\bridge\TaechangBridgeResponse.h" />
     <ClInclude Include="app\application\services\TaechangDeliveryExcelService.h" />
+    <ClInclude Include="app\application\services\TaechangEstimateExcelService.h" />
+    <ClInclude Include="app\application\services\TaechangPdfCompareService.h" />
+    <ClInclude Include="app\application\services\TaechangHwpCompareService.h" />
+    <ClInclude Include="app\application\services\TaechangAppSettingsService.h" />
+    <ClInclude Include="app\application\services\TaechangCompareCsvExportService.h" />
+    <ClInclude Include="app\presentation\TaechangWorkflowResultPresenter.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MainFrm.cpp" />
@@ -248,12 +254,21 @@ if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templ
     <ClCompile Include="app\common\TaechangJson.cpp" />
     <ClCompile Include="app\infrastructure\bridge\TaechangBridgeResponse.cpp" />
     <ClCompile Include="app\application\services\TaechangDeliveryExcelService.cpp" />
+    <ClCompile Include="app\application\services\TaechangEstimateExcelService.cpp" />
+    <ClCompile Include="app\application\services\TaechangPdfCompareService.cpp" />
+    <ClCompile Include="app\application\services\TaechangHwpCompareService.cpp" />
+    <ClCompile Include="app\application\services\TaechangAppSettingsService.cpp" />
+    <ClCompile Include="app\application\services\TaechangCompareCsvExportService.cpp" />
+    <ClCompile Include="app\presentation\TaechangWorkflowResultPresenter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SageTaechang.rc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\SageTaechang.rc2" />
+    <None Include="resources\GmarketSansTTFBold.ttf" />
+    <None Include="resources\GmarketSansTTFLight.ttf" />
+    <None Include="resources\GmarketSansTTFMedium.ttf" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\SageTaechang.ico" />
