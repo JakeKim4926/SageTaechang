@@ -5,6 +5,13 @@
 
 struct TaechangResultRow;
 
+class CTaechangTabCtrl : public CTabCtrl
+{
+    DECLARE_MESSAGE_MAP()
+protected:
+    afx_msg void OnPaint();
+};
+
 class CSageTaechangView : public CView
 {
 protected:
@@ -30,7 +37,7 @@ protected:
     CTreeCtrl m_wndSidebarTree;
     CStatic m_wndHeaderTitle;
     CStatic m_wndHeaderStatus;
-    CTabCtrl m_wndTaskTabs;
+    CTaechangTabCtrl m_wndTaskTabs;
     CStatic m_wndInputSection;
     CStatic m_wndOutputSection;
     CStatic m_wndResultSection;
@@ -122,6 +129,7 @@ protected:
     afx_msg LRESULT OnWorkflowComplete(WPARAM wParam, LPARAM lParam);
     afx_msg void OnDropFiles(HDROP hDropInfo);
     afx_msg void OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct);
+    afx_msg void OnSidebarTreeCustomDraw(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnListCustomDraw(NMHDR* pNMHDR, LRESULT* pResult);
     DECLARE_MESSAGE_MAP()
 };
