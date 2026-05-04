@@ -254,7 +254,7 @@ void CSageTaechangView::CreateChildControls()
     m_wndResultList.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SINGLESEL, rectEmpty, this, ID_TAECHANG_RESULT_LIST);
     m_wndDetail.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | WS_VSCROLL, rectEmpty, this, ID_TAECHANG_DETAIL_EDIT);
 
-    m_wndResultList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_CHECKBOXES);
+    m_wndResultList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
     m_wndProgress.SetMarquee(FALSE, 0);
     m_wndProgress.SetRange(0, TAECHANG_PROGRESS_COMPLETE);
     UpdateProgressPercent(0);
@@ -356,6 +356,12 @@ void CSageTaechangView::ApplyResultColumns()
     if (!::IsWindow(m_wndResultList.GetSafeHwnd()))
         return;
 
+    BOOL bNeedCheckbox = (IsDeliveryInputTable() || IsEstimateInputTable()) ? TRUE : FALSE;
+    DWORD dwExtStyle = LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER;
+    if (bNeedCheckbox)
+        dwExtStyle |= LVS_EX_CHECKBOXES;
+    m_wndResultList.SetExtendedStyle(dwExtStyle);
+
     m_wndResultList.DeleteAllItems();
     CHeaderCtrl* pHeader = m_wndResultList.GetHeaderCtrl();
     int nColumnCount = (pHeader != NULL) ? pHeader->GetItemCount() : 0;
@@ -395,6 +401,19 @@ void CSageTaechangView::ApplyResultColumns()
         m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_DELIVERY_COL_TOTAL_COPIES, LVCFMT_RIGHT, TAECHANG_DELIVERY_COPIES_WIDTH);
         return;
     }
+    if (IsEstimateInputTable())
+    {
+        m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_ESTIMATE_COL_ROW, LVCFMT_LEFT, TAECHANG_ESTIMATE_ROW_WIDTH);
+        m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_ESTIMATE_COL_COMPANY, LVCFMT_LEFT, TAECHANG_ESTIMATE_COMPANY_WIDTH);
+        m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_ESTIMATE_COL_DATE, LVCFMT_LEFT, TAECHANG_ESTIMATE_DATE_WIDTH);
+        m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_ESTIMATE_COL_ITEM, LVCFMT_LEFT, TAECHANG_ESTIMATE_ITEM_WIDTH);
+        m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_ESTIMATE_COL_COPIES, LVCFMT_RIGHT, TAECHANG_ESTIMATE_COPIES_WIDTH);
+        m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_ESTIMATE_COL_PAGES, LVCFMT_RIGHT, TAECHANG_ESTIMATE_PAGES_WIDTH);
+        m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_ESTIMATE_COL_UNIT_PRICE, LVCFMT_RIGHT, TAECHANG_ESTIMATE_UNIT_PRICE_WIDTH);
+        m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_ESTIMATE_COL_COVER, LVCFMT_RIGHT, TAECHANG_ESTIMATE_COVER_WIDTH);
+        m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_ESTIMATE_COL_FREIGHT, LVCFMT_RIGHT, TAECHANG_ESTIMATE_FREIGHT_WIDTH);
+        return;
+    }
     m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RESULT_FIELD, LVCFMT_LEFT, TAECHANG_RESULT_FIELD_WIDTH);
     m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RESULT_VALUE, LVCFMT_LEFT, TAECHANG_RESULT_MIN_VALUE_WIDTH);
     m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RESULT_STATUS, LVCFMT_LEFT, TAECHANG_RESULT_STATUS_WIDTH);
@@ -407,7 +426,7 @@ void CSageTaechangView::UpdateTaskTabVisibility()
     BOOL bShowInput = IsInputTabSelected();
     BOOL bShowOutput = ((bShowInput || IsResultTab()) && !bIsCompare) ? TRUE : FALSE;
     BOOL bShowAction = IsActionTabVisible();
-    BOOL bShowResult = IsResultTab() || (IsInputTabSelected() && IsDeliveryInputTable());
+    BOOL bShowResult = IsResultTab() || (IsInputTabSelected() && (IsDeliveryInputTable() || IsEstimateInputTable()));
     BOOL bShowDetail = IsDetailTab();
     BOOL bShowExport = IsExportTab();
 
@@ -471,6 +490,19 @@ void CSageTaechangView::UpdateResultColumns()
         m_wndResultList.SetColumnWidth(8, TAECHANG_DELIVERY_COPIES_WIDTH);
         m_wndResultList.SetColumnWidth(9, TAECHANG_DELIVERY_COPIES_WIDTH);
         m_wndResultList.SetColumnWidth(10, TAECHANG_DELIVERY_COPIES_WIDTH);
+        return;
+    }
+    if (IsEstimateInputTable())
+    {
+        m_wndResultList.SetColumnWidth(0, TAECHANG_ESTIMATE_ROW_WIDTH);
+        m_wndResultList.SetColumnWidth(1, TAECHANG_ESTIMATE_COMPANY_WIDTH);
+        m_wndResultList.SetColumnWidth(2, TAECHANG_ESTIMATE_DATE_WIDTH);
+        m_wndResultList.SetColumnWidth(3, TAECHANG_ESTIMATE_ITEM_WIDTH);
+        m_wndResultList.SetColumnWidth(4, TAECHANG_ESTIMATE_COPIES_WIDTH);
+        m_wndResultList.SetColumnWidth(5, TAECHANG_ESTIMATE_PAGES_WIDTH);
+        m_wndResultList.SetColumnWidth(6, TAECHANG_ESTIMATE_UNIT_PRICE_WIDTH);
+        m_wndResultList.SetColumnWidth(7, TAECHANG_ESTIMATE_COVER_WIDTH);
+        m_wndResultList.SetColumnWidth(8, TAECHANG_ESTIMATE_FREIGHT_WIDTH);
         return;
     }
     int nFixedWidth = TAECHANG_RESULT_FIELD_WIDTH + TAECHANG_RESULT_STATUS_WIDTH + TAECHANG_RESULT_REASON_WIDTH;
@@ -596,7 +628,7 @@ void CSageTaechangView::LayoutActionSection(int nLeft, int nTop, int nWidth)
 void CSageTaechangView::LayoutResultSection(int nLeft, int nTop, int nWidth, int nHeight)
 {
     int nBodyHeight = max(TAECHANG_RESULT_MIN_HEIGHT, nHeight - TAECHANG_RESULT_HEADER_HEIGHT);
-    if (IsResultTab() || (IsInputTabSelected() && IsDeliveryInputTable()))
+    if (IsResultTab() || (IsInputTabSelected() && (IsDeliveryInputTable() || IsEstimateInputTable())))
     {
         m_wndResultSection.MoveWindow(nLeft, nTop, nWidth, TAECHANG_RESULT_HEADER_HEIGHT);
         m_wndResultList.MoveWindow(nLeft, nTop + TAECHANG_RESULT_HEADER_HEIGHT, nWidth, nBodyHeight);
@@ -717,6 +749,13 @@ BOOL CSageTaechangView::IsDeliveryInputTable() const
     return (m_nLastTaskType == TAECHANG_TASK_LOAD) ? TRUE : FALSE;
 }
 
+BOOL CSageTaechangView::IsEstimateInputTable() const
+{
+    if (m_nLastWorkflowType != TAECHANG_WORKFLOW_ESTIMATE)
+        return FALSE;
+    return (m_nLastTaskType == TAECHANG_TASK_LOAD) ? TRUE : FALSE;
+}
+
 void CSageTaechangView::UpdateExportButtonState()
 {
     BOOL bEnabled = (!m_bRunning && IsCompareWorkflow(GetSelectedWorkflow()) && !m_strLastResponseJson.IsEmpty()) ? TRUE : FALSE;
@@ -800,7 +839,7 @@ void CSageTaechangView::OnDropFiles(HDROP hDropInfo)
         m_wndTaskTabs.SetCurSel(m_nSelectedTaskTab);
         LayoutChildControls();
     }
-    if (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY)
+    if (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY || nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE)
         RunWorkflowTask(TAECHANG_TASK_LOAD);
 }
 
@@ -845,7 +884,7 @@ void CSageTaechangView::OnSelectInput()
     if (dlg.DoModal() == IDOK)
     {
         m_wndInputPath.SetWindowTextW(dlg.GetPathName());
-        if (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY)
+        if (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY || nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE)
             RunWorkflowTask(TAECHANG_TASK_LOAD);
     }
 }
@@ -941,7 +980,7 @@ void CSageTaechangView::RunWorkflowTask(int nTaskType)
         return;
 
     CString strSelectedRowNums;
-    if (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY && nTaskType == TAECHANG_TASK_GENERATE)
+    if ((nWorkflowType == TAECHANG_WORKFLOW_DELIVERY || nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE) && nTaskType == TAECHANG_TASK_GENERATE)
     {
         int nListCount = m_wndResultList.GetItemCount();
         for (int i = 0; i < nListCount; ++i)
@@ -959,7 +998,10 @@ void CSageTaechangView::RunWorkflowTask(int nTaskType)
         }
         if (strSelectedRowNums.IsEmpty())
         {
-            AfxMessageBox(TAECHANG_UI_DELIVERY_SELECT_ROW_REQUIRED, MB_ICONWARNING);
+            LPCWSTR pszMsg = (nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE)
+                ? TAECHANG_UI_ESTIMATE_SELECT_ROW_REQUIRED
+                : TAECHANG_UI_DELIVERY_SELECT_ROW_REQUIRED;
+            AfxMessageBox(pszMsg, MB_ICONWARNING);
             return;
         }
     }
@@ -1131,7 +1173,7 @@ void CSageTaechangView::DisplayResponse(int nWorkflowType, int nTaskType, const 
     for (int i = 0; i < static_cast<int>(arrRows.size()); ++i)
         InsertResultRow(arrRows[i]);
 
-    if (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY && nTaskType == TAECHANG_TASK_LOAD)
+    if ((nWorkflowType == TAECHANG_WORKFLOW_DELIVERY || nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE) && nTaskType == TAECHANG_TASK_LOAD)
     {
         m_nSelectedTaskTab = TAECHANG_TAB_INDEX_INPUT;
         m_wndTaskTabs.SetCurSel(m_nSelectedTaskTab);
@@ -1140,6 +1182,7 @@ void CSageTaechangView::DisplayResponse(int nWorkflowType, int nTaskType, const 
     }
     else if ((nWorkflowType == TAECHANG_WORKFLOW_RECEIVABLES && nTaskType == TAECHANG_TASK_GENERATE) ||
         (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY && nTaskType == TAECHANG_TASK_GENERATE) ||
+        (nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE && nTaskType == TAECHANG_TASK_GENERATE) ||
         nTaskType == TAECHANG_TASK_LOAD)
     {
         m_nSelectedTaskTab = TAECHANG_TAB_INDEX_DOCUMENT_RESULT;
@@ -1187,6 +1230,20 @@ void CSageTaechangView::InsertResultRow(const TaechangResultRow& row)
         m_wndResultList.SetItemText(nIndex, 8, row.m_strCompanyCopies);
         m_wndResultList.SetItemText(nIndex, 9, row.m_strCorporationCopies);
         m_wndResultList.SetItemText(nIndex, 10, row.m_strTotalCopies);
+        return;
+    }
+    if (IsEstimateInputTable())
+    {
+        nIndex = m_wndResultList.InsertItem(nCount, row.m_strField);
+        m_wndResultList.SetItemData(nIndex, static_cast<DWORD_PTR>(row.m_nSourceRowIndex));
+        m_wndResultList.SetItemText(nIndex, 1, row.m_strCompanyName);
+        m_wndResultList.SetItemText(nIndex, 2, row.m_strIssueDate);
+        m_wndResultList.SetItemText(nIndex, 3, row.m_strItemName);
+        m_wndResultList.SetItemText(nIndex, 4, row.m_strCompanyCopies);
+        m_wndResultList.SetItemText(nIndex, 5, row.m_strCorporationCopies);
+        m_wndResultList.SetItemText(nIndex, 6, row.m_strTotalCopies);
+        m_wndResultList.SetItemText(nIndex, 7, row.m_strValue);
+        m_wndResultList.SetItemText(nIndex, 8, row.m_strReason);
         return;
     }
     if (bIsCompare)

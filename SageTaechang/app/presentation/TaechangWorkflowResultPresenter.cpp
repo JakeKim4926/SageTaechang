@@ -121,6 +121,8 @@ BOOL TaechangWorkflowResultPresenter::BuildRows(
         AddReceivablesResultRows(strResponseJson, outRows);
     else if (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY && nTaskType == TAECHANG_TASK_LOAD)
         AddDeliveryInputRows(strResponseJson, outRows);
+    else if (nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE && nTaskType == TAECHANG_TASK_LOAD)
+        AddEstimateInputRows(strResponseJson, outRows);
     else if (IsCompareWorkflow(nWorkflowType))
     {
         AddRow(outRows, TAECHANG_UI_RESULT_STATUS, TAECHANG_UI_COMPLETED, TAECHANG_RESULT_STATUS_SUCCESS, L"");
@@ -265,6 +267,40 @@ void TaechangWorkflowResultPresenter::AddDeliveryInputRows(
         row.m_strCompanyCopies = strCompanyCopies;
         row.m_strCorporationCopies = strCorporationCopies;
         row.m_strTotalCopies = strTotalCopies;
+        outRows.push_back(row);
+    }
+}
+
+void TaechangWorkflowResultPresenter::AddEstimateInputRows(
+    const CString& strResponseJson,
+    std::vector<TaechangResultRow>& outRows) const
+{
+    CString strRowsJson = JsonExtractArray(strResponseJson, TAECHANG_JSON_KEY_ROWS);
+    std::vector<CString> arrObjects;
+    SplitJsonObjectArray(strRowsJson, arrObjects);
+    for (int i = 0; i < static_cast<int>(arrObjects.size()); ++i)
+    {
+        CString strRowNum = JsonExtractIntText(arrObjects[i], TAECHANG_JSON_KEY_ROW_NUM);
+        CString strCompanyName = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_COMPANY_NAME);
+        CString strDateText = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_DATE_TEXT);
+        CString strItemName = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_ITEM_NAME);
+        CString strCopies = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_COPIES);
+        CString strPages = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_PAGES);
+        CString strUnitPrice = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_UNIT_PRICE);
+        CString strCoverCost = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_COVER_COST);
+        CString strFreight = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_FREIGHT);
+
+        TaechangResultRow row;
+        row.m_nSourceRowIndex = _wtoi(strRowNum);
+        row.m_strField = strRowNum;
+        row.m_strCompanyName = strCompanyName;
+        row.m_strIssueDate = strDateText;
+        row.m_strItemName = strItemName;
+        row.m_strCompanyCopies = strCopies;
+        row.m_strCorporationCopies = strPages;
+        row.m_strTotalCopies = strUnitPrice;
+        row.m_strValue = strCoverCost;
+        row.m_strReason = strFreight;
         outRows.push_back(row);
     }
 }

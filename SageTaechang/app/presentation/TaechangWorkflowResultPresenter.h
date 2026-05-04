@@ -64,5 +64,9 @@ private:
         const CString& strResponseJson,
         std::vector<TaechangResultRow>& outRows) const;
 
+    void AddEstimateInputRows(
+        const CString& strResponseJson,
+        std::vector<TaechangResultRow>& outRows) const;
+
     BOOL IsCompareWorkflow(int nWorkflowType) const;
 };
