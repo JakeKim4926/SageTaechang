@@ -181,6 +181,7 @@ BEGIN_MESSAGE_MAP(CSageTaechangView, CView)
     ON_BN_CLICKED(ID_TAECHANG_GENERATE_WORKFLOW, &CSageTaechangView::OnGenerateWorkflow)
     ON_BN_CLICKED(ID_TAECHANG_EXPORT_CSV, &CSageTaechangView::OnExportCsv)
     ON_MESSAGE(WM_TAECHANG_WORKFLOW_COMPLETE, &CSageTaechangView::OnWorkflowComplete)
+    ON_WM_DROPFILES()
     ON_WM_DRAWITEM()
     ON_NOTIFY(NM_CUSTOMDRAW, ID_TAECHANG_RESULT_LIST, &CSageTaechangView::OnListCustomDraw)
 END_MESSAGE_MAP()
@@ -214,6 +215,7 @@ int CSageTaechangView::OnCreate(LPCREATESTRUCT lpCreateStruct)
     if (CView::OnCreate(lpCreateStruct) == -1)
         return -1;
 
+    DragAcceptFiles(TRUE);
     CreateChildControls();
     SetStatusText(TAECHANG_UI_READY);
     return 0;
@@ -725,6 +727,39 @@ void CSageTaechangView::OnTaskTabChanged(NMHDR* pNMHDR, LRESULT* pResult)
     LayoutChildControls();
     Invalidate();
     *pResult = 0;
+}
+
+void CSageTaechangView::OnDropFiles(HDROP hDropInfo)
+{
+    UINT nFileCount = DragQueryFileW(hDropInfo, 0xFFFFFFFF, NULL, 0);
+    if (nFileCount == 0 || m_bRunning)
+    {
+        DragFinish(hDropInfo);
+        return;
+    }
+
+    BOOL bIsCompare = IsCompareWorkflow(GetSelectedWorkflow());
+    CString strPaths;
+    for (UINT i = 0; i < nFileCount; ++i)
+    {
+        wchar_t szPath[MAX_PATH] = {};
+        DragQueryFileW(hDropInfo, i, szPath, MAX_PATH);
+        if (!strPaths.IsEmpty())
+            strPaths += L"\r\n";
+        strPaths += szPath;
+        if (!bIsCompare)
+            break;
+    }
+    DragFinish(hDropInfo);
+
+    m_wndInputPath.SetWindowTextW(strPaths);
+
+    if (!IsInputTabSelected())
+    {
+        m_nSelectedTaskTab = TAECHANG_TAB_INDEX_INPUT;
+        m_wndTaskTabs.SetCurSel(m_nSelectedTaskTab);
+        LayoutChildControls();
+    }
 }
 
 void CSageTaechangView::OnSelectInput()
