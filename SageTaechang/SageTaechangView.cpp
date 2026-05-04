@@ -247,6 +247,7 @@ CSageTaechangView::CSageTaechangView() noexcept
     , m_nCurrentWorkflow(TAECHANG_WORKFLOW_RECEIVABLES)
     , m_hLastWorkflowItem(NULL)
     , m_colorHeaderStatus(TAECHANG_COLOR_SECONDARY_TEXT)
+    , m_bLastTaskSuccess(FALSE)
 {
     m_brushAppBackground.CreateSolidBrush(TAECHANG_COLOR_APP_BACKGROUND);
     m_brushPanel.CreateSolidBrush(TAECHANG_COLOR_PANEL);
@@ -305,6 +306,7 @@ void CSageTaechangView::CreateChildControls()
     m_wndResultList.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SINGLESEL, rectEmpty, this, ID_TAECHANG_RESULT_LIST);
     m_wndDetail.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | WS_VSCROLL, rectEmpty, this, ID_TAECHANG_DETAIL_EDIT);
     m_wndEmptyStateHint.Create(TAECHANG_UI_EMPTY_STATE_HINT, WS_CHILD | WS_VISIBLE | SS_CENTER | SS_CENTERIMAGE, rectEmpty, this);
+    m_wndActionStatus.Create(L"", WS_CHILD | SS_LEFT | SS_CENTERIMAGE, rectEmpty, this);
 
     m_wndResultList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
     m_wndProgress.SetMarquee(FALSE, 0);
@@ -381,6 +383,7 @@ void CSageTaechangView::ApplyControlFonts()
     m_wndResultList.SetFont(&m_fontControl);
     m_wndDetail.SetFont(&m_fontControl);
     m_wndEmptyStateHint.SetFont(&m_fontControl);
+    m_wndActionStatus.SetFont(&m_fontControl);
 }
 
 void CSageTaechangView::ApplyWorkflowTabs()
@@ -497,8 +500,10 @@ void CSageTaechangView::UpdateTaskTabVisibility()
     m_wndLoad.ShowWindow(SW_HIDE);
     m_wndGenerate.ShowWindow(bShowAction ? SW_SHOW : SW_HIDE);
     m_wndExportCsv.ShowWindow(bShowExport ? SW_SHOW : SW_HIDE);
+    BOOL bShowActionStatus = (bShowAction && !m_bRunning && m_nLastTaskType != 0) ? TRUE : FALSE;
     m_wndProgress.ShowWindow((bShowAction && m_bRunning) ? SW_SHOW : SW_HIDE);
     m_wndProgressText.ShowWindow((bShowAction && m_bRunning) ? SW_SHOW : SW_HIDE);
+    m_wndActionStatus.ShowWindow(bShowActionStatus ? SW_SHOW : SW_HIDE);
 
     m_wndResultSection.ShowWindow(bShowResult ? SW_SHOW : SW_HIDE);
     m_wndResultList.ShowWindow(bShowResult ? SW_SHOW : SW_HIDE);
@@ -676,8 +681,10 @@ void CSageTaechangView::LayoutActionSection(int nLeft, int nTop, int nWidth)
         int nProgressWidth = nWidth - (nProgressLeft - nLeft) - TAECHANG_PROGRESS_TEXT_WIDTH - TAECHANG_ACTION_GAP;
         if (nProgressWidth < 0)
             nProgressWidth = 0;
+        int nStatusWidth = nProgressWidth + TAECHANG_ACTION_GAP + TAECHANG_PROGRESS_TEXT_WIDTH;
         m_wndProgress.MoveWindow(nProgressLeft, nTop + TAECHANG_PROGRESS_VERT_OFFSET, nProgressWidth, TAECHANG_PROGRESS_HEIGHT);
         m_wndProgressText.MoveWindow(nProgressLeft + nProgressWidth + TAECHANG_ACTION_GAP, nTop + TAECHANG_PROGRESS_TEXT_VERT_OFFSET, TAECHANG_PROGRESS_TEXT_WIDTH, TAECHANG_EDIT_HEIGHT);
+        m_wndActionStatus.MoveWindow(nProgressLeft, nTop + TAECHANG_LABEL_VERT_OFFSET, nStatusWidth, TAECHANG_EDIT_HEIGHT);
     }
 }
 
@@ -1165,6 +1172,12 @@ HBRUSH CSageTaechangView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
         pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
         return m_brushAppBackground;
     }
+    if (pWnd->GetSafeHwnd() == m_wndActionStatus.GetSafeHwnd())
+    {
+        pDC->SetTextColor(m_bLastTaskSuccess ? TAECHANG_COLOR_SUCCESS : TAECHANG_COLOR_ERROR);
+        pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
+        return m_brushAppBackground;
+    }
     if (nCtlColor == CTLCOLOR_STATIC)
     {
         pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
@@ -1257,6 +1270,9 @@ void CSageTaechangView::DisplayResponse(int nWorkflowType, int nTaskType, const 
         LayoutChildControls();
     }
 
+    m_bLastTaskSuccess = bSuccess;
+    m_wndActionStatus.SetWindowTextW(bSuccess ? TAECHANG_UI_ACTION_STATUS_COMPLETED : TAECHANG_UI_ACTION_STATUS_FAILED);
+    m_wndActionStatus.Invalidate();
     SetStatusText(bSuccess ? TAECHANG_UI_COMPLETED : TAECHANG_UI_FAILED);
     UpdateExportButtonState();
 }

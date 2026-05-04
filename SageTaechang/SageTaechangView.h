@@ -58,6 +58,7 @@ protected:
     CListCtrl m_wndResultList;
     CEdit m_wndDetail;
     CStatic m_wndEmptyStateHint;
+    CStatic m_wndActionStatus;
     CFont m_fontTitle;
     CFont m_fontHeader;
     CFont m_fontControl;
@@ -72,6 +73,7 @@ protected:
     int m_nCurrentWorkflow;
     HTREEITEM m_hLastWorkflowItem;
     COLORREF m_colorHeaderStatus;
+    BOOL m_bLastTaskSuccess;
     CString m_strLastResponseJson;
     CString m_strExecutionHistory;
     CString m_strRunningInputPath;
