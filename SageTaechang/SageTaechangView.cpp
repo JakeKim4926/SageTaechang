@@ -181,6 +181,8 @@ BEGIN_MESSAGE_MAP(CSageTaechangView, CView)
     ON_BN_CLICKED(ID_TAECHANG_GENERATE_WORKFLOW, &CSageTaechangView::OnGenerateWorkflow)
     ON_BN_CLICKED(ID_TAECHANG_EXPORT_CSV, &CSageTaechangView::OnExportCsv)
     ON_MESSAGE(WM_TAECHANG_WORKFLOW_COMPLETE, &CSageTaechangView::OnWorkflowComplete)
+    ON_WM_DRAWITEM()
+    ON_NOTIFY(NM_CUSTOMDRAW, ID_TAECHANG_RESULT_LIST, &CSageTaechangView::OnListCustomDraw)
 END_MESSAGE_MAP()
 
 CSageTaechangView::CSageTaechangView() noexcept
@@ -223,7 +225,8 @@ void CSageTaechangView::CreateChildControls()
     m_wndSidebarTitle.Create(TAECHANG_UI_SIDEBAR_TITLE, WS_CHILD | WS_VISIBLE, rectEmpty, this);
     m_wndSidebarTree.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | TVS_FULLROWSELECT | TVS_SHOWSELALWAYS | TVS_DISABLEDRAGDROP, rectEmpty, this, ID_TAECHANG_SIDEBAR_TREE);
     m_wndSidebarTree.SetBkColor(TAECHANG_COLOR_SIDEBAR);
-    m_wndSidebarTree.SetTextColor(TAECHANG_COLOR_TEXT);
+    m_wndSidebarTree.SetTextColor(TAECHANG_COLOR_SIDEBAR_TEXT);
+    m_wndSidebarTree.SetItemHeight(TAECHANG_SIDEBAR_ITEM_HEIGHT);
     m_wndHeaderTitle.Create(TAECHANG_UI_RECEIVABLES_NAME, WS_CHILD | WS_VISIBLE, rectEmpty, this);
     m_wndHeaderStatus.Create(TAECHANG_UI_READY, WS_CHILD | WS_VISIBLE | SS_RIGHT, rectEmpty, this);
     m_wndTaskTabs.Create(WS_CHILD | WS_VISIBLE | TCS_FIXEDWIDTH, rectEmpty, this, ID_TAECHANG_TASK_TABS);
@@ -237,16 +240,17 @@ void CSageTaechangView::CreateChildControls()
     m_wndOutputLabel.Create(TAECHANG_UI_OUTPUT_LABEL, WS_CHILD | WS_VISIBLE, rectEmpty, this);
     m_wndInputPath.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL | ES_READONLY, rectEmpty, this, ID_TAECHANG_INPUT_EDIT);
     m_wndOutputFolder.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL | ES_READONLY, rectEmpty, this, ID_TAECHANG_OUTPUT_EDIT);
-    m_wndSelectInput.Create(TAECHANG_UI_INPUT_BUTTON, WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rectEmpty, this, ID_TAECHANG_SELECT_INPUT);
-    m_wndSelectOutput.Create(TAECHANG_UI_OUTPUT_BUTTON, WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rectEmpty, this, ID_TAECHANG_SELECT_OUTPUT);
-    m_wndLoad.Create(TAECHANG_UI_LOAD_BUTTON, WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rectEmpty, this, ID_TAECHANG_LOAD_WORKFLOW);
-    m_wndGenerate.Create(TAECHANG_UI_RECEIVABLES_GENERATE_BUTTON, WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rectEmpty, this, ID_TAECHANG_GENERATE_WORKFLOW);
-    m_wndExportCsv.Create(TAECHANG_UI_EXPORT_CSV_BUTTON, WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rectEmpty, this, ID_TAECHANG_EXPORT_CSV);
+    m_wndSelectInput.Create(TAECHANG_UI_INPUT_BUTTON, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_SELECT_INPUT);
+    m_wndSelectOutput.Create(TAECHANG_UI_OUTPUT_BUTTON, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_SELECT_OUTPUT);
+    m_wndLoad.Create(TAECHANG_UI_LOAD_BUTTON, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_LOAD_WORKFLOW);
+    m_wndGenerate.Create(TAECHANG_UI_RECEIVABLES_GENERATE_BUTTON, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_GENERATE_WORKFLOW);
+    m_wndExportCsv.Create(TAECHANG_UI_EXPORT_CSV_BUTTON, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_EXPORT_CSV);
     m_wndProgress.Create(WS_CHILD | WS_VISIBLE | PBS_MARQUEE, rectEmpty, this, ID_TAECHANG_PROGRESS);
     m_wndProgressText.Create(L"", WS_CHILD | WS_VISIBLE | SS_RIGHT, rectEmpty, this);
     m_wndResultList.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SINGLESEL, rectEmpty, this, ID_TAECHANG_RESULT_LIST);
     m_wndDetail.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | WS_VSCROLL, rectEmpty, this, ID_TAECHANG_DETAIL_EDIT);
 
+    m_wndResultList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
     m_wndProgress.SetMarquee(FALSE, 0);
     m_wndProgress.SetRange(0, TAECHANG_PROGRESS_COMPLETE);
     UpdateProgressPercent(0);
@@ -585,6 +589,8 @@ void CSageTaechangView::OnDraw(CDC* pDC)
     GetClientRect(&rectClient);
     pDC->FillSolidRect(rectClient, TAECHANG_COLOR_APP_BACKGROUND);
     pDC->FillSolidRect(0, 0, TAECHANG_SIDEBAR_WIDTH, rectClient.Height(), TAECHANG_COLOR_SIDEBAR);
+    pDC->FillSolidRect(TAECHANG_SIDEBAR_WIDTH, 0, 1, rectClient.Height(), TAECHANG_COLOR_BORDER);
+    pDC->FillSolidRect(TAECHANG_SIDEBAR_WIDTH + 1, TAECHANG_MARGIN + TAECHANG_HEADER_HEIGHT, rectClient.Width() - TAECHANG_SIDEBAR_WIDTH - 1, 1, TAECHANG_COLOR_BORDER);
 }
 
 int CSageTaechangView::GetSelectedWorkflow() const
@@ -951,6 +957,8 @@ BOOL CSageTaechangView::OnEraseBkgnd(CDC* pDC)
     GetClientRect(&rectClient);
     pDC->FillSolidRect(rectClient, TAECHANG_COLOR_APP_BACKGROUND);
     pDC->FillSolidRect(0, 0, TAECHANG_SIDEBAR_WIDTH, rectClient.Height(), TAECHANG_COLOR_SIDEBAR);
+    pDC->FillSolidRect(TAECHANG_SIDEBAR_WIDTH, 0, 1, rectClient.Height(), TAECHANG_COLOR_BORDER);
+    pDC->FillSolidRect(TAECHANG_SIDEBAR_WIDTH + 1, TAECHANG_MARGIN + TAECHANG_HEADER_HEIGHT, rectClient.Width() - TAECHANG_SIDEBAR_WIDTH - 1, 1, TAECHANG_COLOR_BORDER);
     return TRUE;
 }
 
@@ -961,6 +969,7 @@ HBRUSH CSageTaechangView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
     if (pWnd->GetSafeHwnd() == m_wndSidebarTitle.GetSafeHwnd() ||
         pWnd->GetSafeHwnd() == m_wndTitle.GetSafeHwnd())
     {
+        pDC->SetTextColor(TAECHANG_COLOR_SIDEBAR_TEXT);
         pDC->SetBkColor(TAECHANG_COLOR_SIDEBAR);
         return m_brushSidebar;
     }
@@ -1147,6 +1156,73 @@ CString CSageTaechangView::BuildExecutionHistoryLine(int nWorkflowType, int nTas
     }
 
     return strLine;
+}
+
+void CSageTaechangView::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct)
+{
+    if (lpDrawItemStruct->CtlType != ODT_BUTTON)
+    {
+        CView::OnDrawItem(nIDCtl, lpDrawItemStruct);
+        return;
+    }
+
+    CDC* pDC = CDC::FromHandle(lpDrawItemStruct->hDC);
+    CRect rect = lpDrawItemStruct->rcItem;
+    BOOL bPressed = (lpDrawItemStruct->itemState & ODS_SELECTED) != 0;
+    BOOL bDisabled = (lpDrawItemStruct->itemState & ODS_DISABLED) != 0;
+
+    BOOL bPrimary = (nIDCtl == ID_TAECHANG_GENERATE_WORKFLOW || nIDCtl == ID_TAECHANG_LOAD_WORKFLOW);
+
+    if (bPrimary)
+    {
+        COLORREF clrBg = bDisabled ? TAECHANG_COLOR_BORDER
+            : bPressed ? TAECHANG_COLOR_PRIMARY_PRESS : TAECHANG_COLOR_PRIMARY;
+        pDC->FillSolidRect(rect, clrBg);
+        pDC->SetTextColor(bDisabled ? TAECHANG_COLOR_SECONDARY_TEXT : TAECHANG_COLOR_BUTTON_TEXT);
+    }
+    else
+    {
+        pDC->FillSolidRect(rect, bDisabled ? TAECHANG_COLOR_APP_BACKGROUND : TAECHANG_COLOR_PANEL);
+        CBrush brBorder;
+        brBorder.CreateSolidBrush(bDisabled ? TAECHANG_COLOR_BORDER : TAECHANG_COLOR_PRIMARY);
+        pDC->FrameRect(rect, &brBorder);
+        pDC->SetTextColor(bDisabled ? TAECHANG_COLOR_SECONDARY_TEXT : TAECHANG_COLOR_PRIMARY);
+    }
+
+    CWnd* pWnd = CWnd::FromHandle(lpDrawItemStruct->hwndItem);
+    CString strText;
+    pWnd->GetWindowText(strText);
+
+    pDC->SetBkMode(TRANSPARENT);
+    CFont* pOldFont = pDC->SelectObject(&m_fontControl);
+    pDC->DrawText(strText, rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+    if (pOldFont)
+        pDC->SelectObject(pOldFont);
+}
+
+void CSageTaechangView::OnListCustomDraw(NMHDR* pNMHDR, LRESULT* pResult)
+{
+    NMLVCUSTOMDRAW* pCD = reinterpret_cast<NMLVCUSTOMDRAW*>(pNMHDR);
+    *pResult = CDRF_DODEFAULT;
+
+    switch (pCD->nmcd.dwDrawStage)
+    {
+    case CDDS_PREPAINT:
+        *pResult = CDRF_NOTIFYITEMDRAW;
+        break;
+    case CDDS_ITEMPREPAINT:
+    {
+        int nItem = static_cast<int>(pCD->nmcd.dwItemSpec);
+        UINT uState = ListView_GetItemState(pCD->nmcd.hdr.hwndFrom, nItem, LVIS_SELECTED);
+        if (!(uState & LVIS_SELECTED))
+        {
+            pCD->clrTextBk = (nItem % 2 == 1) ? TAECHANG_COLOR_LIST_ROW_ALT : TAECHANG_COLOR_PANEL;
+            pCD->clrText = TAECHANG_COLOR_TEXT;
+            *pResult = CDRF_NEWFONT;
+        }
+        break;
+    }
+    }
 }
 
 #ifdef _DEBUG

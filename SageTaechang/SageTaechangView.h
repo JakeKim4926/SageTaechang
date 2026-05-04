@@ -118,6 +118,8 @@ protected:
     afx_msg void OnExportCsv();
     afx_msg void OnSettings();
     afx_msg LRESULT OnWorkflowComplete(WPARAM wParam, LPARAM lParam);
+    afx_msg void OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct);
+    afx_msg void OnListCustomDraw(NMHDR* pNMHDR, LRESULT* pResult);
     DECLARE_MESSAGE_MAP()
 };
 
