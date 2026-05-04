@@ -90,6 +90,11 @@ namespace
 
 }
 
+TaechangResultRow::TaechangResultRow()
+    : m_nSourceRowIndex(0)
+{
+}
+
 BOOL TaechangWorkflowResultPresenter::BuildRows(
     int nWorkflowType,
     int nTaskType,
@@ -97,31 +102,36 @@ BOOL TaechangWorkflowResultPresenter::BuildRows(
     std::vector<TaechangResultRow>& outRows,
     CString& outDetailText)
 {
-    UNREFERENCED_PARAMETER(nTaskType);
     outRows.clear();
     outDetailText = strResponseJson;
 
     BOOL bSuccess = JsonExtractBool(strResponseJson, L"success");
-    AddRow(outRows, TAECHANG_UI_RESULT_STATUS, bSuccess ? TAECHANG_UI_COMPLETED : TAECHANG_UI_FAILED, bSuccess ? L"success" : L"failed", L"");
 
     if (!bSuccess)
     {
+        AddRow(outRows, TAECHANG_UI_RESULT_STATUS, TAECHANG_UI_FAILED, TAECHANG_RESULT_STATUS_FAILED, L"");
         CString strCode = JsonExtractString(strResponseJson, L"code");
         CString strMessage = JsonExtractString(strResponseJson, L"message");
-        AddRow(outRows, TAECHANG_UI_RESULT_ERROR, strCode, L"error", strMessage);
+        AddRow(outRows, TAECHANG_UI_RESULT_ERROR, strCode, TAECHANG_RESULT_STATUS_ERROR, strMessage);
         return FALSE;
     }
 
     if (nWorkflowType == TAECHANG_WORKFLOW_RECEIVABLES &&
         (nTaskType == TAECHANG_TASK_LOAD || nTaskType == TAECHANG_TASK_GENERATE))
         AddReceivablesResultRows(strResponseJson, outRows);
+    else if (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY && nTaskType == TAECHANG_TASK_LOAD)
+        AddDeliveryInputRows(strResponseJson, outRows);
     else if (IsCompareWorkflow(nWorkflowType))
     {
+        AddRow(outRows, TAECHANG_UI_RESULT_STATUS, TAECHANG_UI_COMPLETED, TAECHANG_RESULT_STATUS_SUCCESS, L"");
         AddSummaryRows(strResponseJson, outRows);
         AddCompareFileRows(strResponseJson, outRows);
     }
     else
+    {
+        AddRow(outRows, TAECHANG_UI_RESULT_STATUS, TAECHANG_UI_COMPLETED, TAECHANG_RESULT_STATUS_SUCCESS, L"");
         AddSummaryRows(strResponseJson, outRows);
+    }
 
     return TRUE;
 }
@@ -215,6 +225,46 @@ void TaechangWorkflowResultPresenter::AddReceivablesResultRows(
         row.m_strReceivableAmount = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_RECEIVABLE_AMOUNT);
         row.m_strBankName = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_BANK_NAME);
         row.m_strNote = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_NOTE);
+        outRows.push_back(row);
+    }
+}
+
+void TaechangWorkflowResultPresenter::AddDeliveryInputRows(
+    const CString& strResponseJson,
+    std::vector<TaechangResultRow>& outRows) const
+{
+    CString strRowsJson = JsonExtractArray(strResponseJson, TAECHANG_JSON_KEY_ROWS);
+    std::vector<CString> arrObjects;
+    SplitJsonObjectArray(strRowsJson, arrObjects);
+    for (int i = 0; i < static_cast<int>(arrObjects.size()); ++i)
+    {
+        CString strRowIndex = JsonExtractIntText(arrObjects[i], TAECHANG_JSON_KEY_ROW_INDEX);
+        CString strCompanyName = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_COMPANY_NAME);
+        CString strItemName = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_ITEM_NAME);
+        CString strDepartment = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_DEPARTMENT);
+        CString strOrderDate = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_ORDER_DATE);
+        CString strDeliveryDate = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_DELIVERY_DATE);
+        CString strDeliveryTime = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_DELIVERY_TIME);
+        CString strProductType = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_PRODUCT_TYPE);
+        CString strCompanyCopies = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_COMPANY_COPIES);
+        CString strCorporationCopies = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_CORPORATION_COPIES);
+        CString strTotalCopies = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_TOTAL_COPIES);
+
+        TaechangResultRow row;
+        row.m_nSourceRowIndex = _wtoi(strRowIndex);
+        row.m_strField = CString(TAECHANG_UI_DELIVERY_ROW_FIELD_PREFIX) + strRowIndex;
+        row.m_strValue = strCompanyName;
+        row.m_strStatus = strItemName;
+        row.m_strCompanyName = strCompanyName;
+        row.m_strDepartment = strDepartment;
+        row.m_strOrderDate = strOrderDate;
+        row.m_strDeliveryDate = strDeliveryDate;
+        row.m_strDeliveryTime = strDeliveryTime;
+        row.m_strItemName = strItemName;
+        row.m_strProductType = strProductType;
+        row.m_strCompanyCopies = strCompanyCopies;
+        row.m_strCorporationCopies = strCorporationCopies;
+        row.m_strTotalCopies = strTotalCopies;
         outRows.push_back(row);
     }
 }

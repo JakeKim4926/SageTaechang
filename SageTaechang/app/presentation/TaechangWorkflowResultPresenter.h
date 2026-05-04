@@ -2,15 +2,26 @@
 
 struct TaechangResultRow
 {
+    TaechangResultRow();
+
+    int m_nSourceRowIndex;
     CString m_strFile;
     CString m_strField;
     CString m_strValue;
     CString m_strStatus;
     CString m_strReason;
     CString m_strCompanyName;
+    CString m_strDepartment;
+    CString m_strOrderDate;
+    CString m_strDeliveryDate;
+    CString m_strDeliveryTime;
     CString m_strManager;
     CString m_strIssueDate;
     CString m_strItemName;
+    CString m_strProductType;
+    CString m_strCompanyCopies;
+    CString m_strCorporationCopies;
+    CString m_strTotalCopies;
     CString m_strIssueType;
     CString m_strTotalAmount;
     CString m_strDepositAmount;
@@ -46,6 +57,10 @@ private:
         std::vector<TaechangResultRow>& outRows) const;
 
     void AddReceivablesResultRows(
+        const CString& strResponseJson,
+        std::vector<TaechangResultRow>& outRows) const;
+
+    void AddDeliveryInputRows(
         const CString& strResponseJson,
         std::vector<TaechangResultRow>& outRows) const;
 

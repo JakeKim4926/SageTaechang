@@ -144,7 +144,7 @@ try {
             $numberValue = ConvertTo-TextValue ($rowIndex - 1)
         }
 
-        $baseName = (Safe-FileName $numberValue) + '_' + (Safe-FileName $companyName) + '_' + (Safe-FileName $itemName)
+        $baseName = (Safe-FileName $numberValue) + '_' + (Safe-FileName $companyName) + '_' + (Safe-FileName $itemName) + '_' + $rowIndex
         $outputPath = Join-Path $OutputFolder ($baseName + '.xls')
         $suffix = 1
         while (Test-Path -LiteralPath $outputPath) {
