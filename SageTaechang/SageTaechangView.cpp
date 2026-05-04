@@ -832,6 +832,9 @@ void CSageTaechangView::OnWorkflowChanged()
     m_strLastResponseJson.Empty();
     m_nLastWorkflowType = 0;
     m_nLastTaskType = 0;
+    m_strRunningInputPath.Empty();
+    m_wndInputPath.SetWindowTextW(L"");
+    m_wndOutputFolder.SetWindowTextW(L"");
     UpdateWorkflowLabels();
     UpdateExportButtonState();
     UpdateResultColumns();
