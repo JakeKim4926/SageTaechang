@@ -137,7 +137,7 @@ namespace
         settingsService.Load(settings);
         if (!FileExists(settings.m_strPdfToTextPath))
         {
-            strError = L"pdftotext.exe was not found. Check " + settingsService.GetSettingsPath();
+            strError = L"PDF 검수를 사용하려면 pdftotext.exe를 앱 실행 파일과 같은 폴더에 넣어주세요.";
             return FALSE;
         }
 

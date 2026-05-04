@@ -10,7 +10,6 @@ class TaechangAppSettingsService
 public:
     CString GetSettingsPath() const;
     BOOL Load(TaechangAppSettings& outSettings) const;
-    BOOL Save(const TaechangAppSettings& settings, CString& strError) const;
     CString GetDefaultPdfToTextPath() const;
 
 private:

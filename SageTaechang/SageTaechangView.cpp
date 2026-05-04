@@ -281,14 +281,8 @@ void CSageTaechangView::BuildSidebarTree()
     HTREEITEM hHwp = m_wndSidebarTree.InsertItem(TAECHANG_UI_HWP_COMPARE_NAME, hInspection, TVI_LAST);
     m_wndSidebarTree.SetItemData(hHwp, TAECHANG_WORKFLOW_HWP_COMPARE);
 
-    HTREEITEM hManagement = m_wndSidebarTree.InsertItem(TAECHANG_UI_SIDEBAR_GROUP_MANAGEMENT, TVI_ROOT, TVI_LAST);
-    m_wndSidebarTree.SetItemData(hManagement, TAECHANG_SIDEBAR_ACTION_NONE);
-    HTREEITEM hSettings = m_wndSidebarTree.InsertItem(TAECHANG_UI_SETTINGS_LABEL, hManagement, TVI_LAST);
-    m_wndSidebarTree.SetItemData(hSettings, TAECHANG_SIDEBAR_ACTION_SETTINGS);
-
     m_wndSidebarTree.Expand(hDocument, TVE_EXPAND);
     m_wndSidebarTree.Expand(hInspection, TVE_EXPAND);
-    m_wndSidebarTree.Expand(hManagement, TVE_EXPAND);
 
     m_hLastWorkflowItem = hReceivables;
     m_wndSidebarTree.SelectItem(hReceivables);
@@ -709,13 +703,6 @@ void CSageTaechangView::OnSidebarSelectionChanged(NMHDR* pNMHDR, LRESULT* pResul
     DWORD_PTR nItemData = m_wndSidebarTree.GetItemData(hItem);
     if (nItemData == TAECHANG_SIDEBAR_ACTION_NONE)
         return;
-    if (nItemData == TAECHANG_SIDEBAR_ACTION_SETTINGS)
-    {
-        OnSettings();
-        if (m_hLastWorkflowItem != NULL)
-            m_wndSidebarTree.SelectItem(m_hLastWorkflowItem);
-        return;
-    }
     int nNewWorkflow = static_cast<int>(nItemData);
     m_hLastWorkflowItem = hItem;
     if (nNewWorkflow == m_nCurrentWorkflow)
@@ -849,28 +836,6 @@ void CSageTaechangView::OnExportCsv()
     }
 
     SetStatusText(TAECHANG_UI_EXPORT_COMPLETED);
-}
-
-void CSageTaechangView::OnSettings()
-{
-    TaechangAppSettingsService settingsService;
-    TaechangAppSettings settings;
-    settingsService.Load(settings);
-
-    CFileDialog dlg(TRUE, L"exe", settings.m_strPdfToTextPath, OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST, TAECHANG_UI_EXE_FILTER, this);
-    dlg.m_ofn.lpstrTitle = TAECHANG_UI_SELECT_PDFTOTEXT_TITLE;
-    if (dlg.DoModal() != IDOK)
-        return;
-
-    settings.m_strPdfToTextPath = dlg.GetPathName();
-    CString strError;
-    if (!settingsService.Save(settings, strError))
-    {
-        AfxMessageBox(strError, MB_ICONERROR);
-        return;
-    }
-
-    SetStatusText(TAECHANG_UI_SETTINGS_SAVED);
 }
 
 void CSageTaechangView::RunWorkflowTask(int nTaskType)
@@ -1011,8 +976,7 @@ COLORREF CSageTaechangView::ResolveStatusColor(const CString& strStatus) const
     if (strStatus == TAECHANG_UI_RUNNING)
         return TAECHANG_COLOR_PRIMARY;
     if (strStatus == TAECHANG_UI_COMPLETED ||
-        strStatus == TAECHANG_UI_EXPORT_COMPLETED ||
-        strStatus == TAECHANG_UI_SETTINGS_SAVED)
+        strStatus == TAECHANG_UI_EXPORT_COMPLETED)
         return TAECHANG_COLOR_SUCCESS;
     if (strStatus == TAECHANG_UI_FAILED)
         return TAECHANG_COLOR_ERROR;
