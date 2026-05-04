@@ -94,6 +94,7 @@ protected:
     BOOL IsActionTabVisible() const;
     BOOL IsReceivablesResultTable() const;
     BOOL IsDeliveryInputTable() const;
+    BOOL IsEstimateInputTable() const;
     COLORREF ResolveStatusColor(const CString& strStatus) const;
     BOOL ValidateInputPath(CString& strInputPath);
     BOOL ValidateOutputFolder(CString& strOutputFolder);
