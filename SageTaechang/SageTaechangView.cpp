@@ -32,6 +32,7 @@ struct TaechangWorkflowTask
     CString m_strOutputFolder;
     CString m_strPdfFilePaths;
     CString m_strHwpFilePaths;
+    CString m_strSelectedRowNums;
 };
 
 struct TaechangWorkflowResult
@@ -41,11 +42,13 @@ struct TaechangWorkflowResult
     CString m_strResponseJson;
 };
 
-static CString BuildWorkflowPayload(const CString& strInputPath, const CString& strOutputFolder)
+static CString BuildWorkflowPayload(const CString& strInputPath, const CString& strOutputFolder, const CString& strRowNums)
 {
     CString strPayload = L"{\"inputPath\":\"" + JsonEscapeString(strInputPath) + L"\"";
     if (!strOutputFolder.IsEmpty())
         strPayload += L",\"outputFolder\":\"" + JsonEscapeString(strOutputFolder) + L"\"";
+    if (!strRowNums.IsEmpty())
+        strPayload += L",\"" + CString(TAECHANG_JSON_KEY_ROW_NUMS) + L"\":\"" + JsonEscapeString(strRowNums) + L"\"";
     strPayload += L"}";
     return strPayload;
 }
@@ -111,7 +114,7 @@ static UINT RunWorkflowWorker(LPVOID pParam)
         else if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_HWP_COMPARE)
             strPayload = BuildComparePayload(L"hwpFilePaths", pTask->m_strHwpFilePaths);
         else
-            strPayload = BuildWorkflowPayload(pTask->m_strInputPath, pTask->m_strOutputFolder);
+            strPayload = BuildWorkflowPayload(pTask->m_strInputPath, pTask->m_strOutputFolder, pTask->m_strSelectedRowNums);
         if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_PDF_COMPARE)
         {
             TaechangPdfCompareService service;
@@ -251,7 +254,7 @@ void CSageTaechangView::CreateChildControls()
     m_wndResultList.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SINGLESEL, rectEmpty, this, ID_TAECHANG_RESULT_LIST);
     m_wndDetail.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | WS_VSCROLL, rectEmpty, this, ID_TAECHANG_DETAIL_EDIT);
 
-    m_wndResultList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
+    m_wndResultList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_CHECKBOXES);
     m_wndProgress.SetMarquee(FALSE, 0);
     m_wndProgress.SetRange(0, TAECHANG_PROGRESS_COMPLETE);
     UpdateProgressPercent(0);
@@ -377,6 +380,21 @@ void CSageTaechangView::ApplyResultColumns()
         m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RECEIVABLES_COL_NOTE, LVCFMT_LEFT, TAECHANG_RECEIVABLES_NOTE_WIDTH);
         return;
     }
+    if (IsDeliveryInputTable())
+    {
+        m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_DELIVERY_COL_ROW, LVCFMT_LEFT, TAECHANG_DELIVERY_ROW_WIDTH);
+        m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_DELIVERY_COL_COMPANY, LVCFMT_LEFT, TAECHANG_DELIVERY_COMPANY_WIDTH);
+        m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_DELIVERY_COL_DEPARTMENT, LVCFMT_LEFT, TAECHANG_DELIVERY_DEPARTMENT_WIDTH);
+        m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_DELIVERY_COL_ORDER_DATE, LVCFMT_LEFT, TAECHANG_DELIVERY_DATE_WIDTH);
+        m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_DELIVERY_COL_DELIVERY_DATE, LVCFMT_LEFT, TAECHANG_DELIVERY_DATE_WIDTH);
+        m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_DELIVERY_COL_DELIVERY_TIME, LVCFMT_LEFT, TAECHANG_DELIVERY_TIME_WIDTH);
+        m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_DELIVERY_COL_ITEM, LVCFMT_LEFT, TAECHANG_DELIVERY_ITEM_WIDTH);
+        m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_DELIVERY_COL_PRODUCT_TYPE, LVCFMT_LEFT, TAECHANG_DELIVERY_TYPE_WIDTH);
+        m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_DELIVERY_COL_COMPANY_COPIES, LVCFMT_RIGHT, TAECHANG_DELIVERY_COPIES_WIDTH);
+        m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_DELIVERY_COL_CORPORATION_COPIES, LVCFMT_RIGHT, TAECHANG_DELIVERY_COPIES_WIDTH);
+        m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_DELIVERY_COL_TOTAL_COPIES, LVCFMT_RIGHT, TAECHANG_DELIVERY_COPIES_WIDTH);
+        return;
+    }
     m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RESULT_FIELD, LVCFMT_LEFT, TAECHANG_RESULT_FIELD_WIDTH);
     m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RESULT_VALUE, LVCFMT_LEFT, TAECHANG_RESULT_MIN_VALUE_WIDTH);
     m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RESULT_STATUS, LVCFMT_LEFT, TAECHANG_RESULT_STATUS_WIDTH);
@@ -387,9 +405,9 @@ void CSageTaechangView::UpdateTaskTabVisibility()
 {
     BOOL bIsCompare = IsCompareWorkflow(GetSelectedWorkflow());
     BOOL bShowInput = IsInputTabSelected();
-    BOOL bShowOutput = (bShowInput && !bIsCompare) ? TRUE : FALSE;
+    BOOL bShowOutput = ((bShowInput || IsResultTab()) && !bIsCompare) ? TRUE : FALSE;
     BOOL bShowAction = IsActionTabVisible();
-    BOOL bShowResult = IsResultTab();
+    BOOL bShowResult = IsResultTab() || (IsInputTabSelected() && IsDeliveryInputTable());
     BOOL bShowDetail = IsDetailTab();
     BOOL bShowExport = IsExportTab();
 
@@ -438,6 +456,21 @@ void CSageTaechangView::UpdateResultColumns()
         m_wndResultList.SetColumnWidth(7, TAECHANG_RECEIVABLES_AMOUNT_WIDTH);
         m_wndResultList.SetColumnWidth(8, TAECHANG_RECEIVABLES_BANK_WIDTH);
         m_wndResultList.SetColumnWidth(9, TAECHANG_RECEIVABLES_NOTE_WIDTH);
+        return;
+    }
+    if (IsDeliveryInputTable())
+    {
+        m_wndResultList.SetColumnWidth(0, TAECHANG_DELIVERY_ROW_WIDTH);
+        m_wndResultList.SetColumnWidth(1, TAECHANG_DELIVERY_COMPANY_WIDTH);
+        m_wndResultList.SetColumnWidth(2, TAECHANG_DELIVERY_DEPARTMENT_WIDTH);
+        m_wndResultList.SetColumnWidth(3, TAECHANG_DELIVERY_DATE_WIDTH);
+        m_wndResultList.SetColumnWidth(4, TAECHANG_DELIVERY_DATE_WIDTH);
+        m_wndResultList.SetColumnWidth(5, TAECHANG_DELIVERY_TIME_WIDTH);
+        m_wndResultList.SetColumnWidth(6, TAECHANG_DELIVERY_ITEM_WIDTH);
+        m_wndResultList.SetColumnWidth(7, TAECHANG_DELIVERY_TYPE_WIDTH);
+        m_wndResultList.SetColumnWidth(8, TAECHANG_DELIVERY_COPIES_WIDTH);
+        m_wndResultList.SetColumnWidth(9, TAECHANG_DELIVERY_COPIES_WIDTH);
+        m_wndResultList.SetColumnWidth(10, TAECHANG_DELIVERY_COPIES_WIDTH);
         return;
     }
     int nFixedWidth = TAECHANG_RESULT_FIELD_WIDTH + TAECHANG_RESULT_STATUS_WIDTH + TAECHANG_RESULT_REASON_WIDTH;
@@ -563,7 +596,7 @@ void CSageTaechangView::LayoutActionSection(int nLeft, int nTop, int nWidth)
 void CSageTaechangView::LayoutResultSection(int nLeft, int nTop, int nWidth, int nHeight)
 {
     int nBodyHeight = max(TAECHANG_RESULT_MIN_HEIGHT, nHeight - TAECHANG_RESULT_HEADER_HEIGHT);
-    if (IsResultTab())
+    if (IsResultTab() || (IsInputTabSelected() && IsDeliveryInputTable()))
     {
         m_wndResultSection.MoveWindow(nLeft, nTop, nWidth, TAECHANG_RESULT_HEADER_HEIGHT);
         m_wndResultList.MoveWindow(nLeft, nTop + TAECHANG_RESULT_HEADER_HEIGHT, nWidth, nBodyHeight);
@@ -677,6 +710,13 @@ BOOL CSageTaechangView::IsReceivablesResultTable() const
     return (m_nLastTaskType == TAECHANG_TASK_GENERATE) ? TRUE : FALSE;
 }
 
+BOOL CSageTaechangView::IsDeliveryInputTable() const
+{
+    if (m_nLastWorkflowType != TAECHANG_WORKFLOW_DELIVERY)
+        return FALSE;
+    return (m_nLastTaskType == TAECHANG_TASK_LOAD) ? TRUE : FALSE;
+}
+
 void CSageTaechangView::UpdateExportButtonState()
 {
     BOOL bEnabled = (!m_bRunning && IsCompareWorkflow(GetSelectedWorkflow()) && !m_strLastResponseJson.IsEmpty()) ? TRUE : FALSE;
@@ -737,7 +777,8 @@ void CSageTaechangView::OnDropFiles(HDROP hDropInfo)
         return;
     }
 
-    BOOL bIsCompare = IsCompareWorkflow(GetSelectedWorkflow());
+    int nWorkflowType = GetSelectedWorkflow();
+    BOOL bIsCompare = IsCompareWorkflow(nWorkflowType);
     CString strPaths;
     for (UINT i = 0; i < nFileCount; ++i)
     {
@@ -759,6 +800,8 @@ void CSageTaechangView::OnDropFiles(HDROP hDropInfo)
         m_wndTaskTabs.SetCurSel(m_nSelectedTaskTab);
         LayoutChildControls();
     }
+    if (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY)
+        RunWorkflowTask(TAECHANG_TASK_LOAD);
 }
 
 void CSageTaechangView::OnSelectInput()
@@ -800,7 +843,11 @@ void CSageTaechangView::OnSelectInput()
     else
         dlg.m_ofn.lpstrTitle = TAECHANG_UI_SELECT_RECEIVABLES_INPUT_TITLE;
     if (dlg.DoModal() == IDOK)
+    {
         m_wndInputPath.SetWindowTextW(dlg.GetPathName());
+        if (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY)
+            RunWorkflowTask(TAECHANG_TASK_LOAD);
+    }
 }
 
 void CSageTaechangView::OnSelectOutput()
@@ -893,12 +940,37 @@ void CSageTaechangView::RunWorkflowTask(int nTaskType)
     if (nTaskType == TAECHANG_TASK_GENERATE && nWorkflowType != TAECHANG_WORKFLOW_PDF_COMPARE && nWorkflowType != TAECHANG_WORKFLOW_HWP_COMPARE && !ValidateOutputFolder(strOutputFolder))
         return;
 
+    CString strSelectedRowNums;
+    if (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY && nTaskType == TAECHANG_TASK_GENERATE)
+    {
+        int nListCount = m_wndResultList.GetItemCount();
+        for (int i = 0; i < nListCount; ++i)
+        {
+            if (!m_wndResultList.GetCheck(i))
+                continue;
+            DWORD_PTR nSourceRowIndex = m_wndResultList.GetItemData(i);
+            if (nSourceRowIndex == 0)
+                continue;
+            CString strNum;
+            strNum.Format(TAECHANG_UI_ROW_NUM_FORMAT, static_cast<unsigned long>(nSourceRowIndex));
+            if (!strSelectedRowNums.IsEmpty())
+                strSelectedRowNums += L",";
+            strSelectedRowNums += strNum;
+        }
+        if (strSelectedRowNums.IsEmpty())
+        {
+            AfxMessageBox(TAECHANG_UI_DELIVERY_SELECT_ROW_REQUIRED, MB_ICONWARNING);
+            return;
+        }
+    }
+
     TaechangWorkflowTask* pTask = new TaechangWorkflowTask();
     pTask->m_hWnd = GetSafeHwnd();
     pTask->m_nWorkflowType = nWorkflowType;
     pTask->m_nTaskType = nTaskType;
     pTask->m_strInputPath = strInputPath;
     pTask->m_strOutputFolder = strOutputFolder;
+    pTask->m_strSelectedRowNums = strSelectedRowNums;
     m_strRunningInputPath = strInputPath;
     if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_PDF_COMPARE)
         pTask->m_strPdfFilePaths = strInputPath;
@@ -1059,7 +1131,15 @@ void CSageTaechangView::DisplayResponse(int nWorkflowType, int nTaskType, const 
     for (int i = 0; i < static_cast<int>(arrRows.size()); ++i)
         InsertResultRow(arrRows[i]);
 
-    if ((nWorkflowType == TAECHANG_WORKFLOW_RECEIVABLES && nTaskType == TAECHANG_TASK_GENERATE) ||
+    if (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY && nTaskType == TAECHANG_TASK_LOAD)
+    {
+        m_nSelectedTaskTab = TAECHANG_TAB_INDEX_INPUT;
+        m_wndTaskTabs.SetCurSel(m_nSelectedTaskTab);
+        UpdateTaskTabVisibility();
+        LayoutChildControls();
+    }
+    else if ((nWorkflowType == TAECHANG_WORKFLOW_RECEIVABLES && nTaskType == TAECHANG_TASK_GENERATE) ||
+        (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY && nTaskType == TAECHANG_TASK_GENERATE) ||
         nTaskType == TAECHANG_TASK_LOAD)
     {
         m_nSelectedTaskTab = TAECHANG_TAB_INDEX_DOCUMENT_RESULT;
@@ -1081,6 +1161,7 @@ void CSageTaechangView::InsertResultRow(const TaechangResultRow& row)
     if (IsReceivablesResultTable())
     {
         nIndex = m_wndResultList.InsertItem(nCount, row.m_strCompanyName);
+        m_wndResultList.SetItemData(nIndex, static_cast<DWORD_PTR>(row.m_nSourceRowIndex));
         m_wndResultList.SetItemText(nIndex, 1, row.m_strManager);
         m_wndResultList.SetItemText(nIndex, 2, row.m_strIssueDate);
         m_wndResultList.SetItemText(nIndex, 3, row.m_strItemName);
@@ -1090,6 +1171,22 @@ void CSageTaechangView::InsertResultRow(const TaechangResultRow& row)
         m_wndResultList.SetItemText(nIndex, 7, row.m_strReceivableAmount);
         m_wndResultList.SetItemText(nIndex, 8, row.m_strBankName);
         m_wndResultList.SetItemText(nIndex, 9, row.m_strNote);
+        return;
+    }
+    if (IsDeliveryInputTable())
+    {
+        nIndex = m_wndResultList.InsertItem(nCount, row.m_strField);
+        m_wndResultList.SetItemData(nIndex, static_cast<DWORD_PTR>(row.m_nSourceRowIndex));
+        m_wndResultList.SetItemText(nIndex, 1, row.m_strCompanyName);
+        m_wndResultList.SetItemText(nIndex, 2, row.m_strDepartment);
+        m_wndResultList.SetItemText(nIndex, 3, row.m_strOrderDate);
+        m_wndResultList.SetItemText(nIndex, 4, row.m_strDeliveryDate);
+        m_wndResultList.SetItemText(nIndex, 5, row.m_strDeliveryTime);
+        m_wndResultList.SetItemText(nIndex, 6, row.m_strItemName);
+        m_wndResultList.SetItemText(nIndex, 7, row.m_strProductType);
+        m_wndResultList.SetItemText(nIndex, 8, row.m_strCompanyCopies);
+        m_wndResultList.SetItemText(nIndex, 9, row.m_strCorporationCopies);
+        m_wndResultList.SetItemText(nIndex, 10, row.m_strTotalCopies);
         return;
     }
     if (bIsCompare)
@@ -1106,6 +1203,7 @@ void CSageTaechangView::InsertResultRow(const TaechangResultRow& row)
     m_wndResultList.SetItemText(nIndex, nCol++, row.m_strValue);
     m_wndResultList.SetItemText(nIndex, nCol++, row.m_strStatus);
     m_wndResultList.SetItemText(nIndex, nCol++, row.m_strReason);
+    m_wndResultList.SetItemData(nIndex, static_cast<DWORD_PTR>(row.m_nSourceRowIndex));
 }
 
 void CSageTaechangView::AppendExecutionHistory(int nWorkflowType, int nTaskType, const CString& strResponseJson, BOOL bSuccess)
@@ -1229,6 +1327,7 @@ void CSageTaechangView::OnListCustomDraw(NMHDR* pNMHDR, LRESULT* pResult)
     }
     }
 }
+
 
 #ifdef _DEBUG
 void CSageTaechangView::AssertValid() const
