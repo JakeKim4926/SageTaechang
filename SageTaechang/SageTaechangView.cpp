@@ -294,8 +294,8 @@ void CSageTaechangView::CreateChildControls()
     m_wndWorkflowLabel.Create(TAECHANG_UI_WORKFLOW_LABEL, WS_CHILD, rectEmpty, this);
     m_wndInputLabel.Create(TAECHANG_UI_INPUT_LABEL, WS_CHILD | WS_VISIBLE, rectEmpty, this);
     m_wndOutputLabel.Create(TAECHANG_UI_OUTPUT_LABEL, WS_CHILD | WS_VISIBLE, rectEmpty, this);
-    m_wndInputPath.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL | ES_READONLY, rectEmpty, this, ID_TAECHANG_INPUT_EDIT);
-    m_wndOutputFolder.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL | ES_READONLY, rectEmpty, this, ID_TAECHANG_OUTPUT_EDIT);
+    m_wndInputPath.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_READONLY, rectEmpty, this, ID_TAECHANG_INPUT_EDIT);
+    m_wndOutputFolder.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_READONLY, rectEmpty, this, ID_TAECHANG_OUTPUT_EDIT);
     m_wndSelectInput.Create(TAECHANG_UI_INPUT_BUTTON, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_SELECT_INPUT);
     m_wndSelectOutput.Create(TAECHANG_UI_OUTPUT_BUTTON, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_SELECT_OUTPUT);
     m_wndLoad.Create(TAECHANG_UI_LOAD_BUTTON, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_LOAD_WORKFLOW);
@@ -363,27 +363,31 @@ void CSageTaechangView::ApplyControlFonts()
         return;
 
     m_wndSidebarTree.SetFont(&m_fontControl);
-    m_wndHeaderStatus.SetFont(&m_fontControl);
-    m_wndTaskTabs.SetFont(&m_fontControl);
-    m_wndInputSection.SetFont(&m_fontControl);
-    m_wndOutputSection.SetFont(&m_fontControl);
-    m_wndResultSection.SetFont(&m_fontControl);
-    m_wndDetailSection.SetFont(&m_fontControl);
-    m_wndWorkflowLabel.SetFont(&m_fontControl);
-    m_wndInputLabel.SetFont(&m_fontControl);
-    m_wndOutputLabel.SetFont(&m_fontControl);
-    m_wndInputPath.SetFont(&m_fontControl);
-    m_wndOutputFolder.SetFont(&m_fontControl);
-    m_wndSelectInput.SetFont(&m_fontControl);
-    m_wndSelectOutput.SetFont(&m_fontControl);
-    m_wndLoad.SetFont(&m_fontControl);
-    m_wndGenerate.SetFont(&m_fontControl);
-    m_wndExportCsv.SetFont(&m_fontControl);
-    m_wndProgressText.SetFont(&m_fontControl);
-    m_wndResultList.SetFont(&m_fontControl);
-    m_wndDetail.SetFont(&m_fontControl);
-    m_wndEmptyStateHint.SetFont(&m_fontControl);
-    m_wndActionStatus.SetFont(&m_fontControl);
+
+    if (!m_fontContent.CreatePointFont(TAECHANG_CONTENT_FONT_POINT_SIZE, TAECHANG_CONTROL_FONT_FACE))
+        return;
+
+    m_wndHeaderStatus.SetFont(&m_fontContent);
+    m_wndTaskTabs.SetFont(&m_fontContent);
+    m_wndInputSection.SetFont(&m_fontContent);
+    m_wndOutputSection.SetFont(&m_fontContent);
+    m_wndResultSection.SetFont(&m_fontContent);
+    m_wndDetailSection.SetFont(&m_fontContent);
+    m_wndWorkflowLabel.SetFont(&m_fontContent);
+    m_wndInputLabel.SetFont(&m_fontContent);
+    m_wndOutputLabel.SetFont(&m_fontContent);
+    m_wndInputPath.SetFont(&m_fontContent);
+    m_wndOutputFolder.SetFont(&m_fontContent);
+    m_wndSelectInput.SetFont(&m_fontContent);
+    m_wndSelectOutput.SetFont(&m_fontContent);
+    m_wndLoad.SetFont(&m_fontContent);
+    m_wndGenerate.SetFont(&m_fontContent);
+    m_wndExportCsv.SetFont(&m_fontContent);
+    m_wndProgressText.SetFont(&m_fontContent);
+    m_wndResultList.SetFont(&m_fontContent);
+    m_wndDetail.SetFont(&m_fontContent);
+    m_wndEmptyStateHint.SetFont(&m_fontContent);
+    m_wndActionStatus.SetFont(&m_fontContent);
 }
 
 void CSageTaechangView::ApplyWorkflowTabs()
@@ -635,20 +639,35 @@ void CSageTaechangView::LayoutChildControls()
 
 void CSageTaechangView::LayoutInputSection(int nLeft, int nTop, int nWidth, BOOL bShowOutput)
 {
-    int nPathWidth = nWidth - TAECHANG_LABEL_WIDTH - TAECHANG_BUTTON_WIDTH - TAECHANG_ROW_GAP;
+    int nPathWidth = nWidth - TAECHANG_LABEL_WIDTH - TAECHANG_LABEL_EDIT_GAP - TAECHANG_BUTTON_WIDTH - TAECHANG_ROW_GAP;
+    int nEditLeft = nLeft + TAECHANG_LABEL_WIDTH + TAECHANG_LABEL_EDIT_GAP;
     m_wndInputSection.MoveWindow(nLeft, nTop, nWidth, TAECHANG_SECTION_TITLE_HEIGHT);
     nTop += TAECHANG_SECTION_TITLE_HEIGHT + TAECHANG_ROW_GAP;
     m_wndInputLabel.MoveWindow(nLeft, nTop + TAECHANG_LABEL_VERT_OFFSET, TAECHANG_LABEL_WIDTH, TAECHANG_EDIT_HEIGHT);
-    m_wndInputPath.MoveWindow(nLeft + TAECHANG_LABEL_WIDTH, nTop, nPathWidth, TAECHANG_EDIT_HEIGHT);
-    m_wndSelectInput.MoveWindow(nLeft + TAECHANG_LABEL_WIDTH + nPathWidth + TAECHANG_ROW_GAP, nTop - TAECHANG_BUTTON_VERT_ADJUST, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
+    m_wndInputPath.MoveWindow(nEditLeft, nTop, nPathWidth, TAECHANG_EDIT_HEIGHT);
+    {
+        CRect rcFmt;
+        m_wndInputPath.GetClientRect(&rcFmt);
+        rcFmt.top += TAECHANG_EDIT_TEXT_TOP_PAD;
+        rcFmt.right = TAECHANG_EDIT_FORMAT_MAX_WIDTH;
+        m_wndInputPath.SendMessage(EM_SETRECT, 0, reinterpret_cast<LPARAM>(&rcFmt));
+    }
+    m_wndSelectInput.MoveWindow(nEditLeft + nPathWidth + TAECHANG_ROW_GAP, nTop - TAECHANG_BUTTON_VERT_ADJUST, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
     if (!bShowOutput)
         return;
     nTop += TAECHANG_BUTTON_HEIGHT + TAECHANG_ROW_GAP;
     m_wndOutputSection.MoveWindow(nLeft, nTop, nWidth, TAECHANG_SECTION_TITLE_HEIGHT);
     nTop += TAECHANG_SECTION_TITLE_HEIGHT + TAECHANG_ROW_GAP;
     m_wndOutputLabel.MoveWindow(nLeft, nTop + TAECHANG_LABEL_VERT_OFFSET, TAECHANG_LABEL_WIDTH, TAECHANG_EDIT_HEIGHT);
-    m_wndOutputFolder.MoveWindow(nLeft + TAECHANG_LABEL_WIDTH, nTop, nPathWidth, TAECHANG_EDIT_HEIGHT);
-    m_wndSelectOutput.MoveWindow(nLeft + TAECHANG_LABEL_WIDTH + nPathWidth + TAECHANG_ROW_GAP, nTop - TAECHANG_BUTTON_VERT_ADJUST, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
+    m_wndOutputFolder.MoveWindow(nEditLeft, nTop, nPathWidth, TAECHANG_EDIT_HEIGHT);
+    {
+        CRect rcFmt;
+        m_wndOutputFolder.GetClientRect(&rcFmt);
+        rcFmt.top += TAECHANG_EDIT_TEXT_TOP_PAD;
+        rcFmt.right = TAECHANG_EDIT_FORMAT_MAX_WIDTH;
+        m_wndOutputFolder.SendMessage(EM_SETRECT, 0, reinterpret_cast<LPARAM>(&rcFmt));
+    }
+    m_wndSelectOutput.MoveWindow(nEditLeft + nPathWidth + TAECHANG_ROW_GAP, nTop - TAECHANG_BUTTON_VERT_ADJUST, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
 }
 
 void CSageTaechangView::LayoutActionSection(int nLeft, int nTop, int nWidth)
@@ -715,6 +734,22 @@ void CSageTaechangView::OnDraw(CDC* pDC)
     pDC->FillSolidRect(0, 0, TAECHANG_SIDEBAR_WIDTH, rectClient.Height(), TAECHANG_COLOR_SIDEBAR);
     pDC->FillSolidRect(TAECHANG_SIDEBAR_WIDTH, 0, 1, rectClient.Height(), TAECHANG_COLOR_BORDER);
     pDC->FillSolidRect(TAECHANG_SIDEBAR_WIDTH + 1, TAECHANG_MARGIN + TAECHANG_HEADER_HEIGHT, rectClient.Width() - TAECHANG_SIDEBAR_WIDTH - 1, 1, TAECHANG_COLOR_BORDER);
+    DrawEditBorder(pDC, m_wndInputPath);
+    DrawEditBorder(pDC, m_wndOutputFolder);
+}
+
+void CSageTaechangView::DrawEditBorder(CDC* pDC, CWnd& wnd)
+{
+    if (!::IsWindow(wnd.GetSafeHwnd()) || !wnd.IsWindowVisible())
+        return;
+    CRect rect;
+    wnd.GetWindowRect(&rect);
+    ScreenToClient(&rect);
+    rect.InflateRect(1, 1);
+    pDC->FillSolidRect(rect.left, rect.top, rect.Width(), 1, TAECHANG_COLOR_BORDER);
+    pDC->FillSolidRect(rect.left, rect.bottom - 1, rect.Width(), 1, TAECHANG_COLOR_BORDER);
+    pDC->FillSolidRect(rect.left, rect.top, 1, rect.Height(), TAECHANG_COLOR_BORDER);
+    pDC->FillSolidRect(rect.right - 1, rect.top, 1, rect.Height(), TAECHANG_COLOR_BORDER);
 }
 
 int CSageTaechangView::GetSelectedWorkflow() const
@@ -1149,6 +1184,8 @@ BOOL CSageTaechangView::OnEraseBkgnd(CDC* pDC)
     pDC->FillSolidRect(0, 0, TAECHANG_SIDEBAR_WIDTH, rectClient.Height(), TAECHANG_COLOR_SIDEBAR);
     pDC->FillSolidRect(TAECHANG_SIDEBAR_WIDTH, 0, 1, rectClient.Height(), TAECHANG_COLOR_BORDER);
     pDC->FillSolidRect(TAECHANG_SIDEBAR_WIDTH + 1, TAECHANG_MARGIN + TAECHANG_HEADER_HEIGHT, rectClient.Width() - TAECHANG_SIDEBAR_WIDTH - 1, 1, TAECHANG_COLOR_BORDER);
+    DrawEditBorder(pDC, m_wndInputPath);
+    DrawEditBorder(pDC, m_wndOutputFolder);
     return TRUE;
 }
 
@@ -1439,7 +1476,7 @@ void CSageTaechangView::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct
     pWnd->GetWindowText(strText);
 
     pDC->SetBkMode(TRANSPARENT);
-    CFont* pOldFont = pDC->SelectObject(&m_fontControl);
+    CFont* pOldFont = pDC->SelectObject(&m_fontContent);
     rect.OffsetRect(0, TAECHANG_BUTTON_TEXT_TOP_OFFSET);
     pDC->DrawText(strText, rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
     if (pOldFont)

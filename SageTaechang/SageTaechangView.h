@@ -12,6 +12,7 @@ protected:
     afx_msg void OnPaint();
 };
 
+
 class CSageTaechangView : public CView
 {
 protected:
@@ -62,6 +63,7 @@ protected:
     CFont m_fontTitle;
     CFont m_fontHeader;
     CFont m_fontControl;
+    CFont m_fontContent;
     CBrush m_brushAppBackground;
     CBrush m_brushPanel;
     CBrush m_brushSidebar;
@@ -106,6 +108,7 @@ protected:
     BOOL IsDeliveryInputTable() const;
     BOOL IsEstimateInputTable() const;
     COLORREF ResolveStatusColor(const CString& strStatus) const;
+    void DrawEditBorder(CDC* pDC, CWnd& wnd);
     BOOL ValidateInputPath(CString& strInputPath);
     BOOL ValidateOutputFolder(CString& strOutputFolder);
     void RunWorkflowTask(int nTaskType);
