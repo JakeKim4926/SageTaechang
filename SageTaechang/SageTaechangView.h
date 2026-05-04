@@ -50,6 +50,7 @@ protected:
     CStatic m_wndProgressText;
     CListCtrl m_wndResultList;
     CEdit m_wndDetail;
+    CStatic m_wndEmptyStateHint;
     CFont m_fontTitle;
     CFont m_fontHeader;
     CFont m_fontControl;
