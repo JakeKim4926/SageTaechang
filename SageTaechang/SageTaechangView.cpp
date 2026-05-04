@@ -828,6 +828,8 @@ void CSageTaechangView::OnWorkflowChanged()
     UpdateWorkflowLabels();
     UpdateExportButtonState();
     UpdateResultColumns();
+    if (!m_bRunning)
+        SetStatusText(TAECHANG_UI_READY);
 }
 
 void CSageTaechangView::OnSidebarSelectionChanged(NMHDR* pNMHDR, LRESULT* pResult)
