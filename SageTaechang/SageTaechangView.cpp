@@ -276,9 +276,9 @@ void CSageTaechangView::BuildSidebarTree()
 
     HTREEITEM hInspection = m_wndSidebarTree.InsertItem(TAECHANG_UI_SIDEBAR_GROUP_INSPECTION, TVI_ROOT, TVI_LAST);
     m_wndSidebarTree.SetItemData(hInspection, TAECHANG_SIDEBAR_ACTION_NONE);
-    HTREEITEM hPdf = m_wndSidebarTree.InsertItem(TAECHANG_UI_PDF_COMPARE_NAME, hInspection, TVI_LAST);
+    HTREEITEM hPdf = m_wndSidebarTree.InsertItem(CString(TAECHANG_UI_PDF_COMPARE_NAME) + TAECHANG_UI_PREPARING_SUFFIX, hInspection, TVI_LAST);
     m_wndSidebarTree.SetItemData(hPdf, TAECHANG_WORKFLOW_PDF_COMPARE);
-    HTREEITEM hHwp = m_wndSidebarTree.InsertItem(TAECHANG_UI_HWP_COMPARE_NAME, hInspection, TVI_LAST);
+    HTREEITEM hHwp = m_wndSidebarTree.InsertItem(CString(TAECHANG_UI_HWP_COMPARE_NAME) + TAECHANG_UI_PREPARING_SUFFIX, hInspection, TVI_LAST);
     m_wndSidebarTree.SetItemData(hHwp, TAECHANG_WORKFLOW_HWP_COMPARE);
 
     m_wndSidebarTree.Expand(hDocument, TVE_EXPAND);
@@ -703,6 +703,13 @@ void CSageTaechangView::OnSidebarSelectionChanged(NMHDR* pNMHDR, LRESULT* pResul
     DWORD_PTR nItemData = m_wndSidebarTree.GetItemData(hItem);
     if (nItemData == TAECHANG_SIDEBAR_ACTION_NONE)
         return;
+    if (nItemData == TAECHANG_WORKFLOW_PDF_COMPARE || nItemData == TAECHANG_WORKFLOW_HWP_COMPARE)
+    {
+        SetStatusText(TAECHANG_UI_FEATURE_PREPARING);
+        if (m_hLastWorkflowItem != NULL)
+            m_wndSidebarTree.SelectItem(m_hLastWorkflowItem);
+        return;
+    }
     int nNewWorkflow = static_cast<int>(nItemData);
     m_hLastWorkflowItem = hItem;
     if (nNewWorkflow == m_nCurrentWorkflow)
