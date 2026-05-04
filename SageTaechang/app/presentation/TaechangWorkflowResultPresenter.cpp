@@ -5,54 +5,6 @@
 
 namespace
 {
-    CString ExtractJsonArray(const CString& strJson, const CString& strKey)
-    {
-        std::string json = WideToUtf8(strJson);
-        std::string key = WideToUtf8(strKey);
-        std::string token = "\"" + key + "\"";
-        size_t nKeyPos = json.find(token);
-        if (nKeyPos == std::string::npos)
-            return L"";
-
-        size_t nStart = json.find('[', nKeyPos + token.size());
-        if (nStart == std::string::npos)
-            return L"";
-
-        int nDepth = 0;
-        bool bInString = false;
-        bool bEscaped = false;
-        for (size_t i = nStart; i < json.size(); ++i)
-        {
-            char ch = json[i];
-            if (bEscaped)
-            {
-                bEscaped = false;
-                continue;
-            }
-            if (ch == '\\' && bInString)
-            {
-                bEscaped = true;
-                continue;
-            }
-            if (ch == '"')
-            {
-                bInString = !bInString;
-                continue;
-            }
-            if (bInString)
-                continue;
-            if (ch == '[')
-                ++nDepth;
-            else if (ch == ']')
-            {
-                --nDepth;
-                if (nDepth == 0)
-                    return Utf8ToWide(json.substr(nStart, i - nStart + 1));
-            }
-        }
-        return L"";
-    }
-
     void SplitJsonObjectArray(const CString& strArrayJson, std::vector<CString>& outObjects)
     {
         std::string json = WideToUtf8(strArrayJson);
@@ -130,7 +82,7 @@ namespace
         if (!strRightValue.IsEmpty())
         {
             if (!strResult.IsEmpty())
-                strResult += L" | ";
+                strResult += TAECHANG_UI_PRESENTER_SEPARATOR;
             strResult += TAECHANG_UI_RESULT_BASELINE_PREFIX + strRightValue.Left(80);
         }
         return strResult;
@@ -201,20 +153,20 @@ void TaechangWorkflowResultPresenter::AddSummaryRows(
     CString strFailed = JsonExtractIntText(strResponseJson, L"failedFiles");
 
     if (!strStatus.IsEmpty())
-        AddRow(outRows, L"Result", strStatus, strStatus, L"");
+        AddRow(outRows, TAECHANG_UI_RESULT_RESULT_LABEL, strStatus, strStatus, L"");
     if (!strTotal.IsEmpty())
-        AddRow(outRows, L"Total", strTotal, L"summary", L"Passed " + strPassed + L", Failed " + strFailed);
+        AddRow(outRows, TAECHANG_UI_RESULT_TOTAL_LABEL, strTotal, TAECHANG_RESULT_STATUS_SUMMARY, CString(TAECHANG_UI_RESULT_PASSED_PREFIX) + strPassed + TAECHANG_UI_RESULT_FAILED_SUFFIX + strFailed);
     if (!strFileName.IsEmpty())
-        AddRow(outRows, TAECHANG_UI_RESULT_FILE, strFileName, L"output", L"");
+        AddRow(outRows, TAECHANG_UI_RESULT_FILE, strFileName, TAECHANG_RESULT_STATUS_OUTPUT, L"");
     if (!strFolder.IsEmpty())
-        AddRow(outRows, TAECHANG_UI_RESULT_FOLDER, strFolder, L"output", L"");
+        AddRow(outRows, TAECHANG_UI_RESULT_FOLDER, strFolder, TAECHANG_RESULT_STATUS_OUTPUT, L"");
 }
 
 void TaechangWorkflowResultPresenter::AddCompareFileRows(
     const CString& strResponseJson,
     std::vector<TaechangResultRow>& outRows) const
 {
-    CString strFilesJson = ExtractJsonArray(strResponseJson, L"files");
+    CString strFilesJson = JsonExtractArray(strResponseJson, L"files");
     std::vector<CString> arrObjects;
     SplitJsonObjectArray(strFilesJson, arrObjects);
     for (int i = 0; i < static_cast<int>(arrObjects.size()); ++i)
@@ -239,7 +191,7 @@ void TaechangWorkflowResultPresenter::AddReceivablesResultRows(
     const CString& strResponseJson,
     std::vector<TaechangResultRow>& outRows) const
 {
-    CString strRowsJson = ExtractJsonArray(strResponseJson, TAECHANG_JSON_KEY_ROWS);
+    CString strRowsJson = JsonExtractArray(strResponseJson, TAECHANG_JSON_KEY_ROWS);
     std::vector<CString> arrObjects;
     SplitJsonObjectArray(strRowsJson, arrObjects);
     for (int i = 0; i < static_cast<int>(arrObjects.size()); ++i)
@@ -269,5 +221,5 @@ void TaechangWorkflowResultPresenter::AddReceivablesResultRows(
 
 BOOL TaechangWorkflowResultPresenter::IsCompareWorkflow(int nWorkflowType) const
 {
-    return (nWorkflowType == TAECHANG_WORKFLOW_PDF_COMPARE || nWorkflowType == TAECHANG_WORKFLOW_HWP_COMPARE) ? TRUE : FALSE;
+    return IsCompareWorkflowType(nWorkflowType);
 }

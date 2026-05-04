@@ -11,7 +11,4 @@ public:
     CString GetSettingsPath() const;
     BOOL Load(TaechangAppSettings& outSettings) const;
     CString GetDefaultPdfToTextPath() const;
-
-private:
-    CString GetExecutableFolder() const;
 };

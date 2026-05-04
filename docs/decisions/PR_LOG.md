@@ -1,9 +1,33 @@
+## [2026-05-04] develop — feat: 파일 드래그 앤 드롭으로 입력 파일 지정 지원
+- **목적**: 파일 선택 버튼 없이 탐색기에서 바로 파일을 끌어다 놓을 수 있게 개선
+- **변경 내용**: WM_DROPFILES 핸들러 추가, 문서 생성 단일 파일/검수 다중 파일 드롭 지원, 드롭 시 Input 탭 자동 전환
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/23
+- **결과**: merged
+
+## [2026-05-04] develop — feat: 검수 기능 준비 중 비활성화 처리
+- **목적**: PDF/HWP 검수 기능 완성 전까지 사이드바에서 비활성화 표시
+- **변경 내용**: 검수 항목에 "(준비 중)" 텍스트 추가, 클릭 시 안내 메시지 후 이전 선택 복귀
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/22
+- **결과**: merged
+
+## [2026-05-04] develop — refactor: pdftotext.exe 자동 감지로 설정 메뉴 제거
+- **목적**: 사용자가 직접 pdftotext.exe 경로를 설정해야 하는 불편함 제거
+- **변경 내용**: 앱 실행 파일 옆 pdftotext.exe 자동 감지, 설정 사이드바 메뉴 및 OnSettings 제거, 에러 메시지 한국어화
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/21
+- **결과**: merged
+
+## [2026-05-04] develop — design: UI 시각적 완성도 개선
+- **목적**: 기본 Windows 컨트롤 외관에서 벗어나 ERP다운 시각 구조 확보
+- **변경 내용**: 사이드바 다크 컬러 적용, 버튼 Owner-draw(주요/보조 구분), 리스트뷰 교대 행 색상, 사이드바-콘텐츠 구분선 추가
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/20
+- **결과**: merged
+
 ## [2026-05-04] fix/receivables-preview
 - **목적**: 미수금 내역서 생성 후 결과 확인 흐름 정리
 - **변경 내용**: 미리보기 버튼/탭 제거, 생성 결과 탭을 저장 엑셀 헤더 구조로 표시, 생성 결과 JSON에 저장 행 기준 rows 포함, 실행 기록을 업무 로그 형태로 누적 표시
 - **검증**: 사용자 파일로 미수금 내역서 생성 성공, PowerShell 스크립트 파싱 통과, Debug x64 빌드 성공, 금지 패턴 확인, git diff --check 통과
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/19
-- **결과**: pending
+- **결과**: merged
 
 ## [2026-05-03] fix/receivables-array-output
 - **목적**: 미수금 내역서 출력 중복 및 담당자 숫자 정렬 문제 수정
@@ -53,4 +77,4 @@
 - **목적**: 가이드의 사이드바 3그룹(문서 생성/검수/관리) 구조 적용 + 설정을 사이드바로 이전
 - **변경 내용**: m_wndWorkflowMenu(CListBox) → m_wndSidebarTree(CTreeCtrl) 교체, 트리 노드를 세 그룹으로 구성(항상 펼침), 본문 m_wndSettings 버튼 제거 후 "관리 > 설정"으로 이전, OnSidebarSelectionChanged에서 ItemData 기반 라우팅(워크플로우 변경/설정 호출/그룹 헤더 무시), m_nCurrentWorkflow 멤버 도입, 미사용 ID/UI 상수 정리
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/17
-- **결과**: pending
+- **결과**: merged

@@ -1,6 +1,7 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "app/application/services/TaechangHwpCompareService.h"
 #include "app/common/TaechangJson.h"
+#include "app/common/TaechangFileUtils.h"
 #include "app/infrastructure/bridge/TaechangBridgeResponse.h"
 #include <oleauto.h>
 #include <cwctype>
@@ -17,12 +18,6 @@ namespace
         CString strText;
         strText.Format(L"HRESULT=0x%08X", static_cast<UINT>(hr));
         return strText;
-    }
-
-    BOOL FileExists(const CString& strPath)
-    {
-        DWORD dwAttr = GetFileAttributesW(strPath);
-        return (dwAttr != INVALID_FILE_ATTRIBUTES && (dwAttr & FILE_ATTRIBUTE_DIRECTORY) == 0) ? TRUE : FALSE;
     }
 
     BOOL GetDispatchId(IDispatch* pDispatch, LPCOLESTR pszName, DISPID& outDispId, CString& strError)
@@ -320,98 +315,6 @@ namespace
         }
     }
 
-    void SplitJsonStringArray(const CString& strArrayJson, std::vector<CString>& outValues)
-    {
-        std::string strJson = WideToUtf8(strArrayJson);
-        bool bInString = false;
-        bool bEscaped = false;
-        std::string strCurrent;
-        for (size_t i = 0; i < strJson.size(); ++i)
-        {
-            char ch = strJson[i];
-            if (!bInString)
-            {
-                if (ch == '"')
-                {
-                    bInString = true;
-                    strCurrent.clear();
-                }
-                continue;
-            }
-            if (bEscaped)
-            {
-                if (ch == 'n')
-                    strCurrent += '\n';
-                else if (ch == 'r')
-                    strCurrent += '\r';
-                else if (ch == 't')
-                    strCurrent += '\t';
-                else
-                    strCurrent += ch;
-                bEscaped = false;
-                continue;
-            }
-            if (ch == '\\')
-            {
-                bEscaped = true;
-                continue;
-            }
-            if (ch == '"')
-            {
-                outValues.push_back(Utf8ToWide(strCurrent));
-                bInString = false;
-                continue;
-            }
-            strCurrent += ch;
-        }
-    }
-
-    CString ExtractJsonArray(const CString& strJson, const CString& strKey)
-    {
-        std::string json = WideToUtf8(strJson);
-        std::string key = WideToUtf8(strKey);
-        std::string token = "\"" + key + "\"";
-        size_t nKeyPos = json.find(token);
-        if (nKeyPos == std::string::npos)
-            return L"";
-        size_t nStart = json.find('[', nKeyPos + token.size());
-        if (nStart == std::string::npos)
-            return L"";
-        int nDepth = 0;
-        bool bInString = false;
-        bool bEscaped = false;
-        for (size_t i = nStart; i < json.size(); ++i)
-        {
-            char ch = json[i];
-            if (bEscaped)
-            {
-                bEscaped = false;
-                continue;
-            }
-            if (ch == '\\' && bInString)
-            {
-                bEscaped = true;
-                continue;
-            }
-            if (ch == '"')
-            {
-                bInString = !bInString;
-                continue;
-            }
-            if (bInString)
-                continue;
-            if (ch == '[')
-                ++nDepth;
-            else if (ch == ']')
-            {
-                --nDepth;
-                if (nDepth == 0)
-                    return Utf8ToWide(json.substr(nStart, i - nStart + 1));
-            }
-        }
-        return L"";
-    }
-
     CString BuildSingleCompareItem(const CString& strHwpPath)
     {
         CString strXml;
@@ -471,9 +374,9 @@ CString TaechangHwpCompareService::BuildOpenMultiFileDialogResponse(const CStrin
 
 CString TaechangHwpCompareService::BuildRunCompareResponse(const CString& strRequestId, const CString& strPayloadJson)
 {
-    CString strFilePathsJson = ExtractJsonArray(strPayloadJson, L"hwpFilePaths");
+    CString strFilePathsJson = JsonExtractArray(strPayloadJson, L"hwpFilePaths");
     std::vector<CString> arrHwpPaths;
-    SplitJsonStringArray(strFilePathsJson, arrHwpPaths);
+    JsonSplitStringArray(strFilePathsJson, arrHwpPaths);
     return BuildBatchCompareResponse(strRequestId, arrHwpPaths);
 }
 

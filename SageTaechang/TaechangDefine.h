@@ -17,6 +17,8 @@ constexpr UINT ID_TAECHANG_PROGRESS_TIMER = 41014;
 constexpr UINT ID_TAECHANG_SIDEBAR_TREE = 41015;
 
 constexpr DWORD_PTR TAECHANG_SIDEBAR_ACTION_NONE = 0;
+constexpr DWORD TAECHANG_PROCESS_TIMEOUT_MS = 600000;
+constexpr LPCWSTR TAECHANG_POWERSHELL_PATH = L"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe";
 
 constexpr int TAECHANG_MARGIN = 16;
 constexpr int TAECHANG_LABEL_WIDTH = 90;
@@ -31,6 +33,10 @@ constexpr int TAECHANG_PROGRESS_STEP = 3;
 constexpr int TAECHANG_PROGRESS_RUNNING_MAX = 95;
 constexpr int TAECHANG_PROGRESS_COMPLETE = 100;
 constexpr int TAECHANG_RESULT_MIN_HEIGHT = 160;
+constexpr int TAECHANG_LABEL_VERT_OFFSET = 4;
+constexpr int TAECHANG_BUTTON_VERT_ADJUST = 2;
+constexpr int TAECHANG_PROGRESS_VERT_OFFSET = 5;
+constexpr int TAECHANG_PROGRESS_TEXT_VERT_OFFSET = 3;
 constexpr int TAECHANG_COMBO_WIDTH = 220;
 constexpr int TAECHANG_TITLE_FONT_POINT_SIZE = 160;
 constexpr int TAECHANG_CONTROL_FONT_POINT_SIZE = 100;
@@ -135,6 +141,13 @@ constexpr LPCWSTR TAECHANG_UI_PREPARING_SUFFIX = L" (준비 중)";
 constexpr LPCWSTR TAECHANG_UI_EXCEL_FILTER = L"Excel Files (*.xls;*.xlsx)|*.xls;*.xlsx|All Files (*.*)|*.*||";
 constexpr LPCWSTR TAECHANG_UI_PDF_FILTER = L"PDF Files (*.pdf)|*.pdf|All Files (*.*)|*.*||";
 constexpr LPCWSTR TAECHANG_UI_HWP_FILTER = L"HWP Files (*.hwp)|*.hwp|All Files (*.*)|*.*||";
+constexpr LPCWSTR TAECHANG_UI_RESULT_RESULT_LABEL = L"Result";
+constexpr LPCWSTR TAECHANG_UI_RESULT_TOTAL_LABEL = L"Total";
+constexpr LPCWSTR TAECHANG_RESULT_STATUS_SUMMARY = L"summary";
+constexpr LPCWSTR TAECHANG_RESULT_STATUS_OUTPUT = L"output";
+constexpr LPCWSTR TAECHANG_UI_RESULT_PASSED_PREFIX = L"Passed ";
+constexpr LPCWSTR TAECHANG_UI_RESULT_FAILED_SUFFIX = L", Failed ";
+constexpr LPCWSTR TAECHANG_UI_PRESENTER_SEPARATOR = L" | ";
 constexpr LPCWSTR TAECHANG_UI_RESULT_FIELD = L"항목";
 constexpr LPCWSTR TAECHANG_UI_RESULT_VALUE = L"값";
 constexpr LPCWSTR TAECHANG_UI_RESULT_STATUS = L"Status";
@@ -212,6 +225,11 @@ constexpr LPCWSTR TAECHANG_REQUEST_ESTIMATE_LOAD = L"mfc-estimate-load";
 constexpr LPCWSTR TAECHANG_REQUEST_ESTIMATE_GENERATE = L"mfc-estimate-generate";
 constexpr LPCWSTR TAECHANG_REQUEST_PDF_COMPARE = L"mfc-pdf-compare";
 constexpr LPCWSTR TAECHANG_REQUEST_HWP_COMPARE = L"mfc-hwp-compare";
+
+inline BOOL IsCompareWorkflowType(int nWorkflowType)
+{
+    return (nWorkflowType == TAECHANG_WORKFLOW_PDF_COMPARE || nWorkflowType == TAECHANG_WORKFLOW_HWP_COMPARE) ? TRUE : FALSE;
+}
 
 
 

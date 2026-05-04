@@ -230,6 +230,8 @@ if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templ
     <ClInclude Include="TaechangDefine.h" />
     <ClInclude Include="app\application\services\TaechangReceivablesExcelService.h" />
     <ClInclude Include="app\common\TaechangJson.h" />
+    <ClInclude Include="app\common\TaechangFileUtils.h" />
+    <ClInclude Include="app\common\TaechangDialogHelper.h" />
     <ClInclude Include="app\infrastructure\bridge\TaechangBridgeResponse.h" />
     <ClInclude Include="app\application\services\TaechangDeliveryExcelService.h" />
     <ClInclude Include="app\application\services\TaechangEstimateExcelService.h" />
@@ -252,6 +254,8 @@ if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templ
     <ClCompile Include="SageTaechangView.cpp" />
     <ClCompile Include="app\application\services\TaechangReceivablesExcelService.cpp" />
     <ClCompile Include="app\common\TaechangJson.cpp" />
+    <ClCompile Include="app\common\TaechangFileUtils.cpp" />
+    <ClCompile Include="app\common\TaechangDialogHelper.cpp" />
     <ClCompile Include="app\infrastructure\bridge\TaechangBridgeResponse.cpp" />
     <ClCompile Include="app\application\services\TaechangDeliveryExcelService.cpp" />
     <ClCompile Include="app\application\services\TaechangEstimateExcelService.cpp" />
