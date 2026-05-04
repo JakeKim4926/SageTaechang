@@ -787,7 +787,7 @@ BOOL CSageTaechangView::IsExportTab() const
 
 BOOL CSageTaechangView::IsActionTabVisible() const
 {
-    return (IsInputTabSelected() || IsResultTab()) ? TRUE : FALSE;
+    return IsInputTabSelected() ? TRUE : FALSE;
 }
 
 BOOL CSageTaechangView::IsReceivablesResultTable() const
