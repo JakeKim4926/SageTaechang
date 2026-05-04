@@ -287,6 +287,8 @@ void TaechangWorkflowResultPresenter::AddEstimateInputRows(
         CString strCopies = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_COPIES);
         CString strPages = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_PAGES);
         CString strUnitPrice = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_UNIT_PRICE);
+        CString strCoverCost = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_COVER_COST);
+        CString strFreight = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_FREIGHT);
 
         TaechangResultRow row;
         row.m_nSourceRowIndex = _wtoi(strRowNum);
@@ -297,6 +299,8 @@ void TaechangWorkflowResultPresenter::AddEstimateInputRows(
         row.m_strCompanyCopies = strCopies;
         row.m_strCorporationCopies = strPages;
         row.m_strTotalCopies = strUnitPrice;
+        row.m_strValue = strCoverCost;
+        row.m_strReason = strFreight;
         outRows.push_back(row);
     }
 }
