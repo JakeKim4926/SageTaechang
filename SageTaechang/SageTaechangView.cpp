@@ -227,7 +227,7 @@ void CSageTaechangView::CreateChildControls()
 {
     CRect rectEmpty(0, 0, 0, 0);
     m_wndSidebarTitle.Create(TAECHANG_UI_SIDEBAR_TITLE, WS_CHILD | WS_VISIBLE, rectEmpty, this);
-    m_wndSidebarTree.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | TVS_FULLROWSELECT | TVS_SHOWSELALWAYS | TVS_DISABLEDRAGDROP, rectEmpty, this, ID_TAECHANG_SIDEBAR_TREE);
+    m_wndSidebarTree.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | TVS_FULLROWSELECT | TVS_SHOWSELALWAYS | TVS_DISABLEDRAGDROP | TVS_NOSCROLL, rectEmpty, this, ID_TAECHANG_SIDEBAR_TREE);
     m_wndSidebarTree.SetBkColor(TAECHANG_COLOR_SIDEBAR);
     m_wndSidebarTree.SetTextColor(TAECHANG_COLOR_SIDEBAR_TEXT);
     m_wndSidebarTree.SetItemHeight(TAECHANG_SIDEBAR_ITEM_HEIGHT);
@@ -253,6 +253,7 @@ void CSageTaechangView::CreateChildControls()
     m_wndProgressText.Create(L"", WS_CHILD | WS_VISIBLE | SS_RIGHT, rectEmpty, this);
     m_wndResultList.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SINGLESEL, rectEmpty, this, ID_TAECHANG_RESULT_LIST);
     m_wndDetail.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | WS_VSCROLL, rectEmpty, this, ID_TAECHANG_DETAIL_EDIT);
+    m_wndEmptyStateHint.Create(TAECHANG_UI_EMPTY_STATE_HINT, WS_CHILD | WS_VISIBLE | SS_CENTER | SS_CENTERIMAGE, rectEmpty, this);
 
     m_wndResultList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
     m_wndProgress.SetMarquee(FALSE, 0);
@@ -328,6 +329,7 @@ void CSageTaechangView::ApplyControlFonts()
     m_wndProgressText.SetFont(&m_fontControl);
     m_wndResultList.SetFont(&m_fontControl);
     m_wndDetail.SetFont(&m_fontControl);
+    m_wndEmptyStateHint.SetFont(&m_fontControl);
 }
 
 void CSageTaechangView::ApplyWorkflowTabs()
@@ -439,16 +441,19 @@ void CSageTaechangView::UpdateTaskTabVisibility()
     m_wndOutputFolder.ShowWindow(bShowOutput ? SW_SHOW : SW_HIDE);
     m_wndSelectOutput.ShowWindow(bShowOutput ? SW_SHOW : SW_HIDE);
 
+    BOOL bShowHint = (!bShowResult && !bShowDetail && !bShowExport && !m_bRunning) ? TRUE : FALSE;
+
     m_wndLoad.ShowWindow(SW_HIDE);
     m_wndGenerate.ShowWindow(bShowAction ? SW_SHOW : SW_HIDE);
     m_wndExportCsv.ShowWindow(bShowExport ? SW_SHOW : SW_HIDE);
-    m_wndProgress.ShowWindow(bShowAction ? SW_SHOW : SW_HIDE);
-    m_wndProgressText.ShowWindow(bShowAction ? SW_SHOW : SW_HIDE);
+    m_wndProgress.ShowWindow((bShowAction && m_bRunning) ? SW_SHOW : SW_HIDE);
+    m_wndProgressText.ShowWindow((bShowAction && m_bRunning) ? SW_SHOW : SW_HIDE);
 
     m_wndResultSection.ShowWindow(bShowResult ? SW_SHOW : SW_HIDE);
     m_wndResultList.ShowWindow(bShowResult ? SW_SHOW : SW_HIDE);
     m_wndDetailSection.ShowWindow(bShowDetail ? SW_SHOW : SW_HIDE);
     m_wndDetail.ShowWindow(bShowDetail ? SW_SHOW : SW_HIDE);
+    m_wndEmptyStateHint.ShowWindow(bShowHint ? SW_SHOW : SW_HIDE);
 }
 
 void CSageTaechangView::UpdateResultColumns()
@@ -639,6 +644,7 @@ void CSageTaechangView::LayoutResultSection(int nLeft, int nTop, int nWidth, int
         m_wndDetailSection.MoveWindow(nLeft, nTop, nWidth, TAECHANG_RESULT_HEADER_HEIGHT);
         m_wndDetail.MoveWindow(nLeft, nTop + TAECHANG_RESULT_HEADER_HEIGHT, nWidth, nBodyHeight);
     }
+    m_wndEmptyStateHint.MoveWindow(nLeft, nTop, nWidth, nBodyHeight);
 }
 
 void CSageTaechangView::OnDraw(CDC* pDC)
@@ -1042,6 +1048,7 @@ void CSageTaechangView::SetRunningState(BOOL bRunning)
         UpdateProgressPercent(TAECHANG_PROGRESS_COMPLETE);
     }
     UpdateExportButtonState();
+    UpdateTaskTabVisibility();
     if (bRunning)
         SetStatusText(TAECHANG_UI_RUNNING);
 }
@@ -1096,6 +1103,12 @@ HBRUSH CSageTaechangView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
     if (pWnd->GetSafeHwnd() == m_wndHeaderStatus.GetSafeHwnd())
     {
         pDC->SetTextColor(m_colorHeaderStatus);
+        pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
+        return m_brushAppBackground;
+    }
+    if (pWnd->GetSafeHwnd() == m_wndEmptyStateHint.GetSafeHwnd())
+    {
+        pDC->SetTextColor(TAECHANG_COLOR_SECONDARY_TEXT);
         pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
         return m_brushAppBackground;
     }
