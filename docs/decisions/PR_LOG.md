@@ -1,3 +1,9 @@
+## [2026-05-04] develop — refactor: 중복 코드 제거 및 코드 품질 개선
+- **목적**: 전체 코드 리뷰 결과 발견된 Blocker/Major/Minor 항목 수정
+- **변경 내용**: TaechangFileUtils/TaechangDialogHelper 신규 분리, FileExists 등 5개 파일 중복 제거, ExtractJsonArray 3개 파일 중복 제거, PostMessage 누수 Blocker 수정, 레이아웃 매직 넘버·스트링 상수화, 주석 제거 (17개 파일, 순 463줄 감소)
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/24
+- **결과**: merged
+
 ## [2026-05-04] develop — feat: 파일 드래그 앤 드롭으로 입력 파일 지정 지원
 - **목적**: 파일 선택 버튼 없이 탐색기에서 바로 파일을 끌어다 놓을 수 있게 개선
 - **변경 내용**: WM_DROPFILES 핸들러 추가, 문서 생성 단일 파일/검수 다중 파일 드롭 지원, 드롭 시 Input 탭 자동 전환
