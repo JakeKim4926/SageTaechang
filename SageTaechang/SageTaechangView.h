@@ -12,6 +12,13 @@ protected:
     afx_msg void OnPaint();
 };
 
+class CTaechangEdit : public CEdit
+{
+    DECLARE_MESSAGE_MAP()
+protected:
+    afx_msg void OnNcPaint();
+};
+
 class CSageTaechangView : public CView
 {
 protected:
@@ -46,8 +53,8 @@ protected:
     CStatic m_wndWorkflowLabel;
     CStatic m_wndInputLabel;
     CStatic m_wndOutputLabel;
-    CEdit m_wndInputPath;
-    CEdit m_wndOutputFolder;
+    CTaechangEdit m_wndInputPath;
+    CTaechangEdit m_wndOutputFolder;
     CButton m_wndSelectInput;
     CButton m_wndSelectOutput;
     CButton m_wndLoad;

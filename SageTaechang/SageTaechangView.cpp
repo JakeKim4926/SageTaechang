@@ -169,6 +169,20 @@ static UINT RunWorkflowWorker(LPVOID pParam)
     return 0;
 }
 
+BEGIN_MESSAGE_MAP(CTaechangEdit, CEdit)
+    ON_WM_NCPAINT()
+END_MESSAGE_MAP()
+
+void CTaechangEdit::OnNcPaint()
+{
+    CWindowDC dc(this);
+    CRect rect;
+    GetWindowRect(&rect);
+    rect.OffsetRect(-rect.left, -rect.top);
+    CBrush brush(TAECHANG_COLOR_BORDER);
+    dc.FrameRect(&rect, &brush);
+}
+
 BEGIN_MESSAGE_MAP(CTaechangTabCtrl, CTabCtrl)
     ON_WM_PAINT()
 END_MESSAGE_MAP()
