@@ -79,6 +79,19 @@ function Get-CompanyKey($value) {
     return [regex]::Replace($text, '\s+', '')
 }
 
+function Get-ManagerSortKey($value) {
+    $text = (ConvertTo-TextValue $value).Trim()
+    $prefix = '1'
+    if ($text -match '^\d+') {
+        $prefix = '0'
+    }
+    $key = [regex]::Replace($text, '\d+', {
+        param($match)
+        return ('{0:D10}' -f [int64]$match.Value)
+    })
+    return $prefix + '|' + $key
+}
+
 function Add-PriorityItem($map, $priority, $companyName) {
     $key = Get-CompanyKey $companyName
     if ($key.Length -gt 0 -and -not $map.ContainsKey($key)) {
@@ -223,33 +236,44 @@ function Build-OutputRows($rows) {
     return $outputRows
 }
 
-function Build-OutputValueArray($outputRows) {
-    $values = New-Object 'object[,]' $outputRows.Count, 10
+function Build-OutputRowValueArray($row) {
+    $values = [Array]::CreateInstance(
+        [object],
+        @(1, 10),
+        @(1, 1))
 
-    for ($index = 0; $index -lt $outputRows.Count; $index++) {
-        $row = $outputRows[$index]
-        if ($row.isSeparator) {
-            for ($col = 0; $col -lt 10; $col++) {
-                $values[$index, $col] = '-'
-            }
-        } else {
-            $values[$index, 0] = [string](ConvertTo-TextValue $row.companyName)
-            $values[$index, 1] = [string](ConvertTo-TextValue $row.manager)
-            $values[$index, 2] = [string](ConvertTo-TextValue $row.issueDateText)
-            $values[$index, 3] = [string](ConvertTo-TextValue $row.itemName)
-            $values[$index, 4] = [string](ConvertTo-TextValue $row.issueType)
-            if ($null -ne $row.totalAmount) {
-                try {
-                    $values[$index, 5] = [double]$row.totalAmount
-                } catch {
-                    $values[$index, 5] = ConvertTo-TextValue $row.totalAmount
-                }
-            }
-            $values[$index, 8] = [string](ConvertTo-TextValue $row.bankName)
+    for ($col = 1; $col -le 10; $col++) {
+        $values[1, $col] = ''
+    }
+
+    if ($row.isSeparator) {
+        for ($col = 1; $col -le 10; $col++) {
+            $values[1, $col] = '-'
         }
+    } else {
+        $values[1, 1] = [string](ConvertTo-TextValue $row.companyName)
+        $values[1, 2] = [string](ConvertTo-TextValue $row.manager)
+        $values[1, 3] = [string](ConvertTo-TextValue $row.issueDateText)
+        $values[1, 4] = [string](ConvertTo-TextValue $row.itemName)
+        $values[1, 5] = [string](ConvertTo-TextValue $row.issueType)
+        if ($null -ne $row.totalAmount) {
+            try {
+                $values[1, 6] = [double]$row.totalAmount
+            } catch {
+                $values[1, 6] = ConvertTo-TextValue $row.totalAmount
+            }
+        }
+        $values[1, 9] = [string](ConvertTo-TextValue $row.bankName)
     }
 
     return $values
+}
+
+function Set-OutputValues($sheet, $outputRows, $startRow) {
+    for ($index = 0; $index -lt $outputRows.Count; $index++) {
+        $targetRow = $startRow + $index
+        $sheet.Range(('B{0}:K{0}' -f $targetRow)).Value2 = Build-OutputRowValueArray $outputRows[$index]
+    }
 }
 
 function Apply-OutputFormats($sheet, $outputRows, $startRow) {
@@ -334,6 +358,7 @@ try {
             issueDateValue = $issueDateValue
             issueDateText = $issueDateText
             manager = $manager
+            managerSortKey = Get-ManagerSortKey $manager
             companyName = $displayCompanyName
             totalAmount = $totalAmount
             totalAmountText = $totalAmountText
@@ -343,7 +368,7 @@ try {
         })
     }
 
-    $rows = @($rows | Sort-Object @{ Expression = { $_.priority }; Ascending = $true }, @{ Expression = { $_.manager }; Ascending = $true }, @{ Expression = { $_.companyName }; Ascending = $true })
+    $rows = @($rows | Sort-Object @{ Expression = { $_.priority }; Ascending = $true }, @{ Expression = { $_.managerSortKey }; Ascending = $true }, @{ Expression = { $_.companyName }; Ascending = $true })
     if ($rows.Count -eq 0) {
         throw 'Input file has no data rows.'
     }
@@ -353,7 +378,9 @@ try {
         throw 'Issue date was not found.'
     }
 
-    $baseName = 'receivables_' + $titleDate.ToString('yyyyMM')
+    $filePrefix = [string][char]0xBBF8 + [string][char]0xC218 + [string][char]0xAE08 +
+        [string][char]0xB0B4 + [string][char]0xC5ED + [string][char]0xC11C + '_'
+    $baseName = $filePrefix + [datetime]::Now.ToString('yyyyMMdd_HHmmss')
     $outputPath = [System.IO.Path]::Combine($OutputFolder, $baseName + '.xls')
     $suffix = 1
     while ([System.IO.File]::Exists($outputPath)) {
@@ -378,8 +405,7 @@ try {
     $lastOutputRow = $targetRow + $outputRows.Count - 1
 
     Apply-OutputFormats $sheet $outputRows $targetRow
-    $outputValues = Build-OutputValueArray $outputRows
-    $sheet.Range(('B{0}:K{1}' -f $targetRow, $lastOutputRow)).Value2 = $outputValues
+    Set-OutputValues $sheet $outputRows $targetRow
 
     $outputWorkbook.SaveAs($outputPath, 56)
     $outputWorkbook.Close($false)

@@ -1,3 +1,10 @@
+## [2026-05-03] fix/receivables-array-output
+- **목적**: 미수금 내역서 출력 중복 및 담당자 숫자 정렬 문제 수정
+- **변경 내용**: Excel COM 다중 행 배열 대입을 행 단위 범위 대입으로 변경, 담당자 자연 정렬 키 추가, 저장 파일명을 미수금내역서_yyyymmdd_hhmmss 형식으로 변경
+- **검증**: 미수금 사용자 파일 로드/생성 성공, 삼덕회계법인 10층 정렬 확인, 중복 출력 해결 확인, PowerShell 스크립트 파싱 통과, Debug x64 빌드 성공
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/18
+- **결과**: merged
+
 ## [2026-05-03] feature/gmarket-fonts
 - **목적**: SageNexus에서 사용하던 Gmarket Sans TTF 폰트를 SageTaechang MFC UI에 적용
 - **변경 내용**: Gmarket Sans TTF 3종 리소스 추가, private font 로딩/해제 연결, 주요 MFC 컨트롤 폰트 지정

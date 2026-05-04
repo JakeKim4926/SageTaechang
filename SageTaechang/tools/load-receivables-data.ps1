@@ -57,6 +57,19 @@ function Get-CompanyKey($value) {
     return [regex]::Replace($text, '\s+', '')
 }
 
+function Get-ManagerSortKey($value) {
+    $text = (ConvertTo-TextValue $value).Trim()
+    $prefix = '1'
+    if ($text -match '^\d+') {
+        $prefix = '0'
+    }
+    $key = [regex]::Replace($text, '\d+', {
+        param($match)
+        return ('{0:D10}' -f [int64]$match.Value)
+    })
+    return $prefix + '|' + $key
+}
+
 function Add-PriorityItem($map, $priority, $companyName) {
     $key = Get-CompanyKey $companyName
     if ($key.Length -gt 0 -and -not $map.ContainsKey($key)) {
@@ -196,6 +209,7 @@ try {
             priorityName = $priorityName
             issueDate = $issueDate
             manager = $manager
+            managerSortKey = Get-ManagerSortKey $manager
             companyName = $displayCompanyName
             totalAmount = $totalAmount
             issueType = $issueType
@@ -204,7 +218,12 @@ try {
         })
     }
 
-    $rows = @($rows | Sort-Object @{ Expression = { $_.priority }; Ascending = $true }, @{ Expression = { $_.manager }; Ascending = $true }, @{ Expression = { $_.companyName }; Ascending = $true })
+    $rows = @($rows | Sort-Object @{ Expression = { $_.priority }; Ascending = $true }, @{ Expression = { $_.managerSortKey }; Ascending = $true }, @{ Expression = { $_.companyName }; Ascending = $true })
+    foreach ($row in $rows) {
+        if ($row.Contains('managerSortKey')) {
+            $row.Remove('managerSortKey')
+        }
+    }
 
     $inputWorkbook.Close($false)
     $inputWorkbook = $null
