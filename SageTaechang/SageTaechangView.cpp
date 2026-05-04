@@ -167,6 +167,53 @@ static UINT RunWorkflowWorker(LPVOID pParam)
     return 0;
 }
 
+BEGIN_MESSAGE_MAP(CTaechangTabCtrl, CTabCtrl)
+    ON_WM_PAINT()
+END_MESSAGE_MAP()
+
+void CTaechangTabCtrl::OnPaint()
+{
+    CPaintDC dc(this);
+    CRect rect;
+    GetClientRect(&rect);
+    dc.FillSolidRect(rect, TAECHANG_COLOR_APP_BACKGROUND);
+
+    CFont* pFont = GetFont();
+    CFont* pOldFont = pFont ? dc.SelectObject(pFont) : NULL;
+    dc.SetBkMode(TRANSPARENT);
+
+    int nCount = GetItemCount();
+    int nCurSel = GetCurSel();
+    for (int i = 0; i < nCount; ++i)
+    {
+        CRect rcItem;
+        GetItemRect(i, &rcItem);
+        BOOL bSelected = (i == nCurSel);
+
+        dc.FillSolidRect(rcItem, bSelected ? TAECHANG_COLOR_PANEL : TAECHANG_COLOR_APP_BACKGROUND);
+
+        if (bSelected)
+        {
+            CRect rcLine = rcItem;
+            rcLine.top = rcLine.bottom - TAECHANG_TAB_INDICATOR_HEIGHT;
+            dc.FillSolidRect(rcLine, TAECHANG_COLOR_PRIMARY);
+        }
+
+        TCITEM tcItem;
+        wchar_t szText[64] = {};
+        tcItem.mask = TCIF_TEXT;
+        tcItem.pszText = szText;
+        tcItem.cchTextMax = 63;
+        GetItem(i, &tcItem);
+
+        dc.SetTextColor(bSelected ? TAECHANG_COLOR_TEXT : TAECHANG_COLOR_SECONDARY_TEXT);
+        dc.DrawText(szText, rcItem, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+    }
+
+    if (pOldFont)
+        dc.SelectObject(pOldFont);
+}
+
 IMPLEMENT_DYNCREATE(CSageTaechangView, CView)
 
 BEGIN_MESSAGE_MAP(CSageTaechangView, CView)
@@ -185,7 +232,6 @@ BEGIN_MESSAGE_MAP(CSageTaechangView, CView)
     ON_MESSAGE(WM_TAECHANG_WORKFLOW_COMPLETE, &CSageTaechangView::OnWorkflowComplete)
     ON_WM_DROPFILES()
     ON_WM_DRAWITEM()
-    ON_NOTIFY(NM_CUSTOMDRAW, ID_TAECHANG_TASK_TABS, &CSageTaechangView::OnTabCustomDraw)
     ON_NOTIFY(NM_CUSTOMDRAW, ID_TAECHANG_RESULT_LIST, &CSageTaechangView::OnListCustomDraw)
 END_MESSAGE_MAP()
 
@@ -1372,51 +1418,6 @@ void CSageTaechangView::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct
     pDC->DrawText(strText, rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
     if (pOldFont)
         pDC->SelectObject(pOldFont);
-}
-
-void CSageTaechangView::OnTabCustomDraw(NMHDR* pNMHDR, LRESULT* pResult)
-{
-    NMCUSTOMDRAW* pCD = reinterpret_cast<NMCUSTOMDRAW*>(pNMHDR);
-    *pResult = CDRF_DODEFAULT;
-    switch (pCD->dwDrawStage)
-    {
-    case CDDS_PREPAINT:
-        {
-            CDC* pDC = CDC::FromHandle(pCD->hdc);
-            CRect rect;
-            m_wndTaskTabs.GetClientRect(&rect);
-            pDC->FillSolidRect(rect, TAECHANG_COLOR_APP_BACKGROUND);
-        }
-        *pResult = CDRF_NOTIFYITEMDRAW;
-        break;
-    case CDDS_ITEMPREPAINT:
-        {
-            CDC* pDC = CDC::FromHandle(pCD->hdc);
-            CRect rect = pCD->rc;
-            BOOL bSelected = (pCD->uItemState & CDIS_SELECTED) != 0;
-            pDC->FillSolidRect(rect, bSelected ? TAECHANG_COLOR_PANEL : TAECHANG_COLOR_APP_BACKGROUND);
-            if (bSelected)
-            {
-                CRect rectIndicator = rect;
-                rectIndicator.top = rectIndicator.bottom - TAECHANG_TAB_INDICATOR_HEIGHT;
-                pDC->FillSolidRect(rectIndicator, TAECHANG_COLOR_PRIMARY);
-            }
-            TCITEM tcItem;
-            wchar_t szText[64] = {};
-            tcItem.mask = TCIF_TEXT;
-            tcItem.pszText = szText;
-            tcItem.cchTextMax = 63;
-            m_wndTaskTabs.GetItem(static_cast<int>(pCD->dwItemSpec), &tcItem);
-            pDC->SetTextColor(bSelected ? TAECHANG_COLOR_TEXT : TAECHANG_COLOR_SECONDARY_TEXT);
-            pDC->SetBkMode(TRANSPARENT);
-            CFont* pOldFont = pDC->SelectObject(&m_fontControl);
-            pDC->DrawText(szText, rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-            if (pOldFont)
-                pDC->SelectObject(pOldFont);
-        }
-        *pResult = CDRF_SKIPDEFAULT;
-        break;
-    }
 }
 
 void CSageTaechangView::OnListCustomDraw(NMHDR* pNMHDR, LRESULT* pResult)
