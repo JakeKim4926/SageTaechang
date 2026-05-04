@@ -294,8 +294,8 @@ void CSageTaechangView::CreateChildControls()
     m_wndWorkflowLabel.Create(TAECHANG_UI_WORKFLOW_LABEL, WS_CHILD, rectEmpty, this);
     m_wndInputLabel.Create(TAECHANG_UI_INPUT_LABEL, WS_CHILD | WS_VISIBLE, rectEmpty, this);
     m_wndOutputLabel.Create(TAECHANG_UI_OUTPUT_LABEL, WS_CHILD | WS_VISIBLE, rectEmpty, this);
-    m_wndInputPath.Create(WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL | ES_READONLY, rectEmpty, this, ID_TAECHANG_INPUT_EDIT);
-    m_wndOutputFolder.Create(WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL | ES_READONLY, rectEmpty, this, ID_TAECHANG_OUTPUT_EDIT);
+    m_wndInputPath.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_READONLY, rectEmpty, this, ID_TAECHANG_INPUT_EDIT);
+    m_wndOutputFolder.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_READONLY, rectEmpty, this, ID_TAECHANG_OUTPUT_EDIT);
     m_wndSelectInput.Create(TAECHANG_UI_INPUT_BUTTON, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_SELECT_INPUT);
     m_wndSelectOutput.Create(TAECHANG_UI_OUTPUT_BUTTON, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_SELECT_OUTPUT);
     m_wndLoad.Create(TAECHANG_UI_LOAD_BUTTON, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_LOAD_WORKFLOW);
@@ -635,20 +635,35 @@ void CSageTaechangView::LayoutChildControls()
 
 void CSageTaechangView::LayoutInputSection(int nLeft, int nTop, int nWidth, BOOL bShowOutput)
 {
-    int nPathWidth = nWidth - TAECHANG_LABEL_WIDTH - TAECHANG_BUTTON_WIDTH - TAECHANG_ROW_GAP;
+    int nPathWidth = nWidth - TAECHANG_LABEL_WIDTH - TAECHANG_LABEL_EDIT_GAP - TAECHANG_BUTTON_WIDTH - TAECHANG_ROW_GAP;
+    int nEditLeft = nLeft + TAECHANG_LABEL_WIDTH + TAECHANG_LABEL_EDIT_GAP;
     m_wndInputSection.MoveWindow(nLeft, nTop, nWidth, TAECHANG_SECTION_TITLE_HEIGHT);
     nTop += TAECHANG_SECTION_TITLE_HEIGHT + TAECHANG_ROW_GAP;
     m_wndInputLabel.MoveWindow(nLeft, nTop + TAECHANG_LABEL_VERT_OFFSET, TAECHANG_LABEL_WIDTH, TAECHANG_EDIT_HEIGHT);
-    m_wndInputPath.MoveWindow(nLeft + TAECHANG_LABEL_WIDTH, nTop, nPathWidth, TAECHANG_EDIT_HEIGHT);
-    m_wndSelectInput.MoveWindow(nLeft + TAECHANG_LABEL_WIDTH + nPathWidth + TAECHANG_ROW_GAP, nTop - TAECHANG_BUTTON_VERT_ADJUST, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
+    m_wndInputPath.MoveWindow(nEditLeft, nTop, nPathWidth, TAECHANG_EDIT_HEIGHT);
+    {
+        CRect rcFmt;
+        m_wndInputPath.GetClientRect(&rcFmt);
+        rcFmt.top += TAECHANG_EDIT_TEXT_TOP_PAD;
+        rcFmt.right = TAECHANG_EDIT_FORMAT_MAX_WIDTH;
+        m_wndInputPath.SendMessage(EM_SETRECT, 0, reinterpret_cast<LPARAM>(&rcFmt));
+    }
+    m_wndSelectInput.MoveWindow(nEditLeft + nPathWidth + TAECHANG_ROW_GAP, nTop - TAECHANG_BUTTON_VERT_ADJUST, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
     if (!bShowOutput)
         return;
     nTop += TAECHANG_BUTTON_HEIGHT + TAECHANG_ROW_GAP;
     m_wndOutputSection.MoveWindow(nLeft, nTop, nWidth, TAECHANG_SECTION_TITLE_HEIGHT);
     nTop += TAECHANG_SECTION_TITLE_HEIGHT + TAECHANG_ROW_GAP;
     m_wndOutputLabel.MoveWindow(nLeft, nTop + TAECHANG_LABEL_VERT_OFFSET, TAECHANG_LABEL_WIDTH, TAECHANG_EDIT_HEIGHT);
-    m_wndOutputFolder.MoveWindow(nLeft + TAECHANG_LABEL_WIDTH, nTop, nPathWidth, TAECHANG_EDIT_HEIGHT);
-    m_wndSelectOutput.MoveWindow(nLeft + TAECHANG_LABEL_WIDTH + nPathWidth + TAECHANG_ROW_GAP, nTop - TAECHANG_BUTTON_VERT_ADJUST, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
+    m_wndOutputFolder.MoveWindow(nEditLeft, nTop, nPathWidth, TAECHANG_EDIT_HEIGHT);
+    {
+        CRect rcFmt;
+        m_wndOutputFolder.GetClientRect(&rcFmt);
+        rcFmt.top += TAECHANG_EDIT_TEXT_TOP_PAD;
+        rcFmt.right = TAECHANG_EDIT_FORMAT_MAX_WIDTH;
+        m_wndOutputFolder.SendMessage(EM_SETRECT, 0, reinterpret_cast<LPARAM>(&rcFmt));
+    }
+    m_wndSelectOutput.MoveWindow(nEditLeft + nPathWidth + TAECHANG_ROW_GAP, nTop - TAECHANG_BUTTON_VERT_ADJUST, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
 }
 
 void CSageTaechangView::LayoutActionSection(int nLeft, int nTop, int nWidth)
