@@ -2,21 +2,17 @@
 #include "app/application/services/TaechangPdfCompareService.h"
 #include "app/application/services/TaechangAppSettingsService.h"
 #include "app/common/TaechangJson.h"
+#include "app/common/TaechangFileUtils.h"
 #include "app/infrastructure/bridge/TaechangBridgeResponse.h"
+#include "TaechangDefine.h"
 #include <filesystem>
 
 namespace
 {
-    constexpr int TAECHANG_PDF_TIMEOUT_MS = 600000;
     constexpr LPCWSTR TAECHANG_PDF_ERR_INPUT_REQUIRED = L"SNX_TAECHANG_PDF_001";
     constexpr LPCWSTR TAECHANG_PDF_ERR_EXTRACT_FAILED = L"SNX_TAECHANG_PDF_002";
     constexpr LPCWSTR TAECHANG_PDF_ERR_PROCESS_FAILED = L"SNX_TAECHANG_PDF_003";
 
-    BOOL FileExists(const CString& strPath)
-    {
-        DWORD dwAttr = GetFileAttributesW(strPath);
-        return (dwAttr != INVALID_FILE_ATTRIBUTES && (dwAttr & FILE_ATTRIBUTE_DIRECTORY) == 0) ? TRUE : FALSE;
-    }
 
     CString BuildTempTextPath()
     {
@@ -32,80 +28,7 @@ namespace
         return strPath;
     }
 
-    CString QuoteArgument(const CString& strValue)
-    {
-        CString strEscaped = strValue;
-        strEscaped.Replace(L"\"", L"\\\"");
-        return L"\"" + strEscaped + L"\"";
-    }
 
-    BOOL RunProcessAndWait(const CString& strCommandLine, DWORD& outExitCode, CString& strError)
-    {
-        STARTUPINFOW si = {};
-        PROCESS_INFORMATION pi = {};
-        si.cb = sizeof(si);
-        si.dwFlags = STARTF_USESHOWWINDOW;
-        si.wShowWindow = SW_HIDE;
-
-        CString strMutableCommandLine = strCommandLine;
-        BOOL bCreated = CreateProcessW(NULL, strMutableCommandLine.GetBuffer(), NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi);
-        strMutableCommandLine.ReleaseBuffer();
-        if (!bCreated)
-        {
-            strError.Format(L"CreateProcess failed. error=%lu", GetLastError());
-            return FALSE;
-        }
-
-        DWORD dwWait = WaitForSingleObject(pi.hProcess, TAECHANG_PDF_TIMEOUT_MS);
-        if (dwWait == WAIT_TIMEOUT)
-        {
-            TerminateProcess(pi.hProcess, 1);
-            CloseHandle(pi.hThread);
-            CloseHandle(pi.hProcess);
-            strError = L"PDF compare timeout.";
-            return FALSE;
-        }
-
-        if (!GetExitCodeProcess(pi.hProcess, &outExitCode))
-            outExitCode = 1;
-
-        CloseHandle(pi.hThread);
-        CloseHandle(pi.hProcess);
-        return TRUE;
-    }
-
-    CString CollapseWhitespace(const CString& strValue)
-    {
-        CString strResult;
-        BOOL bPrevSpace = FALSE;
-        for (int i = 0; i < strValue.GetLength(); ++i)
-        {
-            wchar_t ch = strValue[i];
-            if (iswspace(ch) != 0)
-            {
-                if (!bPrevSpace && !strResult.IsEmpty())
-                    strResult += L' ';
-                bPrevSpace = TRUE;
-                continue;
-            }
-            strResult += ch;
-            bPrevSpace = FALSE;
-        }
-        strResult.Trim();
-        return strResult;
-    }
-
-    CString NormalizeVisibleText(const CString& strValue)
-    {
-        CString strCollapsed = CollapseWhitespace(strValue);
-        CString strResult;
-        for (int i = 0; i < strCollapsed.GetLength(); ++i)
-        {
-            if (iswspace(strCollapsed[i]) == 0)
-                strResult += strCollapsed[i];
-        }
-        return strResult;
-    }
 
     BOOL ReadUtf8File(const CString& strPath, CString& outContent, CString& strError)
     {
@@ -164,101 +87,37 @@ namespace
         return bRead;
     }
 
-    void SplitJsonStringArray(const CString& strArrayJson, std::vector<CString>& outValues)
+    CString CollapseWhitespace(const CString& strValue)
     {
-        std::string strJson = WideToUtf8(strArrayJson);
-        bool bInString = false;
-        bool bEscaped = false;
-        std::string strCurrent;
-        for (size_t i = 0; i < strJson.size(); ++i)
+        CString strResult;
+        BOOL bPrevSpace = FALSE;
+        for (int i = 0; i < strValue.GetLength(); ++i)
         {
-            char ch = strJson[i];
-            if (!bInString)
+            wchar_t ch = strValue[i];
+            if (iswspace(ch) != 0)
             {
-                if (ch == '"')
-                {
-                    bInString = true;
-                    strCurrent.clear();
-                }
+                if (!bPrevSpace && !strResult.IsEmpty())
+                    strResult += L' ';
+                bPrevSpace = TRUE;
                 continue;
             }
-
-            if (bEscaped)
-            {
-                if (ch == 'n')
-                    strCurrent += '\n';
-                else if (ch == 'r')
-                    strCurrent += '\r';
-                else if (ch == 't')
-                    strCurrent += '\t';
-                else
-                    strCurrent += ch;
-                bEscaped = false;
-                continue;
-            }
-
-            if (ch == '\\')
-            {
-                bEscaped = true;
-                continue;
-            }
-
-            if (ch == '"')
-            {
-                outValues.push_back(Utf8ToWide(strCurrent));
-                bInString = false;
-                continue;
-            }
-
-            strCurrent += ch;
+            strResult += ch;
+            bPrevSpace = FALSE;
         }
+        strResult.Trim();
+        return strResult;
     }
 
-    CString ExtractJsonArray(const CString& strJson, const CString& strKey)
+    CString NormalizeVisibleText(const CString& strValue)
     {
-        std::string json = WideToUtf8(strJson);
-        std::string key = WideToUtf8(strKey);
-        std::string token = "\"" + key + "\"";
-        size_t nKeyPos = json.find(token);
-        if (nKeyPos == std::string::npos)
-            return L"";
-        size_t nStart = json.find('[', nKeyPos + token.size());
-        if (nStart == std::string::npos)
-            return L"";
-
-        int nDepth = 0;
-        bool bInString = false;
-        bool bEscaped = false;
-        for (size_t i = nStart; i < json.size(); ++i)
+        CString strCollapsed = CollapseWhitespace(strValue);
+        CString strResult;
+        for (int i = 0; i < strCollapsed.GetLength(); ++i)
         {
-            char ch = json[i];
-            if (bEscaped)
-            {
-                bEscaped = false;
-                continue;
-            }
-            if (ch == '\\' && bInString)
-            {
-                bEscaped = true;
-                continue;
-            }
-            if (ch == '"')
-            {
-                bInString = !bInString;
-                continue;
-            }
-            if (bInString)
-                continue;
-            if (ch == '[')
-                ++nDepth;
-            else if (ch == ']')
-            {
-                --nDepth;
-                if (nDepth == 0)
-                    return Utf8ToWide(json.substr(nStart, i - nStart + 1));
-            }
+            if (iswspace(strCollapsed[i]) == 0)
+                strResult += strCollapsed[i];
         }
-        return L"";
+        return strResult;
     }
 
     void SplitLeftRightText(const CString& strText, CString& outLeft, CString& outRight)
@@ -374,9 +233,9 @@ CString TaechangPdfCompareService::BuildOpenMultiFileDialogResponse(const CStrin
 
 CString TaechangPdfCompareService::BuildRunCompareResponse(const CString& strRequestId, const CString& strPayloadJson)
 {
-    CString strFilePathsJson = ExtractJsonArray(strPayloadJson, L"pdfFilePaths");
+    CString strFilePathsJson = JsonExtractArray(strPayloadJson, L"pdfFilePaths");
     std::vector<CString> arrPdfPaths;
-    SplitJsonStringArray(strFilePathsJson, arrPdfPaths);
+    JsonSplitStringArray(strFilePathsJson, arrPdfPaths);
     return BuildBatchCompareResponse(strRequestId, arrPdfPaths);
 }
 

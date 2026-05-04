@@ -1,16 +1,16 @@
 ﻿#include "pch.h"
 #include "app/application/services/TaechangEstimateExcelService.h"
 #include "app/common/TaechangJson.h"
+#include "app/common/TaechangFileUtils.h"
+#include "app/common/TaechangDialogHelper.h"
 #include "app/infrastructure/bridge/TaechangBridgeResponse.h"
-#include <shobjidl.h>
+#include "TaechangDefine.h"
 
 namespace
 {
-    constexpr int TAECHANG_ESTIMATE_TIMEOUT_MS = 600000;
     constexpr const wchar_t* TAECHANG_ESTIMATE_LOAD_SCRIPT_PATH     = L"tools\\load-input-data.ps1";
     constexpr const wchar_t* TAECHANG_ESTIMATE_GEN_SCRIPT_PATH      = L"tools\\generate-estimate-forms.ps1";
     constexpr const wchar_t* TAECHANG_ESTIMATE_TEMPLATE_PATH        = L"templates\\estimate-template.xlsx";
-    constexpr const wchar_t* TAECHANG_POWERSHELL_PATH               = L"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe";
     constexpr const wchar_t* TAECHANG_ESTIMATE_ERR_INPUT_REQUIRED   = L"SNX_TAECHANG_ESTIMATE_001";
     constexpr const wchar_t* TAECHANG_ESTIMATE_ERR_OUTPUT_REQUIRED  = L"SNX_TAECHANG_ESTIMATE_002";
     constexpr const wchar_t* TAECHANG_ESTIMATE_ERR_TEMPLATE_MISSING = L"SNX_TAECHANG_ESTIMATE_003";
@@ -18,122 +18,6 @@ namespace
     constexpr const wchar_t* TAECHANG_ESTIMATE_ERR_PROCESS_FAILED   = L"SNX_TAECHANG_ESTIMATE_005";
     constexpr const wchar_t* TAECHANG_ESTIMATE_ERR_RESULT_MISSING   = L"SNX_TAECHANG_ESTIMATE_006";
     constexpr const wchar_t* TAECHANG_ESTIMATE_ERR_NO_SELECTION     = L"SNX_TAECHANG_ESTIMATE_007";
-
-    BOOL FileExists(const CString& strPath)
-    {
-        DWORD dwAttr = GetFileAttributesW(strPath);
-        return (dwAttr != INVALID_FILE_ATTRIBUTES && (dwAttr & FILE_ATTRIBUTE_DIRECTORY) == 0) ? TRUE : FALSE;
-    }
-
-    BOOL FolderExists(const CString& strPath)
-    {
-        DWORD dwAttr = GetFileAttributesW(strPath);
-        return (dwAttr != INVALID_FILE_ATTRIBUTES && (dwAttr & FILE_ATTRIBUTE_DIRECTORY) != 0) ? TRUE : FALSE;
-    }
-
-    BOOL GetPluginDirectory(CString& outDirectory)
-    {
-        HMODULE hModule = NULL;
-        BOOL bResult = GetModuleHandleExW(
-            GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-            reinterpret_cast<LPCWSTR>(&GetPluginDirectory),
-            &hModule);
-        if (!bResult)
-            return FALSE;
-
-        wchar_t szPath[MAX_PATH] = {};
-        DWORD dwLen = GetModuleFileNameW(hModule, szPath, MAX_PATH);
-        if (dwLen == 0 || dwLen >= MAX_PATH)
-            return FALSE;
-
-        CString strPath = szPath;
-        int nSlash = strPath.ReverseFind(L'\\');
-        if (nSlash < 0)
-            return FALSE;
-
-        outDirectory = strPath.Left(nSlash);
-        return TRUE;
-    }
-
-    CString CombinePath(const CString& strDirectory, const CString& strRelativePath)
-    {
-        CString strResult = strDirectory;
-        if (!strResult.IsEmpty() && strResult[strResult.GetLength() - 1] != L'\\')
-            strResult += L"\\";
-        strResult += strRelativePath;
-        return strResult;
-    }
-
-    CString BuildTempJsonPath()
-    {
-        wchar_t szTempPath[MAX_PATH] = {};
-        wchar_t szTempFile[MAX_PATH] = {};
-        GetTempPathW(MAX_PATH, szTempPath);
-        GetTempFileNameW(szTempPath, L"tce", 0, szTempFile);
-
-        CString strPath = szTempFile;
-        int nDot = strPath.ReverseFind(L'.');
-        if (nDot >= 0)
-            strPath = strPath.Left(nDot);
-        strPath += L".json";
-        return strPath;
-    }
-
-    CString QuoteArgument(const CString& strValue)
-    {
-        CString strEscaped = strValue;
-        strEscaped.Replace(L"\"", L"\\\"");
-        return L"\"" + strEscaped + L"\"";
-    }
-
-    BOOL RunProcessAndWait(
-        const CString& strCommandLine,
-        DWORD& outExitCode,
-        CString& strError)
-    {
-        STARTUPINFOW si = {};
-        PROCESS_INFORMATION pi = {};
-        si.cb = sizeof(si);
-        si.dwFlags = STARTF_USESHOWWINDOW;
-        si.wShowWindow = SW_HIDE;
-
-        CString strMutableCommandLine = strCommandLine;
-        BOOL bCreated = CreateProcessW(
-            NULL,
-            strMutableCommandLine.GetBuffer(),
-            NULL,
-            NULL,
-            FALSE,
-            CREATE_NO_WINDOW,
-            NULL,
-            NULL,
-            &si,
-            &pi);
-        strMutableCommandLine.ReleaseBuffer();
-
-        if (!bCreated)
-        {
-            strError.Format(L"PowerShell ?ㅽ뻾???ㅽ뙣?덉뒿?덈떎. error=%lu", GetLastError());
-            return FALSE;
-        }
-
-        DWORD dwWait = WaitForSingleObject(pi.hProcess, TAECHANG_ESTIMATE_TIMEOUT_MS);
-        if (dwWait == WAIT_TIMEOUT)
-        {
-            TerminateProcess(pi.hProcess, 1);
-            CloseHandle(pi.hThread);
-            CloseHandle(pi.hProcess);
-            strError = L"寃ъ쟻??泥섎━ ?쒓컙??珥덇낵?섏뿀?듬땲??";
-            return FALSE;
-        }
-
-        if (!GetExitCodeProcess(pi.hProcess, &outExitCode))
-            outExitCode = 1;
-
-        CloseHandle(pi.hThread);
-        CloseHandle(pi.hProcess);
-        return TRUE;
-    }
 
     BOOL ReadUtf8File(const CString& strPath, CString& outContent, CString& strError)
     {
@@ -185,14 +69,14 @@ namespace
             return BuildErrorResponse(strRequestId, TAECHANG_ESTIMATE_ERR_INPUT_REQUIRED, L"?뚯씪???좏깮?댁＜?몄슂.");
 
         CString strPluginDirectory;
-        if (!GetPluginDirectory(strPluginDirectory))
+        if (!GetExecutableDirectory(strPluginDirectory))
             return BuildErrorResponse(strRequestId, TAECHANG_ESTIMATE_ERR_SCRIPT_MISSING, L"?뚮윭洹몄씤 寃쎈줈瑜??뺤씤?섏? 紐삵뻽?듬땲??");
 
         CString strScriptPath = CombinePath(strPluginDirectory, TAECHANG_ESTIMATE_LOAD_SCRIPT_PATH);
         if (!FileExists(strScriptPath))
             return BuildErrorResponse(strRequestId, TAECHANG_ESTIMATE_ERR_SCRIPT_MISSING, L"?곗씠??濡쒕뱶 ?ㅽ겕由쏀듃媛 ?놁뒿?덈떎.");
 
-        CString strResultPath = BuildTempJsonPath();
+        CString strResultPath = BuildTempJsonPath(L"tce");
         CString strCommandLine = QuoteArgument(TAECHANG_POWERSHELL_PATH) +
             L" -NoProfile -ExecutionPolicy Bypass -File " + QuoteArgument(strScriptPath) +
             L" -InputPath " + QuoteArgument(strInputPath) +
@@ -286,7 +170,7 @@ namespace
             return BuildErrorResponse(strRequestId, TAECHANG_ESTIMATE_ERR_OUTPUT_REQUIRED, L"????대뜑瑜??좏깮?댁＜?몄슂.");
 
         CString strPluginDirectory;
-        if (!GetPluginDirectory(strPluginDirectory))
+        if (!GetExecutableDirectory(strPluginDirectory))
             return BuildErrorResponse(strRequestId, TAECHANG_ESTIMATE_ERR_SCRIPT_MISSING, L"?뚮윭洹몄씤 寃쎈줈瑜??뺤씤?섏? 紐삵뻽?듬땲??");
 
         CString strTemplatePath = CombinePath(strPluginDirectory, TAECHANG_ESTIMATE_TEMPLATE_PATH);
@@ -298,7 +182,7 @@ namespace
         if (!FileExists(strScriptPath))
             return BuildErrorResponse(strRequestId, TAECHANG_ESTIMATE_ERR_SCRIPT_MISSING, L"寃ъ쟻???앹꽦 ?ㅽ겕由쏀듃媛 ?놁뒿?덈떎.");
 
-        CString strResultPath = BuildTempJsonPath();
+        CString strResultPath = BuildTempJsonPath(L"tce");
         CString strCommandLine = QuoteArgument(TAECHANG_POWERSHELL_PATH) +
             L" -NoProfile -ExecutionPolicy Bypass -File " + QuoteArgument(strScriptPath) +
             L" -InputPath " + QuoteArgument(strInputPath) +

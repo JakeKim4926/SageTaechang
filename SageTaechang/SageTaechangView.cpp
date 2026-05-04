@@ -15,6 +15,7 @@
 #include "app/application/services/TaechangPdfCompareService.h"
 #include "app/application/services/TaechangReceivablesExcelService.h"
 #include "app/common/TaechangJson.h"
+#include "app/common/TaechangDialogHelper.h"
 #include "app/infrastructure/bridge/TaechangBridgeResponse.h"
 #include "app/presentation/TaechangWorkflowResultPresenter.h"
 
@@ -157,9 +158,7 @@ static UINT RunWorkflowWorker(LPVOID pParam)
     HWND hWnd = pTask->m_hWnd;
     delete pTask;
 
-    if (::IsWindow(hWnd))
-        ::PostMessageW(hWnd, WM_TAECHANG_WORKFLOW_COMPLETE, 0, reinterpret_cast<LPARAM>(pResult));
-    else
+    if (!::PostMessageW(hWnd, WM_TAECHANG_WORKFLOW_COMPLETE, 0, reinterpret_cast<LPARAM>(pResult)))
         delete pResult;
 
     return 0;
@@ -513,17 +512,17 @@ void CSageTaechangView::LayoutInputSection(int nLeft, int nTop, int nWidth, BOOL
     int nPathWidth = nWidth - TAECHANG_LABEL_WIDTH - TAECHANG_BUTTON_WIDTH - TAECHANG_ROW_GAP;
     m_wndInputSection.MoveWindow(nLeft, nTop, nWidth, TAECHANG_SECTION_TITLE_HEIGHT);
     nTop += TAECHANG_SECTION_TITLE_HEIGHT + TAECHANG_ROW_GAP;
-    m_wndInputLabel.MoveWindow(nLeft, nTop + 4, TAECHANG_LABEL_WIDTH, TAECHANG_EDIT_HEIGHT);
+    m_wndInputLabel.MoveWindow(nLeft, nTop + TAECHANG_LABEL_VERT_OFFSET, TAECHANG_LABEL_WIDTH, TAECHANG_EDIT_HEIGHT);
     m_wndInputPath.MoveWindow(nLeft + TAECHANG_LABEL_WIDTH, nTop, nPathWidth, TAECHANG_EDIT_HEIGHT);
-    m_wndSelectInput.MoveWindow(nLeft + TAECHANG_LABEL_WIDTH + nPathWidth + TAECHANG_ROW_GAP, nTop - 2, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
+    m_wndSelectInput.MoveWindow(nLeft + TAECHANG_LABEL_WIDTH + nPathWidth + TAECHANG_ROW_GAP, nTop - TAECHANG_BUTTON_VERT_ADJUST, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
     if (!bShowOutput)
         return;
     nTop += TAECHANG_BUTTON_HEIGHT + TAECHANG_ROW_GAP;
     m_wndOutputSection.MoveWindow(nLeft, nTop, nWidth, TAECHANG_SECTION_TITLE_HEIGHT);
     nTop += TAECHANG_SECTION_TITLE_HEIGHT + TAECHANG_ROW_GAP;
-    m_wndOutputLabel.MoveWindow(nLeft, nTop + 4, TAECHANG_LABEL_WIDTH, TAECHANG_EDIT_HEIGHT);
+    m_wndOutputLabel.MoveWindow(nLeft, nTop + TAECHANG_LABEL_VERT_OFFSET, TAECHANG_LABEL_WIDTH, TAECHANG_EDIT_HEIGHT);
     m_wndOutputFolder.MoveWindow(nLeft + TAECHANG_LABEL_WIDTH, nTop, nPathWidth, TAECHANG_EDIT_HEIGHT);
-    m_wndSelectOutput.MoveWindow(nLeft + TAECHANG_LABEL_WIDTH + nPathWidth + TAECHANG_ROW_GAP, nTop - 2, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
+    m_wndSelectOutput.MoveWindow(nLeft + TAECHANG_LABEL_WIDTH + nPathWidth + TAECHANG_ROW_GAP, nTop - TAECHANG_BUTTON_VERT_ADJUST, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
 }
 
 void CSageTaechangView::LayoutActionSection(int nLeft, int nTop, int nWidth)
@@ -556,8 +555,8 @@ void CSageTaechangView::LayoutActionSection(int nLeft, int nTop, int nWidth)
         int nProgressWidth = nWidth - (nProgressLeft - nLeft) - TAECHANG_PROGRESS_TEXT_WIDTH - TAECHANG_ACTION_GAP;
         if (nProgressWidth < 0)
             nProgressWidth = 0;
-        m_wndProgress.MoveWindow(nProgressLeft, nTop + 5, nProgressWidth, TAECHANG_PROGRESS_HEIGHT);
-        m_wndProgressText.MoveWindow(nProgressLeft + nProgressWidth + TAECHANG_ACTION_GAP, nTop + 3, TAECHANG_PROGRESS_TEXT_WIDTH, TAECHANG_EDIT_HEIGHT);
+        m_wndProgress.MoveWindow(nProgressLeft, nTop + TAECHANG_PROGRESS_VERT_OFFSET, nProgressWidth, TAECHANG_PROGRESS_HEIGHT);
+        m_wndProgressText.MoveWindow(nProgressLeft + nProgressWidth + TAECHANG_ACTION_GAP, nTop + TAECHANG_PROGRESS_TEXT_VERT_OFFSET, TAECHANG_PROGRESS_TEXT_WIDTH, TAECHANG_EDIT_HEIGHT);
     }
 }
 

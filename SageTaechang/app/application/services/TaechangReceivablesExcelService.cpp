@@ -1,138 +1,22 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "app/application/services/TaechangReceivablesExcelService.h"
 #include "app/common/TaechangJson.h"
+#include "app/common/TaechangFileUtils.h"
+#include "app/common/TaechangDialogHelper.h"
 #include "app/infrastructure/bridge/TaechangBridgeResponse.h"
-#include <shobjidl.h>
+#include "TaechangDefine.h"
 
 namespace
 {
-    constexpr int TAECHANG_RECEIVABLES_TIMEOUT_MS = 600000;
     constexpr const wchar_t* TAECHANG_RECEIVABLES_LOAD_SCRIPT_PATH = L"tools\\load-receivables-data.ps1";
     constexpr const wchar_t* TAECHANG_RECEIVABLES_GEN_SCRIPT_PATH = L"tools\\generate-receivables-form.ps1";
     constexpr const wchar_t* TAECHANG_RECEIVABLES_TEMPLATE_PATH = L"templates\\receivables-template.xls";
-    constexpr const wchar_t* TAECHANG_POWERSHELL_PATH = L"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe";
     constexpr const wchar_t* TAECHANG_RECEIVABLES_ERR_INPUT_REQUIRED = L"SNX_TAECHANG_RECEIVABLES_001";
     constexpr const wchar_t* TAECHANG_RECEIVABLES_ERR_OUTPUT_REQUIRED = L"SNX_TAECHANG_RECEIVABLES_002";
     constexpr const wchar_t* TAECHANG_RECEIVABLES_ERR_TEMPLATE_MISSING = L"SNX_TAECHANG_RECEIVABLES_003";
     constexpr const wchar_t* TAECHANG_RECEIVABLES_ERR_SCRIPT_MISSING = L"SNX_TAECHANG_RECEIVABLES_004";
     constexpr const wchar_t* TAECHANG_RECEIVABLES_ERR_PROCESS_FAILED = L"SNX_TAECHANG_RECEIVABLES_005";
     constexpr const wchar_t* TAECHANG_RECEIVABLES_ERR_RESULT_MISSING = L"SNX_TAECHANG_RECEIVABLES_006";
-
-    BOOL FileExists(const CString& strPath)
-    {
-        DWORD dwAttr = GetFileAttributesW(strPath);
-        return (dwAttr != INVALID_FILE_ATTRIBUTES && (dwAttr & FILE_ATTRIBUTE_DIRECTORY) == 0) ? TRUE : FALSE;
-    }
-
-    BOOL FolderExists(const CString& strPath)
-    {
-        DWORD dwAttr = GetFileAttributesW(strPath);
-        return (dwAttr != INVALID_FILE_ATTRIBUTES && (dwAttr & FILE_ATTRIBUTE_DIRECTORY) != 0) ? TRUE : FALSE;
-    }
-
-    BOOL GetPluginDirectory(CString& outDirectory)
-    {
-        HMODULE hModule = NULL;
-        BOOL bResult = GetModuleHandleExW(
-            GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-            reinterpret_cast<LPCWSTR>(&GetPluginDirectory),
-            &hModule);
-        if (!bResult)
-            return FALSE;
-
-        wchar_t szPath[MAX_PATH] = {};
-        DWORD dwLen = GetModuleFileNameW(hModule, szPath, MAX_PATH);
-        if (dwLen == 0 || dwLen >= MAX_PATH)
-            return FALSE;
-
-        CString strPath = szPath;
-        int nSlash = strPath.ReverseFind(L'\\');
-        if (nSlash < 0)
-            return FALSE;
-
-        outDirectory = strPath.Left(nSlash);
-        return TRUE;
-    }
-
-    CString CombinePath(const CString& strDirectory, const CString& strRelativePath)
-    {
-        CString strResult = strDirectory;
-        if (!strResult.IsEmpty() && strResult[strResult.GetLength() - 1] != L'\\')
-            strResult += L"\\";
-        strResult += strRelativePath;
-        return strResult;
-    }
-
-    CString BuildTempJsonPath()
-    {
-        wchar_t szTempPath[MAX_PATH] = {};
-        wchar_t szTempFile[MAX_PATH] = {};
-        GetTempPathW(MAX_PATH, szTempPath);
-        GetTempFileNameW(szTempPath, L"tcr", 0, szTempFile);
-
-        CString strPath = szTempFile;
-        int nDot = strPath.ReverseFind(L'.');
-        if (nDot >= 0)
-            strPath = strPath.Left(nDot);
-        strPath += L".json";
-        return strPath;
-    }
-
-    CString QuoteArgument(const CString& strValue)
-    {
-        CString strEscaped = strValue;
-        strEscaped.Replace(L"\"", L"\\\"");
-        return L"\"" + strEscaped + L"\"";
-    }
-
-    BOOL RunProcessAndWait(
-        const CString& strCommandLine,
-        DWORD& outExitCode,
-        CString& strError)
-    {
-        STARTUPINFOW si = {};
-        PROCESS_INFORMATION pi = {};
-        si.cb = sizeof(si);
-        si.dwFlags = STARTF_USESHOWWINDOW;
-        si.wShowWindow = SW_HIDE;
-
-        CString strMutableCommandLine = strCommandLine;
-        BOOL bCreated = CreateProcessW(
-            NULL,
-            strMutableCommandLine.GetBuffer(),
-            NULL,
-            NULL,
-            FALSE,
-            CREATE_NO_WINDOW,
-            NULL,
-            NULL,
-            &si,
-            &pi);
-        strMutableCommandLine.ReleaseBuffer();
-
-        if (!bCreated)
-        {
-            strError.Format(L"PowerShell 실행에 실패했습니다. error=%lu", GetLastError());
-            return FALSE;
-        }
-
-        DWORD dwWait = WaitForSingleObject(pi.hProcess, TAECHANG_RECEIVABLES_TIMEOUT_MS);
-        if (dwWait == WAIT_TIMEOUT)
-        {
-            TerminateProcess(pi.hProcess, 1);
-            CloseHandle(pi.hThread);
-            CloseHandle(pi.hProcess);
-            strError = L"미수금 내역서 처리 시간이 초과되었습니다.";
-            return FALSE;
-        }
-
-        if (!GetExitCodeProcess(pi.hProcess, &outExitCode))
-            outExitCode = 1;
-
-        CloseHandle(pi.hThread);
-        CloseHandle(pi.hProcess);
-        return TRUE;
-    }
 
     BOOL ReadUtf8File(const CString& strPath, CString& outContent, CString& strError)
     {
@@ -184,14 +68,14 @@ namespace
             return BuildErrorResponse(strRequestId, TAECHANG_RECEIVABLES_ERR_INPUT_REQUIRED, L"파일을 선택해주세요.");
 
         CString strPluginDirectory;
-        if (!GetPluginDirectory(strPluginDirectory))
+        if (!GetExecutableDirectory(strPluginDirectory))
             return BuildErrorResponse(strRequestId, TAECHANG_RECEIVABLES_ERR_SCRIPT_MISSING, L"플러그인 경로를 확인하지 못했습니다.");
 
         CString strScriptPath = CombinePath(strPluginDirectory, TAECHANG_RECEIVABLES_LOAD_SCRIPT_PATH);
         if (!FileExists(strScriptPath))
             return BuildErrorResponse(strRequestId, TAECHANG_RECEIVABLES_ERR_SCRIPT_MISSING, L"미수금 데이터 로드 스크립트가 없습니다.");
 
-        CString strResultPath = BuildTempJsonPath();
+        CString strResultPath = BuildTempJsonPath(L"tcr");
         CString strCommandLine = QuoteArgument(TAECHANG_POWERSHELL_PATH) +
             L" -NoProfile -ExecutionPolicy Bypass -File " + QuoteArgument(strScriptPath) +
             L" -InputPath " + QuoteArgument(strInputPath) +
@@ -284,7 +168,7 @@ namespace
             return BuildErrorResponse(strRequestId, TAECHANG_RECEIVABLES_ERR_OUTPUT_REQUIRED, L"저장 폴더를 선택해주세요.");
 
         CString strPluginDirectory;
-        if (!GetPluginDirectory(strPluginDirectory))
+        if (!GetExecutableDirectory(strPluginDirectory))
             return BuildErrorResponse(strRequestId, TAECHANG_RECEIVABLES_ERR_SCRIPT_MISSING, L"플러그인 경로를 확인하지 못했습니다.");
 
         CString strTemplatePath = CombinePath(strPluginDirectory, TAECHANG_RECEIVABLES_TEMPLATE_PATH);
@@ -296,7 +180,7 @@ namespace
         if (!FileExists(strScriptPath))
             return BuildErrorResponse(strRequestId, TAECHANG_RECEIVABLES_ERR_SCRIPT_MISSING, L"미수금 내역서 생성 스크립트가 없습니다.");
 
-        CString strResultPath = BuildTempJsonPath();
+        CString strResultPath = BuildTempJsonPath(L"tcr");
         CString strCommandLine = QuoteArgument(TAECHANG_POWERSHELL_PATH) +
             L" -NoProfile -ExecutionPolicy Bypass -File " + QuoteArgument(strScriptPath) +
             L" -InputPath " + QuoteArgument(strInputPath) +
