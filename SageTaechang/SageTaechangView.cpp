@@ -254,7 +254,7 @@ void CSageTaechangView::CreateChildControls()
     m_wndResultList.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SINGLESEL, rectEmpty, this, ID_TAECHANG_RESULT_LIST);
     m_wndDetail.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | WS_VSCROLL, rectEmpty, this, ID_TAECHANG_DETAIL_EDIT);
 
-    m_wndResultList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_CHECKBOXES);
+    m_wndResultList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
     m_wndProgress.SetMarquee(FALSE, 0);
     m_wndProgress.SetRange(0, TAECHANG_PROGRESS_COMPLETE);
     UpdateProgressPercent(0);
@@ -355,6 +355,12 @@ void CSageTaechangView::ApplyResultColumns()
 {
     if (!::IsWindow(m_wndResultList.GetSafeHwnd()))
         return;
+
+    BOOL bNeedCheckbox = (IsDeliveryInputTable() || IsEstimateInputTable()) ? TRUE : FALSE;
+    DWORD dwExtStyle = LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER;
+    if (bNeedCheckbox)
+        dwExtStyle |= LVS_EX_CHECKBOXES;
+    m_wndResultList.SetExtendedStyle(dwExtStyle);
 
     m_wndResultList.DeleteAllItems();
     CHeaderCtrl* pHeader = m_wndResultList.GetHeaderCtrl();
