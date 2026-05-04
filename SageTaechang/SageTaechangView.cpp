@@ -363,27 +363,31 @@ void CSageTaechangView::ApplyControlFonts()
         return;
 
     m_wndSidebarTree.SetFont(&m_fontControl);
-    m_wndHeaderStatus.SetFont(&m_fontControl);
-    m_wndTaskTabs.SetFont(&m_fontControl);
-    m_wndInputSection.SetFont(&m_fontControl);
-    m_wndOutputSection.SetFont(&m_fontControl);
-    m_wndResultSection.SetFont(&m_fontControl);
-    m_wndDetailSection.SetFont(&m_fontControl);
-    m_wndWorkflowLabel.SetFont(&m_fontControl);
-    m_wndInputLabel.SetFont(&m_fontControl);
-    m_wndOutputLabel.SetFont(&m_fontControl);
-    m_wndInputPath.SetFont(&m_fontControl);
-    m_wndOutputFolder.SetFont(&m_fontControl);
-    m_wndSelectInput.SetFont(&m_fontControl);
-    m_wndSelectOutput.SetFont(&m_fontControl);
-    m_wndLoad.SetFont(&m_fontControl);
-    m_wndGenerate.SetFont(&m_fontControl);
-    m_wndExportCsv.SetFont(&m_fontControl);
-    m_wndProgressText.SetFont(&m_fontControl);
-    m_wndResultList.SetFont(&m_fontControl);
-    m_wndDetail.SetFont(&m_fontControl);
-    m_wndEmptyStateHint.SetFont(&m_fontControl);
-    m_wndActionStatus.SetFont(&m_fontControl);
+
+    if (!m_fontContent.CreatePointFont(TAECHANG_CONTENT_FONT_POINT_SIZE, TAECHANG_CONTROL_FONT_FACE))
+        return;
+
+    m_wndHeaderStatus.SetFont(&m_fontContent);
+    m_wndTaskTabs.SetFont(&m_fontContent);
+    m_wndInputSection.SetFont(&m_fontContent);
+    m_wndOutputSection.SetFont(&m_fontContent);
+    m_wndResultSection.SetFont(&m_fontContent);
+    m_wndDetailSection.SetFont(&m_fontContent);
+    m_wndWorkflowLabel.SetFont(&m_fontContent);
+    m_wndInputLabel.SetFont(&m_fontContent);
+    m_wndOutputLabel.SetFont(&m_fontContent);
+    m_wndInputPath.SetFont(&m_fontContent);
+    m_wndOutputFolder.SetFont(&m_fontContent);
+    m_wndSelectInput.SetFont(&m_fontContent);
+    m_wndSelectOutput.SetFont(&m_fontContent);
+    m_wndLoad.SetFont(&m_fontContent);
+    m_wndGenerate.SetFont(&m_fontContent);
+    m_wndExportCsv.SetFont(&m_fontContent);
+    m_wndProgressText.SetFont(&m_fontContent);
+    m_wndResultList.SetFont(&m_fontContent);
+    m_wndDetail.SetFont(&m_fontContent);
+    m_wndEmptyStateHint.SetFont(&m_fontContent);
+    m_wndActionStatus.SetFont(&m_fontContent);
 }
 
 void CSageTaechangView::ApplyWorkflowTabs()
@@ -1472,7 +1476,7 @@ void CSageTaechangView::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct
     pWnd->GetWindowText(strText);
 
     pDC->SetBkMode(TRANSPARENT);
-    CFont* pOldFont = pDC->SelectObject(&m_fontControl);
+    CFont* pOldFont = pDC->SelectObject(&m_fontContent);
     rect.OffsetRect(0, TAECHANG_BUTTON_TEXT_TOP_OFFSET);
     pDC->DrawText(strText, rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
     if (pOldFont)
