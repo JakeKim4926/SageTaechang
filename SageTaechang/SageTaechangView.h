@@ -1,7 +1,4 @@
 ﻿
-// SageTaechangView.h: CSageTaechangView 클래스의 인터페이스
-//
-
 #pragma once
 
 #include "TaechangDefine.h"
@@ -68,6 +65,8 @@ protected:
     HTREEITEM m_hLastWorkflowItem;
     COLORREF m_colorHeaderStatus;
     CString m_strLastResponseJson;
+    CString m_strExecutionHistory;
+    CString m_strRunningInputPath;
 
 protected:
     void CreateChildControls();
@@ -93,12 +92,15 @@ protected:
     BOOL IsDetailTab() const;
     BOOL IsExportTab() const;
     BOOL IsActionTabVisible() const;
+    BOOL IsReceivablesResultTable() const;
     COLORREF ResolveStatusColor(const CString& strStatus) const;
     BOOL ValidateInputPath(CString& strInputPath);
     BOOL ValidateOutputFolder(CString& strOutputFolder);
     void RunWorkflowTask(int nTaskType);
     void DisplayResponse(int nWorkflowType, int nTaskType, const CString& strResponseJson);
     void InsertResultRow(const TaechangResultRow& row);
+    void AppendExecutionHistory(int nWorkflowType, int nTaskType, const CString& strResponseJson, BOOL bSuccess);
+    CString BuildExecutionHistoryLine(int nWorkflowType, int nTaskType, const CString& strResponseJson, BOOL bSuccess) const;
 
 protected:
     afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);

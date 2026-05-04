@@ -1,7 +1,4 @@
 ﻿
-// SageTaechangView.cpp: CSageTaechangView 클래스의 구현
-//
-
 #include "pch.h"
 #include "framework.h"
 #ifndef SHARED_HANDLERS
@@ -344,9 +341,8 @@ void CSageTaechangView::ApplyWorkflowTabs()
     else
     {
         m_wndTaskTabs.InsertItem(TAECHANG_TAB_INDEX_INPUT, TAECHANG_UI_TAB_INPUT);
-        m_wndTaskTabs.InsertItem(TAECHANG_TAB_INDEX_PREVIEW, TAECHANG_UI_TAB_PREVIEW);
-        m_wndTaskTabs.InsertItem(TAECHANG_TAB_INDEX_RESULT, TAECHANG_UI_TAB_RESULT);
-        m_wndTaskTabs.InsertItem(TAECHANG_TAB_INDEX_DETAIL, TAECHANG_UI_TAB_HISTORY);
+        m_wndTaskTabs.InsertItem(TAECHANG_TAB_INDEX_DOCUMENT_RESULT, TAECHANG_UI_TAB_RESULT);
+        m_wndTaskTabs.InsertItem(TAECHANG_TAB_INDEX_DOCUMENT_HISTORY, TAECHANG_UI_TAB_HISTORY);
     }
     m_nSelectedTaskTab = TAECHANG_TAB_INDEX_INPUT;
     m_wndTaskTabs.SetCurSel(m_nSelectedTaskTab);
@@ -368,6 +364,20 @@ void CSageTaechangView::ApplyResultColumns()
     int nIndex = 0;
     if (bIsCompare)
         m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RESULT_FILENAME, LVCFMT_LEFT, TAECHANG_RESULT_FILE_WIDTH);
+    if (IsReceivablesResultTable())
+    {
+        m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RECEIVABLES_COL_COMPANY, LVCFMT_LEFT, TAECHANG_RECEIVABLES_COMPANY_WIDTH);
+        m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RECEIVABLES_COL_MANAGER, LVCFMT_LEFT, TAECHANG_RECEIVABLES_MANAGER_WIDTH);
+        m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RECEIVABLES_COL_ISSUE_DATE, LVCFMT_LEFT, TAECHANG_RECEIVABLES_DATE_WIDTH);
+        m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RECEIVABLES_COL_ITEM, LVCFMT_LEFT, TAECHANG_RECEIVABLES_ITEM_WIDTH);
+        m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RECEIVABLES_COL_ISSUE_TYPE, LVCFMT_LEFT, TAECHANG_RECEIVABLES_TYPE_WIDTH);
+        m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RECEIVABLES_COL_TOTAL_AMOUNT, LVCFMT_RIGHT, TAECHANG_RECEIVABLES_AMOUNT_WIDTH);
+        m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RECEIVABLES_COL_DEPOSIT_AMOUNT, LVCFMT_RIGHT, TAECHANG_RECEIVABLES_AMOUNT_WIDTH);
+        m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RECEIVABLES_COL_RECEIVABLE_AMOUNT, LVCFMT_RIGHT, TAECHANG_RECEIVABLES_AMOUNT_WIDTH);
+        m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RECEIVABLES_COL_BANK, LVCFMT_LEFT, TAECHANG_RECEIVABLES_BANK_WIDTH);
+        m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RECEIVABLES_COL_NOTE, LVCFMT_LEFT, TAECHANG_RECEIVABLES_NOTE_WIDTH);
+        return;
+    }
     m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RESULT_FIELD, LVCFMT_LEFT, TAECHANG_RESULT_FIELD_WIDTH);
     m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RESULT_VALUE, LVCFMT_LEFT, TAECHANG_RESULT_MIN_VALUE_WIDTH);
     m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RESULT_STATUS, LVCFMT_LEFT, TAECHANG_RESULT_STATUS_WIDTH);
@@ -393,7 +403,7 @@ void CSageTaechangView::UpdateTaskTabVisibility()
     m_wndOutputFolder.ShowWindow(bShowOutput ? SW_SHOW : SW_HIDE);
     m_wndSelectOutput.ShowWindow(bShowOutput ? SW_SHOW : SW_HIDE);
 
-    m_wndLoad.ShowWindow((bShowAction && !bIsCompare) ? SW_SHOW : SW_HIDE);
+    m_wndLoad.ShowWindow(SW_HIDE);
     m_wndGenerate.ShowWindow(bShowAction ? SW_SHOW : SW_HIDE);
     m_wndExportCsv.ShowWindow(bShowExport ? SW_SHOW : SW_HIDE);
     m_wndProgress.ShowWindow(bShowAction ? SW_SHOW : SW_HIDE);
@@ -417,6 +427,20 @@ void CSageTaechangView::UpdateResultColumns()
         return;
 
     BOOL bIsCompare = IsCompareWorkflow(GetSelectedWorkflow());
+    if (IsReceivablesResultTable())
+    {
+        m_wndResultList.SetColumnWidth(0, TAECHANG_RECEIVABLES_COMPANY_WIDTH);
+        m_wndResultList.SetColumnWidth(1, TAECHANG_RECEIVABLES_MANAGER_WIDTH);
+        m_wndResultList.SetColumnWidth(2, TAECHANG_RECEIVABLES_DATE_WIDTH);
+        m_wndResultList.SetColumnWidth(3, TAECHANG_RECEIVABLES_ITEM_WIDTH);
+        m_wndResultList.SetColumnWidth(4, TAECHANG_RECEIVABLES_TYPE_WIDTH);
+        m_wndResultList.SetColumnWidth(5, TAECHANG_RECEIVABLES_AMOUNT_WIDTH);
+        m_wndResultList.SetColumnWidth(6, TAECHANG_RECEIVABLES_AMOUNT_WIDTH);
+        m_wndResultList.SetColumnWidth(7, TAECHANG_RECEIVABLES_AMOUNT_WIDTH);
+        m_wndResultList.SetColumnWidth(8, TAECHANG_RECEIVABLES_BANK_WIDTH);
+        m_wndResultList.SetColumnWidth(9, TAECHANG_RECEIVABLES_NOTE_WIDTH);
+        return;
+    }
     int nFixedWidth = TAECHANG_RESULT_FIELD_WIDTH + TAECHANG_RESULT_STATUS_WIDTH + TAECHANG_RESULT_REASON_WIDTH;
     if (bIsCompare)
         nFixedWidth += TAECHANG_RESULT_FILE_WIDTH;
@@ -506,7 +530,7 @@ void CSageTaechangView::LayoutActionSection(int nLeft, int nTop, int nWidth)
 {
     BOOL bIsCompare = IsCompareWorkflow(GetSelectedWorkflow());
     BOOL bShowAction = IsActionTabVisible();
-    BOOL bShowLoad = (bShowAction && !bIsCompare) ? TRUE : FALSE;
+    BOOL bShowLoad = FALSE;
     BOOL bShowGenerate = bShowAction;
     BOOL bShowExport = IsExportTab();
 
@@ -601,7 +625,8 @@ void CSageTaechangView::UpdateWorkflowLabels()
         m_wndInputSection.SetWindowTextW(TAECHANG_UI_SECTION_INPUT);
         m_wndGenerate.SetWindowTextW(TAECHANG_UI_RECEIVABLES_GENERATE_BUTTON);
     }
-    m_wndDetail.SetWindowTextW(L"");
+    m_wndDetailSection.SetWindowTextW(IsCompareWorkflow(nWorkflowType) ? TAECHANG_UI_SECTION_DETAIL : TAECHANG_UI_SECTION_HISTORY);
+    m_wndDetail.SetWindowTextW(IsCompareWorkflow(nWorkflowType) ? CString() : m_strExecutionHistory);
     ApplyWorkflowTabs();
     ApplyResultColumns();
     LayoutChildControls();
@@ -620,18 +645,16 @@ BOOL CSageTaechangView::IsInputTabSelected() const
 
 BOOL CSageTaechangView::IsResultTab() const
 {
-    if (m_nSelectedTaskTab == TAECHANG_TAB_INDEX_PREVIEW)
-        return TRUE;
-    if (!IsCompareWorkflow(GetSelectedWorkflow()) && m_nSelectedTaskTab == TAECHANG_TAB_INDEX_RESULT)
-        return TRUE;
-    return FALSE;
+    if (IsCompareWorkflow(GetSelectedWorkflow()))
+        return (m_nSelectedTaskTab == TAECHANG_TAB_INDEX_PREVIEW) ? TRUE : FALSE;
+    return (m_nSelectedTaskTab == TAECHANG_TAB_INDEX_DOCUMENT_RESULT) ? TRUE : FALSE;
 }
 
 BOOL CSageTaechangView::IsDetailTab() const
 {
     if (IsCompareWorkflow(GetSelectedWorkflow()))
         return (m_nSelectedTaskTab == TAECHANG_TAB_INDEX_RESULT) ? TRUE : FALSE;
-    return (m_nSelectedTaskTab == TAECHANG_TAB_INDEX_DETAIL) ? TRUE : FALSE;
+    return (m_nSelectedTaskTab == TAECHANG_TAB_INDEX_DOCUMENT_HISTORY) ? TRUE : FALSE;
 }
 
 BOOL CSageTaechangView::IsExportTab() const
@@ -642,6 +665,15 @@ BOOL CSageTaechangView::IsExportTab() const
 BOOL CSageTaechangView::IsActionTabVisible() const
 {
     return (IsInputTabSelected() || IsResultTab()) ? TRUE : FALSE;
+}
+
+BOOL CSageTaechangView::IsReceivablesResultTable() const
+{
+    if (m_nLastWorkflowType != TAECHANG_WORKFLOW_RECEIVABLES)
+        return FALSE;
+    if (m_nLastTaskType == TAECHANG_TASK_LOAD)
+        return TRUE;
+    return (m_nLastTaskType == TAECHANG_TASK_GENERATE) ? TRUE : FALSE;
 }
 
 void CSageTaechangView::UpdateExportButtonState()
@@ -855,6 +887,7 @@ void CSageTaechangView::RunWorkflowTask(int nTaskType)
     pTask->m_nTaskType = nTaskType;
     pTask->m_strInputPath = strInputPath;
     pTask->m_strOutputFolder = strOutputFolder;
+    m_strRunningInputPath = strInputPath;
     if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_PDF_COMPARE)
         pTask->m_strPdfFilePaths = strInputPath;
     else if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_HWP_COMPARE)
@@ -996,15 +1029,30 @@ void CSageTaechangView::DisplayResponse(int nWorkflowType, int nTaskType, const 
     m_nLastWorkflowType = nWorkflowType;
     m_nLastTaskType = nTaskType;
     m_strLastResponseJson = strResponseJson;
+    ApplyResultColumns();
+    UpdateResultColumns();
 
     TaechangWorkflowResultPresenter presenter;
     std::vector<TaechangResultRow> arrRows;
     CString strDetailText;
     BOOL bSuccess = presenter.BuildRows(nWorkflowType, nTaskType, strResponseJson, arrRows, strDetailText);
-    m_wndDetail.SetWindowTextW(strDetailText);
+    AppendExecutionHistory(nWorkflowType, nTaskType, strResponseJson, bSuccess);
+    if (IsCompareWorkflow(nWorkflowType))
+        m_wndDetail.SetWindowTextW(strDetailText);
+    else
+        m_wndDetail.SetWindowTextW(m_strExecutionHistory);
 
     for (int i = 0; i < static_cast<int>(arrRows.size()); ++i)
         InsertResultRow(arrRows[i]);
+
+    if ((nWorkflowType == TAECHANG_WORKFLOW_RECEIVABLES && nTaskType == TAECHANG_TASK_GENERATE) ||
+        nTaskType == TAECHANG_TASK_LOAD)
+    {
+        m_nSelectedTaskTab = TAECHANG_TAB_INDEX_DOCUMENT_RESULT;
+        m_wndTaskTabs.SetCurSel(m_nSelectedTaskTab);
+        UpdateTaskTabVisibility();
+        LayoutChildControls();
+    }
 
     SetStatusText(bSuccess ? TAECHANG_UI_COMPLETED : TAECHANG_UI_FAILED);
     UpdateExportButtonState();
@@ -1016,6 +1064,20 @@ void CSageTaechangView::InsertResultRow(const TaechangResultRow& row)
     int nCount = m_wndResultList.GetItemCount();
     int nCol = 0;
     int nIndex;
+    if (IsReceivablesResultTable())
+    {
+        nIndex = m_wndResultList.InsertItem(nCount, row.m_strCompanyName);
+        m_wndResultList.SetItemText(nIndex, 1, row.m_strManager);
+        m_wndResultList.SetItemText(nIndex, 2, row.m_strIssueDate);
+        m_wndResultList.SetItemText(nIndex, 3, row.m_strItemName);
+        m_wndResultList.SetItemText(nIndex, 4, row.m_strIssueType);
+        m_wndResultList.SetItemText(nIndex, 5, row.m_strTotalAmount);
+        m_wndResultList.SetItemText(nIndex, 6, row.m_strDepositAmount);
+        m_wndResultList.SetItemText(nIndex, 7, row.m_strReceivableAmount);
+        m_wndResultList.SetItemText(nIndex, 8, row.m_strBankName);
+        m_wndResultList.SetItemText(nIndex, 9, row.m_strNote);
+        return;
+    }
     if (bIsCompare)
     {
         nIndex = m_wndResultList.InsertItem(nCount, row.m_strFile);
@@ -1030,6 +1092,61 @@ void CSageTaechangView::InsertResultRow(const TaechangResultRow& row)
     m_wndResultList.SetItemText(nIndex, nCol++, row.m_strValue);
     m_wndResultList.SetItemText(nIndex, nCol++, row.m_strStatus);
     m_wndResultList.SetItemText(nIndex, nCol++, row.m_strReason);
+}
+
+void CSageTaechangView::AppendExecutionHistory(int nWorkflowType, int nTaskType, const CString& strResponseJson, BOOL bSuccess)
+{
+    CString strLine = BuildExecutionHistoryLine(nWorkflowType, nTaskType, strResponseJson, bSuccess);
+    if (strLine.IsEmpty())
+        return;
+
+    if (!m_strExecutionHistory.IsEmpty())
+        m_strExecutionHistory += TAECHANG_UI_HISTORY_ENTRY_BREAK;
+    m_strExecutionHistory += strLine;
+}
+
+CString CSageTaechangView::BuildExecutionHistoryLine(int nWorkflowType, int nTaskType, const CString& strResponseJson, BOOL bSuccess) const
+{
+    UNREFERENCED_PARAMETER(nWorkflowType);
+    UNREFERENCED_PARAMETER(nTaskType);
+
+    CTime now = CTime::GetCurrentTime();
+    CString strLine = TAECHANG_UI_HISTORY_ENTRY_PREFIX + now.Format(TAECHANG_UI_HISTORY_TIME_FORMAT) +
+        TAECHANG_UI_HISTORY_ENTRY_SUFFIX + (bSuccess ? TAECHANG_UI_HISTORY_SUCCESS : TAECHANG_UI_HISTORY_FAILED);
+    CString strInputPath = m_strRunningInputPath;
+    if (strInputPath.IsEmpty())
+        strInputPath = TAECHANG_UI_HISTORY_EMPTY_VALUE;
+    strLine += TAECHANG_UI_HISTORY_LINE_BREAK;
+    strLine += TAECHANG_UI_HISTORY_FIELD_INDENT;
+    strLine += TAECHANG_UI_HISTORY_INPUT_PREFIX;
+    strLine += strInputPath;
+
+    if (bSuccess)
+    {
+        CString strOutputPath = JsonExtractString(strResponseJson, TAECHANG_JSON_KEY_FILE_PATH);
+        if (strOutputPath.IsEmpty())
+            strOutputPath = JsonExtractString(strResponseJson, TAECHANG_JSON_KEY_OUTPUT_FOLDER);
+        if (strOutputPath.IsEmpty())
+            strOutputPath = TAECHANG_UI_HISTORY_EMPTY_VALUE;
+        strLine += TAECHANG_UI_HISTORY_LINE_BREAK;
+        strLine += TAECHANG_UI_HISTORY_FIELD_INDENT;
+        strLine += TAECHANG_UI_HISTORY_OUTPUT_PREFIX;
+        strLine += strOutputPath;
+    }
+    else
+    {
+        CString strReason = JsonExtractString(strResponseJson, TAECHANG_JSON_KEY_MESSAGE);
+        if (strReason.IsEmpty())
+            strReason = JsonExtractString(strResponseJson, TAECHANG_JSON_KEY_CODE);
+        if (strReason.IsEmpty())
+            strReason = TAECHANG_UI_HISTORY_EMPTY_VALUE;
+        strLine += TAECHANG_UI_HISTORY_LINE_BREAK;
+        strLine += TAECHANG_UI_HISTORY_FIELD_INDENT;
+        strLine += TAECHANG_UI_HISTORY_REASON_PREFIX;
+        strLine += strReason;
+    }
+
+    return strLine;
 }
 
 #ifdef _DEBUG

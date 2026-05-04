@@ -215,7 +215,10 @@ function Build-OutputRows($rows) {
                 itemName = '-'
                 issueType = '-'
                 totalAmount = '-'
+                depositAmount = '-'
+                receivableAmount = '-'
                 bankName = '-'
+                note = '-'
             })
         }
 
@@ -227,7 +230,10 @@ function Build-OutputRows($rows) {
             itemName = $row.itemName
             issueType = $row.issueType
             totalAmount = $row.totalAmount
+            depositAmount = ''
+            receivableAmount = ''
             bankName = $row.bankName
+            note = ''
         })
 
         $previousCompanyName = $row.companyName
@@ -400,6 +406,14 @@ try {
 
     $targetRow = 5
     $outputRows = Build-OutputRows $rows
+    foreach ($row in $rows) {
+        if ($row.Contains('managerSortKey')) {
+            $row.Remove('managerSortKey')
+        }
+        if ($row.Contains('issueDateValue')) {
+            $row.Remove('issueDateValue')
+        }
+    }
     $writtenDataRows = $rows.Count
     $writtenSeparatorRows = $outputRows.Count - $writtenDataRows
     $lastOutputRow = $targetRow + $outputRows.Count - 1
@@ -426,6 +440,7 @@ try {
         rowCount = $writtenDataRows
         separatorCount = $writtenSeparatorRows
         missingCompanies = @($missingCompanies.Keys | Sort-Object)
+        rows = $outputRows
         outputFolder = $OutputFolder
         files = $items
     }

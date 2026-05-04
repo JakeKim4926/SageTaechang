@@ -135,6 +135,7 @@ namespace
         }
         return strResult;
     }
+
 }
 
 BOOL TaechangWorkflowResultPresenter::BuildRows(
@@ -159,9 +160,16 @@ BOOL TaechangWorkflowResultPresenter::BuildRows(
         return FALSE;
     }
 
-    AddSummaryRows(strResponseJson, outRows);
-    if (IsCompareWorkflow(nWorkflowType))
+    if (nWorkflowType == TAECHANG_WORKFLOW_RECEIVABLES &&
+        (nTaskType == TAECHANG_TASK_LOAD || nTaskType == TAECHANG_TASK_GENERATE))
+        AddReceivablesResultRows(strResponseJson, outRows);
+    else if (IsCompareWorkflow(nWorkflowType))
+    {
+        AddSummaryRows(strResponseJson, outRows);
         AddCompareFileRows(strResponseJson, outRows);
+    }
+    else
+        AddSummaryRows(strResponseJson, outRows);
 
     return TRUE;
 }
@@ -223,6 +231,38 @@ void TaechangWorkflowResultPresenter::AddCompareFileRows(
         row.m_strValue = strLeftValue;
         row.m_strStatus = strStatus;
         row.m_strReason = ComposeReason(strReason, strRightValue);
+        outRows.push_back(row);
+    }
+}
+
+void TaechangWorkflowResultPresenter::AddReceivablesResultRows(
+    const CString& strResponseJson,
+    std::vector<TaechangResultRow>& outRows) const
+{
+    CString strRowsJson = ExtractJsonArray(strResponseJson, TAECHANG_JSON_KEY_ROWS);
+    std::vector<CString> arrObjects;
+    SplitJsonObjectArray(strRowsJson, arrObjects);
+    for (int i = 0; i < static_cast<int>(arrObjects.size()); ++i)
+    {
+        CString strCompanyName = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_COMPANY_NAME);
+        CString strManager = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_MANAGER);
+        CString strTotalAmount = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_TOTAL_AMOUNT);
+        CString strIssueDate = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_ISSUE_DATE);
+        if (strIssueDate.IsEmpty())
+            strIssueDate = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_ISSUE_DATE_TEXT);
+        CString strIssueType = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_ISSUE_TYPE);
+        CString strItemName = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_ITEM_NAME);
+        TaechangResultRow row;
+        row.m_strCompanyName = strCompanyName;
+        row.m_strManager = strManager;
+        row.m_strIssueDate = strIssueDate;
+        row.m_strItemName = strItemName;
+        row.m_strIssueType = strIssueType;
+        row.m_strTotalAmount = strTotalAmount;
+        row.m_strDepositAmount = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_DEPOSIT_AMOUNT);
+        row.m_strReceivableAmount = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_RECEIVABLE_AMOUNT);
+        row.m_strBankName = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_BANK_NAME);
+        row.m_strNote = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_NOTE);
         outRows.push_back(row);
     }
 }

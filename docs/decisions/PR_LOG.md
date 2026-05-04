@@ -1,3 +1,10 @@
+## [2026-05-04] fix/receivables-preview
+- **목적**: 미수금 내역서 생성 후 결과 확인 흐름 정리
+- **변경 내용**: 미리보기 버튼/탭 제거, 생성 결과 탭을 저장 엑셀 헤더 구조로 표시, 생성 결과 JSON에 저장 행 기준 rows 포함, 실행 기록을 업무 로그 형태로 누적 표시
+- **검증**: 사용자 파일로 미수금 내역서 생성 성공, PowerShell 스크립트 파싱 통과, Debug x64 빌드 성공, 금지 패턴 확인, git diff --check 통과
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/19
+- **결과**: pending
+
 ## [2026-05-03] fix/receivables-array-output
 - **목적**: 미수금 내역서 출력 중복 및 담당자 숫자 정렬 문제 수정
 - **변경 내용**: Excel COM 다중 행 배열 대입을 행 단위 범위 대입으로 변경, 담당자 자연 정렬 키 추가, 저장 파일명을 미수금내역서_yyyymmdd_hhmmss 형식으로 변경
