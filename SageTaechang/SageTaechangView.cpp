@@ -18,6 +18,8 @@
 #include "app/common/TaechangDialogHelper.h"
 #include "app/infrastructure/bridge/TaechangBridgeResponse.h"
 #include "app/presentation/TaechangWorkflowResultPresenter.h"
+#include <uxtheme.h>
+#pragma comment(lib, "uxtheme.lib")
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -232,6 +234,7 @@ BEGIN_MESSAGE_MAP(CSageTaechangView, CView)
     ON_MESSAGE(WM_TAECHANG_WORKFLOW_COMPLETE, &CSageTaechangView::OnWorkflowComplete)
     ON_WM_DROPFILES()
     ON_WM_DRAWITEM()
+    ON_NOTIFY(NM_CUSTOMDRAW, ID_TAECHANG_SIDEBAR_TREE, &CSageTaechangView::OnSidebarTreeCustomDraw)
     ON_NOTIFY(NM_CUSTOMDRAW, ID_TAECHANG_RESULT_LIST, &CSageTaechangView::OnListCustomDraw)
 END_MESSAGE_MAP()
 
@@ -275,6 +278,7 @@ void CSageTaechangView::CreateChildControls()
     CRect rectEmpty(0, 0, 0, 0);
     m_wndSidebarTitle.Create(TAECHANG_UI_SIDEBAR_TITLE, WS_CHILD | WS_VISIBLE, rectEmpty, this);
     m_wndSidebarTree.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | TVS_FULLROWSELECT | TVS_SHOWSELALWAYS | TVS_DISABLEDRAGDROP | TVS_NOSCROLL, rectEmpty, this, ID_TAECHANG_SIDEBAR_TREE);
+    SetWindowTheme(m_wndSidebarTree.GetSafeHwnd(), L"", L"");
     m_wndSidebarTree.SetBkColor(TAECHANG_COLOR_SIDEBAR);
     m_wndSidebarTree.SetTextColor(TAECHANG_COLOR_SIDEBAR_TEXT);
     m_wndSidebarTree.SetItemHeight(TAECHANG_SIDEBAR_ITEM_HEIGHT);
@@ -1415,9 +1419,29 @@ void CSageTaechangView::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct
 
     pDC->SetBkMode(TRANSPARENT);
     CFont* pOldFont = pDC->SelectObject(&m_fontControl);
+    rect.OffsetRect(0, TAECHANG_BUTTON_TEXT_TOP_OFFSET);
     pDC->DrawText(strText, rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
     if (pOldFont)
         pDC->SelectObject(pOldFont);
+}
+
+void CSageTaechangView::OnSidebarTreeCustomDraw(NMHDR* pNMHDR, LRESULT* pResult)
+{
+    NMTVCUSTOMDRAW* pCD = reinterpret_cast<NMTVCUSTOMDRAW*>(pNMHDR);
+    *pResult = CDRF_DODEFAULT;
+    switch (pCD->nmcd.dwDrawStage)
+    {
+    case CDDS_PREPAINT:
+        *pResult = CDRF_NOTIFYITEMDRAW;
+        break;
+    case CDDS_ITEMPREPAINT:
+        pCD->clrText = TAECHANG_COLOR_SIDEBAR_TEXT;
+        pCD->clrTextBk = (pCD->nmcd.uItemState & CDIS_SELECTED)
+            ? TAECHANG_COLOR_SIDEBAR_SELECTED
+            : TAECHANG_COLOR_SIDEBAR;
+        *pResult = CDRF_NEWFONT;
+        break;
+    }
 }
 
 void CSageTaechangView::OnListCustomDraw(NMHDR* pNMHDR, LRESULT* pResult)
