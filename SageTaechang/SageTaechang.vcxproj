@@ -225,6 +225,7 @@ if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templ
     <ClInclude Include="pch.h" />
     <ClInclude Include="RepositoryHelper.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="SageDBMgr.h" />
     <ClInclude Include="SageTaechang.h" />
     <ClInclude Include="SageTaechangDoc.h" />
     <ClInclude Include="SageTaechangView.h" />
@@ -262,6 +263,7 @@ if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templ
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="SageDBMgr.cpp" />
     <ClCompile Include="SageTaechang.cpp" />
     <ClCompile Include="SageTaechangDoc.cpp" />
     <ClCompile Include="SageTaechangView.cpp" />

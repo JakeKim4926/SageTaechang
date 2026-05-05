@@ -68,22 +68,10 @@ BOOL CSageTaechangApp::InitInstance() {
 
 	EnableTaskbarInteraction(FALSE);
 
-	// RichEdit 컨트롤을 사용하려면 AfxInitRichEdit2()가 있어야 합니다.
-	// AfxInitRichEdit2();
-
-	// 표준 초기화
-	// 이들 기능을 사용하지 않고 최종 실행 파일의 크기를 줄이려면
-	// 아래에서 필요 없는 특정 초기화
-	// 루틴을 제거해야 합니다.
-	// 해당 설정이 저장된 레지스트리 키를 변경하십시오.
-	// TODO: 이 문자열을 회사 또는 조직의 이름과 같은
-	// 적절한 내용으로 수정해야 합니다.
+	
 	SetRegistryKey(_T("로컬 애플리케이션 마법사에서 생성된 애플리케이션"));
 	LoadStdProfileSettings(4);  // MRU를 포함하여 표준 INI 파일 옵션을 로드합니다.
 
-
-	// 애플리케이션의 문서 템플릿을 등록합니다.  문서 템플릿은
-	//  문서, 프레임 창 및 뷰 사이의 연결 역할을 합니다.
 	CSingleDocTemplate* pDocTemplate;
 	pDocTemplate = new CSingleDocTemplate(
 		IDR_MAINFRAME,
@@ -98,8 +86,12 @@ BOOL CSageTaechangApp::InitInstance() {
 	// 표준 셸 명령, DDE, 파일 열기에 대한 명령줄을 구문 분석합니다.
 	CCommandLineInfo cmdInfo;
 	ParseCommandLine(cmdInfo);
+	CString strError;
 
-
+	if (sageDBMgr.Initialize(strError) == FALSE) {
+		AfxMessageBox(strError);
+		return FALSE;
+	}
 
 	// 명령줄에 지정된 명령을 디스패치합니다.
 	// 응용 프로그램이 /RegServer, /Register, /Unregserver 또는 /Unregister로 시작된 경우 FALSE를 반환합니다.
@@ -114,6 +106,9 @@ BOOL CSageTaechangApp::InitInstance() {
 
 int CSageTaechangApp::ExitInstance() {
 	ReleasePrivateFonts();
+
+	sageDBMgr.Finalize();
+
 	return CWinApp::ExitInstance();
 }
 

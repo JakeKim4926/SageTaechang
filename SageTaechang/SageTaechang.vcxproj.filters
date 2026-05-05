@@ -171,9 +171,6 @@
     <ClInclude Include="RepositoryHelper.h">
       <Filter>헤더 파일\SQLite\Repository</Filter>
     </ClInclude>
-    <ClInclude Include="SQLInitializer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="TaechangPriceDto.h">
       <Filter>헤더 파일\SQLite\Dto</Filter>
     </ClInclude>
@@ -182,6 +179,12 @@
     </ClInclude>
     <ClInclude Include="TaechangPriceService.h">
       <Filter>헤더 파일\SQLite\Service</Filter>
+    </ClInclude>
+    <ClInclude Include="SQLInitializer.h">
+      <Filter>헤더 파일\SQLite\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="SageDBMgr.h">
+      <Filter>헤더 파일\SQLite\Database</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -250,6 +253,9 @@
     </ClCompile>
     <ClCompile Include="SQLInitializer.cpp">
       <Filter>소스 파일\SQLite\Database</Filter>
+    </ClCompile>
+    <ClCompile Include="SageDBMgr.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
