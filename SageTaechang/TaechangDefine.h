@@ -433,6 +433,17 @@ constexpr LPCWSTR TAECHANG_UI_CALC_SELECT_COMPANY  = L"법인명을 선택하세
 constexpr LPCWSTR TAECHANG_UI_CALC_COPIES_REQUIRED = L"부수를 입력하세요.";
 constexpr LPCWSTR TAECHANG_UI_CALC_COPIES_INVALID  = L"부수는 1 이상의 숫자여야 합니다.";
 
+// ── 가격 관리 입력 검증 상수 ────────────────────────────────────────────────
+constexpr int TAECHANG_PRICE_COMPANY_MAX_LEN_KO = 20;
+constexpr int TAECHANG_PRICE_COMPANY_MAX_LEN_EN = 40;
+constexpr int TAECHANG_PRICE_COPIES_MAX         = 9999999;
+constexpr int TAECHANG_PRICE_AMOUNT_MAX         = 10000000;
+
+constexpr LPCWSTR TAECHANG_UI_PRICE_COMPANY_TOO_LONG_KO  = L"법인명은 한글 기준 20자 이하여야 합니다.";
+constexpr LPCWSTR TAECHANG_UI_PRICE_COMPANY_TOO_LONG_EN  = L"법인명은 영문 기준 40자 이하여야 합니다.";
+constexpr LPCWSTR TAECHANG_UI_PRICE_COPIES_OUT_OF_RANGE  = L"부수는 1 이상 9,999,999 이하여야 합니다.";
+constexpr LPCWSTR TAECHANG_UI_PRICE_AMOUNT_OUT_OF_RANGE  = L"가격은 0 이상 10,000,000 이하여야 합니다.";
+
 // ── 가격 관리 레이아웃 치수 ─────────────────────────────────────────────────
 constexpr int TAECHANG_PRICE_COMPANY_LIST_WIDTH    = 180;
 constexpr int TAECHANG_PRICE_FORM_LABEL_WIDTH      = 70;
