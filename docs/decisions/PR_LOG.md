@@ -1,3 +1,9 @@
+## [2026-05-05] feature/select-all-button — feat: 납품서/견적서 생성 화면에 전체 선택 버튼 추가
+- **목적**: 납품서/견적서 생성 시 행을 일일이 수동으로 체크해야 했던 불편함 해소
+- **변경 내용**: 데이터 로드 후 입력 탭에 "전체 선택" 버튼 추가 (토글 방식 — 전체 선택/전체 해제), 실행 중 비활성화, 다른 워크플로우 전환 시 자동 숨김
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/34
+- **결과**: merged
+
 ## [2026-05-05] feature/list-grid-and-amount-highlight — feat: 결과 리스트 그리드 라인 및 미수금 금액 열 배경 강조 추가
 - **목적**: 미수금 결과·납품서·견적서 행 선택 화면의 리스트 가독성 개선
 - **변경 내용**: 3개 테이블에 LVS_EX_GRIDLINES 적용, 미수금 합계·입금·미수금 열 NM_CUSTOMDRAW subitem 배경색 강조
