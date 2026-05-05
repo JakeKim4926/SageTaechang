@@ -5,6 +5,13 @@
 
 struct TaechangResultRow;
 
+class CTaechangHeaderCtrl : public CHeaderCtrl
+{
+    DECLARE_MESSAGE_MAP()
+protected:
+    afx_msg void OnPaint();
+};
+
 class CTaechangTabCtrl : public CTabCtrl
 {
     DECLARE_MESSAGE_MAP()
@@ -57,6 +64,7 @@ protected:
     CButton m_wndSelectAll;
     CProgressCtrl m_wndProgress;
     CStatic m_wndProgressText;
+    CTaechangHeaderCtrl m_wndResultHeader;
     CListCtrl m_wndResultList;
     CEdit m_wndDetail;
     CStatic m_wndEmptyStateHint;
@@ -68,6 +76,7 @@ protected:
     CBrush m_brushAppBackground;
     CBrush m_brushPanel;
     CBrush m_brushSidebar;
+    CBrush m_brushHeaderStatus;
     BOOL m_bRunning;
     int m_nProgressPercent;
     int m_nSelectedTaskTab;
@@ -76,6 +85,7 @@ protected:
     int m_nCurrentWorkflow;
     HTREEITEM m_hLastWorkflowItem;
     COLORREF m_colorHeaderStatus;
+    COLORREF m_colorHeaderStatusBg;
     BOOL m_bLastTaskSuccess;
     CString m_strLastResponseJson;
     CString m_strExecutionHistory;
@@ -109,6 +119,8 @@ protected:
     BOOL IsDeliveryInputTable() const;
     BOOL IsEstimateInputTable() const;
     COLORREF ResolveStatusColor(const CString& strStatus) const;
+    COLORREF ResolveStatusBgColor(const CString& strStatus) const;
+    void DrawSectionLabel(LPDRAWITEMSTRUCT lpDrawItemStruct);
     void DrawEditBorder(CDC* pDC, CWnd& wnd);
     BOOL ValidateInputPath(CString& strInputPath);
     BOOL ValidateOutputFolder(CString& strOutputFolder);
