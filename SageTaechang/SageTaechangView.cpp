@@ -151,6 +151,35 @@ static UINT RunWorkflowWorker(LPVOID pParam) {
 	return 0;
 }
 
+static CString BuildDroppedPathList(HDROP hDropInfo) {
+	CString strPaths;
+	UINT nFileCount = DragQueryFileW(hDropInfo, 0xFFFFFFFF, NULL, 0);
+	for (UINT i = 0; i < nFileCount; ++i) {
+		UINT nLength = DragQueryFileW(hDropInfo, i, NULL, 0);
+		if (nLength == 0)
+			continue;
+		CString strPath;
+		LPWSTR pszPath = strPath.GetBuffer(static_cast<int>(nLength) + 1);
+		DragQueryFileW(hDropInfo, i, pszPath, nLength + 1);
+		strPath.ReleaseBuffer();
+		if (!strPaths.IsEmpty())
+			strPaths += L"\r\n";
+		strPaths += strPath;
+	}
+	return strPaths;
+}
+
+void CSageTaechangView::EnableFileDropForWindow(CWnd& wnd) {
+	HWND hWnd = wnd.GetSafeHwnd();
+	if (hWnd == NULL || !::IsWindow(hWnd))
+		return;
+
+	::DragAcceptFiles(hWnd, TRUE);
+	::ChangeWindowMessageFilterEx(hWnd, WM_DROPFILES, MSGFLT_ALLOW, NULL);
+	::ChangeWindowMessageFilterEx(hWnd, WM_COPYDATA, MSGFLT_ALLOW, NULL);
+	::ChangeWindowMessageFilterEx(hWnd, 0x0049, MSGFLT_ALLOW, NULL);
+}
+
 BEGIN_MESSAGE_MAP(CTaechangHeaderCtrl, CHeaderCtrl)
 	ON_WM_PAINT()
 END_MESSAGE_MAP()
@@ -299,12 +328,23 @@ BOOL CSageTaechangView::PreCreateWindow(CREATESTRUCT& cs) {
 	return CView::PreCreateWindow(cs);
 }
 
+BOOL CSageTaechangView::PreTranslateMessage(MSG* pMsg) {
+	if (pMsg && pMsg->message == WM_DROPFILES) {
+		OnDropFiles(reinterpret_cast<HDROP>(pMsg->wParam));
+		return TRUE;
+	}
+	return CView::PreTranslateMessage(pMsg);
+}
+
 int CSageTaechangView::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	if (CView::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-	DragAcceptFiles(TRUE);
 	CreateChildControls();
+	EnableFileDropForWindow(*this);
+	CFrameWnd* pFrame = GetParentFrame();
+	if (pFrame != NULL)
+		EnableFileDropForWindow(*pFrame);
 	SetStatusText(TAECHANG_UI_READY);
 	return 0;
 }
@@ -355,6 +395,12 @@ void CSageTaechangView::CreateChildControls() {
 	m_wndUserLabel.Create(L"", WS_CHILD | SS_RIGHT | SS_CENTERIMAGE, rectEmpty, this, ID_TAECHANG_USER_LABEL);
 
 	m_wndResultList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
+	EnableFileDropForWindow(m_wndInputSection);
+	EnableFileDropForWindow(m_wndInputPath);
+	EnableFileDropForWindow(m_wndSelectInput);
+	EnableFileDropForWindow(m_wndResultSection);
+	EnableFileDropForWindow(m_wndResultList);
+	EnableFileDropForWindow(m_wndEmptyStateHint);
 	m_wndProgress.SetMarquee(FALSE, 0);
 	m_wndProgress.SetRange(0, TAECHANG_PROGRESS_COMPLETE);
 	UpdateProgressPercent(0);
@@ -1028,33 +1074,35 @@ void CSageTaechangView::OnTaskTabChanged(NMHDR* pNMHDR, LRESULT* pResult) {
 }
 
 void CSageTaechangView::OnDropFiles(HDROP hDropInfo) {
-	UINT nFileCount = DragQueryFileW(hDropInfo, 0xFFFFFFFF, NULL, 0);
-	if (nFileCount == 0 || m_bRunning) {
-		DragFinish(hDropInfo);
+	CString strPaths = BuildDroppedPathList(hDropInfo);
+	DragFinish(hDropInfo);
+	ApplyDroppedInputPaths(strPaths);
+}
+
+void CSageTaechangView::ApplyDroppedInputPaths(const CString& strPaths) {
+	if (strPaths.IsEmpty() || m_bRunning)
 		return;
-	}
 
 	int nWorkflowType = GetSelectedWorkflow();
 	BOOL bIsCompare = IsCompareWorkflow(nWorkflowType);
-	CString strPaths;
-	for (UINT i = 0; i < nFileCount; ++i) {
-		wchar_t szPath[MAX_PATH] = {};
-		DragQueryFileW(hDropInfo, i, szPath, MAX_PATH);
-		if (!strPaths.IsEmpty())
-			strPaths += L"\r\n";
-		strPaths += szPath;
-		if (!bIsCompare)
-			break;
+	CString strInputPaths;
+	if (bIsCompare) {
+		strInputPaths = strPaths;
+	} else {
+		int nIndex = 0;
+		strInputPaths = strPaths.Tokenize(L"\r\n", nIndex);
+		strInputPaths.Trim();
 	}
-	DragFinish(hDropInfo);
+	if (strInputPaths.IsEmpty())
+		return;
 
-	m_wndInputPath.SetWindowTextW(strPaths);
-
+	m_wndInputPath.SetWindowTextW(strInputPaths);
 	if (!IsInputTabSelected()) {
 		m_nSelectedTaskTab = TAECHANG_TAB_INDEX_INPUT;
 		m_wndTaskTabs.SetCurSel(m_nSelectedTaskTab);
 		LayoutChildControls();
 	}
+	SetStatusText(L"파일 드롭 수신");
 	if (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY || nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE)
 		RunWorkflowTask(TAECHANG_TASK_LOAD);
 }
