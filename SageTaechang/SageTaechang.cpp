@@ -32,8 +32,7 @@ END_MESSAGE_MAP()
 CSageTaechangApp::CSageTaechangApp() noexcept
 	: m_hFontBold(NULL)
 	, m_hFontLight(NULL)
-	, m_hFontMedium(NULL)
-{
+	, m_hFontMedium(NULL) {
 
 	// 다시 시작 관리자 지원
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_ALL_ASPECTS;
@@ -59,8 +58,7 @@ CSageTaechangApp theApp;
 
 // CSageTaechangApp 초기화
 
-BOOL CSageTaechangApp::InitInstance()
-{
+BOOL CSageTaechangApp::InitInstance() {
 	CWinApp::InitInstance();
 
 	if (!AfxOleInit())
@@ -114,14 +112,12 @@ BOOL CSageTaechangApp::InitInstance()
 	return TRUE;
 }
 
-int CSageTaechangApp::ExitInstance()
-{
+int CSageTaechangApp::ExitInstance() {
 	ReleasePrivateFonts();
 	return CWinApp::ExitInstance();
 }
 
-HANDLE CSageTaechangApp::LoadPrivateFont(UINT nResourceId)
-{
+HANDLE CSageTaechangApp::LoadPrivateFont(UINT nResourceId) {
 	HMODULE hModule = AfxGetResourceHandle();
 	HRSRC hResource = ::FindResourceW(hModule, MAKEINTRESOURCEW(nResourceId), L"TTF");
 	if (hResource == NULL)
@@ -140,15 +136,13 @@ HANDLE CSageTaechangApp::LoadPrivateFont(UINT nResourceId)
 	return ::AddFontMemResourceEx(pData, dwSize, NULL, &dwFontCount);
 }
 
-void CSageTaechangApp::LoadPrivateFonts()
-{
+void CSageTaechangApp::LoadPrivateFonts() {
 	m_hFontBold = LoadPrivateFont(IDR_GMARKET_SANS_TTF_BOLD);
 	m_hFontLight = LoadPrivateFont(IDR_GMARKET_SANS_TTF_LIGHT);
 	m_hFontMedium = LoadPrivateFont(IDR_GMARKET_SANS_TTF_MEDIUM);
 }
 
-void CSageTaechangApp::ReleasePrivateFonts()
-{
+void CSageTaechangApp::ReleasePrivateFonts() {
 	if (m_hFontBold != NULL)
 		::RemoveFontMemResourceEx(m_hFontBold);
 	if (m_hFontLight != NULL)
@@ -165,12 +159,11 @@ void CSageTaechangApp::ReleasePrivateFonts()
 
 // 응용 프로그램 정보에 사용되는 CAboutDlg 대화 상자입니다.
 
-class CAboutDlg : public CDialogEx
-{
+class CAboutDlg : public CDialogEx {
 public:
 	CAboutDlg() noexcept;
 
-// 대화 상자 데이터입니다.
+	// 대화 상자 데이터입니다.
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_ABOUTBOX };
 #endif
@@ -178,17 +171,14 @@ public:
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 지원입니다.
 
-// 구현입니다.
+	// 구현입니다.
 protected:
 	DECLARE_MESSAGE_MAP()
 };
 
-CAboutDlg::CAboutDlg() noexcept : CDialogEx(IDD_ABOUTBOX)
-{
-}
+CAboutDlg::CAboutDlg() noexcept : CDialogEx(IDD_ABOUTBOX) {}
 
-void CAboutDlg::DoDataExchange(CDataExchange* pDX)
-{
+void CAboutDlg::DoDataExchange(CDataExchange* pDX) {
 	CDialogEx::DoDataExchange(pDX);
 }
 
@@ -196,8 +186,7 @@ BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
 END_MESSAGE_MAP()
 
 // 대화 상자를 실행하기 위한 응용 프로그램 명령입니다.
-void CSageTaechangApp::OnAppAbout()
-{
+void CSageTaechangApp::OnAppAbout() {
 	CAboutDlg aboutDlg;
 	aboutDlg.DoModal();
 }
