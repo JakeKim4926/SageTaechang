@@ -1,3 +1,61 @@
+## [2026-05-05] feature/select-all-button — feat: 납품서/견적서 생성 화면에 전체 선택 버튼 추가
+- **목적**: 납품서/견적서 생성 시 행을 일일이 수동으로 체크해야 했던 불편함 해소
+- **변경 내용**: 데이터 로드 후 입력 탭에 "전체 선택" 버튼 추가 (토글 방식 — 전체 선택/전체 해제), 실행 중 비활성화, 다른 워크플로우 전환 시 자동 숨김
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/34
+- **결과**: merged
+
+## [2026-05-05] feature/list-grid-and-amount-highlight — feat: 결과 리스트 그리드 라인 및 미수금 금액 열 배경 강조 추가
+- **목적**: 미수금 결과·납품서·견적서 행 선택 화면의 리스트 가독성 개선
+- **변경 내용**: 3개 테이블에 LVS_EX_GRIDLINES 적용, 미수금 합계·입금·미수금 열 NM_CUSTOMDRAW subitem 배경색 강조
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/32
+- **결과**: merged
+
+## [2026-05-05] fix/edit-border-style — fix: 에디트 박스 스타일 개선 및 UI 폰트/텍스트 정리
+- **목적**: 에디트 박스 검은 테두리·텍스트 상단 쏠림 개선, 본문 폰트 상향, 결과 헤더 한글화
+- **변경 내용**: 베이지 테두리(OnDraw 직접 그리기), 높이 28px, EM_SETRECT 7px 패딩, 사이드바 10pt·본문 11pt 분리, 상태→상태/사유 한글화
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/31
+- **결과**: merged
+
+## [2026-05-05] feat/step2-action-status — feat: 버튼 옆 완료/실패 상태 표시 (Step 2)
+- **목적**: 작업 결과를 버튼 옆에 즉시 표시, 워크플로우 전환 시 입력 경로·저장 위치 초기화
+- **변경 내용**: 진행바 자리 재활용 — 실행 중 진행바, 완료 후 초록 "완료" / 실패 후 빨간 "실패" 텍스트 전환
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/30
+- **결과**: merged
+
+## [2026-05-05] fix/step1-result-tab-button — fix: 결과/실행기록 탭 생성 버튼 제거 (Step 1)
+- **목적**: 결과·실행기록 탭은 보는 탭이므로 생성 버튼 제거
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/29
+- **결과**: merged
+
+## [2026-05-05] fix/tab-custom-draw — fix: 탭/사이드바/버튼 UI 개선
+- **목적**: 탭 색감 불일치, 사이드바 파란 선택색, 버튼 텍스트 위치 등 시각적 문제 수정
+- **변경 내용**: CTaechangTabCtrl OnPaint 직접 드로잉, 사이드바 NM_CUSTOMDRAW 선택색, 버튼 텍스트 2px 하향, 상태 초기화 버그 수정
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/28
+- **결과**: merged
+
+## [2026-05-05] fix/ui-polish — fix: UI 개선 4종
+- **목적**: Input/Output 한글화, 빈 화면 힌트, 진행바 조건 표시, 사이드바 스크롤 제거
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/27
+- **결과**: merged
+
+## [2026-05-04] feature/estimate-input-ui — feat: 견적서 생성 UI 개선
+- **목적**: 견적서도 납품서처럼 파일 로드 후 입력 탭에 행 선택 테이블 표시, 체크박스 다중 선택 후 생성
+- **변경 내용**: 입력 탭 테이블(행/법인명/날짜/품목명/부수/페이지/보고서/표지/운임 9열), 파일 선택·드롭 자동 로드, 운임 없을 때 F11·G11 빈칸, 파일명 법인명_견적서_yyyyMMdd_HHmmss 형식 변경, 결과 탭 체크박스 제거
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/26
+- **결과**: merged
+
+## [2026-05-04] feature/delivery-input-ui — feat: 납품서 생성 UI 개선
+- **목적**: 납품서 입력 데이터를 입력 탭에서 바로 확인하고, 체크박스로 다중 행 선택 후 한 번에 생성
+- **변경 내용**: 로드 완료 시 입력 탭에 테이블 표시, 생성 완료 시 결과 탭 전환, LVS_EX_CHECKBOXES 다중 선택, 행 번호 접두사 제거, 파일명 끝 행 번호 추가
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/25
+- **결과**: merged
+
+## [2026-05-04] develop — refactor: 중복 코드 제거 및 코드 품질 개선
+- **목적**: 전체 코드 리뷰 결과 발견된 Blocker/Major/Minor 항목 수정
+- **변경 내용**: TaechangFileUtils/TaechangDialogHelper 신규 분리, FileExists 등 5개 파일 중복 제거, ExtractJsonArray 3개 파일 중복 제거, PostMessage 누수 Blocker 수정, 레이아웃 매직 넘버·스트링 상수화, 주석 제거 (17개 파일, 순 463줄 감소)
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/24
+- **결과**: merged
+
 ## [2026-05-04] develop — feat: 파일 드래그 앤 드롭으로 입력 파일 지정 지원
 - **목적**: 파일 선택 버튼 없이 탐색기에서 바로 파일을 끌어다 놓을 수 있게 개선
 - **변경 내용**: WM_DROPFILES 핸들러 추가, 문서 생성 단일 파일/검수 다중 파일 드롭 지원, 드롭 시 Input 탭 자동 전환

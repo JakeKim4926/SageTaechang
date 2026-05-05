@@ -5,6 +5,21 @@
 
 struct TaechangResultRow;
 
+class CTaechangHeaderCtrl : public CHeaderCtrl
+{
+    DECLARE_MESSAGE_MAP()
+protected:
+    afx_msg void OnPaint();
+};
+
+class CTaechangTabCtrl : public CTabCtrl
+{
+    DECLARE_MESSAGE_MAP()
+protected:
+    afx_msg void OnPaint();
+};
+
+
 class CSageTaechangView : public CView
 {
 protected:
@@ -30,7 +45,7 @@ protected:
     CTreeCtrl m_wndSidebarTree;
     CStatic m_wndHeaderTitle;
     CStatic m_wndHeaderStatus;
-    CTabCtrl m_wndTaskTabs;
+    CTaechangTabCtrl m_wndTaskTabs;
     CStatic m_wndInputSection;
     CStatic m_wndOutputSection;
     CStatic m_wndResultSection;
@@ -46,16 +61,22 @@ protected:
     CButton m_wndLoad;
     CButton m_wndGenerate;
     CButton m_wndExportCsv;
+    CButton m_wndSelectAll;
     CProgressCtrl m_wndProgress;
     CStatic m_wndProgressText;
+    CTaechangHeaderCtrl m_wndResultHeader;
     CListCtrl m_wndResultList;
     CEdit m_wndDetail;
+    CStatic m_wndEmptyStateHint;
+    CStatic m_wndActionStatus;
     CFont m_fontTitle;
     CFont m_fontHeader;
     CFont m_fontControl;
+    CFont m_fontContent;
     CBrush m_brushAppBackground;
     CBrush m_brushPanel;
     CBrush m_brushSidebar;
+    CBrush m_brushHeaderStatus;
     BOOL m_bRunning;
     int m_nProgressPercent;
     int m_nSelectedTaskTab;
@@ -64,6 +85,8 @@ protected:
     int m_nCurrentWorkflow;
     HTREEITEM m_hLastWorkflowItem;
     COLORREF m_colorHeaderStatus;
+    COLORREF m_colorHeaderStatusBg;
+    BOOL m_bLastTaskSuccess;
     CString m_strLastResponseJson;
     CString m_strExecutionHistory;
     CString m_strRunningInputPath;
@@ -93,7 +116,12 @@ protected:
     BOOL IsExportTab() const;
     BOOL IsActionTabVisible() const;
     BOOL IsReceivablesResultTable() const;
+    BOOL IsDeliveryInputTable() const;
+    BOOL IsEstimateInputTable() const;
     COLORREF ResolveStatusColor(const CString& strStatus) const;
+    COLORREF ResolveStatusBgColor(const CString& strStatus) const;
+    void DrawSectionLabel(LPDRAWITEMSTRUCT lpDrawItemStruct);
+    void DrawEditBorder(CDC* pDC, CWnd& wnd);
     BOOL ValidateInputPath(CString& strInputPath);
     BOOL ValidateOutputFolder(CString& strOutputFolder);
     void RunWorkflowTask(int nTaskType);
@@ -116,9 +144,11 @@ protected:
     afx_msg void OnLoadWorkflow();
     afx_msg void OnGenerateWorkflow();
     afx_msg void OnExportCsv();
+    afx_msg void OnSelectAll();
     afx_msg LRESULT OnWorkflowComplete(WPARAM wParam, LPARAM lParam);
     afx_msg void OnDropFiles(HDROP hDropInfo);
     afx_msg void OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct);
+    afx_msg void OnSidebarTreeCustomDraw(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnListCustomDraw(NMHDR* pNMHDR, LRESULT* pResult);
     DECLARE_MESSAGE_MAP()
 };

@@ -112,8 +112,12 @@ try {
         if ($dateSerial -gt 0) {
             $dateStr = [datetime]::FromOADate($dateSerial).ToString("yyyyMMdd")
         }
-
-        $baseName   = (Safe-FileName $companyName) + '_estimate_' + $dateStr
+        $timeStr = (Get-Date).ToString("HHmmss")
+        if ($dateStr.Length -gt 0) {
+            $baseName = (Safe-FileName $companyName) + '_견적서_' + $dateStr + '_' + $timeStr
+        } else {
+            $baseName = (Safe-FileName $companyName) + '_견적서_' + $timeStr
+        }
         $outputPath = [System.IO.Path]::Combine($OutputFolder, $baseName + '.xlsx')
         $suffix = 1
         while ([System.IO.File]::Exists($outputPath)) {
@@ -135,11 +139,20 @@ try {
         Set-CellNumber $sheet 'C9'  $copies
         Set-CellNumber $sheet 'E9'  $unitPrice
         Set-CellNumber $sheet 'F10' $coverCost
-        Set-CellNumber $sheet 'F11' $freight
+        $freightText = ConvertTo-TextValue $freight
+        if ($freightText.Trim().Length -gt 0) {
+            Set-CellNumber $sheet 'F11' $freight
+        } else {
+            Set-CellText   $sheet 'F11' ''
+        }
 
         Set-CellText $sheet 'G9'  ([char]0xB0B4+[char]0xC6A9+' '+[char]0xC778+[char]0xC1C4+' '+[char]0xBC0F+' '+[char]0xC7AC+[char]0xB2E8)
         Set-CellText $sheet 'G10' ([char]0xD45C+[char]0xC9C0+' '+[char]0xC778+[char]0xC1C4+' '+[char]0xBC0F+' '+[char]0xC81C+[char]0xBCF8)
-        Set-CellText $sheet 'G11' ([char]0xC6B4+[char]0xC784)
+        if ($freightText.Trim().Length -gt 0) {
+            Set-CellText $sheet 'G11' ([char]0xC6B4+[char]0xC784)
+        } else {
+            Set-CellText $sheet 'G11' ''
+        }
 
         $templateWorkbook.SaveCopyAs($outputPath)
 
