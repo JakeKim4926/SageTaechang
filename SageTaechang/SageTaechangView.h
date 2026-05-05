@@ -91,6 +91,10 @@ protected:
     CString m_strExecutionHistory;
     CString m_strRunningInputPath;
 
+    CButton m_wndLoginBtn;
+    CButton m_wndLogoutBtn;
+    CStatic m_wndUserLabel;
+
 protected:
     void CreateChildControls();
     void BuildSidebarTree();
@@ -104,6 +108,7 @@ protected:
     void LayoutActionSection(int nLeft, int nTop, int nWidth);
     void LayoutResultSection(int nLeft, int nTop, int nWidth, int nHeight);
     void SetRunningState(BOOL bRunning);
+    void UpdateAuthState();
     void UpdateProgressPercent(int nPercent);
     void SetStatusText(const CString& strStatus);
     int GetSelectedWorkflow() const;
@@ -150,6 +155,8 @@ protected:
     afx_msg void OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct);
     afx_msg void OnSidebarTreeCustomDraw(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnListCustomDraw(NMHDR* pNMHDR, LRESULT* pResult);
+    afx_msg void OnLogin();
+    afx_msg void OnLogout();
     DECLARE_MESSAGE_MAP()
 };
 

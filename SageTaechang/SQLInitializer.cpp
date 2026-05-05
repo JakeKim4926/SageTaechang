@@ -1,5 +1,8 @@
 #include "pch.h"
 #include "SQLInitializer.h"
+#include "TaechangDefine.h"
+#include "TaechangUserRepository.h"
+#include "TaechangUserService.h"
 
 SQLInitializer::SQLInitializer(SqlContext* pSqlContext) {
     m_pSqlContext = pSqlContext;
@@ -43,9 +46,11 @@ BOOL SQLInitializer::Initialize(CString& strError) {
 }
 
 BOOL SQLInitializer::CreateTables(CString& strError) {
-    if (CreateTaechangPriceTable(strError) == FALSE) {
+    if (CreateTaechangPriceTable(strError) == FALSE)
         return FALSE;
-    }
+
+    if (CreateTaechangUserTable(strError) == FALSE)
+        return FALSE;
 
     return TRUE;
 }
@@ -103,4 +108,60 @@ BOOL SQLInitializer::CreateIndexes(CString& strError) {
     }
 
     return TRUE;
+}
+
+BOOL SQLInitializer::CreateTaechangUserTable(CString& strError) {
+    CString strSql;
+
+    strSql =
+        _T("CREATE TABLE IF NOT EXISTS TaechangUser (")
+        _T("    user_id   INTEGER PRIMARY KEY AUTOINCREMENT,")
+        _T("    login_id  TEXT NOT NULL UNIQUE,")
+        _T("    pw_hash   TEXT NOT NULL,")
+        _T("    role      INTEGER NOT NULL DEFAULT 0,")
+        _T("    CHECK (role >= 0)")
+        _T(");");
+
+    if (m_pSqlContext->Execute(strSql, strError) == FALSE)
+        return FALSE;
+
+    if (SeedDefaultAdmin(strError) == FALSE)
+        return FALSE;
+
+    return TRUE;
+}
+
+BOOL SQLInitializer::SeedDefaultAdmin(CString& strError) {
+    sqlite3* pDb = m_pSqlContext->GetDb();
+    sqlite3_stmt* pStatement = NULL;
+
+    int nResult = sqlite3_prepare_v2(
+        pDb,
+        "SELECT COUNT(*) FROM TaechangUser WHERE login_id = ?;",
+        -1, &pStatement, NULL
+    );
+
+    if (nResult != SQLITE_OK) {
+        strError = _T("기본 관리자 계정 확인 실패");
+        return FALSE;
+    }
+
+    CStringA strAdminIdA(CT2A(TAECHANG_DEFAULT_ADMIN_ID, CP_UTF8));
+    sqlite3_bind_text(pStatement, 1, strAdminIdA.GetString(), -1, SQLITE_STATIC);
+
+    nResult = sqlite3_step(pStatement);
+    int nCount = (nResult == SQLITE_ROW) ? sqlite3_column_int(pStatement, 0) : 0;
+    sqlite3_finalize(pStatement);
+
+    if (nCount > 0)
+        return TRUE;
+
+    TaechangUserRepository repo(m_pSqlContext);
+    TaechangUserDto adminDto;
+    adminDto.strLoginId = TAECHANG_DEFAULT_ADMIN_ID;
+    adminDto.strPwHash = TaechangUserService::HashPassword(TAECHANG_DEFAULT_ADMIN_PW);
+    adminDto.nRole = USER_ROLE_ADMIN;
+
+    int nNewId = 0;
+    return repo.Insert(adminDto, nNewId, strError);
 }

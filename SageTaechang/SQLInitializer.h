@@ -17,6 +17,10 @@ private:
 
 private:
     BOOL CreateTaechangPriceTable(CString& strError);
+    BOOL CreateTaechangUserTable(CString& strError);
+
+private:
+    BOOL SeedDefaultAdmin(CString& strError);
 
 private:
     SqlContext* m_pSqlContext;

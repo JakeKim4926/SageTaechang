@@ -1,3 +1,9 @@
+## [2026-05-05] feature/user-auth-login — feat: 사용자 인증 및 로그인 시스템 구현
+- **목적**: 관리자/사용자 2-Role 로그인 시스템 구현 — 이후 관리자 전용 기능 권한 분리 기반
+- **변경 내용**: TaechangUser DB 테이블 + 기본 admin 계정 시딩, DTO/Repository/Service/AuthSession 계층 구현(BCrypt SHA-256), 메인 화면 우측 상단 로그인 버튼 및 로그인 다이얼로그 추가
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/38
+- **결과**: pending
+
 ## [2026-05-05] feat/delivery-middle-time-mapping — feat: 납품서 배송시간 '오전중'/'오후중' 처리 추가
 - **목적**: 배송시간 입력값이 '오전 중'/'오후 중'일 때 결과 셀에 '중'이 기입되지 않던 문제 수정
 - **변경 내용**: `generate-delivery-forms.ps1`에 `$MiddleSuffix` 변수 추가, '오전중' → H6에 '중', '오후중' → M6에 '중' 처리 `elseif` 블록 추가

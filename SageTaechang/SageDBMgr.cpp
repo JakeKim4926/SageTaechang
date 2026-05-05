@@ -11,6 +11,9 @@ SageDBMgr::SageDBMgr() {
 
     m_pTaechangPriceRepository = NULL;
     m_pTaechangPriceService = NULL;
+
+    m_pUserRepository = NULL;
+    m_pUserService = NULL;
 }
 
 SageDBMgr::~SageDBMgr() {
@@ -76,6 +79,14 @@ TaechangPriceService* SageDBMgr::GetTaechangPriceService() {
     return m_pTaechangPriceService;
 }
 
+TaechangUserRepository* SageDBMgr::GetUserRepository() {
+    return m_pUserRepository;
+}
+
+TaechangUserService* SageDBMgr::GetUserService() {
+    return m_pUserService;
+}
+
 BOOL SageDBMgr::CreateRepositories(CString& strError) {
     if (m_sqlContext.IsOpened() == FALSE) {
         strError = _T("SQLite DB가 열려 있지 않습니다.");
@@ -88,6 +99,13 @@ BOOL SageDBMgr::CreateRepositories(CString& strError) {
 
     if (m_pTaechangPriceRepository == NULL) {
         strError = _T("TaechangPriceRepository 생성 실패");
+        return FALSE;
+    }
+
+    m_pUserRepository = new TaechangUserRepository(&m_sqlContext);
+
+    if (m_pUserRepository == NULL) {
+        strError = _T("TaechangUserRepository 생성 실패");
         return FALSE;
     }
 
@@ -109,6 +127,13 @@ BOOL SageDBMgr::CreateServices(CString& strError) {
         return FALSE;
     }
 
+    m_pUserService = new TaechangUserService(m_pUserRepository);
+
+    if (m_pUserService == NULL) {
+        strError = _T("TaechangUserService 생성 실패");
+        return FALSE;
+    }
+
     return TRUE;
 }
 
@@ -117,11 +142,21 @@ void SageDBMgr::DeleteServices() {
         delete m_pTaechangPriceService;
         m_pTaechangPriceService = NULL;
     }
+
+    if (m_pUserService != NULL) {
+        delete m_pUserService;
+        m_pUserService = NULL;
+    }
 }
 
 void SageDBMgr::DeleteRepositories() {
     if (m_pTaechangPriceRepository != NULL) {
         delete m_pTaechangPriceRepository;
         m_pTaechangPriceRepository = NULL;
+    }
+
+    if (m_pUserRepository != NULL) {
+        delete m_pUserRepository;
+        m_pUserRepository = NULL;
     }
 }
