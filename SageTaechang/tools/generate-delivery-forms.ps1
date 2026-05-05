@@ -18,6 +18,7 @@ $MiddleDelivery = ([char]0xC911).ToString() + ' ' + ([char]0xD0DD).ToString() + 
 $QuickSuffix = ([char]0xD035).ToString()
 $MiddleQuick = ([char]0xC911).ToString() + ' ' + ([char]0xD035).ToString()
 $CourierSuffix = ([char]0xD0DD).ToString() + ([char]0xBC30).ToString()
+$MiddleSuffix = ([char]0xC911).ToString()
 
 $allowedRows = @{}
 if ($RowNums.Trim().Length -gt 0) {
@@ -179,6 +180,12 @@ try {
                 Set-CellValue $sheet 'M6' $MiddleDelivery
             }
             Set-CellValue $sheet 'K2' $CourierSuffix
+        } elseif ($deliveryTime.EndsWith($MiddleSuffix)) {
+            if ($deliveryTime.StartsWith($MorningPrefix)) {
+                Set-CellValue $sheet 'H6' $MiddleSuffix
+            } elseif ($deliveryTime.StartsWith($AfternoonPrefix)) {
+                Set-CellValue $sheet 'M6' $MiddleSuffix
+            }
         }
         Set-CellValue $sheet 'C9' $itemName
         Set-CellValue $sheet 'C12' $productType
