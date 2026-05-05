@@ -55,6 +55,48 @@
     <Filter Include="헤더 파일\presentation">
       <UniqueIdentifier>{CB0D56E5-3533-4B33-B4FE-1D87545ED237}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\SQLite">
+      <UniqueIdentifier>{c3840102-3d4a-4fde-bbdf-31dbd3f1970d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\SQLite">
+      <UniqueIdentifier>{91227adf-fc6d-4b96-acc1-b1095fe8cc4c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\SQLite\Database">
+      <UniqueIdentifier>{4c8f101b-299c-4f9c-9c94-aa37b9cf95c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\SQLite\Dto">
+      <UniqueIdentifier>{61775cd8-0e32-4c93-90b7-8267bc97d253}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\SQLite\Repository">
+      <UniqueIdentifier>{590357e0-d1fb-4c99-9213-a77a317f95d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\SQLite\Service">
+      <UniqueIdentifier>{0619480f-1b95-4d20-823f-70566974e822}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\SQLite\Database">
+      <UniqueIdentifier>{7791d903-2756-49c1-9ed3-847987d8aebe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\SQLite\Dto">
+      <UniqueIdentifier>{2cdf2fbc-856a-4b59-b5d7-03a04338e301}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\SQLite\Service">
+      <UniqueIdentifier>{31873263-0443-43a0-b553-af905af3a03d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\SQLite\Repository">
+      <UniqueIdentifier>{917cf346-ce28-4c70-b60c-5aeb839d8577}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\external">
+      <UniqueIdentifier>{18f03a2d-7c3d-4b72-a1a4-b98bc796ee4b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\external\sqlite">
+      <UniqueIdentifier>{158e4b84-b149-4bc6-b555-e325c1292e0b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\external">
+      <UniqueIdentifier>{1093c0be-e68a-443c-bf01-010bc773a849}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\external\sqlite">
+      <UniqueIdentifier>{7fdfde01-7041-4a78-9195-eaec80e5e064}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -120,6 +162,12 @@
     <ClInclude Include="app\common\TaechangDialogHelper.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="SQLContext.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sqlite\sqlite3.h">
+      <Filter>헤더 파일\external\sqlite</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="app\application\services\TaechangReceivablesExcelService.cpp">
@@ -172,6 +220,12 @@
     </ClCompile>
     <ClCompile Include="app\common\TaechangDialogHelper.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="SQLContext.cpp">
+      <Filter>소스 파일\SQLite\Database</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sqlite\sqlite3.c">
+      <Filter>소스 파일\external\sqlite</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
