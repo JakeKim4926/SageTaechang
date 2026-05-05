@@ -95,6 +95,46 @@ protected:
     CButton m_wndLogoutBtn;
     CStatic m_wndUserLabel;
 
+    // ── 가격 데이터 관리 패널 ────────────────────────────────────────────────
+    CEdit   m_wndPriceCompanyEdit;
+    CButton m_wndPriceAddCompanyBtn;
+    CListCtrl m_wndPriceCompanyList;
+    CListCtrl m_wndPriceCopiesList;
+    CStatic m_wndPriceMinCopiesLabel;
+    CEdit   m_wndPriceMinCopiesEdit;
+    CStatic m_wndPriceMaxCopiesLabel;
+    CEdit   m_wndPriceMaxCopiesEdit;
+    CButton m_wndPriceNoMaxCheck;
+    CStatic m_wndPricePrintLabel;
+    CEdit   m_wndPricePrintEdit;
+    CStatic m_wndPriceCoverLabel;
+    CEdit   m_wndPriceCoverEdit;
+    CButton m_wndPriceAddBtn;
+    CButton m_wndPriceModifyBtn;
+    CButton m_wndPriceDeleteBtn;
+
+    // ── 부수 계산 패널 ───────────────────────────────────────────────────────
+    CStatic   m_wndCalcCompanyLabel;
+    CComboBox m_wndCalcCompanyCombo;
+    CStatic   m_wndCalcCopiesLabel;
+    CEdit     m_wndCalcCopiesEdit;
+    CButton   m_wndCalcBtn;
+    CStatic   m_wndCalcPrintLabel;
+    CStatic   m_wndCalcPrintValue;
+    CStatic   m_wndCalcCoverLabel;
+    CStatic   m_wndCalcCoverValue;
+    CStatic   m_wndCalcSubtotalLabel;
+    CStatic   m_wndCalcSubtotalValue;
+    CStatic   m_wndCalcFreightLabel;
+    CEdit     m_wndCalcFreightEdit;
+    CStatic   m_wndCalcDivider;
+    CStatic   m_wndCalcTotalLabel;
+    CStatic   m_wndCalcTotalValue;
+
+    // ── 가격 관리 내부 상태 ─────────────────────────────────────────────────
+    int  m_nCalcPrintPrice;
+    int  m_nCalcCoverPrice;
+
 protected:
     void CreateChildControls();
     void BuildSidebarTree();
@@ -135,6 +175,24 @@ protected:
     void AppendExecutionHistory(int nWorkflowType, int nTaskType, const CString& strResponseJson, BOOL bSuccess);
     CString BuildExecutionHistoryLine(int nWorkflowType, int nTaskType, const CString& strResponseJson, BOOL bSuccess) const;
 
+    // ── 가격 관리 패널 ───────────────────────────────────────────────────────
+    void CreatePriceManagePanel();
+    void LayoutPriceManagePanel(int nLeft, int nTop, int nWidth, int nHeight);
+    void ShowPriceManagePanel(BOOL bShow);
+    void RefreshPriceCompanyList();
+    void RefreshPriceCopiesList(const CString& strCompanyName);
+    void LoadSelectedCopiesRowToForm();
+    void ClearPriceForm();
+    BOOL ReadPriceFormToDto(TaechangPriceDto& dto, CString& strError);
+    CString GetSelectedCompanyName() const;
+
+    // ── 부수 계산 패널 ───────────────────────────────────────────────────────
+    void CreatePriceCalcPanel();
+    void LayoutPriceCalcPanel(int nLeft, int nTop, int nWidth, int nHeight);
+    void ShowPriceCalcPanel(BOOL bShow);
+    void RefreshCalcCompanyCombo();
+    void UpdateCalcTotal();
+
 protected:
     afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
     afx_msg void OnSize(UINT nType, int cx, int cy);
@@ -157,6 +215,20 @@ protected:
     afx_msg void OnListCustomDraw(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnLogin();
     afx_msg void OnLogout();
+
+    // ── 가격 데이터 관리 이벤트 ─────────────────────────────────────────────
+    afx_msg void OnPriceAddCompany();
+    afx_msg void OnPriceCompanySelChanged(NMHDR* pNMHDR, LRESULT* pResult);
+    afx_msg void OnPriceCopiesSelChanged(NMHDR* pNMHDR, LRESULT* pResult);
+    afx_msg void OnPriceNoMaxCheck();
+    afx_msg void OnPriceAdd();
+    afx_msg void OnPriceModify();
+    afx_msg void OnPriceDelete();
+
+    // ── 부수 계산 이벤트 ────────────────────────────────────────────────────
+    afx_msg void OnCalc();
+    afx_msg void OnCalcFreightChanged();
+
     DECLARE_MESSAGE_MAP()
 };
 

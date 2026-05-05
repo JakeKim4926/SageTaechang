@@ -358,5 +358,94 @@ constexpr LPCWSTR TAECHANG_UI_LOGIN_EMPTY_PW = L"비밀번호를 입력하세요
 constexpr LPCWSTR TAECHANG_DEFAULT_ADMIN_ID = L"admin";
 constexpr LPCWSTR TAECHANG_DEFAULT_ADMIN_PW = L"taechang1234";
 
+// ── 가격 관리 워크플로우 ID ──────────────────────────────────────────────────
+constexpr int TAECHANG_WORKFLOW_PRICE_MANAGE = 6;
+constexpr int TAECHANG_WORKFLOW_PRICE_CALC   = 7;
 
+inline BOOL IsPriceWorkflowType(int nWorkflowType)
+{
+    return (nWorkflowType == TAECHANG_WORKFLOW_PRICE_MANAGE ||
+            nWorkflowType == TAECHANG_WORKFLOW_PRICE_CALC) ? TRUE : FALSE;
+}
 
+// ── 가격 관리 컨트롤 ID ──────────────────────────────────────────────────────
+constexpr UINT ID_PRICE_COMPANY_EDIT      = 41030;
+constexpr UINT ID_PRICE_ADD_COMPANY_BTN   = 41031;
+constexpr UINT ID_PRICE_COMPANY_LIST      = 41032;
+constexpr UINT ID_PRICE_COPIES_LIST       = 41033;
+constexpr UINT ID_PRICE_MIN_COPIES_EDIT   = 41034;
+constexpr UINT ID_PRICE_MAX_COPIES_EDIT   = 41035;
+constexpr UINT ID_PRICE_NO_MAX_CHECK      = 41036;
+constexpr UINT ID_PRICE_PRINT_EDIT        = 41037;
+constexpr UINT ID_PRICE_COVER_EDIT        = 41038;
+constexpr UINT ID_PRICE_ADD_BTN           = 41039;
+constexpr UINT ID_PRICE_MODIFY_BTN        = 41040;
+constexpr UINT ID_PRICE_DELETE_BTN        = 41041;
+
+// ── 부수 계산 컨트롤 ID ──────────────────────────────────────────────────────
+constexpr UINT ID_CALC_COMPANY_COMBO      = 41050;
+constexpr UINT ID_CALC_COPIES_EDIT        = 41051;
+constexpr UINT ID_CALC_BTN                = 41052;
+constexpr UINT ID_CALC_FREIGHT_EDIT       = 41053;
+
+// ── 사이드바 UI 문자열 ───────────────────────────────────────────────────────
+constexpr LPCWSTR TAECHANG_UI_SIDEBAR_GROUP_PRICE = L"가격 관리";
+constexpr LPCWSTR TAECHANG_UI_PRICE_MANAGE_NAME   = L"가격 데이터 관리";
+constexpr LPCWSTR TAECHANG_UI_PRICE_CALC_NAME     = L"부수 계산";
+
+// ── 가격 데이터 관리 화면 문자열 ────────────────────────────────────────────
+constexpr LPCWSTR TAECHANG_UI_PRICE_COMPANY_LABEL    = L"법인명";
+constexpr LPCWSTR TAECHANG_UI_PRICE_ADD_COMPANY_BTN  = L"법인 추가";
+constexpr LPCWSTR TAECHANG_UI_PRICE_MIN_COPIES_LABEL = L"최소부수";
+constexpr LPCWSTR TAECHANG_UI_PRICE_MAX_COPIES_LABEL = L"최대부수";
+constexpr LPCWSTR TAECHANG_UI_PRICE_NO_MAX_LABEL     = L"최대 없음";
+constexpr LPCWSTR TAECHANG_UI_PRICE_PRINT_LABEL      = L"인쇄가격";
+constexpr LPCWSTR TAECHANG_UI_PRICE_COVER_LABEL      = L"표지가격";
+constexpr LPCWSTR TAECHANG_UI_PRICE_ADD_BTN          = L"가격 추가";
+constexpr LPCWSTR TAECHANG_UI_PRICE_MODIFY_BTN       = L"가격 수정";
+constexpr LPCWSTR TAECHANG_UI_PRICE_DELETE_BTN       = L"가격 삭제";
+
+constexpr LPCWSTR TAECHANG_UI_PRICE_COL_MIN_COPIES   = L"최소부수";
+constexpr LPCWSTR TAECHANG_UI_PRICE_COL_MAX_COPIES   = L"최대부수";
+constexpr LPCWSTR TAECHANG_UI_PRICE_COL_PRINT_PRICE  = L"인쇄가격";
+constexpr LPCWSTR TAECHANG_UI_PRICE_COL_COVER_PRICE  = L"표지가격";
+
+constexpr LPCWSTR TAECHANG_UI_PRICE_MAX_COPIES_NONE      = L"-";
+constexpr LPCWSTR TAECHANG_UI_PRICE_COMPANY_REQUIRED     = L"법인명을 입력하세요.";
+constexpr LPCWSTR TAECHANG_UI_PRICE_SELECT_COMPANY       = L"법인을 선택하세요.";
+constexpr LPCWSTR TAECHANG_UI_PRICE_SELECT_COPIES_ROW    = L"수정/삭제할 항목을 선택하세요.";
+constexpr LPCWSTR TAECHANG_UI_PRICE_DELETE_CONFIRM       = L"선택한 가격 데이터를 삭제하시겠습니까?";
+constexpr LPCWSTR TAECHANG_UI_PRICE_COPIES_INVALID       = L"부수는 1 이상의 숫자여야 합니다.";
+constexpr LPCWSTR TAECHANG_UI_PRICE_MAX_LESS_THAN_MIN    = L"최대부수는 최소부수 이상이어야 합니다.";
+
+// ── 부수 계산 화면 문자열 ────────────────────────────────────────────────────
+constexpr LPCWSTR TAECHANG_UI_CALC_COMPANY_LABEL   = L"법인명";
+constexpr LPCWSTR TAECHANG_UI_CALC_COPIES_LABEL    = L"부수";
+constexpr LPCWSTR TAECHANG_UI_CALC_BTN             = L"계산";
+constexpr LPCWSTR TAECHANG_UI_CALC_PRINT_LABEL     = L"인쇄 가격";
+constexpr LPCWSTR TAECHANG_UI_CALC_COVER_LABEL     = L"표지 가격";
+constexpr LPCWSTR TAECHANG_UI_CALC_SUBTOTAL_LABEL  = L"소계";
+constexpr LPCWSTR TAECHANG_UI_CALC_FREIGHT_LABEL   = L"운임";
+constexpr LPCWSTR TAECHANG_UI_CALC_TOTAL_LABEL     = L"합계";
+constexpr LPCWSTR TAECHANG_UI_CALC_WON_FORMAT      = L"%s원";
+constexpr LPCWSTR TAECHANG_UI_CALC_NO_DATA         = L"해당 부수에 대한 가격 데이터가 없습니다.";
+constexpr LPCWSTR TAECHANG_UI_CALC_SELECT_COMPANY  = L"법인명을 선택하세요.";
+constexpr LPCWSTR TAECHANG_UI_CALC_COPIES_REQUIRED = L"부수를 입력하세요.";
+constexpr LPCWSTR TAECHANG_UI_CALC_COPIES_INVALID  = L"부수는 1 이상의 숫자여야 합니다.";
+
+// ── 가격 관리 레이아웃 치수 ─────────────────────────────────────────────────
+constexpr int TAECHANG_PRICE_COMPANY_LIST_WIDTH    = 180;
+constexpr int TAECHANG_PRICE_FORM_LABEL_WIDTH      = 70;
+constexpr int TAECHANG_PRICE_FORM_SHORT_EDIT_WIDTH = 80;
+constexpr int TAECHANG_PRICE_FORM_PRICE_EDIT_WIDTH = 120;
+constexpr int TAECHANG_PRICE_COL_MIN_WIDTH         = 80;
+constexpr int TAECHANG_PRICE_COL_MAX_WIDTH         = 80;
+constexpr int TAECHANG_PRICE_COL_PRINT_WIDTH       = 110;
+constexpr int TAECHANG_PRICE_COL_COVER_WIDTH       = 110;
+
+// ── 부수 계산 레이아웃 치수 ─────────────────────────────────────────────────
+constexpr int TAECHANG_CALC_COMBO_WIDTH            = 200;
+constexpr int TAECHANG_CALC_COPIES_EDIT_WIDTH      = 80;
+constexpr int TAECHANG_CALC_RESULT_LABEL_WIDTH     = 80;
+constexpr int TAECHANG_CALC_RESULT_VALUE_WIDTH     = 160;
+constexpr int TAECHANG_CALC_RESULT_ROW_GAP         = 12;
