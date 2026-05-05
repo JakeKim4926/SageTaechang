@@ -1713,6 +1713,14 @@ void CSageTaechangView::OnListCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
 
 // ── 가격 관련 유틸 ────────────────────────────────────────────────────────────
 
+static BOOL ContainsNonAscii(const CString& str) {
+	for (int i = 0; i < str.GetLength(); ++i) {
+		if (str[i] > 127)
+			return TRUE;
+	}
+	return FALSE;
+}
+
 static CString FormatPrice(int nPrice) {
 	CString str;
 	str.Format(L"%d", nPrice);
@@ -1754,6 +1762,13 @@ void CSageTaechangView::CreatePriceManagePanel() {
 	m_wndPriceAddBtn.Create(TAECHANG_UI_PRICE_ADD_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_PRICE_ADD_BTN);
 	m_wndPriceModifyBtn.Create(TAECHANG_UI_PRICE_MODIFY_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_PRICE_MODIFY_BTN);
 	m_wndPriceDeleteBtn.Create(TAECHANG_UI_PRICE_DELETE_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_PRICE_DELETE_BTN);
+
+	// 입력 길이 제한 (UI 레벨 가드)
+	m_wndPriceCompanyEdit.SetLimitText(TAECHANG_PRICE_COMPANY_MAX_LEN_EN);
+	m_wndPriceMinCopiesEdit.SetLimitText(7);  // 9,999,999 = 7자리
+	m_wndPriceMaxCopiesEdit.SetLimitText(7);
+	m_wndPricePrintEdit.SetLimitText(8);      // 10,000,000 = 8자리
+	m_wndPriceCoverEdit.SetLimitText(8);
 }
 
 // ── 부수 계산 패널 생성 ───────────────────────────────────────────────────────
@@ -1777,6 +1792,9 @@ void CSageTaechangView::CreatePriceCalcPanel() {
 	m_wndCalcDivider.Create(L"", WS_CHILD | SS_ETCHEDHORZ, r, this);
 	m_wndCalcTotalLabel.Create(TAECHANG_UI_CALC_TOTAL_LABEL, WS_CHILD | SS_RIGHT | SS_CENTERIMAGE, r, this);
 	m_wndCalcTotalValue.Create(L"-", WS_CHILD | SS_CENTERIMAGE, r, this);
+
+	m_wndCalcCopiesEdit.SetLimitText(7);   // 9,999,999
+	m_wndCalcFreightEdit.SetLimitText(8);  // 10,000,000
 }
 
 // ── 가격 데이터 관리 패널 레이아웃 ───────────────────────────────────────────
@@ -2019,20 +2037,36 @@ BOOL CSageTaechangView::ReadPriceFormToDto(TaechangPriceDto& dto, CString& strEr
 
 	dto.nReportType = REPORT_TYPE_AUDIT_REPORT;
 	dto.nMinCopies = strMin.IsEmpty() ? 0 : _wtoi(strMin);
-	if (dto.nMinCopies < 1) {
-		strError = TAECHANG_UI_PRICE_COPIES_INVALID;
+	if (dto.nMinCopies < 1 || dto.nMinCopies > TAECHANG_PRICE_COPIES_MAX) {
+		strError = TAECHANG_UI_PRICE_COPIES_OUT_OF_RANGE;
 		return FALSE;
 	}
 
 	dto.bHasMaxCopies = (m_wndPriceNoMaxCheck.GetCheck() == BST_CHECKED) ? FALSE : TRUE;
 	dto.nMaxCopies = (dto.bHasMaxCopies && !strMax.IsEmpty()) ? _wtoi(strMax) : 0;
-	if (dto.bHasMaxCopies && dto.nMaxCopies < dto.nMinCopies) {
-		strError = TAECHANG_UI_PRICE_MAX_LESS_THAN_MIN;
-		return FALSE;
+	if (dto.bHasMaxCopies) {
+		if (dto.nMaxCopies < 1 || dto.nMaxCopies > TAECHANG_PRICE_COPIES_MAX) {
+			strError = TAECHANG_UI_PRICE_COPIES_OUT_OF_RANGE;
+			return FALSE;
+		}
+		if (dto.nMaxCopies < dto.nMinCopies) {
+			strError = TAECHANG_UI_PRICE_MAX_LESS_THAN_MIN;
+			return FALSE;
+		}
 	}
 
 	dto.nPrintPrice = strPrint.IsEmpty() ? 0 : _wtoi(strPrint);
+	if (dto.nPrintPrice < 0 || dto.nPrintPrice > TAECHANG_PRICE_AMOUNT_MAX) {
+		strError = TAECHANG_UI_PRICE_AMOUNT_OUT_OF_RANGE;
+		return FALSE;
+	}
+
 	dto.nCoverPrice = strCover.IsEmpty() ? 0 : _wtoi(strCover);
+	if (dto.nCoverPrice < 0 || dto.nCoverPrice > TAECHANG_PRICE_AMOUNT_MAX) {
+		strError = TAECHANG_UI_PRICE_AMOUNT_OUT_OF_RANGE;
+		return FALSE;
+	}
+
 	return TRUE;
 }
 
@@ -2044,6 +2078,12 @@ void CSageTaechangView::OnPriceAddCompany() {
 	strName.Trim();
 	if (strName.IsEmpty()) {
 		AfxMessageBox(TAECHANG_UI_PRICE_COMPANY_REQUIRED, MB_ICONWARNING);
+		return;
+	}
+	BOOL bHasKorean = ContainsNonAscii(strName);
+	int nMaxLen = bHasKorean ? TAECHANG_PRICE_COMPANY_MAX_LEN_KO : TAECHANG_PRICE_COMPANY_MAX_LEN_EN;
+	if (strName.GetLength() > nMaxLen) {
+		AfxMessageBox(bHasKorean ? TAECHANG_UI_PRICE_COMPANY_TOO_LONG_KO : TAECHANG_UI_PRICE_COMPANY_TOO_LONG_EN, MB_ICONWARNING);
 		return;
 	}
 	// 이미 목록에 있으면 해당 항목 선택
@@ -2191,6 +2231,8 @@ void CSageTaechangView::UpdateCalcTotal() {
 	m_wndCalcFreightEdit.GetWindowTextW(strFreight);
 	strFreight.Trim();
 	int nFreight = strFreight.IsEmpty() ? 0 : _wtoi(strFreight);
+	if (nFreight < 0) nFreight = 0;
+	if (nFreight > TAECHANG_PRICE_AMOUNT_MAX) nFreight = TAECHANG_PRICE_AMOUNT_MAX;
 	int nTotal = m_nCalcPrintPrice + m_nCalcCoverPrice + nFreight;
 	CString strTotal;
 	strTotal.Format(TAECHANG_UI_CALC_WON_FORMAT, FormatPrice(nTotal).GetString());
