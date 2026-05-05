@@ -1,0 +1,23 @@
+#pragma once
+
+#include "pch.h"
+#include "SqlContext.h"
+
+class SQLInitializer {
+public:
+    SQLInitializer(SqlContext* pSqlContext);
+    ~SQLInitializer();
+
+public:
+    BOOL Initialize(CString& strError);
+
+private:
+    BOOL CreateTables(CString& strError);
+    BOOL CreateIndexes(CString& strError);
+
+private:
+    BOOL CreateTaechangPriceTable(CString& strError);
+
+private:
+    SqlContext* m_pSqlContext;
+};

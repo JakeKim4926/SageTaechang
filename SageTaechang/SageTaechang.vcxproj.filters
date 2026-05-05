@@ -162,11 +162,26 @@
     <ClInclude Include="app\common\TaechangDialogHelper.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="SQLContext.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="external\sqlite\sqlite3.h">
       <Filter>헤더 파일\external\sqlite</Filter>
+    </ClInclude>
+    <ClInclude Include="SQLContext.h">
+      <Filter>헤더 파일\SQLite\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="RepositoryHelper.h">
+      <Filter>헤더 파일\SQLite\Repository</Filter>
+    </ClInclude>
+    <ClInclude Include="SQLInitializer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="TaechangPriceDto.h">
+      <Filter>헤더 파일\SQLite\Dto</Filter>
+    </ClInclude>
+    <ClInclude Include="TaechangPriceRepository.h">
+      <Filter>헤더 파일\SQLite\Repository</Filter>
+    </ClInclude>
+    <ClInclude Include="TaechangPriceService.h">
+      <Filter>헤더 파일\SQLite\Service</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -226,6 +241,15 @@
     </ClCompile>
     <ClCompile Include="external\sqlite\sqlite3.c">
       <Filter>소스 파일\external\sqlite</Filter>
+    </ClCompile>
+    <ClCompile Include="TaechangPriceService.cpp">
+      <Filter>소스 파일\SQLite\Service</Filter>
+    </ClCompile>
+    <ClCompile Include="TaechangPriceRepository.cpp">
+      <Filter>소스 파일\SQLite\Repository</Filter>
+    </ClCompile>
+    <ClCompile Include="SQLInitializer.cpp">
+      <Filter>소스 파일\SQLite\Database</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

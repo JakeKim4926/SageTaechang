@@ -1,0 +1,106 @@
+#include "pch.h"
+#include "SQLInitializer.h"
+
+SQLInitializer::SQLInitializer(SqlContext* pSqlContext) {
+    m_pSqlContext = pSqlContext;
+}
+
+SQLInitializer::~SQLInitializer() {}
+
+BOOL SQLInitializer::Initialize(CString& strError) {
+    CString strRollbackError;
+
+    if (m_pSqlContext == NULL) {
+        strError = _T("SqlContext가 NULL입니다.");
+        return FALSE;
+    }
+
+    if (m_pSqlContext->IsOpened() == FALSE) {
+        strError = _T("SQLite DB가 열려 있지 않습니다.");
+        return FALSE;
+    }
+
+    if (m_pSqlContext->BeginTransaction(strError) == FALSE) {
+        return FALSE;
+    }
+
+    if (CreateTables(strError) == FALSE) {
+        m_pSqlContext->Rollback(strRollbackError);
+        return FALSE;
+    }
+
+    if (CreateIndexes(strError) == FALSE) {
+        m_pSqlContext->Rollback(strRollbackError);
+        return FALSE;
+    }
+
+    if (m_pSqlContext->Commit(strError) == FALSE) {
+        m_pSqlContext->Rollback(strRollbackError);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL SQLInitializer::CreateTables(CString& strError) {
+    if (CreateTaechangPriceTable(strError) == FALSE) {
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL SQLInitializer::CreateTaechangPriceTable(CString& strError) {
+    CString strSql;
+
+    strSql =
+        _T("CREATE TABLE IF NOT EXISTS TaechangPrice (")
+        _T("    price_id INTEGER PRIMARY KEY AUTOINCREMENT,")
+        _T("    company_name TEXT NOT NULL,")
+        _T("    report_type INTEGER NOT NULL,")
+        _T("    min_copies INTEGER NOT NULL,")
+        _T("    max_copies INTEGER,")
+        _T("    print_price INTEGER NOT NULL,")
+        _T("    cover_price INTEGER NOT NULL,")
+        _T("    memo TEXT,")
+        _T("    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,")
+        _T("    updated_at TEXT,")
+        _T("    CHECK (report_type > 0),")
+        _T("    CHECK (min_copies >= 1),")
+        _T("    CHECK (max_copies IS NULL OR max_copies >= min_copies),")
+        _T("    CHECK (print_price >= 0),")
+        _T("    CHECK (cover_price >= 0)")
+        _T(");");
+
+    return m_pSqlContext->Execute(strSql, strError);
+}
+
+BOOL SQLInitializer::CreateIndexes(CString& strError) {
+    CString strSql;
+
+    strSql =
+        _T("CREATE INDEX IF NOT EXISTS idx_TaechangPrice_company ")
+        _T("ON TaechangPrice(company_name, report_type);");
+
+    if (m_pSqlContext->Execute(strSql, strError) == FALSE) {
+        return FALSE;
+    }
+
+    strSql =
+        _T("CREATE INDEX IF NOT EXISTS idx_TaechangPrice_copies ")
+        _T("ON TaechangPrice(company_name, report_type, min_copies, max_copies);");
+
+    if (m_pSqlContext->Execute(strSql, strError) == FALSE) {
+        return FALSE;
+    }
+
+    strSql =
+        _T("CREATE INDEX IF NOT EXISTS idx_TaechangPrice_price ")
+        _T("ON TaechangPrice(print_price, cover_price);");
+
+    if (m_pSqlContext->Execute(strSql, strError) == FALSE) {
+        return FALSE;
+    }
+
+    return TRUE;
+}

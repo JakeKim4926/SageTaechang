@@ -1,0 +1,60 @@
+#pragma once
+
+#include "pch.h"
+#include "TaechangPriceDto.h"
+#include "TaechangPriceRepository.h"
+
+class TaechangPriceService {
+public:
+    TaechangPriceService(TaechangPriceRepository* pRepository);
+    ~TaechangPriceService();
+
+public:
+    BOOL AddPrice(const TaechangPriceDto& dto, int& nNewPriceId, CString& strError);
+
+    BOOL LoadByCompany(
+        const CString& strCompanyName,
+        CArray<TaechangPriceDto, TaechangPriceDto&>& arrPrice,
+        CString& strError
+    );
+
+    BOOL LoadByCompanyAndCopies(
+        const CString& strCompanyName,
+        int nCopies,
+        TaechangPriceDto& dto,
+        BOOL& bFound,
+        CString& strError
+    );
+
+    BOOL LoadByPrice(
+        int nPrice,
+        CArray<TaechangPriceDto, TaechangPriceDto&>& arrPrice,
+        CString& strError
+    );
+
+    BOOL ChangePriceByCompany(
+        const CString& strCompanyName,
+        int nPrintPrice,
+        int nCoverPrice,
+        int& nAffectedCount,
+        CString& strError
+    );
+
+    BOOL ChangePriceByCompanyAndCopies(
+        const CString& strCompanyName,
+        int nCopies,
+        int nPrintPrice,
+        int nCoverPrice,
+        int& nAffectedCount,
+        CString& strError
+    );
+
+private:
+    BOOL ValidateForInsert(const TaechangPriceDto& dto, CString& strError);
+    BOOL ValidateCompanyName(const CString& strCompanyName, CString& strError);
+    BOOL ValidateCopies(int nCopies, CString& strError);
+    BOOL ValidatePriceValue(int nPrintPrice, int nCoverPrice, CString& strError);
+
+private:
+    TaechangPriceRepository* m_pRepository;
+};

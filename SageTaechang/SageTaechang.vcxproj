@@ -223,11 +223,16 @@ if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templ
     <ClInclude Include="framework.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="RepositoryHelper.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SageTaechang.h" />
     <ClInclude Include="SageTaechangDoc.h" />
     <ClInclude Include="SageTaechangView.h" />
     <ClInclude Include="SQLContext.h" />
+    <ClInclude Include="SQLInitializer.h" />
+    <ClInclude Include="TaechangPriceDto.h" />
+    <ClInclude Include="TaechangPriceRepository.h" />
+    <ClInclude Include="TaechangPriceService.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TaechangDefine.h" />
     <ClInclude Include="app\application\services\TaechangReceivablesExcelService.h" />
@@ -273,6 +278,9 @@ if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templ
     <ClCompile Include="app\application\services\TaechangCompareCsvExportService.cpp" />
     <ClCompile Include="app\presentation\TaechangWorkflowResultPresenter.cpp" />
     <ClCompile Include="SQLContext.cpp" />
+    <ClCompile Include="SQLInitializer.cpp" />
+    <ClCompile Include="TaechangPriceRepository.cpp" />
+    <ClCompile Include="TaechangPriceService.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SageTaechang.rc" />
