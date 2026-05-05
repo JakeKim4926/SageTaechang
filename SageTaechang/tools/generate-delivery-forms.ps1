@@ -15,6 +15,9 @@ $ResultPath = [System.IO.Path]::GetFullPath($ResultPath)
 $MorningPrefix = ([char]0xC624).ToString() + ([char]0xC804).ToString()
 $AfternoonPrefix = ([char]0xC624).ToString() + ([char]0xD6C4).ToString()
 $MiddleDelivery = ([char]0xC911).ToString() + ' ' + ([char]0xD0DD).ToString() + ([char]0xBC30).ToString()
+$QuickSuffix = ([char]0xD035).ToString()
+$MiddleQuick = ([char]0xC911).ToString() + ' ' + ([char]0xD035).ToString()
+$CourierSuffix = ([char]0xD0DD).ToString() + ([char]0xBC30).ToString()
 
 $allowedRows = @{}
 if ($RowNums.Trim().Length -gt 0) {
@@ -162,10 +165,20 @@ try {
         Set-CellValue $sheet 'M5' $deliveryDate.Day
         Set-CellValue $sheet 'H6' ''
         Set-CellValue $sheet 'M6' ''
-        if ($deliveryTime.StartsWith($MorningPrefix)) {
-            Set-CellValue $sheet 'H6' $MiddleDelivery
-        } elseif ($deliveryTime.StartsWith($AfternoonPrefix)) {
-            Set-CellValue $sheet 'M6' $MiddleDelivery
+        Set-CellValue $sheet 'K2' ''
+        if ($deliveryTime.EndsWith($QuickSuffix)) {
+            if ($deliveryTime.StartsWith($MorningPrefix)) {
+                Set-CellValue $sheet 'H6' $MiddleQuick
+            } elseif ($deliveryTime.StartsWith($AfternoonPrefix)) {
+                Set-CellValue $sheet 'M6' $MiddleQuick
+            }
+        } elseif ($deliveryTime.EndsWith($CourierSuffix)) {
+            if ($deliveryTime.StartsWith($MorningPrefix)) {
+                Set-CellValue $sheet 'H6' $MiddleDelivery
+            } elseif ($deliveryTime.StartsWith($AfternoonPrefix)) {
+                Set-CellValue $sheet 'M6' $MiddleDelivery
+            }
+            Set-CellValue $sheet 'K2' $CourierSuffix
         }
         Set-CellValue $sheet 'C9' $itemName
         Set-CellValue $sheet 'C12' $productType
