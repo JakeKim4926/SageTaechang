@@ -54,6 +54,7 @@ protected:
     CButton m_wndLoad;
     CButton m_wndGenerate;
     CButton m_wndExportCsv;
+    CButton m_wndSelectAll;
     CProgressCtrl m_wndProgress;
     CStatic m_wndProgressText;
     CListCtrl m_wndResultList;
@@ -131,6 +132,7 @@ protected:
     afx_msg void OnLoadWorkflow();
     afx_msg void OnGenerateWorkflow();
     afx_msg void OnExportCsv();
+    afx_msg void OnSelectAll();
     afx_msg LRESULT OnWorkflowComplete(WPARAM wParam, LPARAM lParam);
     afx_msg void OnDropFiles(HDROP hDropInfo);
     afx_msg void OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct);
