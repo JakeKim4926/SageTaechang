@@ -49,6 +49,12 @@ public:
         CString& strError
     );
 
+    BOOL RemovePrice(int nPriceId, CString& strError);
+
+    BOOL LoadAllCompanyNames(CStringArray& arrNames, CString& strError);
+
+    BOOL ModifyPriceById(const TaechangPriceDto& dto, CString& strError);
+
 private:
     BOOL ValidateForInsert(const TaechangPriceDto& dto, CString& strError);
     BOOL ValidateCompanyName(const CString& strCompanyName, CString& strError);

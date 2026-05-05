@@ -211,6 +211,79 @@ BOOL TaechangPriceService::ChangePriceByCompanyAndCopies(
     return TRUE;
 }
 
+BOOL TaechangPriceService::RemovePrice(int nPriceId, CString& strError) {
+    if (m_pRepository == NULL) {
+        strError = _T("TaechangPriceRepository가 NULL입니다.");
+        return FALSE;
+    }
+
+    if (nPriceId <= 0) {
+        strError = _T("유효하지 않은 가격 ID입니다.");
+        return FALSE;
+    }
+
+    return m_pRepository->DeleteByPriceId(nPriceId, strError);
+}
+
+BOOL TaechangPriceService::LoadAllCompanyNames(CStringArray& arrNames, CString& strError) {
+    arrNames.RemoveAll();
+
+    if (m_pRepository == NULL) {
+        strError = _T("TaechangPriceRepository가 NULL입니다.");
+        return FALSE;
+    }
+
+    return m_pRepository->SelectAllCompanyNames(REPORT_TYPE_AUDIT_REPORT, arrNames, strError);
+}
+
+BOOL TaechangPriceService::ModifyPriceById(const TaechangPriceDto& dto, CString& strError) {
+    BOOL bExists;
+
+    bExists = FALSE;
+
+    if (m_pRepository == NULL) {
+        strError = _T("TaechangPriceRepository가 NULL입니다.");
+        return FALSE;
+    }
+
+    if (dto.nPriceId <= 0) {
+        strError = _T("유효하지 않은 가격 ID입니다.");
+        return FALSE;
+    }
+
+    if (ValidateForInsert(dto, strError) == FALSE) {
+        return FALSE;
+    }
+
+    if (m_pRepository->ExistsOverlap(
+        dto.strCompanyName,
+        dto.nReportType,
+        dto.nMinCopies,
+        dto.bHasMaxCopies,
+        dto.nMaxCopies,
+        dto.nPriceId,
+        bExists,
+        strError
+    ) == FALSE) {
+        return FALSE;
+    }
+
+    if (bExists == TRUE) {
+        strError = _T("이미 겹치는 부수 구간이 존재합니다.");
+        return FALSE;
+    }
+
+    return m_pRepository->UpdateByPriceId(
+        dto.nPriceId,
+        dto.nMinCopies,
+        dto.bHasMaxCopies,
+        dto.nMaxCopies,
+        dto.nPrintPrice,
+        dto.nCoverPrice,
+        strError
+    );
+}
+
 BOOL TaechangPriceService::ValidateForInsert(const TaechangPriceDto& dto, CString& strError) {
     if (ValidateCompanyName(dto.strCompanyName, strError) == FALSE) {
         return FALSE;

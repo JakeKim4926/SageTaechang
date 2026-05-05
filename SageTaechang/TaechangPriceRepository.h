@@ -65,6 +65,24 @@ public:
         CString& strError
     );
 
+    BOOL DeleteByPriceId(int nPriceId, CString& strError);
+
+    BOOL SelectAllCompanyNames(
+        int nReportType,
+        CStringArray& arrNames,
+        CString& strError
+    );
+
+    BOOL UpdateByPriceId(
+        int nPriceId,
+        int nMinCopies,
+        BOOL bHasMaxCopies,
+        int nMaxCopies,
+        int nPrintPrice,
+        int nCoverPrice,
+        CString& strError
+    );
+
 private:
     BOOL FillDto(sqlite3_stmt* pStatement, TaechangPriceDto& dto);
 

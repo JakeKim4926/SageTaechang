@@ -507,6 +507,176 @@ BOOL TaechangPriceRepository::ExistsOverlap(
     return TRUE;
 }
 
+BOOL TaechangPriceRepository::DeleteByPriceId(int nPriceId, CString& strError) {
+    sqlite3* pDb;
+    sqlite3_stmt* pStatement;
+    int nResult;
+
+    if (m_pSqlContext == NULL || m_pSqlContext->IsOpened() == FALSE) {
+        strError = _T("SQLite DB가 열려 있지 않습니다.");
+        return FALSE;
+    }
+
+    pDb = m_pSqlContext->GetDb();
+    pStatement = NULL;
+
+    nResult = sqlite3_prepare_v2(
+        pDb,
+        "DELETE FROM TaechangPrice WHERE price_id = ?;",
+        -1, &pStatement, NULL
+    );
+
+    if (nResult != SQLITE_OK) {
+        strError = RepositoryHelper::GetLastError(pDb);
+        return FALSE;
+    }
+
+    if (RepositoryHelper::BindInt(pStatement, 1, nPriceId, strError) == FALSE) {
+        sqlite3_finalize(pStatement);
+        return FALSE;
+    }
+
+    nResult = sqlite3_step(pStatement);
+
+    if (nResult != SQLITE_DONE) {
+        strError = RepositoryHelper::GetLastError(pDb);
+        sqlite3_finalize(pStatement);
+        return FALSE;
+    }
+
+    sqlite3_finalize(pStatement);
+
+    return TRUE;
+}
+
+BOOL TaechangPriceRepository::SelectAllCompanyNames(
+    int nReportType,
+    CStringArray& arrNames,
+    CString& strError
+) {
+    sqlite3* pDb;
+    sqlite3_stmt* pStatement;
+    CStringA strSqlA;
+    int nResult;
+
+    arrNames.RemoveAll();
+
+    if (m_pSqlContext == NULL || m_pSqlContext->IsOpened() == FALSE) {
+        strError = _T("SQLite DB가 열려 있지 않습니다.");
+        return FALSE;
+    }
+
+    pDb = m_pSqlContext->GetDb();
+    pStatement = NULL;
+
+    strSqlA =
+        "SELECT DISTINCT company_name "
+        "FROM TaechangPrice "
+        "WHERE report_type = ? "
+        "ORDER BY company_name ASC;";
+
+    nResult = sqlite3_prepare_v2(pDb, strSqlA.GetString(), -1, &pStatement, NULL);
+
+    if (nResult != SQLITE_OK) {
+        strError = RepositoryHelper::GetLastError(pDb);
+        return FALSE;
+    }
+
+    if (RepositoryHelper::BindInt(pStatement, 1, nReportType, strError) == FALSE) {
+        sqlite3_finalize(pStatement);
+        return FALSE;
+    }
+
+    while ((nResult = sqlite3_step(pStatement)) == SQLITE_ROW) {
+        arrNames.Add(RepositoryHelper::GetColumnText(pStatement, 0));
+    }
+
+    if (nResult != SQLITE_DONE) {
+        strError = RepositoryHelper::GetLastError(pDb);
+        sqlite3_finalize(pStatement);
+        return FALSE;
+    }
+
+    sqlite3_finalize(pStatement);
+
+    return TRUE;
+}
+
+BOOL TaechangPriceRepository::UpdateByPriceId(
+    int nPriceId,
+    int nMinCopies,
+    BOOL bHasMaxCopies,
+    int nMaxCopies,
+    int nPrintPrice,
+    int nCoverPrice,
+    CString& strError
+) {
+    sqlite3* pDb;
+    sqlite3_stmt* pStatement;
+    CStringA strSqlA;
+    int nResult;
+
+    if (m_pSqlContext == NULL || m_pSqlContext->IsOpened() == FALSE) {
+        strError = _T("SQLite DB가 열려 있지 않습니다.");
+        return FALSE;
+    }
+
+    pDb = m_pSqlContext->GetDb();
+    pStatement = NULL;
+
+    strSqlA =
+        "UPDATE TaechangPrice SET "
+        "    min_copies = ?, "
+        "    max_copies = ?, "
+        "    print_price = ?, "
+        "    cover_price = ?, "
+        "    updated_at = CURRENT_TIMESTAMP "
+        "WHERE price_id = ?;";
+
+    nResult = sqlite3_prepare_v2(pDb, strSqlA.GetString(), -1, &pStatement, NULL);
+
+    if (nResult != SQLITE_OK) {
+        strError = RepositoryHelper::GetLastError(pDb);
+        return FALSE;
+    }
+
+    if (RepositoryHelper::BindInt(pStatement, 1, nMinCopies, strError) == FALSE) {
+        sqlite3_finalize(pStatement);
+        return FALSE;
+    }
+
+    if (bHasMaxCopies == TRUE) {
+        if (RepositoryHelper::BindInt(pStatement, 2, nMaxCopies, strError) == FALSE) {
+            sqlite3_finalize(pStatement);
+            return FALSE;
+        }
+    } else {
+        if (RepositoryHelper::BindNull(pStatement, 2, strError) == FALSE) {
+            sqlite3_finalize(pStatement);
+            return FALSE;
+        }
+    }
+
+    if (RepositoryHelper::BindInt(pStatement, 3, nPrintPrice, strError) == FALSE ||
+        RepositoryHelper::BindInt(pStatement, 4, nCoverPrice, strError) == FALSE ||
+        RepositoryHelper::BindInt(pStatement, 5, nPriceId, strError) == FALSE) {
+        sqlite3_finalize(pStatement);
+        return FALSE;
+    }
+
+    nResult = sqlite3_step(pStatement);
+
+    if (nResult != SQLITE_DONE) {
+        strError = RepositoryHelper::GetLastError(pDb);
+        sqlite3_finalize(pStatement);
+        return FALSE;
+    }
+
+    sqlite3_finalize(pStatement);
+
+    return TRUE;
+}
+
 BOOL TaechangPriceRepository::FillDto(sqlite3_stmt* pStatement, TaechangPriceDto& dto) {
     dto.nPriceId = sqlite3_column_int(pStatement, 0);
     dto.strCompanyName = RepositoryHelper::GetColumnText(pStatement, 1);
