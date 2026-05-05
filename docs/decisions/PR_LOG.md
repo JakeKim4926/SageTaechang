@@ -1,3 +1,9 @@
+## [2026-05-05] feature/price-manage-ui — feat: 감사보고서 가격 관리 및 부수 계산 UI 초안
+- **목적**: 법인별 감사보고서 가격 데이터 관리 및 부수 입력 시 가격 계산 기능 UI 초안 구현
+- **변경 내용**: Repository에 DeleteByPriceId/SelectAllCompanyNames/UpdateByPriceId 추가, Service에 RemovePrice/LoadAllCompanyNames/ModifyPriceById 추가, 사이드바 "가격 관리" 카테고리(가격 데이터 관리/부수 계산) 추가, 두 전용 패널 생성·레이아웃·이벤트 구현
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/39
+- **결과**: merged
+
 ## [2026-05-05] feature/user-auth-login — feat: 사용자 인증 및 로그인 시스템 구현
 - **목적**: 관리자/사용자 2-Role 로그인 시스템 구현 — 이후 관리자 전용 기능 권한 분리 기반
 - **변경 내용**: TaechangUser DB 테이블 + 기본 admin 계정 시딩, DTO/Repository/Service/AuthSession 계층 구현(BCrypt SHA-256), 메인 화면 우측 상단 로그인 버튼 및 로그인 다이얼로그 추가
