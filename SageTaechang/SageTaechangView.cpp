@@ -231,6 +231,7 @@ BEGIN_MESSAGE_MAP(CSageTaechangView, CView)
     ON_BN_CLICKED(ID_TAECHANG_LOAD_WORKFLOW, &CSageTaechangView::OnLoadWorkflow)
     ON_BN_CLICKED(ID_TAECHANG_GENERATE_WORKFLOW, &CSageTaechangView::OnGenerateWorkflow)
     ON_BN_CLICKED(ID_TAECHANG_EXPORT_CSV, &CSageTaechangView::OnExportCsv)
+    ON_BN_CLICKED(ID_TAECHANG_SELECT_ALL, &CSageTaechangView::OnSelectAll)
     ON_MESSAGE(WM_TAECHANG_WORKFLOW_COMPLETE, &CSageTaechangView::OnWorkflowComplete)
     ON_WM_DROPFILES()
     ON_WM_DRAWITEM()
@@ -301,6 +302,7 @@ void CSageTaechangView::CreateChildControls()
     m_wndLoad.Create(TAECHANG_UI_LOAD_BUTTON, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_LOAD_WORKFLOW);
     m_wndGenerate.Create(TAECHANG_UI_RECEIVABLES_GENERATE_BUTTON, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_GENERATE_WORKFLOW);
     m_wndExportCsv.Create(TAECHANG_UI_EXPORT_CSV_BUTTON, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_EXPORT_CSV);
+    m_wndSelectAll.Create(TAECHANG_UI_SELECT_ALL_BUTTON, WS_CHILD | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_SELECT_ALL);
     m_wndProgress.Create(WS_CHILD | WS_VISIBLE | PBS_MARQUEE, rectEmpty, this, ID_TAECHANG_PROGRESS);
     m_wndProgressText.Create(L"", WS_CHILD | WS_VISIBLE | SS_RIGHT, rectEmpty, this);
     m_wndResultList.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SINGLESEL, rectEmpty, this, ID_TAECHANG_RESULT_LIST);
@@ -383,6 +385,7 @@ void CSageTaechangView::ApplyControlFonts()
     m_wndLoad.SetFont(&m_fontContent);
     m_wndGenerate.SetFont(&m_fontContent);
     m_wndExportCsv.SetFont(&m_fontContent);
+    m_wndSelectAll.SetFont(&m_fontContent);
     m_wndProgressText.SetFont(&m_fontContent);
     m_wndResultList.SetFont(&m_fontContent);
     m_wndDetail.SetFont(&m_fontContent);
@@ -507,6 +510,8 @@ void CSageTaechangView::UpdateTaskTabVisibility()
     m_wndLoad.ShowWindow(SW_HIDE);
     m_wndGenerate.ShowWindow(bShowAction ? SW_SHOW : SW_HIDE);
     m_wndExportCsv.ShowWindow(bShowExport ? SW_SHOW : SW_HIDE);
+    BOOL bShowSelectAll = (bShowAction && (IsDeliveryInputTable() || IsEstimateInputTable())) ? TRUE : FALSE;
+    m_wndSelectAll.ShowWindow(bShowSelectAll ? SW_SHOW : SW_HIDE);
     BOOL bShowActionStatus = (bShowAction && !m_bRunning && m_nLastTaskType != 0) ? TRUE : FALSE;
     m_wndProgress.ShowWindow((bShowAction && m_bRunning) ? SW_SHOW : SW_HIDE);
     m_wndProgressText.ShowWindow((bShowAction && m_bRunning) ? SW_SHOW : SW_HIDE);
@@ -690,6 +695,11 @@ void CSageTaechangView::LayoutActionSection(int nLeft, int nTop, int nWidth)
     if (bShowGenerate)
     {
         m_wndGenerate.MoveWindow(nX, nTop, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
+        nX += TAECHANG_BUTTON_WIDTH + TAECHANG_ACTION_GAP;
+    }
+    if (bShowAction && (IsDeliveryInputTable() || IsEstimateInputTable()))
+    {
+        m_wndSelectAll.MoveWindow(nX, nTop, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
         nX += TAECHANG_BUTTON_WIDTH + TAECHANG_ACTION_GAP;
     }
     if (bShowExport)
@@ -1072,6 +1082,23 @@ void CSageTaechangView::OnExportCsv()
     SetStatusText(TAECHANG_UI_EXPORT_COMPLETED);
 }
 
+void CSageTaechangView::OnSelectAll()
+{
+    int nCount = m_wndResultList.GetItemCount();
+    BOOL bAllChecked = TRUE;
+    for (int i = 0; i < nCount; ++i)
+    {
+        if (!m_wndResultList.GetCheck(i))
+        {
+            bAllChecked = FALSE;
+            break;
+        }
+    }
+    BOOL bCheck = bAllChecked ? FALSE : TRUE;
+    for (int i = 0; i < nCount; ++i)
+        m_wndResultList.SetCheck(i, bCheck);
+}
+
 void CSageTaechangView::RunWorkflowTask(int nTaskType)
 {
     if (m_bRunning)
@@ -1138,6 +1165,7 @@ void CSageTaechangView::SetRunningState(BOOL bRunning)
     m_wndSelectOutput.EnableWindow(!bRunning);
     m_wndLoad.EnableWindow(!bRunning);
     m_wndGenerate.EnableWindow(!bRunning);
+    m_wndSelectAll.EnableWindow(!bRunning);
     if (bRunning)
     {
         UpdateProgressPercent(0);
