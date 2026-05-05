@@ -32,6 +32,7 @@ public:
 public:
     virtual void OnDraw(CDC* pDC);
     virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+    virtual BOOL PreTranslateMessage(MSG* pMsg);
 
 public:
     virtual ~CSageTaechangView();
@@ -169,6 +170,8 @@ protected:
     void DrawEditBorder(CDC* pDC, CWnd& wnd);
     BOOL ValidateInputPath(CString& strInputPath);
     BOOL ValidateOutputFolder(CString& strOutputFolder);
+    void EnableFileDropForWindow(CWnd& wnd);
+    void ApplyDroppedInputPaths(const CString& strPaths);
     void RunWorkflowTask(int nTaskType);
     void DisplayResponse(int nWorkflowType, int nTaskType, const CString& strResponseJson);
     void InsertResultRow(const TaechangResultRow& row);
