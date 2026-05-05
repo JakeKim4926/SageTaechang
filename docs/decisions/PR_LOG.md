@@ -1,3 +1,9 @@
+## [2026-05-05] feat/delivery-middle-time-mapping — feat: 납품서 배송시간 '오전중'/'오후중' 처리 추가
+- **목적**: 배송시간 입력값이 '오전 중'/'오후 중'일 때 결과 셀에 '중'이 기입되지 않던 문제 수정
+- **변경 내용**: `generate-delivery-forms.ps1`에 `$MiddleSuffix` 변수 추가, '오전중' → H6에 '중', '오후중' → M6에 '중' 처리 `elseif` 블록 추가
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/37
+- **결과**: merged
+
 ## [2026-05-05] feature/sidebar-title-and-design — feat: 사이드바 브랜드 타이틀 및 디자인 개선
 - **목적**: 사이드바 상단 영문 타이틀을 한글로 변경하고 전문 ERP 사이드바 디자인 완성도 향상
 - **변경 내용**: 타이틀 "SageTaechang" → "태창기획" (중앙 정렬), 우측 상단 대기 중 상태 표시 제거, 브랜드 영역 구분선 추가, 그룹 헤더 뮤트 색상 처리, 선택 항목 좌측 3px 카멜 액센트 바 추가
