@@ -330,20 +330,20 @@ int CSageTaechangView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 void CSageTaechangView::CreateChildControls()
 {
     CRect rectEmpty(0, 0, 0, 0);
-    m_wndSidebarTitle.Create(TAECHANG_UI_SIDEBAR_TITLE, WS_CHILD | WS_VISIBLE, rectEmpty, this);
+    m_wndSidebarTitle.Create(TAECHANG_UI_SIDEBAR_TITLE, WS_CHILD | WS_VISIBLE | SS_CENTERIMAGE, rectEmpty, this);
     m_wndSidebarTree.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | TVS_FULLROWSELECT | TVS_SHOWSELALWAYS | TVS_DISABLEDRAGDROP | TVS_NOSCROLL, rectEmpty, this, ID_TAECHANG_SIDEBAR_TREE);
     SetWindowTheme(m_wndSidebarTree.GetSafeHwnd(), L"", L"");
     m_wndSidebarTree.SetBkColor(TAECHANG_COLOR_SIDEBAR);
     m_wndSidebarTree.SetTextColor(TAECHANG_COLOR_SIDEBAR_TEXT);
     m_wndSidebarTree.SetItemHeight(TAECHANG_SIDEBAR_ITEM_HEIGHT);
     m_wndHeaderTitle.Create(TAECHANG_UI_RECEIVABLES_NAME, WS_CHILD | WS_VISIBLE, rectEmpty, this);
-    m_wndHeaderStatus.Create(TAECHANG_UI_READY, WS_CHILD | WS_VISIBLE | SS_RIGHT, rectEmpty, this);
+    m_wndHeaderStatus.Create(TAECHANG_UI_READY, WS_CHILD | SS_RIGHT, rectEmpty, this);
     m_wndTaskTabs.Create(WS_CHILD | WS_VISIBLE | TCS_FIXEDWIDTH, rectEmpty, this, ID_TAECHANG_TASK_TABS);
     m_wndInputSection.Create(TAECHANG_UI_SECTION_INPUT, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_INPUT_SECTION);
     m_wndOutputSection.Create(TAECHANG_UI_SECTION_OUTPUT, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_OUTPUT_SECTION);
     m_wndResultSection.Create(TAECHANG_UI_SECTION_RESULT, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_RESULT_SECTION);
     m_wndDetailSection.Create(TAECHANG_UI_SECTION_DETAIL, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_DETAIL_SECTION);
-    m_wndTitle.Create(TAECHANG_UI_APP_TITLE, WS_CHILD | WS_VISIBLE, rectEmpty, this);
+    m_wndTitle.Create(TAECHANG_UI_APP_TITLE, WS_CHILD | WS_VISIBLE | SS_CENTER | SS_CENTERIMAGE, rectEmpty, this);
     m_wndWorkflowLabel.Create(TAECHANG_UI_WORKFLOW_LABEL, WS_CHILD, rectEmpty, this);
     m_wndInputLabel.Create(TAECHANG_UI_INPUT_LABEL, WS_CHILD | WS_VISIBLE, rectEmpty, this);
     m_wndOutputLabel.Create(TAECHANG_UI_OUTPUT_LABEL, WS_CHILD | WS_VISIBLE, rectEmpty, this);
@@ -413,7 +413,6 @@ void CSageTaechangView::ApplyControlFonts()
     if (m_fontTitle.CreatePointFont(TAECHANG_TITLE_FONT_POINT_SIZE, TAECHANG_TITLE_FONT_FACE))
     {
         m_wndTitle.SetFont(&m_fontTitle);
-        m_wndSidebarTitle.SetFont(&m_fontTitle);
     }
 
     if (m_fontHeader.CreatePointFont(TAECHANG_HEADER_FONT_POINT_SIZE, TAECHANG_TITLE_FONT_FACE))
@@ -425,6 +424,7 @@ void CSageTaechangView::ApplyControlFonts()
         return;
 
     m_wndSidebarTree.SetFont(&m_fontControl);
+    m_wndSidebarTitle.SetFont(&m_fontControl);
 
     if (!m_fontContent.CreatePointFont(TAECHANG_CONTENT_FONT_POINT_SIZE, TAECHANG_CONTROL_FONT_FACE))
         return;
@@ -678,12 +678,12 @@ void CSageTaechangView::LayoutChildControls()
     int nContentWidth = rectClient.Width() - nContentLeft - TAECHANG_MARGIN;
     int nContentHeight = rectClient.Height() - (TAECHANG_MARGIN * 2);
 
-    m_wndTitle.MoveWindow(TAECHANG_MARGIN, nSidebarTop + TAECHANG_MARGIN, TAECHANG_SIDEBAR_WIDTH - (TAECHANG_MARGIN * 2), TAECHANG_SECTION_TITLE_HEIGHT);
+    m_wndTitle.MoveWindow(TAECHANG_MARGIN, nSidebarTop + TAECHANG_MARGIN, TAECHANG_SIDEBAR_WIDTH - (TAECHANG_MARGIN * 2), TAECHANG_TOP_BAR_HEIGHT - (TAECHANG_MARGIN * 2));
     m_wndSidebarTitle.MoveWindow(TAECHANG_MARGIN, TAECHANG_TOP_BAR_HEIGHT, TAECHANG_SIDEBAR_WIDTH - (TAECHANG_MARGIN * 2), TAECHANG_SIDEBAR_TITLE_HEIGHT);
     m_wndSidebarTree.MoveWindow(TAECHANG_MARGIN, TAECHANG_TOP_BAR_HEIGHT + TAECHANG_SIDEBAR_TITLE_HEIGHT, TAECHANG_SIDEBAR_WIDTH - (TAECHANG_MARGIN * 2), nSidebarHeight - TAECHANG_TOP_BAR_HEIGHT - TAECHANG_SIDEBAR_TITLE_HEIGHT - TAECHANG_MARGIN);
 
-    m_wndHeaderTitle.MoveWindow(nContentLeft, nContentTop, nContentWidth - TAECHANG_HEADER_STATUS_WIDTH, TAECHANG_SECTION_TITLE_HEIGHT);
-    m_wndHeaderStatus.MoveWindow(nContentLeft + nContentWidth - TAECHANG_HEADER_STATUS_WIDTH, nContentTop, TAECHANG_HEADER_STATUS_WIDTH, TAECHANG_SECTION_TITLE_HEIGHT);
+    m_wndHeaderTitle.MoveWindow(nContentLeft, nContentTop, nContentWidth, TAECHANG_SECTION_TITLE_HEIGHT);
+    m_wndHeaderStatus.MoveWindow(0, 0, 0, 0);
     nContentTop += TAECHANG_HEADER_HEIGHT;
 
     m_wndTaskTabs.MoveWindow(nContentLeft, nContentTop, nContentWidth, TAECHANG_TAB_HEIGHT);
@@ -804,6 +804,7 @@ void CSageTaechangView::OnDraw(CDC* pDC)
     GetClientRect(&rectClient);
     pDC->FillSolidRect(rectClient, TAECHANG_COLOR_APP_BACKGROUND);
     pDC->FillSolidRect(0, 0, TAECHANG_SIDEBAR_WIDTH, rectClient.Height(), TAECHANG_COLOR_SIDEBAR);
+    pDC->FillSolidRect(0, TAECHANG_TOP_BAR_HEIGHT, TAECHANG_SIDEBAR_WIDTH, 1, RGB(55, 47, 38));
     pDC->FillSolidRect(TAECHANG_SIDEBAR_WIDTH, 0, 1, rectClient.Height(), TAECHANG_COLOR_BORDER);
     pDC->FillSolidRect(TAECHANG_SIDEBAR_WIDTH + 1, TAECHANG_MARGIN + TAECHANG_HEADER_HEIGHT, rectClient.Width() - TAECHANG_SIDEBAR_WIDTH - 1, 1, TAECHANG_COLOR_BORDER);
     DrawEditBorder(pDC, m_wndInputPath);
@@ -1272,6 +1273,7 @@ BOOL CSageTaechangView::OnEraseBkgnd(CDC* pDC)
     GetClientRect(&rectClient);
     pDC->FillSolidRect(rectClient, TAECHANG_COLOR_APP_BACKGROUND);
     pDC->FillSolidRect(0, 0, TAECHANG_SIDEBAR_WIDTH, rectClient.Height(), TAECHANG_COLOR_SIDEBAR);
+    pDC->FillSolidRect(0, TAECHANG_TOP_BAR_HEIGHT, TAECHANG_SIDEBAR_WIDTH, 1, RGB(55, 47, 38));
     pDC->FillSolidRect(TAECHANG_SIDEBAR_WIDTH, 0, 1, rectClient.Height(), TAECHANG_COLOR_BORDER);
     pDC->FillSolidRect(TAECHANG_SIDEBAR_WIDTH + 1, TAECHANG_MARGIN + TAECHANG_HEADER_HEIGHT, rectClient.Width() - TAECHANG_SIDEBAR_WIDTH - 1, 1, TAECHANG_COLOR_BORDER);
     DrawEditBorder(pDC, m_wndInputPath);
@@ -1283,10 +1285,15 @@ HBRUSH CSageTaechangView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
     HBRUSH hBrush = CView::OnCtlColor(pDC, pWnd, nCtlColor);
     pDC->SetTextColor(TAECHANG_COLOR_TEXT);
-    if (pWnd->GetSafeHwnd() == m_wndSidebarTitle.GetSafeHwnd() ||
-        pWnd->GetSafeHwnd() == m_wndTitle.GetSafeHwnd())
+    if (pWnd->GetSafeHwnd() == m_wndTitle.GetSafeHwnd())
     {
         pDC->SetTextColor(TAECHANG_COLOR_SIDEBAR_TEXT);
+        pDC->SetBkColor(TAECHANG_COLOR_SIDEBAR);
+        return m_brushSidebar;
+    }
+    if (pWnd->GetSafeHwnd() == m_wndSidebarTitle.GetSafeHwnd())
+    {
+        pDC->SetTextColor(TAECHANG_COLOR_SIDEBAR_CATEGORY);
         pDC->SetBkColor(TAECHANG_COLOR_SIDEBAR);
         return m_brushSidebar;
     }
@@ -1630,12 +1637,36 @@ void CSageTaechangView::OnSidebarTreeCustomDraw(NMHDR* pNMHDR, LRESULT* pResult)
         *pResult = CDRF_NOTIFYITEMDRAW;
         break;
     case CDDS_ITEMPREPAINT:
-        pCD->clrText = TAECHANG_COLOR_SIDEBAR_TEXT;
-        pCD->clrTextBk = (pCD->nmcd.uItemState & CDIS_SELECTED)
-            ? TAECHANG_COLOR_SIDEBAR_SELECTED
-            : TAECHANG_COLOR_SIDEBAR;
-        *pResult = CDRF_NEWFONT;
+    {
+        HTREEITEM hItem = reinterpret_cast<HTREEITEM>(pCD->nmcd.dwItemSpec);
+        BOOL bIsGroupHeader = (m_wndSidebarTree.GetParentItem(hItem) == NULL);
+        BOOL bIsSelected = (pCD->nmcd.uItemState & CDIS_SELECTED) != 0;
+        if (bIsGroupHeader)
+        {
+            pCD->clrText = TAECHANG_COLOR_SIDEBAR_CATEGORY;
+            pCD->clrTextBk = TAECHANG_COLOR_SIDEBAR;
+            *pResult = CDRF_NEWFONT;
+        }
+        else
+        {
+            pCD->clrText = TAECHANG_COLOR_SIDEBAR_TEXT;
+            pCD->clrTextBk = bIsSelected ? TAECHANG_COLOR_SIDEBAR_SELECTED : TAECHANG_COLOR_SIDEBAR;
+            *pResult = CDRF_NEWFONT;
+            if (bIsSelected)
+                *pResult |= CDRF_NOTIFYPOSTPAINT;
+        }
         break;
+    }
+    case CDDS_ITEMPOSTPAINT:
+    {
+        if (pCD->nmcd.uItemState & CDIS_SELECTED)
+        {
+            CDC* pItemDC = CDC::FromHandle(pCD->nmcd.hdc);
+            CRect rcItem(pCD->nmcd.rc);
+            pItemDC->FillSolidRect(rcItem.left, rcItem.top, 3, rcItem.Height(), TAECHANG_COLOR_PRIMARY);
+        }
+        break;
+    }
     }
 }
 
