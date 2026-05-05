@@ -18,6 +18,8 @@
 #include "app/common/TaechangDialogHelper.h"
 #include "app/infrastructure/bridge/TaechangBridgeResponse.h"
 #include "app/presentation/TaechangWorkflowResultPresenter.h"
+#include "TaechangAuthSession.h"
+#include "TaechangLoginDlg.h"
 #include <uxtheme.h>
 #pragma comment(lib, "uxtheme.lib")
 
@@ -253,6 +255,8 @@ BEGIN_MESSAGE_MAP(CSageTaechangView, CView)
 	ON_BN_CLICKED(ID_TAECHANG_GENERATE_WORKFLOW, &CSageTaechangView::OnGenerateWorkflow)
 	ON_BN_CLICKED(ID_TAECHANG_EXPORT_CSV, &CSageTaechangView::OnExportCsv)
 	ON_BN_CLICKED(ID_TAECHANG_SELECT_ALL, &CSageTaechangView::OnSelectAll)
+	ON_BN_CLICKED(ID_TAECHANG_LOGIN_BTN, &CSageTaechangView::OnLogin)
+	ON_BN_CLICKED(ID_TAECHANG_LOGOUT_BTN, &CSageTaechangView::OnLogout)
 	ON_MESSAGE(WM_TAECHANG_WORKFLOW_COMPLETE, &CSageTaechangView::OnWorkflowComplete)
 	ON_WM_DROPFILES()
 	ON_WM_DRAWITEM()
@@ -334,6 +338,10 @@ void CSageTaechangView::CreateChildControls() {
 	m_wndEmptyStateHint.Create(TAECHANG_UI_EMPTY_STATE_HINT, WS_CHILD | WS_VISIBLE | SS_CENTER | SS_CENTERIMAGE, rectEmpty, this);
 	m_wndActionStatus.Create(L"", WS_CHILD | SS_LEFT | SS_CENTERIMAGE, rectEmpty, this);
 
+	m_wndLoginBtn.Create(TAECHANG_UI_LOGIN_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_LOGIN_BTN);
+	m_wndLogoutBtn.Create(TAECHANG_UI_LOGOUT_BTN, WS_CHILD | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_LOGOUT_BTN);
+	m_wndUserLabel.Create(L"", WS_CHILD | SS_RIGHT | SS_CENTERIMAGE, rectEmpty, this, ID_TAECHANG_USER_LABEL);
+
 	m_wndResultList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
 	m_wndProgress.SetMarquee(FALSE, 0);
 	m_wndProgress.SetRange(0, TAECHANG_PROGRESS_COMPLETE);
@@ -413,6 +421,9 @@ void CSageTaechangView::ApplyControlFonts() {
 	m_wndDetail.SetFont(&m_fontContent);
 	m_wndEmptyStateHint.SetFont(&m_fontContent);
 	m_wndActionStatus.SetFont(&m_fontContent);
+	m_wndLoginBtn.SetFont(&m_fontContent);
+	m_wndLogoutBtn.SetFont(&m_fontContent);
+	m_wndUserLabel.SetFont(&m_fontContent);
 }
 
 void CSageTaechangView::ApplyWorkflowTabs() {
@@ -627,7 +638,19 @@ void CSageTaechangView::LayoutChildControls() {
 	m_wndSidebarTitle.MoveWindow(TAECHANG_MARGIN, TAECHANG_TOP_BAR_HEIGHT, TAECHANG_SIDEBAR_WIDTH - (TAECHANG_MARGIN * 2), TAECHANG_SIDEBAR_TITLE_HEIGHT);
 	m_wndSidebarTree.MoveWindow(TAECHANG_MARGIN, TAECHANG_TOP_BAR_HEIGHT + TAECHANG_SIDEBAR_TITLE_HEIGHT, TAECHANG_SIDEBAR_WIDTH - (TAECHANG_MARGIN * 2), nSidebarHeight - TAECHANG_TOP_BAR_HEIGHT - TAECHANG_SIDEBAR_TITLE_HEIGHT - TAECHANG_MARGIN);
 
-	m_wndHeaderTitle.MoveWindow(nContentLeft, nContentTop, nContentWidth, TAECHANG_SECTION_TITLE_HEIGHT);
+	{
+		int nLoginBtnTop = (TAECHANG_TOP_BAR_HEIGHT - TAECHANG_BUTTON_HEIGHT) / 2;
+		int nLoginBtnRight = rectClient.Width() - TAECHANG_MARGIN;
+		int nLoginBtnLeft = nLoginBtnRight - TAECHANG_LOGIN_BTN_WIDTH;
+		int nUserLabelLeft = nLoginBtnLeft - TAECHANG_USER_LABEL_WIDTH - TAECHANG_ROW_GAP;
+
+		m_wndLoginBtn.MoveWindow(nLoginBtnLeft, nLoginBtnTop, TAECHANG_LOGIN_BTN_WIDTH, TAECHANG_BUTTON_HEIGHT);
+		m_wndLogoutBtn.MoveWindow(nLoginBtnLeft, nLoginBtnTop, TAECHANG_LOGIN_BTN_WIDTH, TAECHANG_BUTTON_HEIGHT);
+		m_wndUserLabel.MoveWindow(nUserLabelLeft, nLoginBtnTop, TAECHANG_USER_LABEL_WIDTH, TAECHANG_BUTTON_HEIGHT);
+	}
+
+	int nHeaderTitleWidth = nContentWidth - TAECHANG_LOGIN_BTN_WIDTH - TAECHANG_USER_LABEL_WIDTH - TAECHANG_ROW_GAP * 2 - TAECHANG_MARGIN;
+	m_wndHeaderTitle.MoveWindow(nContentLeft, nContentTop, nHeaderTitleWidth, TAECHANG_SECTION_TITLE_HEIGHT);
 	m_wndHeaderStatus.MoveWindow(0, 0, 0, 0);
 	nContentTop += TAECHANG_HEADER_HEIGHT;
 
@@ -1098,6 +1121,35 @@ void CSageTaechangView::RunWorkflowTask(int nTaskType) {
 	AfxBeginThread(RunWorkflowWorker, pTask, THREAD_PRIORITY_NORMAL, 0, 0, NULL);
 }
 
+void CSageTaechangView::UpdateAuthState() {
+	BOOL bLoggedIn = taechangAuth.IsLoggedIn();
+
+	m_wndLoginBtn.ShowWindow(bLoggedIn ? SW_HIDE : SW_SHOW);
+	m_wndLogoutBtn.ShowWindow(bLoggedIn ? SW_SHOW : SW_HIDE);
+	m_wndUserLabel.ShowWindow(bLoggedIn ? SW_SHOW : SW_HIDE);
+
+	if (bLoggedIn) {
+		const TaechangUserDto& user = taechangAuth.GetCurrentUser();
+		LPCWSTR pszRole = (user.nRole == USER_ROLE_ADMIN) ? TAECHANG_UI_ROLE_ADMIN : TAECHANG_UI_ROLE_USER;
+		CString strLabel;
+		strLabel.Format(TAECHANG_UI_USER_FORMAT, user.strLoginId.GetString(), pszRole);
+		m_wndUserLabel.SetWindowText(strLabel);
+	}
+
+	Invalidate();
+}
+
+void CSageTaechangView::OnLogin() {
+	TaechangLoginDlg dlg(this);
+	if (dlg.DoModal() == IDOK)
+		UpdateAuthState();
+}
+
+void CSageTaechangView::OnLogout() {
+	taechangAuth.Logout();
+	UpdateAuthState();
+}
+
 void CSageTaechangView::SetRunningState(BOOL bRunning) {
 	m_bRunning = bRunning;
 	m_wndSidebarTree.EnableWindow(!bRunning);
@@ -1168,6 +1220,11 @@ HBRUSH CSageTaechangView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
 	}
 	if (pWnd->GetSafeHwnd() == m_wndHeaderTitle.GetSafeHwnd()) {
 		pDC->SetTextColor(TAECHANG_COLOR_PRIMARY);
+		pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
+		return m_brushAppBackground;
+	}
+	if (pWnd->GetSafeHwnd() == m_wndUserLabel.GetSafeHwnd()) {
+		pDC->SetTextColor(TAECHANG_COLOR_TEXT);
 		pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
 		return m_brushAppBackground;
 	}
@@ -1434,7 +1491,8 @@ void CSageTaechangView::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct
 	BOOL bPressed = (lpDrawItemStruct->itemState & ODS_SELECTED) != 0;
 	BOOL bDisabled = (lpDrawItemStruct->itemState & ODS_DISABLED) != 0;
 
-	BOOL bPrimary = (nIDCtl == ID_TAECHANG_GENERATE_WORKFLOW || nIDCtl == ID_TAECHANG_LOAD_WORKFLOW);
+	BOOL bPrimary = (nIDCtl == ID_TAECHANG_GENERATE_WORKFLOW || nIDCtl == ID_TAECHANG_LOAD_WORKFLOW
+		|| nIDCtl == ID_TAECHANG_LOGIN_BTN);
 
 	if (bPrimary) {
 		COLORREF clrBg = bDisabled ? TAECHANG_COLOR_BORDER

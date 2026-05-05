@@ -7,6 +7,8 @@
 
 #include "TaechangPriceRepository.h"
 #include "TaechangPriceService.h"
+#include "TaechangUserRepository.h"
+#include "TaechangUserService.h"
 
 #define sageDBMgr SageDBMgr::GetInstance()
 
@@ -34,6 +36,9 @@ public:
     TaechangPriceRepository* GetTaechangPriceRepository();
     TaechangPriceService* GetTaechangPriceService();
 
+    TaechangUserRepository* GetUserRepository();
+    TaechangUserService* GetUserService();
+
 private:
     BOOL CreateRepositories(CString& strError);
     BOOL CreateServices(CString& strError);
@@ -48,4 +53,7 @@ private:
 
     TaechangPriceRepository* m_pTaechangPriceRepository;
     TaechangPriceService* m_pTaechangPriceService;
+
+    TaechangUserRepository* m_pUserRepository;
+    TaechangUserService* m_pUserService;
 };
