@@ -1085,6 +1085,7 @@ void CSageTaechangView::OnWorkflowChanged() {
 		else
 			RefreshCalcCompanyCombo();
 		LayoutChildControls();
+		Invalidate(FALSE);
 		SetStatusText(TAECHANG_UI_READY);
 		return;
 	}
@@ -2005,7 +2006,7 @@ void CSageTaechangView::LayoutPriceManagePanel(int nLeft, int nTop, int nWidth, 
 	// 요약 카드 (우측) — 법인명 행 다음, 테이블과 같은 y에서 시작
 	int nCardInnerX = nRightX + nCardPad;
 	int nCardInnerW = nCardW - nCardPad * 2;
-	int nCardTopY = nContentY + TAECHANG_BUTTON_HEIGHT + TAECHANG_ROW_GAP;
+	int nCardTopY = nContentY + TAECHANG_BUTTON_HEIGHT + TAECHANG_ROW_GAP + TAECHANG_RESULT_HEADER_HEIGHT + TAECHANG_ROW_GAP;
 	int nCardY = nCardTopY + nCardPad;
 	m_wndPriceSummaryTitle.MoveWindow(nCardInnerX, nCardY, nCardInnerW, TAECHANG_PRICE_SUMMARY_TITLE_HEIGHT);
 	nCardY += TAECHANG_PRICE_SUMMARY_TITLE_HEIGHT + TAECHANG_PRICE_SUMMARY_ROW_GAP * 2;
