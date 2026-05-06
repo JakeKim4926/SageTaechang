@@ -2069,7 +2069,7 @@ void CSageTaechangView::LayoutPriceManagePanel(int nLeft, int nTop, int nWidth, 
 	m_wndPriceCopiesList.SetColumnWidth(3, nLeftW - nColMinMax * 2 - nColPrice);
 
 	// 우측 패널 (상하 여백 적용)
-	m_rectPriceSummaryCard = CRect(nRightX, nTop + TAECHANG_MARGIN, nRightX + nCardW, nTop + nHeight - TAECHANG_MARGIN);
+	m_rectPriceSummaryCard = CRect(nRightX, nY, nRightX + nCardW, nTop + nHeight - TAECHANG_MARGIN);
 	int nCardInnerX = nRightX + nCardPad;
 	int nCardInnerW = nCardW - nCardPad * 2;
 
