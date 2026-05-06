@@ -2060,19 +2060,18 @@ void CSageTaechangView::LayoutPriceManagePanel(int nLeft, int nTop, int nWidth, 
 		nListH = TAECHANG_RESULT_HEADER_HEIGHT + TAECHANG_EDIT_HEIGHT * 4;
 
 	m_wndPriceCopiesList.MoveWindow(nInnerLeft, nY, nLeftW, nListH);
-	int nColPrice = 180;
-	int nColMinMax = (nLeftW - nColPrice * 2) / 2;
-	if (nColMinMax < 90)
-		nColMinMax = 90;
-	if (nLeftW - nColMinMax * 2 - nColPrice < 120)
-		nColPrice = (nLeftW - nColMinMax * 2) / 2;
+	int nColMinMax = 80;
+	int nColPrice = (nLeftW - nColMinMax * 2) / 2;
+	if (nColPrice > 220)
+		nColPrice = 220;
 	m_wndPriceCopiesList.SetColumnWidth(0, nColMinMax);
 	m_wndPriceCopiesList.SetColumnWidth(1, nColMinMax);
 	m_wndPriceCopiesList.SetColumnWidth(2, nColPrice);
 	m_wndPriceCopiesList.SetColumnWidth(3, nLeftW - nColMinMax * 2 - nColPrice);
 
 	// 우측 패널 (상하 여백 적용)
-	m_rectPriceSummaryCard = CRect(nRightX, nY, nRightX + nCardW, nTop + nHeight - TAECHANG_MARGIN);
+	int nCardH = (nTop + nHeight - TAECHANG_MARGIN - nY) / 2;
+	m_rectPriceSummaryCard = CRect(nRightX, nY, nRightX + nCardW, nY + nCardH);
 	int nCardInnerX = nRightX + nCardPad;
 	int nCardInnerW = nCardW - nCardPad * 2;
 
