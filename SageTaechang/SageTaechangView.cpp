@@ -2121,6 +2121,7 @@ void CSageTaechangView::ShowPriceManagePanel(BOOL bShow) {
 	if (!bShow) {
 		m_rectPriceSummaryCard.SetRectEmpty();
 		m_nPricePanelState = TAECHANG_PRICE_PANEL_SUMMARY;
+		Invalidate(TRUE);
 	}
 	if (bShow)
 		ApplyPriceRightPanel();
