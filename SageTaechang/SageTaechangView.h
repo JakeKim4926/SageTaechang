@@ -156,6 +156,7 @@ protected:
     CStatic              m_wndCalcSubtotalValue;
     CStatic              m_wndCalcFreightLabel;
     CEdit                m_wndCalcFreightEdit;
+    CStatic              m_wndCalcFreightUnitLabel;
     CStatic              m_wndCalcDivider;
     CStatic              m_wndCalcTotalDivider;
     CStatic              m_wndCalcTotalLabel;

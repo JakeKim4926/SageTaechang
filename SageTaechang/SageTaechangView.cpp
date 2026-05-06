@@ -578,6 +578,7 @@ void CSageTaechangView::ApplyControlFonts() {
 	m_wndCalcSubtotalValue.SetFont(&m_fontContent);
 	m_wndCalcFreightLabel.SetFont(&m_fontContent);
 	m_wndCalcFreightEdit.SetFont(&m_fontContent);
+	m_wndCalcFreightUnitLabel.SetFont(&m_fontContent);
 	m_wndCalcTotalLabel.SetFont(&m_fontHeader);
 	m_wndCalcTotalValue.SetFont(&m_fontHeader);
 	m_wndCalcHistorySection.SetFont(&m_fontContent);
@@ -1544,6 +1545,7 @@ HBRUSH CSageTaechangView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
 		pWnd->GetSafeHwnd() == m_wndCalcSubtotalLabel.GetSafeHwnd() ||
 		pWnd->GetSafeHwnd() == m_wndCalcSubtotalValue.GetSafeHwnd() ||
 		pWnd->GetSafeHwnd() == m_wndCalcFreightLabel.GetSafeHwnd() ||
+		pWnd->GetSafeHwnd() == m_wndCalcFreightUnitLabel.GetSafeHwnd() ||
 		pWnd->GetSafeHwnd() == m_wndCalcDivider.GetSafeHwnd() ||
 		pWnd->GetSafeHwnd() == m_wndCalcTotalDivider.GetSafeHwnd()) {
 		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
@@ -2021,6 +2023,7 @@ void CSageTaechangView::CreatePriceCalcPanel() {
 	m_wndCalcSubtotalValue.Create(TAECHANG_UI_PRICE_SUMMARY_EMPTY, WS_CHILD | SS_CENTERIMAGE, r, this);
 	m_wndCalcFreightLabel.Create(TAECHANG_UI_CALC_FREIGHT_LABEL, WS_CHILD | SS_RIGHT | SS_CENTERIMAGE, r, this);
 	m_wndCalcFreightEdit.Create(WS_CHILD | ES_NUMBER | ES_AUTOHSCROLL, r, this, ID_CALC_FREIGHT_EDIT);
+	m_wndCalcFreightUnitLabel.Create(L"원", WS_CHILD | SS_LEFT | SS_CENTERIMAGE, r, this);
 	m_wndCalcDivider.Create(L"", WS_CHILD | SS_ETCHEDHORZ, r, this);
 	m_wndCalcTotalDivider.Create(L"", WS_CHILD | SS_ETCHEDHORZ, r, this);
 	m_wndCalcTotalLabel.Create(TAECHANG_UI_CALC_TOTAL_LABEL, WS_CHILD | SS_RIGHT | SS_CENTERIMAGE, r, this);
@@ -2187,11 +2190,11 @@ void CSageTaechangView::LayoutPriceCalcPanel(int nLeft, int nTop, int nWidth, in
 	int nCY = nY + nPad;
 	int nComboW = min(TAECHANG_CALC_COMBO_WIDTH, nInputContentW - nLabelW - TAECHANG_LABEL_EDIT_GAP);
 
-	m_wndCalcCompanyLabel.MoveWindow(nCX, nCY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, TAECHANG_EDIT_HEIGHT);
+	m_wndCalcCompanyLabel.MoveWindow(nCX, nCY, nLabelW, TAECHANG_EDIT_HEIGHT);
 	m_wndCalcCompanyCombo.MoveWindow(nCX + nLabelW + TAECHANG_LABEL_EDIT_GAP, nCY, nComboW, TAECHANG_EDIT_HEIGHT * 8);
 	nCY += TAECHANG_EDIT_HEIGHT + TAECHANG_ROW_GAP;
 
-	m_wndCalcCopiesLabel.MoveWindow(nCX, nCY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, TAECHANG_EDIT_HEIGHT);
+	m_wndCalcCopiesLabel.MoveWindow(nCX, nCY, nLabelW, TAECHANG_EDIT_HEIGHT);
 	int nCopiesEditX = nCX + nLabelW + TAECHANG_LABEL_EDIT_GAP;
 	m_wndCalcCopiesEdit.MoveWindow(nCopiesEditX, nCY, TAECHANG_CALC_COPIES_EDIT_SHORT_W, TAECHANG_EDIT_HEIGHT);
 	m_wndCalcBtn.MoveWindow(nCopiesEditX + TAECHANG_CALC_COPIES_EDIT_SHORT_W + TAECHANG_ROW_GAP,
@@ -2210,34 +2213,39 @@ void CSageTaechangView::LayoutPriceCalcPanel(int nLeft, int nTop, int nWidth, in
 	int nRY = nY + nPad;
 	int nValX = nRX + nLabelW + TAECHANG_LABEL_EDIT_GAP;
 	int nContentW = nLabelW + TAECHANG_LABEL_EDIT_GAP + nValW;
-	int nResultPanelW = nContentW + nPad * 2 + TAECHANG_ROW_GAP;
+	int nResultPanelW = nInputPanelW;
 	if (nResultPanelW > nW)
 		nResultPanelW = nW;
 	m_rectCalcResultPanel = CRect(nX, nY, nX + nResultPanelW, nY + nResultPanelH);
+	int nFreightUnitW = 24;
+	int nFreightEditW = nValW - nFreightUnitW - TAECHANG_LABEL_EDIT_GAP;
+	if (nFreightEditW < 100)
+		nFreightEditW = 100;
 
-	m_wndCalcPrintLabel.MoveWindow(nRX, nRY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, TAECHANG_EDIT_HEIGHT);
+	m_wndCalcPrintLabel.MoveWindow(nRX, nRY, nLabelW, TAECHANG_EDIT_HEIGHT);
 	m_wndCalcPrintValue.MoveWindow(nValX, nRY, nValW, TAECHANG_EDIT_HEIGHT);
 	nRY += nRowH;
 
-	m_wndCalcCoverLabel.MoveWindow(nRX, nRY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, TAECHANG_EDIT_HEIGHT);
+	m_wndCalcCoverLabel.MoveWindow(nRX, nRY, nLabelW, TAECHANG_EDIT_HEIGHT);
 	m_wndCalcCoverValue.MoveWindow(nValX, nRY, nValW, TAECHANG_EDIT_HEIGHT);
 	nRY += nRowH;
 
 	m_wndCalcDivider.MoveWindow(nRX, nRY, nContentW, nDivH);
 	nRY += nDivH + TAECHANG_CALC_RESULT_ROW_GAP;
 
-	m_wndCalcSubtotalLabel.MoveWindow(nRX, nRY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, TAECHANG_EDIT_HEIGHT);
+	m_wndCalcSubtotalLabel.MoveWindow(nRX, nRY, nLabelW, TAECHANG_EDIT_HEIGHT);
 	m_wndCalcSubtotalValue.MoveWindow(nValX, nRY, nValW, TAECHANG_EDIT_HEIGHT);
 	nRY += nRowH;
 
-	m_wndCalcFreightLabel.MoveWindow(nRX, nRY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, TAECHANG_EDIT_HEIGHT);
-	m_wndCalcFreightEdit.MoveWindow(nValX, nRY, nValW, TAECHANG_EDIT_HEIGHT);
+	m_wndCalcFreightLabel.MoveWindow(nRX, nRY, nLabelW, TAECHANG_EDIT_HEIGHT);
+	m_wndCalcFreightEdit.MoveWindow(nValX, nRY, nFreightEditW, TAECHANG_EDIT_HEIGHT);
+	m_wndCalcFreightUnitLabel.MoveWindow(nValX + nFreightEditW + TAECHANG_LABEL_EDIT_GAP, nRY, nFreightUnitW, TAECHANG_EDIT_HEIGHT);
 	nRY += nRowH;
 
 	m_wndCalcTotalDivider.MoveWindow(nRX, nRY, nContentW, nDivH);
 	nRY += nDivH + TAECHANG_CALC_RESULT_ROW_GAP;
 
-	m_wndCalcTotalLabel.MoveWindow(nRX, nRY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, TAECHANG_EDIT_HEIGHT);
+	m_wndCalcTotalLabel.MoveWindow(nRX, nRY, nLabelW, TAECHANG_EDIT_HEIGHT);
 	m_wndCalcTotalValue.MoveWindow(nValX, nRY, nValW, TAECHANG_EDIT_HEIGHT);
 
 	nY += nResultPanelH + TAECHANG_CALC_SECTION_GAP;
@@ -2341,6 +2349,7 @@ void CSageTaechangView::ShowPriceCalcPanel(BOOL bShow) {
 	m_wndCalcSubtotalValue.ShowWindow(nCmd);
 	m_wndCalcFreightLabel.ShowWindow(nCmd);
 	m_wndCalcFreightEdit.ShowWindow(nCmd);
+	m_wndCalcFreightUnitLabel.ShowWindow(nCmd);
 	m_wndCalcDivider.ShowWindow(nCmd);
 	m_wndCalcTotalDivider.ShowWindow(nCmd);
 	m_wndCalcTotalLabel.ShowWindow(nCmd);
