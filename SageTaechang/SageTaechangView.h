@@ -104,7 +104,6 @@ protected:
     CStatic m_wndUserLabel;
 
     // ── 가격 데이터 관리 패널 ────────────────────────────────────────────────
-    CTaechangTabCtrl    m_wndPriceTabs;
     CStatic             m_wndPriceCompanyLabel;
     CTaechangComboBox   m_wndPriceCompanyCombo;
     CButton             m_wndPriceAddCompanyBtn;
@@ -122,6 +121,7 @@ protected:
     CButton             m_wndPriceAddBtn;
     CButton             m_wndPriceModifyBtn;
     CButton             m_wndPriceDeleteBtn;
+    CButton             m_wndPriceCancelBtn;
     CStatic             m_wndPriceSummaryTitle;
     CStatic             m_wndPriceSummaryCount;
     CStatic             m_wndPriceSummaryRange;
@@ -148,7 +148,7 @@ protected:
     // ── 가격 관리 내부 상태 ─────────────────────────────────────────────────
     int  m_nCalcPrintPrice;
     int  m_nCalcCoverPrice;
-    int  m_nSelectedPriceTab;
+    int  m_nPricePanelState;
 
 protected:
     void CreateChildControls();
@@ -196,7 +196,7 @@ protected:
     void CreatePriceManagePanel();
     void LayoutPriceManagePanel(int nLeft, int nTop, int nWidth, int nHeight);
     void ShowPriceManagePanel(BOOL bShow);
-    void ApplyPriceManageTabVisibility();
+    void ApplyPriceRightPanel();
     void RefreshPriceCompanyList(const CString& strFilter = CString());
     void RefreshPriceCopiesList(const CString& strCompanyName);
     void UpdatePriceSummaryCard();
@@ -236,7 +236,6 @@ protected:
     afx_msg void OnLogout();
 
     // ── 가격 데이터 관리 이벤트 ─────────────────────────────────────────────
-    afx_msg void OnPriceTabChanged(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnPriceCompanySelChanged();
     afx_msg void OnPriceCompanyEditChanged();
     afx_msg void OnPriceAddCompany();
@@ -245,6 +244,7 @@ protected:
     afx_msg void OnPriceAdd();
     afx_msg void OnPriceModify();
     afx_msg void OnPriceDelete();
+    afx_msg void OnPriceCancel();
 
     // ── 부수 계산 이벤트 ────────────────────────────────────────────────────
     afx_msg void OnCalc();
