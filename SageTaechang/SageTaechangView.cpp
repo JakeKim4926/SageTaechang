@@ -1961,50 +1961,61 @@ void CSageTaechangView::LayoutPriceManagePanel(int nLeft, int nTop, int nWidth, 
 	int nCardW = TAECHANG_PRICE_SUMMARY_CARD_WIDTH;
 	int nCardGap = TAECHANG_PRICE_SUMMARY_CARD_GAP;
 	int nCardPad = TAECHANG_PRICE_SUMMARY_CARD_PADDING;
-	int nLeftW = nWidth - nCardW - nCardGap;
-	int nRightX = nLeft + nLeftW + nCardGap;
 
-	int nY = nTop;
+	// 상하좌우 내부 여백
+	int nInnerLeft = nLeft + TAECHANG_MARGIN;
+	int nInnerW = nWidth - TAECHANG_MARGIN * 2;
 
-	// 법인명 행 ([법인명] [콤보] [법인추가] [+단가추가])
+	int nLeftW = nInnerW - nCardW - nCardGap;
+	int nRightX = nInnerLeft + nLeftW + nCardGap;
+
+	int nY = nTop + TAECHANG_MARGIN;
+
+	// 법인명 행 ([법인명] [콤보] [법인추가]) — 단가추가는 우측 패널 상단으로 이동
 	int nCompanyComboW = min(TAECHANG_PRICE_COMPANY_COMBO_WIDTH,
-		nLeftW - nLabelW - TAECHANG_LABEL_EDIT_GAP - TAECHANG_BUTTON_WIDTH * 2 - TAECHANG_ROW_GAP * 2);
+		nLeftW - nLabelW - TAECHANG_LABEL_EDIT_GAP - TAECHANG_BUTTON_WIDTH - TAECHANG_ROW_GAP);
 	if (nCompanyComboW < 180)
 		nCompanyComboW = 180;
-	m_wndPriceCompanyLabel.MoveWindow(nLeft, nY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, TAECHANG_EDIT_HEIGHT);
-	m_wndPriceCompanyCombo.MoveWindow(nLeft + nLabelW + TAECHANG_LABEL_EDIT_GAP, nY, nCompanyComboW, TAECHANG_EDIT_HEIGHT * 8);
-	int nBtnX = nLeft + nLabelW + TAECHANG_LABEL_EDIT_GAP + nCompanyComboW + TAECHANG_ROW_GAP;
+	m_wndPriceCompanyLabel.MoveWindow(nInnerLeft, nY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, TAECHANG_EDIT_HEIGHT);
+	m_wndPriceCompanyCombo.MoveWindow(nInnerLeft + nLabelW + TAECHANG_LABEL_EDIT_GAP, nY, nCompanyComboW, TAECHANG_EDIT_HEIGHT * 8);
+	int nBtnX = nInnerLeft + nLabelW + TAECHANG_LABEL_EDIT_GAP + nCompanyComboW + TAECHANG_ROW_GAP;
 	m_wndPriceAddCompanyBtn.MoveWindow(nBtnX, nY - TAECHANG_BUTTON_VERT_ADJUST, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
-	m_wndPriceAddBtn.MoveWindow(nBtnX + TAECHANG_BUTTON_WIDTH + TAECHANG_ROW_GAP, nY - TAECHANG_BUTTON_VERT_ADJUST, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
 	nY += TAECHANG_BUTTON_HEIGHT + TAECHANG_ROW_GAP;
 
-	// 단가 테이블 (하단 여백 없이 전체 사용)
-	int nListH = nHeight - (nY - nTop);
+	// 단가 테이블 (하단 여백 적용)
+	int nListH = nHeight - (nY - nTop) - TAECHANG_MARGIN;
 	if (nListH < TAECHANG_RESULT_HEADER_HEIGHT + TAECHANG_EDIT_HEIGHT * 4)
 		nListH = TAECHANG_RESULT_HEADER_HEIGHT + TAECHANG_EDIT_HEIGHT * 4;
 
-	m_wndPriceCopiesList.MoveWindow(nLeft, nY, nLeftW, nListH);
-	int nColW = nLeftW / 4;
-	m_wndPriceCopiesList.SetColumnWidth(0, nColW);
-	m_wndPriceCopiesList.SetColumnWidth(1, nColW);
-	m_wndPriceCopiesList.SetColumnWidth(2, nColW);
-	m_wndPriceCopiesList.SetColumnWidth(3, nLeftW - nColW * 3);
+	m_wndPriceCopiesList.MoveWindow(nInnerLeft, nY, nLeftW, nListH);
+	// 최소/최대 부수는 좁게, 단가 컬럼이 나머지 공간 사용
+	int nColMinMax = 80;
+	int nColPrice = (nLeftW - nColMinMax * 2) / 2;
+	m_wndPriceCopiesList.SetColumnWidth(0, nColMinMax);
+	m_wndPriceCopiesList.SetColumnWidth(1, nColMinMax);
+	m_wndPriceCopiesList.SetColumnWidth(2, nColPrice);
+	m_wndPriceCopiesList.SetColumnWidth(3, nLeftW - nColMinMax * 2 - nColPrice);
 
-	// 우측 패널 (테이블 전체 높이와 동일하게)
-	m_rectPriceSummaryCard = CRect(nRightX, nTop, nRightX + nCardW, nTop + nHeight);
+	// 우측 패널 (상하 여백 적용)
+	m_rectPriceSummaryCard = CRect(nRightX, nTop + TAECHANG_MARGIN, nRightX + nCardW, nTop + nHeight - TAECHANG_MARGIN);
 	int nCardInnerX = nRightX + nCardPad;
 	int nCardInnerW = nCardW - nCardPad * 2;
 
-	// 요약 컨트롤 (상단 패딩 아래)
-	int nSummaryY = nTop + nCardPad;
+	// 단가 추가 버튼 (우측 패널 상단)
+	int nPanelY = m_rectPriceSummaryCard.top + nCardPad;
+	m_wndPriceAddBtn.MoveWindow(nCardInnerX, nPanelY - TAECHANG_BUTTON_VERT_ADJUST, nCardInnerW, TAECHANG_BUTTON_HEIGHT);
+	nPanelY += TAECHANG_BUTTON_HEIGHT + TAECHANG_ROW_GAP;
+
+	// 요약 컨트롤
+	int nSummaryY = nPanelY;
 	m_wndPriceSummaryTitle.MoveWindow(nCardInnerX, nSummaryY, nCardInnerW, TAECHANG_PRICE_SUMMARY_TITLE_HEIGHT);
 	nSummaryY += TAECHANG_PRICE_SUMMARY_TITLE_HEIGHT + TAECHANG_PRICE_SUMMARY_ROW_GAP * 2;
 	m_wndPriceSummaryCount.MoveWindow(nCardInnerX, nSummaryY, nCardInnerW, TAECHANG_PRICE_SUMMARY_ROW_HEIGHT);
 	nSummaryY += TAECHANG_PRICE_SUMMARY_ROW_HEIGHT + TAECHANG_PRICE_SUMMARY_ROW_GAP;
 	m_wndPriceSummaryRange.MoveWindow(nCardInnerX, nSummaryY, nCardInnerW, TAECHANG_PRICE_SUMMARY_ROW_HEIGHT);
 
-	// 편집 폼 (수직 배치, 상단 패딩 아래)
-	int nFormY = nTop + nCardPad;
+	// 편집 폼
+	int nFormY = nPanelY;
 	int nCheckW = 70;
 	int nEditW = nCardInnerW;
 
