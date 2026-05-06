@@ -2060,9 +2060,12 @@ void CSageTaechangView::LayoutPriceManagePanel(int nLeft, int nTop, int nWidth, 
 		nListH = TAECHANG_RESULT_HEADER_HEIGHT + TAECHANG_EDIT_HEIGHT * 4;
 
 	m_wndPriceCopiesList.MoveWindow(nInnerLeft, nY, nLeftW, nListH);
-	// 최소/최대 부수는 좁게, 단가 컬럼이 나머지 공간 사용
-	int nColMinMax = 80;
-	int nColPrice = (nLeftW - nColMinMax * 2) / 2;
+	int nColPrice = 180;
+	int nColMinMax = (nLeftW - nColPrice * 2) / 2;
+	if (nColMinMax < 90)
+		nColMinMax = 90;
+	if (nLeftW - nColMinMax * 2 - nColPrice < 120)
+		nColPrice = (nLeftW - nColMinMax * 2) / 2;
 	m_wndPriceCopiesList.SetColumnWidth(0, nColMinMax);
 	m_wndPriceCopiesList.SetColumnWidth(1, nColMinMax);
 	m_wndPriceCopiesList.SetColumnWidth(2, nColPrice);
