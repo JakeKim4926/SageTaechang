@@ -445,7 +445,7 @@ constexpr LPCWSTR TAECHANG_UI_PRICE_RANGE_DLG_TITLE      = L"단가 추가";
 constexpr LPCWSTR TAECHANG_UI_PRICE_RANGE_DLG_OK         = L"추가";
 constexpr LPCWSTR TAECHANG_UI_PRICE_RANGE_OVERLAP        = L"이미 등록된 부수 범위와 겹칩니다.";
 constexpr LPCWSTR TAECHANG_UI_PRICE_MIN_LESS_THAN_MAX    = L"최소부수는 최대부수보다 작아야 합니다.";
-constexpr LPCWSTR TAECHANG_UI_PRICE_RANGE_NO_MAX_LABEL   = L"최대부수 없음 (최소값 이상)";
+constexpr LPCWSTR TAECHANG_UI_PRICE_RANGE_NO_MAX_LABEL   = L"최대부수 없음";
 
 // ── 부수 계산 화면 문자열 ────────────────────────────────────────────────────
 constexpr LPCWSTR TAECHANG_UI_CALC_COMPANY_LABEL   = L"법인명";
