@@ -432,7 +432,7 @@ constexpr LPCWSTR TAECHANG_UI_PRICE_MAX_LESS_THAN_MIN    = L"최대부수는 최
 // ── 부수 계산 화면 문자열 ────────────────────────────────────────────────────
 constexpr LPCWSTR TAECHANG_UI_CALC_COMPANY_LABEL   = L"법인명";
 constexpr LPCWSTR TAECHANG_UI_CALC_COPIES_LABEL    = L"부수";
-constexpr LPCWSTR TAECHANG_UI_CALC_BTN             = L"계산";
+constexpr LPCWSTR TAECHANG_UI_CALC_BTN             = L"계산하기";
 constexpr LPCWSTR TAECHANG_UI_CALC_PRINT_LABEL     = L"인쇄 가격";
 constexpr LPCWSTR TAECHANG_UI_CALC_COVER_LABEL     = L"표지 가격";
 constexpr LPCWSTR TAECHANG_UI_CALC_SUBTOTAL_LABEL  = L"소계";
@@ -479,6 +479,33 @@ constexpr int TAECHANG_PRICE_SUMMARY_ROW_GAP       = 8;
 // ── 부수 계산 레이아웃 치수 ─────────────────────────────────────────────────
 constexpr int TAECHANG_CALC_COMBO_WIDTH            = 200;
 constexpr int TAECHANG_CALC_COPIES_EDIT_WIDTH      = 80;
+constexpr int TAECHANG_CALC_COPIES_EDIT_SHORT_W    = 70;
 constexpr int TAECHANG_CALC_RESULT_LABEL_WIDTH     = 80;
 constexpr int TAECHANG_CALC_RESULT_VALUE_WIDTH     = 160;
 constexpr int TAECHANG_CALC_RESULT_ROW_GAP         = 12;
+constexpr int TAECHANG_CALC_PANEL_PADDING          = 12;
+constexpr int TAECHANG_CALC_SECTION_GAP            = 14;
+
+// ── 부수 계산 이력 설정 ──────────────────────────────────────────────────────
+constexpr UINT ID_CALC_HISTORY_LIST                = 41054;
+constexpr UINT ID_CALC_HISTORY_SECTION             = 41055;
+constexpr int  TAECHANG_CALC_MAX_HISTORY           = 10;
+constexpr int  TAECHANG_CALC_HIST_COL_COMPANY_W    = 140;
+constexpr int  TAECHANG_CALC_HIST_COL_COPIES_W     =  60;
+constexpr int  TAECHANG_CALC_HIST_COL_PRINT_W      = 110;
+constexpr int  TAECHANG_CALC_HIST_COL_COVER_W      = 110;
+constexpr int  TAECHANG_CALC_HIST_COL_FREIGHT_W    =  90;
+constexpr int  TAECHANG_CALC_HIST_COL_TOTAL_W      = 110;
+constexpr int  TAECHANG_CALC_HIST_COL_TIME_W       = 150;
+
+constexpr LPCWSTR TAECHANG_UI_CALC_SECTION_RESULT   = L"계산 결과";
+constexpr LPCWSTR TAECHANG_UI_CALC_SECTION_HISTORY  = L"최근 계산 내역";
+constexpr LPCWSTR TAECHANG_UI_CALC_HIST_COL_COMPANY = L"법인명";
+constexpr LPCWSTR TAECHANG_UI_CALC_HIST_COL_COPIES  = L"부수";
+constexpr LPCWSTR TAECHANG_UI_CALC_HIST_COL_PRINT   = L"인쇄 가격";
+constexpr LPCWSTR TAECHANG_UI_CALC_HIST_COL_COVER   = L"표지 가격";
+constexpr LPCWSTR TAECHANG_UI_CALC_HIST_COL_FREIGHT = L"운임";
+constexpr LPCWSTR TAECHANG_UI_CALC_HIST_COL_TOTAL   = L"합계";
+constexpr LPCWSTR TAECHANG_UI_CALC_HIST_COL_TIME    = L"계산 일시";
+constexpr LPCWSTR TAECHANG_UI_CALC_HIST_COPIES_FMT  = L"%d";
+constexpr LPCWSTR TAECHANG_UI_CALC_HIST_TIME_FMT    = L"%Y-%m-%d %H:%M:%S";
