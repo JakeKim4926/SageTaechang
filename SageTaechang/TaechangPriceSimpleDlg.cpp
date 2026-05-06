@@ -123,7 +123,7 @@ BOOL TaechangCompanyRenameDlg::OnInitDialog() {
     int nFrameH = rectWindow.Height() - rectClient.Height();
     SetWindowPos(NULL, 0, 0,
         TAECHANG_PRICE_COMPANY_DLG_WIDTH + nFrameW,
-        TAECHANG_PRICE_COMPANY_DLG_HEIGHT + nFrameH,
+        TAECHANG_PRICE_SIMPLE_DLG_HEIGHT + nFrameH,
         SWP_NOMOVE | SWP_NOZORDER);
 
     m_brushBackground.CreateSolidBrush(TAECHANG_COLOR_APP_BACKGROUND);
@@ -273,7 +273,7 @@ BOOL TaechangCoverPriceDlg::OnInitDialog() {
     int nFrameH = rectWindow.Height() - rectClient.Height();
     SetWindowPos(NULL, 0, 0,
         TAECHANG_PRICE_COMPANY_DLG_WIDTH + nFrameW,
-        TAECHANG_PRICE_COMPANY_DLG_HEIGHT + nFrameH,
+        TAECHANG_PRICE_SIMPLE_DLG_HEIGHT + nFrameH,
         SWP_NOMOVE | SWP_NOZORDER);
     m_brushBackground.CreateSolidBrush(TAECHANG_COLOR_APP_BACKGROUND);
     m_brushPanel.CreateSolidBrush(TAECHANG_COLOR_PANEL);

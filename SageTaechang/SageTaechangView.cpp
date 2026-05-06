@@ -1549,6 +1549,11 @@ HBRUSH CSageTaechangView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
 		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
 		return m_brushPanel;
 	}
+	if (pWnd->GetSafeHwnd() == m_wndPriceCoverEdit.GetSafeHwnd()) {
+		pDC->SetTextColor(TAECHANG_COLOR_SECONDARY_TEXT);
+		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
+		return m_brushPanel;
+	}
 	if (nCtlColor == CTLCOLOR_STATIC) {
 		pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
 		return m_brushAppBackground;
@@ -1995,6 +2000,7 @@ void CSageTaechangView::CreatePriceManagePanel() {
 	m_wndPriceMaxCopiesEdit.SetLimitText(7);
 	m_wndPricePrintEdit.SetLimitText(8);
 	m_wndPriceCoverEdit.SetLimitText(8);
+	m_wndPriceCoverEdit.SetReadOnly(TRUE);
 }
 
 // ── 부수 계산 패널 생성 ───────────────────────────────────────────────────────
