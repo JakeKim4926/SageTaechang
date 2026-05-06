@@ -413,7 +413,7 @@ constexpr LPCWSTR TAECHANG_UI_PRICE_MAX_COPIES_LABEL = L"최대부수";
 constexpr LPCWSTR TAECHANG_UI_PRICE_NO_MAX_LABEL     = L"최대 없음";
 constexpr LPCWSTR TAECHANG_UI_PRICE_PRINT_LABEL      = L"부수 단가";
 constexpr LPCWSTR TAECHANG_UI_PRICE_COVER_LABEL      = L"표지 단가";
-constexpr LPCWSTR TAECHANG_UI_PRICE_ADD_BTN          = L"+ 단가 추가";
+constexpr LPCWSTR TAECHANG_UI_PRICE_ADD_BTN          = L"단가 추가";
 constexpr LPCWSTR TAECHANG_UI_PRICE_SAVE_BTN         = L"저장";
 constexpr LPCWSTR TAECHANG_UI_PRICE_REMOVE_BTN       = L"삭제";
 constexpr LPCWSTR TAECHANG_UI_PRICE_CANCEL_BTN       = L"취소";
@@ -461,7 +461,7 @@ constexpr LPCWSTR TAECHANG_UI_PRICE_RANGE_NO_MAX_LABEL   = L"최대부수 없음
 // ── 부수 계산 화면 문자열 ────────────────────────────────────────────────────
 constexpr LPCWSTR TAECHANG_UI_CALC_COMPANY_LABEL   = L"법인명";
 constexpr LPCWSTR TAECHANG_UI_CALC_COPIES_LABEL    = L"부수";
-constexpr LPCWSTR TAECHANG_UI_CALC_BTN             = L"계산하기";
+constexpr LPCWSTR TAECHANG_UI_CALC_BTN             = L"계산";
 constexpr LPCWSTR TAECHANG_UI_CALC_PRINT_LABEL     = L"인쇄 가격";
 constexpr LPCWSTR TAECHANG_UI_CALC_COVER_LABEL     = L"표지 가격";
 constexpr LPCWSTR TAECHANG_UI_CALC_SUBTOTAL_LABEL  = L"소계";
