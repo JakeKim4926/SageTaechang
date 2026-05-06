@@ -1812,7 +1812,7 @@ void CSageTaechangView::OnListCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
 				pCD->clrTextBk = (nItem % 2 == 1) ? TAECHANG_COLOR_LIST_ROW_ALT : TAECHANG_COLOR_PANEL;
 				pCD->clrText = TAECHANG_COLOR_TEXT;
 				*pResult = CDRF_NEWFONT;
-				if (IsReceivablesResultTable())
+				if (IsReceivablesResultTable() || pCD->nmcd.hdr.idFrom == ID_PRICE_COPIES_LIST)
 					*pResult |= CDRF_NOTIFYSUBITEMDRAW;
 			}
 			break;
@@ -1822,13 +1822,34 @@ void CSageTaechangView::OnListCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
 			int nItem = static_cast<int>(pCD->nmcd.dwItemSpec);
 			int nSubItem = pCD->iSubItem;
 			UINT uState = ListView_GetItemState(pCD->nmcd.hdr.hwndFrom, nItem, LVIS_SELECTED);
-			if (!(uState & LVIS_SELECTED) &&
-				(nSubItem == TAECHANG_RECEIVABLES_COL_IDX_TOTAL_AMOUNT ||
-				 nSubItem == TAECHANG_RECEIVABLES_COL_IDX_DEPOSIT_AMOUNT ||
-				 nSubItem == TAECHANG_RECEIVABLES_COL_IDX_RECEIVABLE_AMOUNT)) {
-				pCD->clrTextBk = (nItem % 2 == 1) ? TAECHANG_COLOR_LIST_AMOUNT_COL_ALT : TAECHANG_COLOR_LIST_AMOUNT_COL;
-				pCD->clrText = TAECHANG_COLOR_TEXT;
-				*pResult = CDRF_NEWFONT;
+			if (!(uState & LVIS_SELECTED)) {
+				if (IsReceivablesResultTable() &&
+					(nSubItem == TAECHANG_RECEIVABLES_COL_IDX_TOTAL_AMOUNT ||
+					 nSubItem == TAECHANG_RECEIVABLES_COL_IDX_DEPOSIT_AMOUNT ||
+					 nSubItem == TAECHANG_RECEIVABLES_COL_IDX_RECEIVABLE_AMOUNT)) {
+					pCD->clrTextBk = (nItem % 2 == 1) ? TAECHANG_COLOR_LIST_AMOUNT_COL_ALT : TAECHANG_COLOR_LIST_AMOUNT_COL;
+					pCD->clrText = TAECHANG_COLOR_TEXT;
+					*pResult = CDRF_NEWFONT;
+				}
+				if (pCD->nmcd.hdr.idFrom == ID_PRICE_COPIES_LIST && nSubItem == 0) {
+					CDC* pDC = CDC::FromHandle(pCD->nmcd.hdc);
+					COLORREF clrBk = (nItem % 2 == 1) ? TAECHANG_COLOR_LIST_ROW_ALT : TAECHANG_COLOR_PANEL;
+					RECT rcItem;
+					ListView_GetSubItemRect(pCD->nmcd.hdr.hwndFrom, nItem, 0, LVIR_LABEL, &rcItem);
+					pDC->FillSolidRect(&rcItem, clrBk);
+					wchar_t szText[64] = {};
+					LVITEM lvi = {};
+					lvi.mask = LVIF_TEXT;
+					lvi.iItem = nItem;
+					lvi.iSubItem = 0;
+					lvi.pszText = szText;
+					lvi.cchTextMax = 63;
+					ListView_GetItem(pCD->nmcd.hdr.hwndFrom, &lvi);
+					pDC->SetTextColor(TAECHANG_COLOR_TEXT);
+					pDC->SetBkMode(TRANSPARENT);
+					pDC->DrawText(szText, -1, &rcItem, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
+					*pResult = CDRF_SKIPDEFAULT;
+				}
 			}
 			break;
 		}
@@ -1952,7 +1973,8 @@ void CSageTaechangView::LayoutPriceManagePanel(int nLeft, int nTop, int nWidth, 
 	int nContentY = nY;
 
 	// 법인명 행
-	int nCompanyComboW = nLeftW - nLabelW - TAECHANG_LABEL_EDIT_GAP - TAECHANG_BUTTON_WIDTH - TAECHANG_ROW_GAP;
+	int nCompanyComboW = min(TAECHANG_PRICE_COMPANY_COMBO_WIDTH,
+		nLeftW - nLabelW - TAECHANG_LABEL_EDIT_GAP - TAECHANG_BUTTON_WIDTH - TAECHANG_ROW_GAP);
 	if (nCompanyComboW < 180)
 		nCompanyComboW = 180;
 	m_wndPriceCompanyLabel.MoveWindow(nLeft, nContentY, nLabelW, TAECHANG_BUTTON_HEIGHT);
@@ -1980,17 +2002,18 @@ void CSageTaechangView::LayoutPriceManagePanel(int nLeft, int nTop, int nWidth, 
 	m_wndPriceCopiesList.SetColumnWidth(3, nLeftW - nColW * 3);
 	nY += nListH + TAECHANG_PANEL_GAP;
 
-	// 요약 카드 (우측)
+	// 요약 카드 (우측) — 법인명 행 다음, 테이블과 같은 y에서 시작
 	int nCardInnerX = nRightX + nCardPad;
 	int nCardInnerW = nCardW - nCardPad * 2;
-	int nCardY = nContentY + nCardPad;
+	int nCardTopY = nContentY + TAECHANG_BUTTON_HEIGHT + TAECHANG_ROW_GAP;
+	int nCardY = nCardTopY + nCardPad;
 	m_wndPriceSummaryTitle.MoveWindow(nCardInnerX, nCardY, nCardInnerW, TAECHANG_PRICE_SUMMARY_TITLE_HEIGHT);
 	nCardY += TAECHANG_PRICE_SUMMARY_TITLE_HEIGHT + TAECHANG_PRICE_SUMMARY_ROW_GAP * 2;
 	m_wndPriceSummaryCount.MoveWindow(nCardInnerX, nCardY, nCardInnerW, TAECHANG_PRICE_SUMMARY_ROW_HEIGHT);
 	nCardY += TAECHANG_PRICE_SUMMARY_ROW_HEIGHT + TAECHANG_PRICE_SUMMARY_ROW_GAP;
 	m_wndPriceSummaryRange.MoveWindow(nCardInnerX, nCardY, nCardInnerW, TAECHANG_PRICE_SUMMARY_ROW_HEIGHT);
 	nCardY += TAECHANG_PRICE_SUMMARY_ROW_HEIGHT + nCardPad;
-	m_rectPriceSummaryCard = CRect(nRightX, nContentY, nRightX + nCardW, nCardY);
+	m_rectPriceSummaryCard = CRect(nRightX, nCardTopY, nRightX + nCardW, nCardY);
 
 	if (bLookupTab) {
 		ApplyPriceManageTabVisibility();
