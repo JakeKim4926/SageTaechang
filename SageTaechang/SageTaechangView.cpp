@@ -2490,24 +2490,30 @@ void CSageTaechangView::OnPriceAddCompany() {
 		AfxMessageBox(bHasKorean ? TAECHANG_UI_PRICE_COMPANY_TOO_LONG_KO : TAECHANG_UI_PRICE_COMPANY_TOO_LONG_EN, MB_ICONWARNING);
 		return;
 	}
-	RefreshPriceCompanyList();
+	RefreshPriceCompanyList(strName);
 	// 이미 목록에 있으면 해당 항목 선택
 	int nCount = m_wndPriceCompanyCombo.GetCount();
 	for (int i = 0; i < nCount; ++i) {
 		CString strItem;
 		m_wndPriceCompanyCombo.GetLBText(i, strItem);
-		if (strItem == strName) {
+		if (strItem.CompareNoCase(strName) == 0) {
 			m_wndPriceCompanyCombo.SetCurSel(i);
-			RefreshPriceCopiesList(strName);
+			RefreshPriceCopiesList(strItem);
 			ClearPriceForm();
+			m_nPricePanelState = TAECHANG_PRICE_PANEL_SUMMARY;
+			ApplyPriceRightPanel();
 			return;
 		}
 	}
 	// 새 법인명을 목록에 추가 (DB에는 첫 가격 추가 시 반영됨)
 	int nIndex = m_wndPriceCompanyCombo.AddString(strName);
 	m_wndPriceCompanyCombo.SetCurSel(nIndex);
+	m_wndPriceCompanyCombo.SetWindowTextW(strName);
 	m_wndPriceCopiesList.DeleteAllItems();
 	ClearPriceForm();
+	m_nPricePanelState = TAECHANG_PRICE_PANEL_EDIT_ADD;
+	ApplyPriceRightPanel();
+	m_wndPriceMinCopiesEdit.SetFocus();
 }
 
 void CSageTaechangView::OnPriceCompanySelChanged() {
