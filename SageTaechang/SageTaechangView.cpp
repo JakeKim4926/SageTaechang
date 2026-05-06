@@ -571,6 +571,10 @@ void CSageTaechangView::ApplyControlFonts() {
 	m_wndCalcFreightEdit.SetFont(&m_fontContent);
 	m_wndCalcTotalLabel.SetFont(&m_fontHeader);
 	m_wndCalcTotalValue.SetFont(&m_fontHeader);
+	m_wndCalcHistorySection.SetFont(&m_fontContent);
+	m_wndCalcHistoryList.SetFont(&m_fontContent);
+	if (::IsWindow(m_wndCalcHistoryHeader.GetSafeHwnd()))
+		m_wndCalcHistoryHeader.SetFont(&m_fontContent);
 }
 
 void CSageTaechangView::ApplyWorkflowTabs() {
@@ -955,12 +959,27 @@ void CSageTaechangView::OnDraw(CDC* pDC) {
 	DrawEditBorder(pDC, m_wndPriceMaxCopiesEdit);
 	DrawEditBorder(pDC, m_wndPricePrintEdit);
 	DrawEditBorder(pDC, m_wndPriceCoverEdit);
+	DrawEditBorder(pDC, m_wndCalcCompanyCombo);
 	DrawEditBorder(pDC, m_wndCalcCopiesEdit);
 	DrawEditBorder(pDC, m_wndCalcFreightEdit);
 	if (!m_rectPriceSummaryCard.IsRectEmpty()) {
 		pDC->FillSolidRect(m_rectPriceSummaryCard, TAECHANG_COLOR_PANEL);
 		CBrush brCardBorder(TAECHANG_COLOR_BORDER);
 		pDC->FrameRect(m_rectPriceSummaryCard, &brCardBorder);
+	}
+	if (!m_rectCalcInputPanel.IsRectEmpty()) {
+		pDC->FillSolidRect(m_rectCalcInputPanel, TAECHANG_COLOR_PANEL);
+		CBrush brBorder(TAECHANG_COLOR_BORDER);
+		pDC->FrameRect(m_rectCalcInputPanel, &brBorder);
+	}
+	if (!m_rectCalcResultPanel.IsRectEmpty()) {
+		pDC->FillSolidRect(m_rectCalcResultPanel, TAECHANG_COLOR_PANEL);
+		CBrush brBorder(TAECHANG_COLOR_BORDER);
+		pDC->FrameRect(m_rectCalcResultPanel, &brBorder);
+		CRect rectTotalDiv;
+		m_wndCalcTotalDivider.GetWindowRect(&rectTotalDiv);
+		ScreenToClient(&rectTotalDiv);
+		pDC->FillSolidRect(rectTotalDiv.left, rectTotalDiv.top - 2, rectTotalDiv.Width(), 2, TAECHANG_COLOR_BORDER);
 	}
 }
 
@@ -1423,12 +1442,23 @@ BOOL CSageTaechangView::OnEraseBkgnd(CDC* pDC) {
 	DrawEditBorder(pDC, m_wndPriceMaxCopiesEdit);
 	DrawEditBorder(pDC, m_wndPricePrintEdit);
 	DrawEditBorder(pDC, m_wndPriceCoverEdit);
+	DrawEditBorder(pDC, m_wndCalcCompanyCombo);
 	DrawEditBorder(pDC, m_wndCalcCopiesEdit);
 	DrawEditBorder(pDC, m_wndCalcFreightEdit);
 	if (!m_rectPriceSummaryCard.IsRectEmpty()) {
 		pDC->FillSolidRect(m_rectPriceSummaryCard, TAECHANG_COLOR_PANEL);
 		CBrush brCardBorder(TAECHANG_COLOR_BORDER);
 		pDC->FrameRect(m_rectPriceSummaryCard, &brCardBorder);
+	}
+	if (!m_rectCalcInputPanel.IsRectEmpty()) {
+		pDC->FillSolidRect(m_rectCalcInputPanel, TAECHANG_COLOR_PANEL);
+		CBrush brBorder(TAECHANG_COLOR_BORDER);
+		pDC->FrameRect(m_rectCalcInputPanel, &brBorder);
+	}
+	if (!m_rectCalcResultPanel.IsRectEmpty()) {
+		pDC->FillSolidRect(m_rectCalcResultPanel, TAECHANG_COLOR_PANEL);
+		CBrush brBorder(TAECHANG_COLOR_BORDER);
+		pDC->FrameRect(m_rectCalcResultPanel, &brBorder);
 	}
 	return TRUE;
 }
@@ -1479,6 +1509,26 @@ HBRUSH CSageTaechangView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
 	if (pWnd->GetSafeHwnd() == m_wndPriceSummaryCount.GetSafeHwnd() ||
 		pWnd->GetSafeHwnd() == m_wndPriceSummaryRange.GetSafeHwnd()) {
 		pDC->SetTextColor(TAECHANG_COLOR_SECONDARY_TEXT);
+		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
+		return m_brushPanel;
+	}
+	if (pWnd->GetSafeHwnd() == m_wndCalcTotalLabel.GetSafeHwnd() ||
+		pWnd->GetSafeHwnd() == m_wndCalcTotalValue.GetSafeHwnd()) {
+		pDC->SetTextColor(TAECHANG_COLOR_PRIMARY);
+		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
+		return m_brushPanel;
+	}
+	if (pWnd->GetSafeHwnd() == m_wndCalcCompanyLabel.GetSafeHwnd() ||
+		pWnd->GetSafeHwnd() == m_wndCalcCopiesLabel.GetSafeHwnd() ||
+		pWnd->GetSafeHwnd() == m_wndCalcPrintLabel.GetSafeHwnd() ||
+		pWnd->GetSafeHwnd() == m_wndCalcPrintValue.GetSafeHwnd() ||
+		pWnd->GetSafeHwnd() == m_wndCalcCoverLabel.GetSafeHwnd() ||
+		pWnd->GetSafeHwnd() == m_wndCalcCoverValue.GetSafeHwnd() ||
+		pWnd->GetSafeHwnd() == m_wndCalcSubtotalLabel.GetSafeHwnd() ||
+		pWnd->GetSafeHwnd() == m_wndCalcSubtotalValue.GetSafeHwnd() ||
+		pWnd->GetSafeHwnd() == m_wndCalcFreightLabel.GetSafeHwnd() ||
+		pWnd->GetSafeHwnd() == m_wndCalcDivider.GetSafeHwnd() ||
+		pWnd->GetSafeHwnd() == m_wndCalcTotalDivider.GetSafeHwnd()) {
 		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
 		return m_brushPanel;
 	}
@@ -1716,7 +1766,8 @@ void CSageTaechangView::DrawSectionLabel(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 void CSageTaechangView::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct) {
 	if (lpDrawItemStruct->CtlType == ODT_STATIC &&
 		(nIDCtl == ID_TAECHANG_INPUT_SECTION || nIDCtl == ID_TAECHANG_OUTPUT_SECTION ||
-		 nIDCtl == ID_TAECHANG_RESULT_SECTION || nIDCtl == ID_TAECHANG_DETAIL_SECTION)) {
+		 nIDCtl == ID_TAECHANG_RESULT_SECTION || nIDCtl == ID_TAECHANG_DETAIL_SECTION ||
+		 nIDCtl == ID_CALC_HISTORY_SECTION)) {
 		DrawSectionLabel(lpDrawItemStruct);
 		return;
 	}
@@ -1939,19 +1990,38 @@ void CSageTaechangView::CreatePriceCalcPanel() {
 	m_wndCalcBtn.Create(TAECHANG_UI_CALC_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_CALC_BTN);
 
 	m_wndCalcPrintLabel.Create(TAECHANG_UI_CALC_PRINT_LABEL, WS_CHILD | SS_RIGHT | SS_CENTERIMAGE, r, this);
-	m_wndCalcPrintValue.Create(L"-", WS_CHILD | SS_CENTERIMAGE, r, this);
+	m_wndCalcPrintValue.Create(TAECHANG_UI_PRICE_SUMMARY_EMPTY, WS_CHILD | SS_CENTERIMAGE, r, this);
 	m_wndCalcCoverLabel.Create(TAECHANG_UI_CALC_COVER_LABEL, WS_CHILD | SS_RIGHT | SS_CENTERIMAGE, r, this);
-	m_wndCalcCoverValue.Create(L"-", WS_CHILD | SS_CENTERIMAGE, r, this);
+	m_wndCalcCoverValue.Create(TAECHANG_UI_PRICE_SUMMARY_EMPTY, WS_CHILD | SS_CENTERIMAGE, r, this);
 	m_wndCalcSubtotalLabel.Create(TAECHANG_UI_CALC_SUBTOTAL_LABEL, WS_CHILD | SS_RIGHT | SS_CENTERIMAGE, r, this);
-	m_wndCalcSubtotalValue.Create(L"-", WS_CHILD | SS_CENTERIMAGE, r, this);
+	m_wndCalcSubtotalValue.Create(TAECHANG_UI_PRICE_SUMMARY_EMPTY, WS_CHILD | SS_CENTERIMAGE, r, this);
 	m_wndCalcFreightLabel.Create(TAECHANG_UI_CALC_FREIGHT_LABEL, WS_CHILD | SS_RIGHT | SS_CENTERIMAGE, r, this);
 	m_wndCalcFreightEdit.Create(WS_CHILD | ES_NUMBER | ES_AUTOHSCROLL, r, this, ID_CALC_FREIGHT_EDIT);
 	m_wndCalcDivider.Create(L"", WS_CHILD | SS_ETCHEDHORZ, r, this);
+	m_wndCalcTotalDivider.Create(L"", WS_CHILD | SS_ETCHEDHORZ, r, this);
 	m_wndCalcTotalLabel.Create(TAECHANG_UI_CALC_TOTAL_LABEL, WS_CHILD | SS_RIGHT | SS_CENTERIMAGE, r, this);
-	m_wndCalcTotalValue.Create(L"-", WS_CHILD | SS_CENTERIMAGE, r, this);
+	m_wndCalcTotalValue.Create(TAECHANG_UI_PRICE_SUMMARY_EMPTY, WS_CHILD | SS_CENTERIMAGE, r, this);
 
-	m_wndCalcCopiesEdit.SetLimitText(7);   // 9,999,999
-	m_wndCalcFreightEdit.SetLimitText(8);  // 10,000,000
+	m_wndCalcHistorySection.Create(TAECHANG_UI_CALC_SECTION_HISTORY, WS_CHILD | SS_OWNERDRAW, r, this, ID_CALC_HISTORY_SECTION);
+	m_wndCalcHistoryList.Create(WS_CHILD | WS_BORDER | LVS_REPORT | LVS_SINGLESEL, r, this, ID_CALC_HISTORY_LIST);
+	m_wndCalcHistoryList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
+	{
+		CHeaderCtrl* pHeader = m_wndCalcHistoryList.GetHeaderCtrl();
+		if (pHeader && pHeader->GetSafeHwnd()) {
+			m_wndCalcHistoryHeader.SubclassWindow(pHeader->GetSafeHwnd());
+			SetWindowTheme(m_wndCalcHistoryHeader.GetSafeHwnd(), L"", L"");
+		}
+	}
+	m_wndCalcHistoryList.InsertColumn(0, TAECHANG_UI_CALC_HIST_COL_COMPANY, LVCFMT_LEFT,   TAECHANG_CALC_HIST_COL_COMPANY_W);
+	m_wndCalcHistoryList.InsertColumn(1, TAECHANG_UI_CALC_HIST_COL_COPIES,  LVCFMT_CENTER, TAECHANG_CALC_HIST_COL_COPIES_W);
+	m_wndCalcHistoryList.InsertColumn(2, TAECHANG_UI_CALC_HIST_COL_PRINT,   LVCFMT_RIGHT,  TAECHANG_CALC_HIST_COL_PRINT_W);
+	m_wndCalcHistoryList.InsertColumn(3, TAECHANG_UI_CALC_HIST_COL_COVER,   LVCFMT_RIGHT,  TAECHANG_CALC_HIST_COL_COVER_W);
+	m_wndCalcHistoryList.InsertColumn(4, TAECHANG_UI_CALC_HIST_COL_FREIGHT, LVCFMT_RIGHT,  TAECHANG_CALC_HIST_COL_FREIGHT_W);
+	m_wndCalcHistoryList.InsertColumn(5, TAECHANG_UI_CALC_HIST_COL_TOTAL,   LVCFMT_RIGHT,  TAECHANG_CALC_HIST_COL_TOTAL_W);
+	m_wndCalcHistoryList.InsertColumn(6, TAECHANG_UI_CALC_HIST_COL_TIME,    LVCFMT_LEFT,   TAECHANG_CALC_HIST_COL_TIME_W);
+
+	m_wndCalcCopiesEdit.SetLimitText(7);
+	m_wndCalcFreightEdit.SetLimitText(8);
 }
 
 // ── 가격 데이터 관리 패널 레이아웃 ───────────────────────────────────────────
@@ -2052,46 +2122,81 @@ void CSageTaechangView::LayoutPriceManagePanel(int nLeft, int nTop, int nWidth, 
 // ── 부수 계산 패널 레이아웃 ───────────────────────────────────────────────────
 
 void CSageTaechangView::LayoutPriceCalcPanel(int nLeft, int nTop, int nWidth, int nHeight) {
-	int nY = nTop;
+	int nPad   = TAECHANG_CALC_PANEL_PADDING;
 	int nLabelW = TAECHANG_CALC_RESULT_LABEL_WIDTH;
-	int nResultW = TAECHANG_CALC_RESULT_VALUE_WIDTH;
+	int nValW   = TAECHANG_CALC_RESULT_VALUE_WIDTH;
+	int nX = nLeft + TAECHANG_MARGIN;
+	int nY = nTop  + TAECHANG_MARGIN;
+	int nW = nWidth - TAECHANG_MARGIN * 2;
 
-	// 법인명 콤보 + 부수 + 계산 버튼
-	m_wndCalcCompanyLabel.MoveWindow(nLeft, nY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, TAECHANG_EDIT_HEIGHT);
-	m_wndCalcCompanyCombo.MoveWindow(nLeft + nLabelW + TAECHANG_LABEL_EDIT_GAP, nY, TAECHANG_CALC_COMBO_WIDTH, TAECHANG_EDIT_HEIGHT * 8);
-	int nCopiesX = nLeft + nLabelW + TAECHANG_LABEL_EDIT_GAP + TAECHANG_CALC_COMBO_WIDTH + TAECHANG_ROW_GAP;
-	m_wndCalcCopiesLabel.MoveWindow(nCopiesX, nY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, TAECHANG_EDIT_HEIGHT);
-	int nCopiesEditX = nCopiesX + nLabelW + TAECHANG_LABEL_EDIT_GAP;
-	m_wndCalcCopiesEdit.MoveWindow(nCopiesEditX, nY, TAECHANG_CALC_COPIES_EDIT_WIDTH, TAECHANG_EDIT_HEIGHT);
-	int nCalcBtnX = nCopiesEditX + TAECHANG_CALC_COPIES_EDIT_WIDTH + TAECHANG_ROW_GAP;
-	m_wndCalcBtn.MoveWindow(nCalcBtnX, nY - TAECHANG_BUTTON_VERT_ADJUST, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
-	nY += TAECHANG_EDIT_HEIGHT + TAECHANG_ROW_GAP * 2;
+	// ── 입력 패널 ────────────────────────────────────────────────────────────
+	int nInputPanelH = nPad + TAECHANG_EDIT_HEIGHT + TAECHANG_ROW_GAP + TAECHANG_EDIT_HEIGHT + nPad;
+	m_rectCalcInputPanel = CRect(nX, nY, nX + nW, nY + nInputPanelH);
 
-	// 결과 행들
-	auto MoveResultRow = [&](CStatic& label, CStatic& value) {
-		label.MoveWindow(nLeft, nY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, TAECHANG_EDIT_HEIGHT);
-		value.MoveWindow(nLeft + nLabelW + TAECHANG_LABEL_EDIT_GAP, nY, nResultW, TAECHANG_EDIT_HEIGHT);
-		nY += TAECHANG_CALC_RESULT_ROW_GAP + TAECHANG_EDIT_HEIGHT;
-	};
+	int nCX = nX + nPad;
+	int nCY = nY + nPad;
+	int nComboW = min(TAECHANG_CALC_COMBO_WIDTH, nW - nLabelW - TAECHANG_LABEL_EDIT_GAP - nPad * 2);
 
-	MoveResultRow(m_wndCalcPrintLabel, m_wndCalcPrintValue);
-	MoveResultRow(m_wndCalcCoverLabel, m_wndCalcCoverValue);
-	MoveResultRow(m_wndCalcSubtotalLabel, m_wndCalcSubtotalValue);
+	m_wndCalcCompanyLabel.MoveWindow(nCX, nCY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, TAECHANG_EDIT_HEIGHT);
+	m_wndCalcCompanyCombo.MoveWindow(nCX + nLabelW + TAECHANG_LABEL_EDIT_GAP, nCY, nComboW, TAECHANG_EDIT_HEIGHT * 8);
+	nCY += TAECHANG_EDIT_HEIGHT + TAECHANG_ROW_GAP;
 
-	// 운임 (CEdit)
-	m_wndCalcFreightLabel.MoveWindow(nLeft, nY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, TAECHANG_EDIT_HEIGHT);
-	m_wndCalcFreightEdit.MoveWindow(nLeft + nLabelW + TAECHANG_LABEL_EDIT_GAP, nY, nResultW, TAECHANG_EDIT_HEIGHT);
-	nY += TAECHANG_CALC_RESULT_ROW_GAP + TAECHANG_EDIT_HEIGHT;
+	m_wndCalcCopiesLabel.MoveWindow(nCX, nCY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, TAECHANG_EDIT_HEIGHT);
+	int nCopiesEditX = nCX + nLabelW + TAECHANG_LABEL_EDIT_GAP;
+	m_wndCalcCopiesEdit.MoveWindow(nCopiesEditX, nCY, TAECHANG_CALC_COPIES_EDIT_SHORT_W, TAECHANG_EDIT_HEIGHT);
+	m_wndCalcBtn.MoveWindow(nCopiesEditX + TAECHANG_CALC_COPIES_EDIT_SHORT_W + TAECHANG_ROW_GAP,
+		nCY - TAECHANG_BUTTON_VERT_ADJUST, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
 
-	// 구분선
-	m_wndCalcDivider.MoveWindow(nLeft, nY, nLabelW + TAECHANG_LABEL_EDIT_GAP + nResultW, 2);
-	nY += TAECHANG_CALC_RESULT_ROW_GAP;
+	nY += nInputPanelH + TAECHANG_CALC_SECTION_GAP;
 
-	// 합계
-	MoveResultRow(m_wndCalcTotalLabel, m_wndCalcTotalValue);
+	// ── 결과 패널 ────────────────────────────────────────────────────────────
+	int nRowH    = TAECHANG_EDIT_HEIGHT + TAECHANG_CALC_RESULT_ROW_GAP;
+	int nDivH    = 2;
+	int nResultPanelH = nPad + nRowH + nRowH + nDivH + TAECHANG_CALC_RESULT_ROW_GAP
+	                  + nRowH + nRowH + nDivH + TAECHANG_CALC_RESULT_ROW_GAP
+	                  + TAECHANG_EDIT_HEIGHT + nPad;
+	m_rectCalcResultPanel = CRect(nX, nY, nX + nW, nY + nResultPanelH);
 
-	UNREFERENCED_PARAMETER(nWidth);
-	UNREFERENCED_PARAMETER(nHeight);
+	int nRX = nX + nPad;
+	int nRY = nY + nPad;
+	int nValX = nRX + nLabelW + TAECHANG_LABEL_EDIT_GAP;
+	int nContentW = nLabelW + TAECHANG_LABEL_EDIT_GAP + nValW;
+
+	m_wndCalcPrintLabel.MoveWindow(nRX, nRY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, TAECHANG_EDIT_HEIGHT);
+	m_wndCalcPrintValue.MoveWindow(nValX, nRY, nValW, TAECHANG_EDIT_HEIGHT);
+	nRY += nRowH;
+
+	m_wndCalcCoverLabel.MoveWindow(nRX, nRY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, TAECHANG_EDIT_HEIGHT);
+	m_wndCalcCoverValue.MoveWindow(nValX, nRY, nValW, TAECHANG_EDIT_HEIGHT);
+	nRY += nRowH;
+
+	m_wndCalcDivider.MoveWindow(nRX, nRY, nContentW, nDivH);
+	nRY += nDivH + TAECHANG_CALC_RESULT_ROW_GAP;
+
+	m_wndCalcSubtotalLabel.MoveWindow(nRX, nRY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, TAECHANG_EDIT_HEIGHT);
+	m_wndCalcSubtotalValue.MoveWindow(nValX, nRY, nValW, TAECHANG_EDIT_HEIGHT);
+	nRY += nRowH;
+
+	m_wndCalcFreightLabel.MoveWindow(nRX, nRY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, TAECHANG_EDIT_HEIGHT);
+	m_wndCalcFreightEdit.MoveWindow(nValX, nRY, nValW, TAECHANG_EDIT_HEIGHT);
+	nRY += nRowH;
+
+	m_wndCalcTotalDivider.MoveWindow(nRX, nRY, nContentW, nDivH);
+	nRY += nDivH + TAECHANG_CALC_RESULT_ROW_GAP;
+
+	m_wndCalcTotalLabel.MoveWindow(nRX, nRY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, TAECHANG_EDIT_HEIGHT);
+	m_wndCalcTotalValue.MoveWindow(nValX, nRY, nValW, TAECHANG_EDIT_HEIGHT);
+
+	nY += nResultPanelH + TAECHANG_CALC_SECTION_GAP;
+
+	// ── 이력 섹션 ────────────────────────────────────────────────────────────
+	m_wndCalcHistorySection.MoveWindow(nX, nY, nW, TAECHANG_SECTION_TITLE_HEIGHT);
+	nY += TAECHANG_SECTION_TITLE_HEIGHT + TAECHANG_PANEL_GAP;
+
+	int nListH = nTop + nHeight - TAECHANG_MARGIN - nY;
+	if (nListH < TAECHANG_RESULT_MIN_HEIGHT)
+		nListH = TAECHANG_RESULT_MIN_HEIGHT;
+	m_wndCalcHistoryList.MoveWindow(nX, nY, nW, nListH);
 }
 
 // ── show/hide 헬퍼 ────────────────────────────────────────────────────────────
@@ -2169,8 +2274,16 @@ void CSageTaechangView::ShowPriceCalcPanel(BOOL bShow) {
 	m_wndCalcFreightLabel.ShowWindow(nCmd);
 	m_wndCalcFreightEdit.ShowWindow(nCmd);
 	m_wndCalcDivider.ShowWindow(nCmd);
+	m_wndCalcTotalDivider.ShowWindow(nCmd);
 	m_wndCalcTotalLabel.ShowWindow(nCmd);
 	m_wndCalcTotalValue.ShowWindow(nCmd);
+	m_wndCalcHistorySection.ShowWindow(nCmd);
+	m_wndCalcHistoryList.ShowWindow(nCmd);
+	if (!bShow) {
+		m_rectCalcInputPanel.SetRectEmpty();
+		m_rectCalcResultPanel.SetRectEmpty();
+		Invalidate(TRUE);
+	}
 }
 
 // ── 가격 관리 데이터 헬퍼 ────────────────────────────────────────────────────
@@ -2602,10 +2715,60 @@ void CSageTaechangView::OnCalc() {
 	m_wndCalcCoverValue.SetWindowTextW(strCover);
 	m_wndCalcSubtotalValue.SetWindowTextW(strSub);
 	UpdateCalcTotal();
+
+	CString strFreight;
+	m_wndCalcFreightEdit.GetWindowTextW(strFreight);
+	strFreight.Trim();
+	int nFreight = strFreight.IsEmpty() ? 0 : _wtoi(strFreight);
+	if (nFreight < 0) nFreight = 0;
+	AddCalcHistory(strCompany, nCopies, dto.nPrintPrice, dto.nCoverPrice, nFreight,
+		dto.nPrintPrice + dto.nCoverPrice + nFreight);
 }
 
 void CSageTaechangView::OnCalcFreightChanged() {
 	UpdateCalcTotal();
+}
+
+void CSageTaechangView::AddCalcHistory(const CString& strCompany, int nCopies, int nPrintPrice, int nCoverPrice, int nFreight, int nTotal) {
+	CalcHistoryEntry entry;
+	entry.strCompanyName = strCompany;
+	entry.nCopies        = nCopies;
+	entry.nPrintPrice    = nPrintPrice;
+	entry.nCoverPrice    = nCoverPrice;
+	entry.nFreight       = nFreight;
+	entry.nTotal         = nTotal;
+	entry.timeCalc       = CTime::GetCurrentTime();
+
+	m_arrCalcHistory.InsertAt(0, entry);
+	if (m_arrCalcHistory.GetSize() > TAECHANG_CALC_MAX_HISTORY)
+		m_arrCalcHistory.RemoveAt(TAECHANG_CALC_MAX_HISTORY);
+
+	RefreshCalcHistoryList();
+}
+
+void CSageTaechangView::RefreshCalcHistoryList() {
+	m_wndCalcHistoryList.DeleteAllItems();
+	for (int i = 0; i < m_arrCalcHistory.GetSize(); ++i) {
+		const CalcHistoryEntry& e = m_arrCalcHistory[i];
+		m_wndCalcHistoryList.InsertItem(i, e.strCompanyName);
+
+		CString strCopies;
+		strCopies.Format(TAECHANG_UI_CALC_HIST_COPIES_FMT, e.nCopies);
+		m_wndCalcHistoryList.SetItemText(i, 1, strCopies);
+
+		CString strPrint, strCover, strFreight, strTotal;
+		strPrint.Format(TAECHANG_UI_CALC_WON_FORMAT,   FormatPrice(e.nPrintPrice).GetString());
+		strCover.Format(TAECHANG_UI_CALC_WON_FORMAT,   FormatPrice(e.nCoverPrice).GetString());
+		strFreight.Format(TAECHANG_UI_CALC_WON_FORMAT, FormatPrice(e.nFreight).GetString());
+		strTotal.Format(TAECHANG_UI_CALC_WON_FORMAT,   FormatPrice(e.nTotal).GetString());
+		m_wndCalcHistoryList.SetItemText(i, 2, strPrint);
+		m_wndCalcHistoryList.SetItemText(i, 3, strCover);
+		m_wndCalcHistoryList.SetItemText(i, 4, strFreight);
+		m_wndCalcHistoryList.SetItemText(i, 5, strTotal);
+
+		CString strTime = e.timeCalc.Format(TAECHANG_UI_CALC_HIST_TIME_FMT);
+		m_wndCalcHistoryList.SetItemText(i, 6, strTime);
+	}
 }
 
 #ifdef _DEBUG
