@@ -420,7 +420,12 @@ constexpr LPCWSTR TAECHANG_UI_PRICE_COL_PRINT_PRICE  = L"부수 단가";
 constexpr LPCWSTR TAECHANG_UI_PRICE_COL_COVER_PRICE  = L"표지 단가";
 
 constexpr LPCWSTR TAECHANG_UI_PRICE_MAX_COPIES_NONE      = L"-";
-constexpr LPCWSTR TAECHANG_UI_PRICE_COMPANY_REQUIRED     = L"법인명을 입력하세요.";
+constexpr LPCWSTR TAECHANG_UI_PRICE_SUMMARY_NO_COMPANY     = L"법인을 선택하세요";
+constexpr LPCWSTR TAECHANG_UI_PRICE_SUMMARY_EMPTY          = L"—";
+constexpr LPCWSTR TAECHANG_UI_PRICE_SUMMARY_COUNT_FMT      = L"구간  %d개";
+constexpr LPCWSTR TAECHANG_UI_PRICE_SUMMARY_RANGE_FMT      = L"부수  %s ~ %s부";
+constexpr LPCWSTR TAECHANG_UI_PRICE_SUMMARY_RANGE_OPEN_FMT = L"부수  %s부 ~";
+constexpr LPCWSTR TAECHANG_UI_PRICE_COMPANY_REQUIRED       = L"법인명을 입력하세요.";
 constexpr LPCWSTR TAECHANG_UI_PRICE_SELECT_COMPANY       = L"법인을 선택하세요.";
 constexpr LPCWSTR TAECHANG_UI_PRICE_SELECT_COPIES_ROW    = L"수정/삭제할 항목을 선택하세요.";
 constexpr LPCWSTR TAECHANG_UI_PRICE_DELETE_CONFIRM       = L"선택한 단가 데이터를 삭제하시겠습니까?";
@@ -465,6 +470,12 @@ constexpr int TAECHANG_PRICE_COL_MIN_WIDTH         = 100;
 constexpr int TAECHANG_PRICE_COL_MAX_WIDTH         = 100;
 constexpr int TAECHANG_PRICE_COL_PRINT_WIDTH       = 150;
 constexpr int TAECHANG_PRICE_COL_COVER_WIDTH       = 150;
+constexpr int TAECHANG_PRICE_SUMMARY_CARD_WIDTH    = 220;
+constexpr int TAECHANG_PRICE_SUMMARY_CARD_GAP      = 14;
+constexpr int TAECHANG_PRICE_SUMMARY_CARD_PADDING  = 14;
+constexpr int TAECHANG_PRICE_SUMMARY_TITLE_HEIGHT  = 26;
+constexpr int TAECHANG_PRICE_SUMMARY_ROW_HEIGHT    = 22;
+constexpr int TAECHANG_PRICE_SUMMARY_ROW_GAP       = 8;
 
 // ── 부수 계산 레이아웃 치수 ─────────────────────────────────────────────────
 constexpr int TAECHANG_CALC_COMBO_WIDTH            = 200;

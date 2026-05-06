@@ -19,6 +19,13 @@ protected:
     afx_msg void OnPaint();
 };
 
+class CTaechangComboBox : public CComboBox
+{
+    DECLARE_MESSAGE_MAP()
+protected:
+    afx_msg void OnPaint();
+};
+
 
 class CSageTaechangView : public CView
 {
@@ -97,24 +104,28 @@ protected:
     CStatic m_wndUserLabel;
 
     // ── 가격 데이터 관리 패널 ────────────────────────────────────────────────
-    CTaechangTabCtrl m_wndPriceTabs;
-    CStatic   m_wndPriceCompanyLabel;
-    CComboBox m_wndPriceCompanyCombo;
-    CButton m_wndPriceAddCompanyBtn;
+    CTaechangTabCtrl    m_wndPriceTabs;
+    CStatic             m_wndPriceCompanyLabel;
+    CTaechangComboBox   m_wndPriceCompanyCombo;
+    CButton             m_wndPriceAddCompanyBtn;
     CTaechangHeaderCtrl m_wndPriceCopiesHeader;
-    CListCtrl m_wndPriceCopiesList;
-    CStatic m_wndPriceMinCopiesLabel;
-    CEdit   m_wndPriceMinCopiesEdit;
-    CStatic m_wndPriceMaxCopiesLabel;
-    CEdit   m_wndPriceMaxCopiesEdit;
-    CButton m_wndPriceNoMaxCheck;
-    CStatic m_wndPricePrintLabel;
-    CEdit   m_wndPricePrintEdit;
-    CStatic m_wndPriceCoverLabel;
-    CEdit   m_wndPriceCoverEdit;
-    CButton m_wndPriceAddBtn;
-    CButton m_wndPriceModifyBtn;
-    CButton m_wndPriceDeleteBtn;
+    CListCtrl           m_wndPriceCopiesList;
+    CStatic             m_wndPriceMinCopiesLabel;
+    CEdit               m_wndPriceMinCopiesEdit;
+    CStatic             m_wndPriceMaxCopiesLabel;
+    CEdit               m_wndPriceMaxCopiesEdit;
+    CButton             m_wndPriceNoMaxCheck;
+    CStatic             m_wndPricePrintLabel;
+    CEdit               m_wndPricePrintEdit;
+    CStatic             m_wndPriceCoverLabel;
+    CEdit               m_wndPriceCoverEdit;
+    CButton             m_wndPriceAddBtn;
+    CButton             m_wndPriceModifyBtn;
+    CButton             m_wndPriceDeleteBtn;
+    CStatic             m_wndPriceSummaryTitle;
+    CStatic             m_wndPriceSummaryCount;
+    CStatic             m_wndPriceSummaryRange;
+    CRect               m_rectPriceSummaryCard;
 
     // ── 부수 계산 패널 ───────────────────────────────────────────────────────
     CStatic   m_wndCalcCompanyLabel;
@@ -188,6 +199,7 @@ protected:
     void ApplyPriceManageTabVisibility();
     void RefreshPriceCompanyList(const CString& strFilter = CString());
     void RefreshPriceCopiesList(const CString& strCompanyName);
+    void UpdatePriceSummaryCard();
     void LoadSelectedCopiesRowToForm();
     void ClearPriceForm();
     BOOL ReadPriceFormToDto(TaechangPriceDto& dto, CString& strError);
