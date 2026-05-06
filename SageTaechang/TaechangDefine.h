@@ -537,7 +537,7 @@ constexpr int  TAECHANG_CALC_HIST_COL_PRINT_W      = 110;
 constexpr int  TAECHANG_CALC_HIST_COL_COVER_W      = 110;
 constexpr int  TAECHANG_CALC_HIST_COL_FREIGHT_W    =  90;
 constexpr int  TAECHANG_CALC_HIST_COL_TOTAL_W      = 110;
-constexpr int  TAECHANG_CALC_HIST_COL_TIME_W       = 150;
+constexpr int  TAECHANG_CALC_HIST_COL_TIME_W       = 190;
 
 constexpr LPCWSTR TAECHANG_UI_CALC_SECTION_RESULT   = L"계산 결과";
 constexpr LPCWSTR TAECHANG_UI_CALC_SECTION_HISTORY  = L"최근 계산 내역";

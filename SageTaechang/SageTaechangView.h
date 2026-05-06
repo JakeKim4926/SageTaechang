@@ -144,7 +144,7 @@ protected:
 
     // ── 부수 계산 패널 ───────────────────────────────────────────────────────
     CStatic              m_wndCalcCompanyLabel;
-    CComboBox            m_wndCalcCompanyCombo;
+    CTaechangComboBox    m_wndCalcCompanyCombo;
     CStatic              m_wndCalcCopiesLabel;
     CEdit                m_wndCalcCopiesEdit;
     CButton              m_wndCalcBtn;
