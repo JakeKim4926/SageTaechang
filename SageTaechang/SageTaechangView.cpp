@@ -1901,6 +1901,11 @@ void CSageTaechangView::CreatePriceManagePanel() {
 	if (CHeaderCtrl* pHeader = m_wndPriceCopiesList.GetHeaderCtrl()) {
 		m_wndPriceCopiesHeader.SubclassWindow(pHeader->GetSafeHwnd());
 		SetWindowTheme(m_wndPriceCopiesHeader.GetSafeHwnd(), L"", L"");
+		HDITEM hdi = {};
+		hdi.mask = HDI_FORMAT;
+		m_wndPriceCopiesHeader.GetItem(0, &hdi);
+		hdi.fmt = (hdi.fmt & ~HDF_JUSTIFYMASK) | HDF_CENTER;
+		m_wndPriceCopiesHeader.SetItem(0, &hdi);
 	}
 
 	m_wndPriceMinCopiesLabel.Create(TAECHANG_UI_PRICE_MIN_COPIES_LABEL, WS_CHILD | SS_RIGHT | SS_CENTERIMAGE, r, this);
