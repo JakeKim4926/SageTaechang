@@ -2039,7 +2039,7 @@ void CSageTaechangView::LayoutPriceManagePanel(int nLeft, int nTop, int nWidth, 
 		nLeftW - nLabelW - TAECHANG_LABEL_EDIT_GAP - TAECHANG_BUTTON_WIDTH - TAECHANG_ROW_GAP);
 	if (nCompanyComboW < 180)
 		nCompanyComboW = 180;
-	m_wndPriceCompanyLabel.MoveWindow(nInnerLeft, nY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, TAECHANG_EDIT_HEIGHT);
+	m_wndPriceCompanyLabel.MoveWindow(nInnerLeft - 4, nY + TAECHANG_LABEL_VERT_OFFSET - 2, nLabelW, TAECHANG_EDIT_HEIGHT);
 	m_wndPriceCompanyCombo.MoveWindow(nInnerLeft + nLabelW + TAECHANG_LABEL_EDIT_GAP, nY, nCompanyComboW, TAECHANG_EDIT_HEIGHT * 8);
 	int nBtnX = nInnerLeft + nLabelW + TAECHANG_LABEL_EDIT_GAP + nCompanyComboW + TAECHANG_ROW_GAP;
 	m_wndPriceAddCompanyBtn.MoveWindow(nBtnX, nY - TAECHANG_BUTTON_VERT_ADJUST, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
