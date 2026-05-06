@@ -1,0 +1,42 @@
+#pragma once
+
+#include "pch.h"
+
+class TaechangLoginDlg : public CDialog {
+public:
+    TaechangLoginDlg(CWnd* pParent = NULL);
+    ~TaechangLoginDlg();
+
+public:
+    virtual INT_PTR DoModal();
+
+protected:
+    virtual BOOL OnInitDialog();
+    virtual void OnOK();
+    virtual void OnCancel();
+
+    afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+    afx_msg void OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct);
+
+    DECLARE_MESSAGE_MAP()
+
+private:
+    void CreateControls();
+    void LayoutControls();
+    void ApplyFont();
+    BYTE* BuildDialogTemplate();
+
+private:
+    CWnd* m_pDlgParent;
+
+    CStatic m_wndIdLabel;
+    CStatic m_wndPwLabel;
+    CEdit m_wndIdEdit;
+    CEdit m_wndPwEdit;
+    CButton m_wndOkBtn;
+    CButton m_wndCancelBtn;
+
+    CFont m_font;
+    CBrush m_brushBackground;
+    CBrush m_brushPanel;
+};

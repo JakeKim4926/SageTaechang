@@ -16,6 +16,7 @@
 #include <map>
 #include <filesystem>
 #include <shobjidl.h>
+#include "sqlite3.h"
 
 #endif //PCH_H
 

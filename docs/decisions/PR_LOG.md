@@ -1,3 +1,39 @@
+## [2026-05-06] feature/price-manage-summary-card
+- **목적**: 단가 관리 UI의 탭 기반 구조를 제거하고 우측 패널 편집 폼 구조로 전환하여 직관성 개선
+- **변경 내용**: 조회/추가/수정/삭제 탭 제거, 우측 패널 상태 전환(요약↔편집폼), [+ 단가추가] 버튼 법인명 행 배치, 하단 좌측 버튼 완전 제거
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/45
+- **결과**: merged
+
+## [2026-05-06] fix/workflow-file-drop
+- **목적**: 워크플로우 입력 화면에서 파일 드래그앤드롭 시 입력 경로가 반영되지 않는 문제 수정
+- **변경 내용**: 드롭 파일 경로 수집 로직 정리, 입력 필드/파일 선택 버튼/결과 영역/프레임에 파일 드롭 허용, Debug 실행 환경의 드롭 메시지 필터 허용
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/43
+- **결과**: merged
+
+## [2026-05-05] feature/price-input-validation — feat: 가격 관리 입력값 범위 검증 추가
+- **목적**: 가격 데이터 관리·부수 계산 화면의 입력값에 범위/길이 제한을 추가하여 잘못된 데이터 입력 방지
+- **변경 내용**: 법인명 한글 20자/영문 40자, 부수 1~9,999,999, 인쇄·표지 가격 0~10,000,000, 운임 0~10,000,000 클램핑
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/40
+- **결과**: merged
+
+## [2026-05-05] feature/price-manage-ui — feat: 감사보고서 가격 관리 및 부수 계산 UI 초안
+- **목적**: 법인별 감사보고서 가격 데이터 관리 및 부수 입력 시 가격 계산 기능 UI 초안 구현
+- **변경 내용**: Repository에 DeleteByPriceId/SelectAllCompanyNames/UpdateByPriceId 추가, Service에 RemovePrice/LoadAllCompanyNames/ModifyPriceById 추가, 사이드바 "가격 관리" 카테고리(가격 데이터 관리/부수 계산) 추가, 두 전용 패널 생성·레이아웃·이벤트 구현
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/39
+- **결과**: merged
+
+## [2026-05-05] feature/user-auth-login — feat: 사용자 인증 및 로그인 시스템 구현
+- **목적**: 관리자/사용자 2-Role 로그인 시스템 구현 — 이후 관리자 전용 기능 권한 분리 기반
+- **변경 내용**: TaechangUser DB 테이블 + 기본 admin 계정 시딩, DTO/Repository/Service/AuthSession 계층 구현(BCrypt SHA-256), 메인 화면 우측 상단 로그인 버튼 및 로그인 다이얼로그 추가
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/38
+- **결과**: merged
+
+## [2026-05-05] feat/delivery-middle-time-mapping — feat: 납품서 배송시간 '오전중'/'오후중' 처리 추가
+- **목적**: 배송시간 입력값이 '오전 중'/'오후 중'일 때 결과 셀에 '중'이 기입되지 않던 문제 수정
+- **변경 내용**: `generate-delivery-forms.ps1`에 `$MiddleSuffix` 변수 추가, '오전중' → H6에 '중', '오후중' → M6에 '중' 처리 `elseif` 블록 추가
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/37
+- **결과**: merged
+
 ## [2026-05-05] feature/sidebar-title-and-design — feat: 사이드바 브랜드 타이틀 및 디자인 개선
 - **목적**: 사이드바 상단 영문 타이틀을 한글로 변경하고 전문 ERP 사이드바 디자인 완성도 향상
 - **변경 내용**: 타이틀 "SageTaechang" → "태창기획" (중앙 정렬), 우측 상단 대기 중 상태 표시 제거, 브랜드 영역 구분선 추가, 그룹 헤더 뮤트 색상 처리, 선택 항목 좌측 3px 카멜 액센트 바 추가
