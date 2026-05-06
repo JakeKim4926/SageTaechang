@@ -96,6 +96,7 @@ protected:
     CBrush m_brushAppBackground;
     CBrush m_brushPanel;
     CBrush m_brushSidebar;
+    CBrush m_brushListHeader;
     CBrush m_brushHeaderStatus;
     BOOL m_bRunning;
     int m_nProgressPercent;
