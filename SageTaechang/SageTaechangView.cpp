@@ -551,7 +551,7 @@ void CSageTaechangView::ApplyControlFonts() {
 	m_wndPriceAddBtn.SetFont(&m_fontContent);
 	m_wndPriceModifyBtn.SetFont(&m_fontContent);
 	m_wndPriceDeleteBtn.SetFont(&m_fontContent);
-	m_wndPriceSummaryTitle.SetFont(&m_fontHeader);
+	m_wndPriceSummaryTitle.SetFont(&m_fontContent);
 	m_wndPriceSummaryCount.SetFont(&m_fontContent);
 	m_wndPriceSummaryRange.SetFont(&m_fontContent);
 
@@ -1955,9 +1955,8 @@ void CSageTaechangView::LayoutPriceManagePanel(int nLeft, int nTop, int nWidth, 
 	int nCompanyComboW = nLeftW - nLabelW - TAECHANG_LABEL_EDIT_GAP - TAECHANG_BUTTON_WIDTH - TAECHANG_ROW_GAP;
 	if (nCompanyComboW < 180)
 		nCompanyComboW = 180;
-	int nEditY = nContentY + (TAECHANG_BUTTON_HEIGHT - TAECHANG_PRICE_EDIT_HEIGHT) / 2 - TAECHANG_BUTTON_VERT_ADJUST;
-	m_wndPriceCompanyLabel.MoveWindow(nLeft, nContentY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, TAECHANG_EDIT_HEIGHT);
-	m_wndPriceCompanyCombo.MoveWindow(nLeft + nLabelW + TAECHANG_LABEL_EDIT_GAP, nEditY, nCompanyComboW, TAECHANG_EDIT_HEIGHT * 8);
+	m_wndPriceCompanyLabel.MoveWindow(nLeft, nContentY, nLabelW, TAECHANG_BUTTON_HEIGHT);
+	m_wndPriceCompanyCombo.MoveWindow(nLeft + nLabelW + TAECHANG_LABEL_EDIT_GAP, nContentY, nCompanyComboW, TAECHANG_EDIT_HEIGHT * 8);
 	m_wndPriceAddCompanyBtn.MoveWindow(nLeft + nLabelW + TAECHANG_LABEL_EDIT_GAP + nCompanyComboW + TAECHANG_ROW_GAP,
 		nContentY - TAECHANG_BUTTON_VERT_ADJUST, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
 	nY = nContentY + TAECHANG_BUTTON_HEIGHT + TAECHANG_ROW_GAP;
@@ -1970,9 +1969,6 @@ void CSageTaechangView::LayoutPriceManagePanel(int nLeft, int nTop, int nWidth, 
 		: (bDeleteTab ? TAECHANG_BUTTON_HEIGHT + TAECHANG_PANEL_GAP
 					  : TAECHANG_EDIT_HEIGHT + TAECHANG_ROW_GAP + TAECHANG_BUTTON_HEIGHT + TAECHANG_PANEL_GAP);
 	int nListH = nHeight - (nY - nTop) - nFormH;
-	int nMaxListH = TAECHANG_RESULT_HEADER_HEIGHT + TAECHANG_EDIT_HEIGHT * 10 + 8;
-	if (nListH > nMaxListH)
-		nListH = nMaxListH;
 	if (nListH < TAECHANG_RESULT_HEADER_HEIGHT + TAECHANG_EDIT_HEIGHT * 4)
 		nListH = TAECHANG_RESULT_HEADER_HEIGHT + TAECHANG_EDIT_HEIGHT * 4;
 
