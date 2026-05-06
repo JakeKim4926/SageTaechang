@@ -20,6 +20,7 @@
 #include "app/presentation/TaechangWorkflowResultPresenter.h"
 #include "TaechangAuthSession.h"
 #include "TaechangLoginDlg.h"
+#include "TaechangCompanyDlg.h"
 #include "SageDBMgr.h"
 #include <uxtheme.h>
 #pragma comment(lib, "uxtheme.lib")
@@ -1911,14 +1912,6 @@ void CSageTaechangView::OnListCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
 
 // ── 가격 관련 유틸 ────────────────────────────────────────────────────────────
 
-static BOOL ContainsNonAscii(const CString& str) {
-	for (int i = 0; i < str.GetLength(); ++i) {
-		if (str[i] > 127)
-			return TRUE;
-	}
-	return FALSE;
-}
-
 static CString FormatPrice(int nPrice) {
 	CString str;
 	str.Format(L"%d", nPrice);
@@ -2477,35 +2470,34 @@ BOOL CSageTaechangView::ReadPriceFormToDto(TaechangPriceDto& dto, CString& strEr
 // ── 가격 데이터 관리 이벤트 ──────────────────────────────────────────────────
 
 void CSageTaechangView::OnPriceAddCompany() {
-	CString strName;
-	m_wndPriceCompanyCombo.GetWindowTextW(strName);
-	strName.Trim();
-	if (strName.IsEmpty()) {
-		AfxMessageBox(TAECHANG_UI_PRICE_COMPANY_REQUIRED, MB_ICONWARNING);
+	TaechangCompanyDlg dlg(this);
+	if (dlg.DoModal() != IDOK)
+		return;
+
+	CString strName = dlg.GetCompanyName();
+	CStringArray arrNames;
+	CString strError;
+	if (sageDBMgr.GetTaechangPriceService()->LoadAllCompanyNames(arrNames, strError) == FALSE) {
+		AfxMessageBox(strError, MB_ICONERROR);
 		return;
 	}
-	BOOL bHasKorean = ContainsNonAscii(strName);
-	int nMaxLen = bHasKorean ? TAECHANG_PRICE_COMPANY_MAX_LEN_KO : TAECHANG_PRICE_COMPANY_MAX_LEN_EN;
-	if (strName.GetLength() > nMaxLen) {
-		AfxMessageBox(bHasKorean ? TAECHANG_UI_PRICE_COMPANY_TOO_LONG_KO : TAECHANG_UI_PRICE_COMPANY_TOO_LONG_EN, MB_ICONWARNING);
+
+	for (int i = 0; i < arrNames.GetSize(); ++i) {
+		CString strItem = arrNames[i];
+		strItem.Trim();
+		if (strItem.CompareNoCase(strName) != 0)
+			continue;
+
+		AfxMessageBox(TAECHANG_UI_PRICE_COMPANY_EXISTS, MB_ICONINFORMATION);
+		RefreshPriceCompanyList(strItem);
+		m_nPricePanelState = TAECHANG_PRICE_PANEL_SUMMARY;
+		ClearPriceForm();
+		ApplyPriceRightPanel();
 		return;
 	}
-	RefreshPriceCompanyList(strName);
-	// 이미 목록에 있으면 해당 항목 선택
-	int nCount = m_wndPriceCompanyCombo.GetCount();
-	for (int i = 0; i < nCount; ++i) {
-		CString strItem;
-		m_wndPriceCompanyCombo.GetLBText(i, strItem);
-		if (strItem.CompareNoCase(strName) == 0) {
-			m_wndPriceCompanyCombo.SetCurSel(i);
-			RefreshPriceCopiesList(strItem);
-			ClearPriceForm();
-			m_nPricePanelState = TAECHANG_PRICE_PANEL_SUMMARY;
-			ApplyPriceRightPanel();
-			return;
-		}
-	}
+
 	// 새 법인명을 목록에 추가 (DB에는 첫 가격 추가 시 반영됨)
+	RefreshPriceCompanyList(strName);
 	int nIndex = m_wndPriceCompanyCombo.AddString(strName);
 	m_wndPriceCompanyCombo.SetCurSel(nIndex);
 	m_wndPriceCompanyCombo.SetWindowTextW(strName);
