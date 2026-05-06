@@ -2025,7 +2025,7 @@ void CSageTaechangView::CreatePriceCalcPanel() {
 	m_wndCalcSubtotalValue.Create(TAECHANG_UI_PRICE_SUMMARY_EMPTY, WS_CHILD | SS_RIGHT | SS_CENTERIMAGE, r, this);
 	m_wndCalcFreightLabel.Create(TAECHANG_UI_CALC_FREIGHT_LABEL, WS_CHILD | SS_RIGHT | SS_CENTERIMAGE, r, this);
 	m_wndCalcFreightEdit.Create(WS_CHILD | ES_MULTILINE | ES_NUMBER | ES_RIGHT | ES_AUTOHSCROLL, r, this, ID_CALC_FREIGHT_EDIT);
-	m_wndCalcFreightUnitLabel.Create(L"원", WS_CHILD | SS_LEFT | SS_CENTERIMAGE, r, this);
+	m_wndCalcFreightUnitLabel.Create(L"원", WS_CHILD | SS_RIGHT | SS_CENTERIMAGE, r, this);
 	m_wndCalcDivider.Create(L"", WS_CHILD | SS_ETCHEDHORZ, r, this);
 	m_wndCalcTotalDivider.Create(L"", WS_CHILD | SS_ETCHEDHORZ, r, this);
 	m_wndCalcTotalLabel.Create(TAECHANG_UI_CALC_TOTAL_LABEL, WS_CHILD | SS_RIGHT | SS_CENTERIMAGE, r, this);
@@ -2238,7 +2238,7 @@ void CSageTaechangView::LayoutPriceCalcPanel(int nLeft, int nTop, int nWidth, in
 	if (nResultPanelW > nW)
 		nResultPanelW = nW;
 	m_rectCalcResultPanel = CRect(nX, nY, nX + nResultPanelW, nY + nResultPanelH);
-	int nFreightUnitW = 24;
+	int nFreightUnitW = 28;
 	int nFreightEditW = nValW - nFreightUnitW - TAECHANG_LABEL_EDIT_GAP;
 	if (nFreightEditW < 100)
 		nFreightEditW = 100;
@@ -2294,6 +2294,10 @@ void CSageTaechangView::LayoutPriceCalcPanel(int nLeft, int nTop, int nWidth, in
 	m_wndCalcHistoryList.SetColumnWidth(4, TAECHANG_CALC_HIST_COL_FREIGHT_W);
 	m_wndCalcHistoryList.SetColumnWidth(5, TAECHANG_CALC_HIST_COL_TOTAL_W);
 	m_wndCalcHistoryList.SetColumnWidth(6, TAECHANG_CALC_HIST_COL_TIME_W);
+	int nHistoryCount = static_cast<int>(m_arrCalcHistory.GetSize());
+	TrimCalcHistoryToVisibleCapacity();
+	if (m_arrCalcHistory.GetSize() != nHistoryCount)
+		RefreshCalcHistoryList();
 }
 
 // ── show/hide 헬퍼 ────────────────────────────────────────────────────────────
@@ -2977,10 +2981,27 @@ void CSageTaechangView::AddCalcHistory(const CString& strCompany, int nCopies, i
 	entry.timeCalc       = CTime::GetCurrentTime();
 
 	m_arrCalcHistory.InsertAt(0, entry);
-	if (m_arrCalcHistory.GetSize() > TAECHANG_CALC_MAX_HISTORY)
-		m_arrCalcHistory.RemoveAt(TAECHANG_CALC_MAX_HISTORY);
+	TrimCalcHistoryToVisibleCapacity();
 
 	RefreshCalcHistoryList();
+}
+
+int CSageTaechangView::GetCalcHistoryVisibleCapacity() const {
+	if (!::IsWindow(m_wndCalcHistoryList.GetSafeHwnd()))
+		return TAECHANG_CALC_MAX_HISTORY;
+
+	int nCapacity = m_wndCalcHistoryList.GetCountPerPage();
+	if (nCapacity <= 0)
+		return TAECHANG_CALC_MAX_HISTORY;
+	return nCapacity;
+}
+
+void CSageTaechangView::TrimCalcHistoryToVisibleCapacity() {
+	int nCapacity = GetCalcHistoryVisibleCapacity();
+	if (nCapacity < 1)
+		nCapacity = 1;
+	while (m_arrCalcHistory.GetSize() > nCapacity)
+		m_arrCalcHistory.RemoveAt(nCapacity);
 }
 
 void CSageTaechangView::RefreshCalcHistoryList() {

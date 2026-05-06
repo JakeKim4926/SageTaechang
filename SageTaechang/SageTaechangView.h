@@ -236,6 +236,8 @@ protected:
     void UpdateCalcTotal();
     void AddCalcHistory(const CString& strCompany, int nCopies, int nPrintPrice, int nCoverPrice, int nFreight, int nTotal);
     void RefreshCalcHistoryList();
+    int  GetCalcHistoryVisibleCapacity() const;
+    void TrimCalcHistoryToVisibleCapacity();
 
 protected:
     afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
