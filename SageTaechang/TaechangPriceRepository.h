@@ -54,6 +54,22 @@ public:
         CString& strError
     );
 
+    BOOL UpdateCompanyName(
+        const CString& strOldCompanyName,
+        const CString& strNewCompanyName,
+        int nReportType,
+        int& nAffectedCount,
+        CString& strError
+    );
+
+    BOOL UpdateCoverPriceByCompany(
+        const CString& strCompanyName,
+        int nReportType,
+        int nCoverPrice,
+        int& nAffectedCount,
+        CString& strError
+    );
+
     BOOL ExistsOverlap(
         const CString& strCompanyName,
         int nReportType,

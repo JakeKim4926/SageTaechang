@@ -424,6 +424,114 @@ BOOL TaechangPriceRepository::UpdatePriceByCompanyAndCopies(
     return TRUE;
 }
 
+BOOL TaechangPriceRepository::UpdateCompanyName(
+    const CString& strOldCompanyName,
+    const CString& strNewCompanyName,
+    int nReportType,
+    int& nAffectedCount,
+    CString& strError
+) {
+    sqlite3* pDb;
+    sqlite3_stmt* pStatement;
+    CStringA strSqlA;
+    int nResult;
+
+    nAffectedCount = 0;
+
+    if (m_pSqlContext == NULL || m_pSqlContext->IsOpened() == FALSE) {
+        strError = _T("SQLite DB媛 ?대젮 ?덉? ?딆뒿?덈떎.");
+        return FALSE;
+    }
+
+    pDb = m_pSqlContext->GetDb();
+    pStatement = NULL;
+
+    strSqlA =
+        "UPDATE TaechangPrice SET "
+        "    company_name = ?, "
+        "    updated_at = CURRENT_TIMESTAMP "
+        "WHERE company_name = ? "
+        "  AND report_type = ?;";
+
+    nResult = sqlite3_prepare_v2(pDb, strSqlA.GetString(), -1, &pStatement, NULL);
+    if (nResult != SQLITE_OK) {
+        strError = RepositoryHelper::GetLastError(pDb);
+        return FALSE;
+    }
+
+    if (RepositoryHelper::BindText(pStatement, 1, strNewCompanyName, strError) == FALSE ||
+        RepositoryHelper::BindText(pStatement, 2, strOldCompanyName, strError) == FALSE ||
+        RepositoryHelper::BindInt(pStatement, 3, nReportType, strError) == FALSE) {
+        sqlite3_finalize(pStatement);
+        return FALSE;
+    }
+
+    nResult = sqlite3_step(pStatement);
+    if (nResult != SQLITE_DONE) {
+        strError = RepositoryHelper::GetLastError(pDb);
+        sqlite3_finalize(pStatement);
+        return FALSE;
+    }
+
+    nAffectedCount = sqlite3_changes(pDb);
+    sqlite3_finalize(pStatement);
+    return TRUE;
+}
+
+BOOL TaechangPriceRepository::UpdateCoverPriceByCompany(
+    const CString& strCompanyName,
+    int nReportType,
+    int nCoverPrice,
+    int& nAffectedCount,
+    CString& strError
+) {
+    sqlite3* pDb;
+    sqlite3_stmt* pStatement;
+    CStringA strSqlA;
+    int nResult;
+
+    nAffectedCount = 0;
+
+    if (m_pSqlContext == NULL || m_pSqlContext->IsOpened() == FALSE) {
+        strError = _T("SQLite DB媛 ?대젮 ?덉? ?딆뒿?덈떎.");
+        return FALSE;
+    }
+
+    pDb = m_pSqlContext->GetDb();
+    pStatement = NULL;
+
+    strSqlA =
+        "UPDATE TaechangPrice SET "
+        "    cover_price = ?, "
+        "    updated_at = CURRENT_TIMESTAMP "
+        "WHERE company_name = ? "
+        "  AND report_type = ?;";
+
+    nResult = sqlite3_prepare_v2(pDb, strSqlA.GetString(), -1, &pStatement, NULL);
+    if (nResult != SQLITE_OK) {
+        strError = RepositoryHelper::GetLastError(pDb);
+        return FALSE;
+    }
+
+    if (RepositoryHelper::BindInt(pStatement, 1, nCoverPrice, strError) == FALSE ||
+        RepositoryHelper::BindText(pStatement, 2, strCompanyName, strError) == FALSE ||
+        RepositoryHelper::BindInt(pStatement, 3, nReportType, strError) == FALSE) {
+        sqlite3_finalize(pStatement);
+        return FALSE;
+    }
+
+    nResult = sqlite3_step(pStatement);
+    if (nResult != SQLITE_DONE) {
+        strError = RepositoryHelper::GetLastError(pDb);
+        sqlite3_finalize(pStatement);
+        return FALSE;
+    }
+
+    nAffectedCount = sqlite3_changes(pDb);
+    sqlite3_finalize(pStatement);
+    return TRUE;
+}
+
 BOOL TaechangPriceRepository::ExistsOverlap(
     const CString& strCompanyName,
     int nReportType,

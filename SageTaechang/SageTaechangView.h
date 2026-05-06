@@ -96,6 +96,7 @@ protected:
     CBrush m_brushAppBackground;
     CBrush m_brushPanel;
     CBrush m_brushSidebar;
+    CBrush m_brushListHeader;
     CBrush m_brushHeaderStatus;
     BOOL m_bRunning;
     int m_nProgressPercent;
@@ -119,6 +120,8 @@ protected:
     CStatic             m_wndPriceCompanyLabel;
     CTaechangComboBox   m_wndPriceCompanyCombo;
     CButton             m_wndPriceAddCompanyBtn;
+    CButton             m_wndPriceRenameCompanyBtn;
+    CButton             m_wndPriceChangeCoverBtn;
     CTaechangHeaderCtrl m_wndPriceCopiesHeader;
     CListCtrl           m_wndPriceCopiesList;
     CStatic             m_wndPriceMinCopiesLabel;
@@ -260,6 +263,8 @@ protected:
     afx_msg void OnPriceCompanySelChanged();
     afx_msg void OnPriceCompanyEditChanged();
     afx_msg void OnPriceAddCompany();
+    afx_msg void OnPriceRenameCompany();
+    afx_msg void OnPriceChangeCover();
     afx_msg void OnPriceCopiesSelChanged(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnPriceNoMaxCheck();
     afx_msg void OnPriceAdd();

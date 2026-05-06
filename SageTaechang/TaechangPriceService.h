@@ -49,6 +49,20 @@ public:
         CString& strError
     );
 
+    BOOL RenameCompany(
+        const CString& strOldCompanyName,
+        const CString& strNewCompanyName,
+        int& nAffectedCount,
+        CString& strError
+    );
+
+    BOOL ChangeCoverPriceByCompany(
+        const CString& strCompanyName,
+        int nCoverPrice,
+        int& nAffectedCount,
+        CString& strError
+    );
+
     BOOL RemovePrice(int nPriceId, CString& strError);
 
     BOOL LoadAllCompanyNames(CStringArray& arrNames, CString& strError);

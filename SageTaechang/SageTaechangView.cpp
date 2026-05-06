@@ -20,7 +20,11 @@
 #include "app/presentation/TaechangWorkflowResultPresenter.h"
 #include "TaechangAuthSession.h"
 #include "TaechangLoginDlg.h"
+#include "TaechangCompanyDlg.h"
+#include "TaechangPriceRangeDlg.h"
+#include "TaechangPriceSimpleDlg.h"
 #include "SageDBMgr.h"
+#include <climits>
 #include <uxtheme.h>
 #pragma comment(lib, "uxtheme.lib")
 
@@ -321,6 +325,8 @@ BEGIN_MESSAGE_MAP(CSageTaechangView, CView)
 	ON_CBN_SELCHANGE(ID_PRICE_COMPANY_EDIT, &CSageTaechangView::OnPriceCompanySelChanged)
 	ON_CBN_EDITCHANGE(ID_PRICE_COMPANY_EDIT, &CSageTaechangView::OnPriceCompanyEditChanged)
 	ON_BN_CLICKED(ID_PRICE_ADD_COMPANY_BTN, &CSageTaechangView::OnPriceAddCompany)
+	ON_BN_CLICKED(ID_PRICE_RENAME_COMPANY_BTN, &CSageTaechangView::OnPriceRenameCompany)
+	ON_BN_CLICKED(ID_PRICE_CHANGE_COVER_BTN, &CSageTaechangView::OnPriceChangeCover)
 	ON_NOTIFY(LVN_ITEMCHANGED, ID_PRICE_COPIES_LIST, &CSageTaechangView::OnPriceCopiesSelChanged)
 	ON_BN_CLICKED(ID_PRICE_NO_MAX_CHECK, &CSageTaechangView::OnPriceNoMaxCheck)
 	ON_BN_CLICKED(ID_PRICE_ADD_BTN, &CSageTaechangView::OnPriceAdd)
@@ -355,6 +361,7 @@ CSageTaechangView::CSageTaechangView() noexcept
 	m_brushAppBackground.CreateSolidBrush(TAECHANG_COLOR_APP_BACKGROUND);
 	m_brushPanel.CreateSolidBrush(TAECHANG_COLOR_PANEL);
 	m_brushSidebar.CreateSolidBrush(TAECHANG_COLOR_SIDEBAR);
+	m_brushListHeader.CreateSolidBrush(TAECHANG_COLOR_LIST_HEADER);
 	m_brushHeaderStatus.CreateSolidBrush(TAECHANG_COLOR_APP_BACKGROUND);
 }
 
@@ -535,6 +542,8 @@ void CSageTaechangView::ApplyControlFonts() {
 	m_wndPriceCompanyLabel.SetFont(&m_fontContent);
 	m_wndPriceCompanyCombo.SetFont(&m_fontContent);
 	m_wndPriceAddCompanyBtn.SetFont(&m_fontContent);
+	m_wndPriceRenameCompanyBtn.SetFont(&m_fontContent);
+	m_wndPriceChangeCoverBtn.SetFont(&m_fontContent);
 	m_wndPriceCopiesList.SetFont(&m_fontContent);
 	if (::IsWindow(m_wndPriceCopiesHeader.GetSafeHwnd()))
 		m_wndPriceCopiesHeader.SetFont(&m_fontContent);
@@ -1512,6 +1521,14 @@ HBRUSH CSageTaechangView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
 		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
 		return m_brushPanel;
 	}
+	if (pWnd->GetSafeHwnd() == m_wndPriceMinCopiesLabel.GetSafeHwnd() ||
+		pWnd->GetSafeHwnd() == m_wndPriceMaxCopiesLabel.GetSafeHwnd() ||
+		pWnd->GetSafeHwnd() == m_wndPricePrintLabel.GetSafeHwnd() ||
+		pWnd->GetSafeHwnd() == m_wndPriceCoverLabel.GetSafeHwnd()) {
+		pDC->SetTextColor(TAECHANG_COLOR_BUTTON_TEXT);
+		pDC->SetBkColor(TAECHANG_COLOR_LIST_HEADER);
+		return m_brushListHeader;
+	}
 	if (pWnd->GetSafeHwnd() == m_wndCalcTotalLabel.GetSafeHwnd() ||
 		pWnd->GetSafeHwnd() == m_wndCalcTotalValue.GetSafeHwnd()) {
 		pDC->SetTextColor(TAECHANG_COLOR_PRIMARY);
@@ -1529,6 +1546,11 @@ HBRUSH CSageTaechangView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
 		pWnd->GetSafeHwnd() == m_wndCalcFreightLabel.GetSafeHwnd() ||
 		pWnd->GetSafeHwnd() == m_wndCalcDivider.GetSafeHwnd() ||
 		pWnd->GetSafeHwnd() == m_wndCalcTotalDivider.GetSafeHwnd()) {
+		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
+		return m_brushPanel;
+	}
+	if (pWnd->GetSafeHwnd() == m_wndPriceCoverEdit.GetSafeHwnd()) {
+		pDC->SetTextColor(TAECHANG_COLOR_SECONDARY_TEXT);
 		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
 		return m_brushPanel;
 	}
@@ -1783,7 +1805,8 @@ void CSageTaechangView::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct
 
 	BOOL bPrimary = (nIDCtl == ID_TAECHANG_GENERATE_WORKFLOW || nIDCtl == ID_TAECHANG_LOAD_WORKFLOW
 		|| nIDCtl == ID_TAECHANG_LOGIN_BTN
-		|| nIDCtl == ID_PRICE_ADD_COMPANY_BTN || nIDCtl == ID_PRICE_ADD_BTN || nIDCtl == ID_PRICE_MODIFY_BTN
+		|| nIDCtl == ID_PRICE_ADD_COMPANY_BTN || nIDCtl == ID_PRICE_ADD_BTN || nIDCtl == ID_PRICE_RENAME_COMPANY_BTN
+		|| nIDCtl == ID_PRICE_CHANGE_COVER_BTN || nIDCtl == ID_PRICE_MODIFY_BTN
 		|| nIDCtl == ID_CALC_BTN);
 
 	if (bPrimary) {
@@ -1911,14 +1934,6 @@ void CSageTaechangView::OnListCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
 
 // ── 가격 관련 유틸 ────────────────────────────────────────────────────────────
 
-static BOOL ContainsNonAscii(const CString& str) {
-	for (int i = 0; i < str.GetLength(); ++i) {
-		if (str[i] > 127)
-			return TRUE;
-	}
-	return FALSE;
-}
-
 static CString FormatPrice(int nPrice) {
 	CString str;
 	str.Format(L"%d", nPrice);
@@ -1928,6 +1943,12 @@ static CString FormatPrice(int nPrice) {
 	return str;
 }
 
+static BOOL IsCopiesRangeOverlap(int nMinA, BOOL bHasMaxA, int nMaxA, int nMinB, BOOL bHasMaxB, int nMaxB) {
+	int nEndA = bHasMaxA ? nMaxA : INT_MAX;
+	int nEndB = bHasMaxB ? nMaxB : INT_MAX;
+	return (nMinA <= nEndB && nMinB <= nEndA) ? TRUE : FALSE;
+}
+
 // ── 가격 데이터 관리 패널 생성 ────────────────────────────────────────────────
 
 void CSageTaechangView::CreatePriceManagePanel() {
@@ -1935,6 +1956,8 @@ void CSageTaechangView::CreatePriceManagePanel() {
 	m_wndPriceCompanyLabel.Create(TAECHANG_UI_PRICE_COMPANY_LABEL, WS_CHILD | SS_RIGHT | SS_CENTERIMAGE, r, this);
 	m_wndPriceCompanyCombo.Create(WS_CHILD | CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL, r, this, ID_PRICE_COMPANY_EDIT);
 	m_wndPriceAddCompanyBtn.Create(TAECHANG_UI_PRICE_ADD_COMPANY_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_PRICE_ADD_COMPANY_BTN);
+	m_wndPriceRenameCompanyBtn.Create(TAECHANG_UI_PRICE_RENAME_COMPANY_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_PRICE_RENAME_COMPANY_BTN);
+	m_wndPriceChangeCoverBtn.Create(TAECHANG_UI_PRICE_CHANGE_COVER_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_PRICE_CHANGE_COVER_BTN);
 
 	m_wndPriceCopiesList.Create(WS_CHILD | WS_BORDER | LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS, r, this, ID_PRICE_COPIES_LIST);
 	m_wndPriceCopiesList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_GRIDLINES);
@@ -1952,16 +1975,16 @@ void CSageTaechangView::CreatePriceManagePanel() {
 		m_wndPriceCopiesHeader.SetItem(0, &hdi);
 	}
 
-	m_wndPriceMinCopiesLabel.Create(TAECHANG_UI_PRICE_MIN_COPIES_LABEL, WS_CHILD | SS_RIGHT | SS_CENTERIMAGE, r, this);
-	m_wndPriceMinCopiesEdit.Create(WS_CHILD | ES_NUMBER | ES_AUTOHSCROLL, r, this, ID_PRICE_MIN_COPIES_EDIT);
-	m_wndPriceMaxCopiesLabel.Create(TAECHANG_UI_PRICE_MAX_COPIES_LABEL, WS_CHILD | SS_RIGHT | SS_CENTERIMAGE, r, this);
-	m_wndPriceMaxCopiesEdit.Create(WS_CHILD | ES_NUMBER | ES_AUTOHSCROLL, r, this, ID_PRICE_MAX_COPIES_EDIT);
+	m_wndPriceMinCopiesLabel.Create(TAECHANG_UI_PRICE_MIN_COPIES_LABEL, WS_CHILD | SS_LEFT | SS_CENTERIMAGE, r, this);
+	m_wndPriceMinCopiesEdit.Create(WS_CHILD | ES_MULTILINE | ES_NUMBER | ES_AUTOHSCROLL, r, this, ID_PRICE_MIN_COPIES_EDIT);
+	m_wndPriceMaxCopiesLabel.Create(TAECHANG_UI_PRICE_MAX_COPIES_LABEL, WS_CHILD | SS_LEFT | SS_CENTERIMAGE, r, this);
+	m_wndPriceMaxCopiesEdit.Create(WS_CHILD | ES_MULTILINE | ES_NUMBER | ES_AUTOHSCROLL, r, this, ID_PRICE_MAX_COPIES_EDIT);
 	m_wndPriceNoMaxCheck.Create(TAECHANG_UI_PRICE_NO_MAX_LABEL, WS_CHILD | BS_AUTOCHECKBOX, r, this, ID_PRICE_NO_MAX_CHECK);
 
-	m_wndPricePrintLabel.Create(TAECHANG_UI_PRICE_PRINT_LABEL, WS_CHILD | SS_RIGHT | SS_CENTERIMAGE, r, this);
-	m_wndPricePrintEdit.Create(WS_CHILD | ES_NUMBER | ES_AUTOHSCROLL, r, this, ID_PRICE_PRINT_EDIT);
-	m_wndPriceCoverLabel.Create(TAECHANG_UI_PRICE_COVER_LABEL, WS_CHILD | SS_RIGHT | SS_CENTERIMAGE, r, this);
-	m_wndPriceCoverEdit.Create(WS_CHILD | ES_NUMBER | ES_AUTOHSCROLL, r, this, ID_PRICE_COVER_EDIT);
+	m_wndPricePrintLabel.Create(TAECHANG_UI_PRICE_PRINT_LABEL, WS_CHILD | SS_LEFT | SS_CENTERIMAGE, r, this);
+	m_wndPricePrintEdit.Create(WS_CHILD | ES_MULTILINE | ES_NUMBER | ES_AUTOHSCROLL, r, this, ID_PRICE_PRINT_EDIT);
+	m_wndPriceCoverLabel.Create(TAECHANG_UI_PRICE_COVER_LABEL, WS_CHILD | SS_LEFT | SS_CENTERIMAGE, r, this);
+	m_wndPriceCoverEdit.Create(WS_CHILD | ES_MULTILINE | ES_NUMBER | ES_AUTOHSCROLL, r, this, ID_PRICE_COVER_EDIT);
 
 	m_wndPriceAddBtn.Create(TAECHANG_UI_PRICE_ADD_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_PRICE_ADD_BTN);
 	m_wndPriceModifyBtn.Create(TAECHANG_UI_PRICE_SAVE_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_PRICE_MODIFY_BTN);
@@ -1977,6 +2000,7 @@ void CSageTaechangView::CreatePriceManagePanel() {
 	m_wndPriceMaxCopiesEdit.SetLimitText(7);
 	m_wndPricePrintEdit.SetLimitText(8);
 	m_wndPriceCoverEdit.SetLimitText(8);
+	m_wndPriceCoverEdit.SetReadOnly(TRUE);
 }
 
 // ── 부수 계산 패널 생성 ───────────────────────────────────────────────────────
@@ -2041,15 +2065,22 @@ void CSageTaechangView::LayoutPriceManagePanel(int nLeft, int nTop, int nWidth, 
 
 	int nY = nTop + TAECHANG_MARGIN;
 
-	// 법인명 행 ([법인명] [콤보] [법인추가]) — 단가추가는 우측 패널 상단으로 이동
+	// 법인명 행 ([법인명] [콤보] [법인추가] [단가추가] [법인수정] [표지수정])
+	int nActionButtonCount = 4;
 	int nCompanyComboW = min(TAECHANG_PRICE_COMPANY_COMBO_WIDTH,
-		nLeftW - nLabelW - TAECHANG_LABEL_EDIT_GAP - TAECHANG_BUTTON_WIDTH - TAECHANG_ROW_GAP);
+		nLeftW - nLabelW - TAECHANG_LABEL_EDIT_GAP - TAECHANG_BUTTON_WIDTH * nActionButtonCount - TAECHANG_ROW_GAP * nActionButtonCount);
 	if (nCompanyComboW < 180)
 		nCompanyComboW = 180;
-	m_wndPriceCompanyLabel.MoveWindow(nInnerLeft, nY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, TAECHANG_EDIT_HEIGHT);
+	m_wndPriceCompanyLabel.MoveWindow(nInnerLeft - 4, nY + TAECHANG_LABEL_VERT_OFFSET - 2, nLabelW, TAECHANG_EDIT_HEIGHT);
 	m_wndPriceCompanyCombo.MoveWindow(nInnerLeft + nLabelW + TAECHANG_LABEL_EDIT_GAP, nY, nCompanyComboW, TAECHANG_EDIT_HEIGHT * 8);
 	int nBtnX = nInnerLeft + nLabelW + TAECHANG_LABEL_EDIT_GAP + nCompanyComboW + TAECHANG_ROW_GAP;
 	m_wndPriceAddCompanyBtn.MoveWindow(nBtnX, nY - TAECHANG_BUTTON_VERT_ADJUST, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
+	nBtnX += TAECHANG_BUTTON_WIDTH + TAECHANG_ROW_GAP;
+	m_wndPriceAddBtn.MoveWindow(nBtnX, nY - TAECHANG_BUTTON_VERT_ADJUST, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
+	nBtnX += TAECHANG_BUTTON_WIDTH + TAECHANG_ROW_GAP;
+	m_wndPriceRenameCompanyBtn.MoveWindow(nBtnX, nY - TAECHANG_BUTTON_VERT_ADJUST, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
+	nBtnX += TAECHANG_BUTTON_WIDTH + TAECHANG_ROW_GAP;
+	m_wndPriceChangeCoverBtn.MoveWindow(nBtnX, nY - TAECHANG_BUTTON_VERT_ADJUST, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
 	nY += TAECHANG_BUTTON_HEIGHT + TAECHANG_ROW_GAP;
 
 	// 단가 테이블 (하단 여백 적용)
@@ -2058,23 +2089,21 @@ void CSageTaechangView::LayoutPriceManagePanel(int nLeft, int nTop, int nWidth, 
 		nListH = TAECHANG_RESULT_HEADER_HEIGHT + TAECHANG_EDIT_HEIGHT * 4;
 
 	m_wndPriceCopiesList.MoveWindow(nInnerLeft, nY, nLeftW, nListH);
-	// 최소/최대 부수는 좁게, 단가 컬럼이 나머지 공간 사용
 	int nColMinMax = 80;
 	int nColPrice = (nLeftW - nColMinMax * 2) / 2;
+	if (nColPrice > 220)
+		nColPrice = 220;
 	m_wndPriceCopiesList.SetColumnWidth(0, nColMinMax);
 	m_wndPriceCopiesList.SetColumnWidth(1, nColMinMax);
 	m_wndPriceCopiesList.SetColumnWidth(2, nColPrice);
 	m_wndPriceCopiesList.SetColumnWidth(3, nLeftW - nColMinMax * 2 - nColPrice);
 
 	// 우측 패널 (상하 여백 적용)
-	m_rectPriceSummaryCard = CRect(nRightX, nTop + TAECHANG_MARGIN, nRightX + nCardW, nTop + nHeight - TAECHANG_MARGIN);
+	int nCardTop = nY;
 	int nCardInnerX = nRightX + nCardPad;
 	int nCardInnerW = nCardW - nCardPad * 2;
 
-	// 단가 추가 버튼 (우측 패널 상단)
-	int nPanelY = m_rectPriceSummaryCard.top + nCardPad;
-	m_wndPriceAddBtn.MoveWindow(nCardInnerX, nPanelY - TAECHANG_BUTTON_VERT_ADJUST, nCardInnerW, TAECHANG_BUTTON_HEIGHT);
-	nPanelY += TAECHANG_BUTTON_HEIGHT + TAECHANG_ROW_GAP;
+	int nPanelY = nCardTop + nCardPad;
 
 	// 요약 컨트롤
 	int nSummaryY = nPanelY;
@@ -2088,10 +2117,20 @@ void CSageTaechangView::LayoutPriceManagePanel(int nLeft, int nTop, int nWidth, 
 	int nFormY = nPanelY;
 	int nCheckW = 70;
 	int nEditW = nCardInnerW;
+	auto ApplyPriceEditTextRect = [](CEdit& edit) {
+		CRect rc;
+		edit.GetClientRect(&rc);
+		rc.left += 2;
+		rc.top += 4;
+		rc.right -= 2;
+		rc.bottom -= 2;
+		edit.SendMessage(EM_SETRECTNP, 0, reinterpret_cast<LPARAM>(&rc));
+	};
 
 	m_wndPriceMinCopiesLabel.MoveWindow(nCardInnerX, nFormY, nCardInnerW, TAECHANG_PRICE_PANEL_LABEL_HEIGHT);
 	nFormY += TAECHANG_PRICE_PANEL_LABEL_HEIGHT + TAECHANG_PRICE_PANEL_LABEL_FIELD_GAP;
 	m_wndPriceMinCopiesEdit.MoveWindow(nCardInnerX, nFormY, nEditW, TAECHANG_PRICE_EDIT_HEIGHT);
+	ApplyPriceEditTextRect(m_wndPriceMinCopiesEdit);
 	nFormY += TAECHANG_PRICE_EDIT_HEIGHT + TAECHANG_ROW_GAP;
 
 	int nMaxLabelW = nCardInnerW - nCheckW - TAECHANG_ACTION_GAP;
@@ -2099,24 +2138,29 @@ void CSageTaechangView::LayoutPriceManagePanel(int nLeft, int nTop, int nWidth, 
 	m_wndPriceNoMaxCheck.MoveWindow(nCardInnerX + nMaxLabelW + TAECHANG_ACTION_GAP, nFormY, nCheckW, TAECHANG_PRICE_PANEL_LABEL_HEIGHT);
 	nFormY += TAECHANG_PRICE_PANEL_LABEL_HEIGHT + TAECHANG_PRICE_PANEL_LABEL_FIELD_GAP;
 	m_wndPriceMaxCopiesEdit.MoveWindow(nCardInnerX, nFormY, nEditW, TAECHANG_PRICE_EDIT_HEIGHT);
+	ApplyPriceEditTextRect(m_wndPriceMaxCopiesEdit);
 	nFormY += TAECHANG_PRICE_EDIT_HEIGHT + TAECHANG_ROW_GAP;
 
 	m_wndPricePrintLabel.MoveWindow(nCardInnerX, nFormY, nCardInnerW, TAECHANG_PRICE_PANEL_LABEL_HEIGHT);
 	nFormY += TAECHANG_PRICE_PANEL_LABEL_HEIGHT + TAECHANG_PRICE_PANEL_LABEL_FIELD_GAP;
 	m_wndPricePrintEdit.MoveWindow(nCardInnerX, nFormY, nEditW, TAECHANG_PRICE_EDIT_HEIGHT);
+	ApplyPriceEditTextRect(m_wndPricePrintEdit);
 	nFormY += TAECHANG_PRICE_EDIT_HEIGHT + TAECHANG_ROW_GAP;
 
 	m_wndPriceCoverLabel.MoveWindow(nCardInnerX, nFormY, nCardInnerW, TAECHANG_PRICE_PANEL_LABEL_HEIGHT);
 	nFormY += TAECHANG_PRICE_PANEL_LABEL_HEIGHT + TAECHANG_PRICE_PANEL_LABEL_FIELD_GAP;
 	m_wndPriceCoverEdit.MoveWindow(nCardInnerX, nFormY, nEditW, TAECHANG_PRICE_EDIT_HEIGHT);
-	nFormY += TAECHANG_PRICE_EDIT_HEIGHT + TAECHANG_ROW_GAP * 2;
+	ApplyPriceEditTextRect(m_wndPriceCoverEdit);
+	nFormY += TAECHANG_PRICE_EDIT_HEIGHT;
+	m_rectPriceSummaryCard = CRect(nRightX, nCardTop, nRightX + nCardW, nFormY + nCardPad);
 
 	// 편집 버튼 ([저장][취소] 나란히, [삭제] 아래)
 	int nHalfBtnW = (nCardInnerW - TAECHANG_ACTION_GAP) / 2;
-	m_wndPriceModifyBtn.MoveWindow(nCardInnerX, nFormY - TAECHANG_BUTTON_VERT_ADJUST, nHalfBtnW, TAECHANG_BUTTON_HEIGHT);
-	m_wndPriceCancelBtn.MoveWindow(nCardInnerX + nHalfBtnW + TAECHANG_ACTION_GAP, nFormY - TAECHANG_BUTTON_VERT_ADJUST, nHalfBtnW, TAECHANG_BUTTON_HEIGHT);
-	nFormY += TAECHANG_BUTTON_HEIGHT + TAECHANG_ROW_GAP;
-	m_wndPriceDeleteBtn.MoveWindow(nCardInnerX, nFormY - TAECHANG_BUTTON_VERT_ADJUST, nCardInnerW, TAECHANG_BUTTON_HEIGHT);
+	int nButtonY = m_rectPriceSummaryCard.bottom + TAECHANG_ROW_GAP;
+	m_wndPriceModifyBtn.MoveWindow(nCardInnerX, nButtonY, nHalfBtnW, TAECHANG_BUTTON_HEIGHT);
+	m_wndPriceCancelBtn.MoveWindow(nCardInnerX + nHalfBtnW + TAECHANG_ACTION_GAP, nButtonY, nHalfBtnW, TAECHANG_BUTTON_HEIGHT);
+	nButtonY += TAECHANG_BUTTON_HEIGHT + TAECHANG_ROW_GAP;
+	m_wndPriceDeleteBtn.MoveWindow(nCardInnerX, nButtonY, nCardInnerW, TAECHANG_BUTTON_HEIGHT);
 }
 
 // ── 부수 계산 패널 레이아웃 ───────────────────────────────────────────────────
@@ -2206,6 +2250,8 @@ void CSageTaechangView::ShowPriceManagePanel(BOOL bShow) {
 	m_wndPriceCompanyLabel.ShowWindow(nCmd);
 	m_wndPriceCompanyCombo.ShowWindow(nCmd);
 	m_wndPriceAddCompanyBtn.ShowWindow(nCmd);
+	m_wndPriceRenameCompanyBtn.ShowWindow(nCmd);
+	m_wndPriceChangeCoverBtn.ShowWindow(nCmd);
 	m_wndPriceCopiesList.ShowWindow(nCmd);
 	m_wndPriceMinCopiesLabel.ShowWindow(nCmd);
 	m_wndPriceMinCopiesEdit.ShowWindow(nCmd);
@@ -2477,37 +2523,120 @@ BOOL CSageTaechangView::ReadPriceFormToDto(TaechangPriceDto& dto, CString& strEr
 // ── 가격 데이터 관리 이벤트 ──────────────────────────────────────────────────
 
 void CSageTaechangView::OnPriceAddCompany() {
-	CString strName;
-	m_wndPriceCompanyCombo.GetWindowTextW(strName);
-	strName.Trim();
-	if (strName.IsEmpty()) {
-		AfxMessageBox(TAECHANG_UI_PRICE_COMPANY_REQUIRED, MB_ICONWARNING);
+	TaechangCompanyDlg dlg(this);
+	if (dlg.DoModal() != IDOK)
+		return;
+
+	CString strName = dlg.GetCompanyName();
+	int nCoverPrice = dlg.GetCoverPrice();
+	CStringArray arrNames;
+	CString strError;
+	if (sageDBMgr.GetTaechangPriceService()->LoadAllCompanyNames(arrNames, strError) == FALSE) {
+		AfxMessageBox(strError, MB_ICONERROR);
 		return;
 	}
-	BOOL bHasKorean = ContainsNonAscii(strName);
-	int nMaxLen = bHasKorean ? TAECHANG_PRICE_COMPANY_MAX_LEN_KO : TAECHANG_PRICE_COMPANY_MAX_LEN_EN;
-	if (strName.GetLength() > nMaxLen) {
-		AfxMessageBox(bHasKorean ? TAECHANG_UI_PRICE_COMPANY_TOO_LONG_KO : TAECHANG_UI_PRICE_COMPANY_TOO_LONG_EN, MB_ICONWARNING);
+
+	for (int i = 0; i < arrNames.GetSize(); ++i) {
+		CString strItem = arrNames[i];
+		strItem.Trim();
+		if (strItem.CompareNoCase(strName) != 0)
+			continue;
+
+		AfxMessageBox(TAECHANG_UI_PRICE_COMPANY_EXISTS, MB_ICONINFORMATION);
+		RefreshPriceCompanyList(strItem);
+		m_nPricePanelState = TAECHANG_PRICE_PANEL_SUMMARY;
+		ClearPriceForm();
+		ApplyPriceRightPanel();
 		return;
 	}
-	RefreshPriceCompanyList();
-	// 이미 목록에 있으면 해당 항목 선택
-	int nCount = m_wndPriceCompanyCombo.GetCount();
-	for (int i = 0; i < nCount; ++i) {
-		CString strItem;
-		m_wndPriceCompanyCombo.GetLBText(i, strItem);
-		if (strItem == strName) {
-			m_wndPriceCompanyCombo.SetCurSel(i);
-			RefreshPriceCopiesList(strName);
-			ClearPriceForm();
+
+	// 새 법인명을 목록에 추가 (DB에는 첫 가격 추가 시 반영됨)
+	RefreshPriceCompanyList(strName);
+	int nIndex = m_wndPriceCompanyCombo.AddString(strName);
+	m_wndPriceCompanyCombo.SetCurSel(nIndex);
+	m_wndPriceCompanyCombo.SetWindowTextW(strName);
+	m_wndPriceCopiesList.DeleteAllItems();
+	ClearPriceForm();
+	CString strCover;
+	strCover.Format(L"%d", nCoverPrice);
+	m_wndPriceCoverEdit.SetWindowTextW(strCover);
+	m_nPricePanelState = TAECHANG_PRICE_PANEL_SUMMARY;
+	ApplyPriceRightPanel();
+}
+
+void CSageTaechangView::OnPriceRenameCompany() {
+	CString strCompany = GetSelectedCompanyName();
+	int nIndex = m_wndPriceCompanyCombo.FindStringExact(-1, strCompany);
+	if (strCompany.IsEmpty() || nIndex == CB_ERR) {
+		AfxMessageBox(TAECHANG_UI_PRICE_SELECT_COMPANY, MB_ICONWARNING);
+		return;
+	}
+
+	TaechangCompanyRenameDlg dlg(this);
+	if (dlg.DoModal() != IDOK)
+		return;
+
+	CString strNewName = dlg.GetCompanyName();
+	strNewName.Trim();
+	if (strNewName.CompareNoCase(strCompany) == 0)
+		return;
+
+	CStringArray arrNames;
+	CString strError;
+	if (sageDBMgr.GetTaechangPriceService()->LoadAllCompanyNames(arrNames, strError) == FALSE) {
+		AfxMessageBox(strError, MB_ICONERROR);
+		return;
+	}
+
+	for (int i = 0; i < arrNames.GetSize(); ++i) {
+		CString strItem = arrNames[i];
+		strItem.Trim();
+		if (strItem.CompareNoCase(strCompany) != 0 && strItem.CompareNoCase(strNewName) == 0) {
+			AfxMessageBox(TAECHANG_UI_PRICE_COMPANY_EXISTS, MB_ICONINFORMATION);
 			return;
 		}
 	}
-	// 새 법인명을 목록에 추가 (DB에는 첫 가격 추가 시 반영됨)
-	int nIndex = m_wndPriceCompanyCombo.AddString(strName);
-	m_wndPriceCompanyCombo.SetCurSel(nIndex);
-	m_wndPriceCopiesList.DeleteAllItems();
+
+	int nAffectedCount = 0;
+	if (sageDBMgr.GetTaechangPriceService()->RenameCompany(strCompany, strNewName, nAffectedCount, strError) == FALSE) {
+		AfxMessageBox(strError, MB_ICONERROR);
+		return;
+	}
+
+	m_nPricePanelState = TAECHANG_PRICE_PANEL_SUMMARY;
+	RefreshPriceCompanyList(strNewName);
+	RefreshCalcCompanyCombo();
 	ClearPriceForm();
+	ApplyPriceRightPanel();
+}
+
+void CSageTaechangView::OnPriceChangeCover() {
+	CString strCompany = GetSelectedCompanyName();
+	int nIndex = m_wndPriceCompanyCombo.FindStringExact(-1, strCompany);
+	if (strCompany.IsEmpty() || nIndex == CB_ERR) {
+		AfxMessageBox(TAECHANG_UI_PRICE_SELECT_COMPANY, MB_ICONWARNING);
+		return;
+	}
+
+	TaechangCoverPriceDlg dlg(this);
+	if (dlg.DoModal() != IDOK)
+		return;
+
+	int nAffectedCount = 0;
+	CString strError;
+	if (sageDBMgr.GetTaechangPriceService()->ChangeCoverPriceByCompany(
+		strCompany,
+		dlg.GetCoverPrice(),
+		nAffectedCount,
+		strError) == FALSE) {
+		AfxMessageBox(strError, MB_ICONERROR);
+		return;
+	}
+
+	m_nPricePanelState = TAECHANG_PRICE_PANEL_SUMMARY;
+	RefreshPriceCopiesList(strCompany);
+	ClearPriceForm();
+	ApplyPriceRightPanel();
 }
 
 void CSageTaechangView::OnPriceCompanySelChanged() {
@@ -2557,13 +2686,67 @@ void CSageTaechangView::OnPriceNoMaxCheck() {
 }
 
 void CSageTaechangView::OnPriceAdd() {
-	if (GetSelectedCompanyName().IsEmpty()) {
+	int nSel = m_wndPriceCompanyCombo.GetCurSel();
+	if (nSel == CB_ERR) {
 		AfxMessageBox(TAECHANG_UI_PRICE_SELECT_COMPANY, MB_ICONWARNING);
 		return;
 	}
-	m_nPricePanelState = TAECHANG_PRICE_PANEL_EDIT_ADD;
+
+	CString strCompany;
+	m_wndPriceCompanyCombo.GetLBText(nSel, strCompany);
+	strCompany.Trim();
+	if (strCompany.IsEmpty()) {
+		AfxMessageBox(TAECHANG_UI_PRICE_SELECT_COMPANY, MB_ICONWARNING);
+		return;
+	}
+
+	int nCoverPrice = 0;
+	if (m_wndPriceCopiesList.GetItemCount() > 0) {
+		nCoverPrice = _wtoi(m_wndPriceCopiesList.GetItemText(0, 3));
+	} else {
+		CString strCover;
+		m_wndPriceCoverEdit.GetWindowTextW(strCover);
+		strCover.Trim();
+		nCoverPrice = strCover.IsEmpty() ? 0 : _wtoi(strCover);
+	}
+
+	TaechangPriceRangeDlg dlg(this);
+	if (dlg.DoModal() != IDOK)
+		return;
+
+	int nMinCopies = dlg.GetMinCopies();
+	BOOL bHasMaxCopies = dlg.HasMaxCopies();
+	int nMaxCopies = dlg.GetMaxCopies();
+	for (int i = 0; i < m_wndPriceCopiesList.GetItemCount(); ++i) {
+		int nExistingMin = _wtoi(m_wndPriceCopiesList.GetItemText(i, 0));
+		CString strExistingMax = m_wndPriceCopiesList.GetItemText(i, 1);
+		BOOL bExistingHasMax = (strExistingMax == TAECHANG_UI_PRICE_MAX_COPIES_NONE) ? FALSE : TRUE;
+		int nExistingMax = bExistingHasMax ? _wtoi(strExistingMax) : 0;
+		if (IsCopiesRangeOverlap(nMinCopies, bHasMaxCopies, nMaxCopies, nExistingMin, bExistingHasMax, nExistingMax)) {
+			AfxMessageBox(TAECHANG_UI_PRICE_RANGE_OVERLAP, MB_ICONWARNING);
+			return;
+		}
+	}
+
+	TaechangPriceDto dto;
+	dto.strCompanyName = strCompany;
+	dto.nReportType = REPORT_TYPE_AUDIT_REPORT;
+	dto.nMinCopies = nMinCopies;
+	dto.bHasMaxCopies = bHasMaxCopies;
+	dto.nMaxCopies = nMaxCopies;
+	dto.nPrintPrice = dlg.GetPrintPrice();
+	dto.nCoverPrice = nCoverPrice;
+
+	int nNewId = 0;
+	CString strError;
+	if (sageDBMgr.GetTaechangPriceService()->AddPrice(dto, nNewId, strError) == FALSE) {
+		AfxMessageBox(strError, MB_ICONERROR);
+		return;
+	}
+
+	m_nPricePanelState = TAECHANG_PRICE_PANEL_SUMMARY;
+	RefreshPriceCopiesList(strCompany);
 	ClearPriceForm();
-	m_wndPriceCopiesList.SetItemState(-1, 0, LVIS_SELECTED);
 	ApplyPriceRightPanel();
 }
 
