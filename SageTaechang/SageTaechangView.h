@@ -144,7 +144,7 @@ protected:
 
     // ── 부수 계산 패널 ───────────────────────────────────────────────────────
     CStatic              m_wndCalcCompanyLabel;
-    CComboBox            m_wndCalcCompanyCombo;
+    CTaechangComboBox    m_wndCalcCompanyCombo;
     CStatic              m_wndCalcCopiesLabel;
     CEdit                m_wndCalcCopiesEdit;
     CButton              m_wndCalcBtn;
@@ -156,6 +156,7 @@ protected:
     CStatic              m_wndCalcSubtotalValue;
     CStatic              m_wndCalcFreightLabel;
     CEdit                m_wndCalcFreightEdit;
+    CStatic              m_wndCalcFreightUnitLabel;
     CStatic              m_wndCalcDivider;
     CStatic              m_wndCalcTotalDivider;
     CStatic              m_wndCalcTotalLabel;
@@ -235,6 +236,8 @@ protected:
     void UpdateCalcTotal();
     void AddCalcHistory(const CString& strCompany, int nCopies, int nPrintPrice, int nCoverPrice, int nFreight, int nTotal);
     void RefreshCalcHistoryList();
+    int  GetCalcHistoryVisibleCapacity() const;
+    void TrimCalcHistoryToVisibleCapacity();
 
 protected:
     afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
