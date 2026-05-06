@@ -467,9 +467,9 @@ constexpr LPCWSTR TAECHANG_UI_PRICE_COPIES_OUT_OF_RANGE  = L"부수는 1 이상 
 constexpr LPCWSTR TAECHANG_UI_PRICE_AMOUNT_OUT_OF_RANGE  = L"단가는 0 이상 10,000,000 이하여야 합니다.";
 
 constexpr int TAECHANG_PRICE_COMPANY_DLG_TEMPLATE_CX = 230;
-constexpr int TAECHANG_PRICE_COMPANY_DLG_TEMPLATE_CY = 120;
+constexpr int TAECHANG_PRICE_COMPANY_DLG_TEMPLATE_CY = 132;
 constexpr int TAECHANG_PRICE_COMPANY_DLG_WIDTH       = 360;
-constexpr int TAECHANG_PRICE_COMPANY_DLG_HEIGHT      = 178;
+constexpr int TAECHANG_PRICE_COMPANY_DLG_HEIGHT      = 196;
 
 // ── 가격 관리 레이아웃 치수 ─────────────────────────────────────────────────
 constexpr int TAECHANG_PRICE_FORM_LABEL_WIDTH      = 70;
