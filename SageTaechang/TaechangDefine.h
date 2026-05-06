@@ -383,6 +383,7 @@ constexpr UINT ID_PRICE_MODIFY_BTN        = 41040;
 constexpr UINT ID_PRICE_DELETE_BTN        = 41041;
 constexpr UINT ID_PRICE_CANCEL_BTN        = 41043;
 constexpr UINT ID_PRICE_COMPANY_DLG_EDIT  = 41044;
+constexpr UINT ID_PRICE_COMPANY_DLG_COVER_EDIT = 41045;
 
 // ── 부수 계산 컨트롤 ID ──────────────────────────────────────────────────────
 constexpr UINT ID_CALC_COMPANY_COMBO      = 41050;
@@ -431,9 +432,11 @@ constexpr LPCWSTR TAECHANG_UI_PRICE_COPIES_INVALID       = L"부수는 1 이상�
 constexpr LPCWSTR TAECHANG_UI_PRICE_MAX_LESS_THAN_MIN    = L"최대부수는 최소부수 이상이어야 합니다.";
 constexpr LPCWSTR TAECHANG_UI_PRICE_COMPANY_DLG_TITLE    = L"법인 추가";
 constexpr LPCWSTR TAECHANG_UI_PRICE_COMPANY_DLG_LABEL    = L"추가할 법인명";
+constexpr LPCWSTR TAECHANG_UI_PRICE_COMPANY_DLG_COVER_LABEL = L"표지 단가";
 constexpr LPCWSTR TAECHANG_UI_PRICE_COMPANY_DLG_OK       = L"추가";
 constexpr LPCWSTR TAECHANG_UI_PRICE_COMPANY_DLG_CANCEL   = L"취소";
 constexpr LPCWSTR TAECHANG_UI_PRICE_COMPANY_EXISTS       = L"이미 등록된 법인명입니다.";
+constexpr LPCWSTR TAECHANG_UI_PRICE_COMPANY_COVER_REQUIRED = L"표지 단가를 입력하세요.";
 
 // ── 부수 계산 화면 문자열 ────────────────────────────────────────────────────
 constexpr LPCWSTR TAECHANG_UI_CALC_COMPANY_LABEL   = L"법인명";
@@ -464,9 +467,9 @@ constexpr LPCWSTR TAECHANG_UI_PRICE_COPIES_OUT_OF_RANGE  = L"부수는 1 이상 
 constexpr LPCWSTR TAECHANG_UI_PRICE_AMOUNT_OUT_OF_RANGE  = L"단가는 0 이상 10,000,000 이하여야 합니다.";
 
 constexpr int TAECHANG_PRICE_COMPANY_DLG_TEMPLATE_CX = 230;
-constexpr int TAECHANG_PRICE_COMPANY_DLG_TEMPLATE_CY = 86;
+constexpr int TAECHANG_PRICE_COMPANY_DLG_TEMPLATE_CY = 120;
 constexpr int TAECHANG_PRICE_COMPANY_DLG_WIDTH       = 360;
-constexpr int TAECHANG_PRICE_COMPANY_DLG_HEIGHT      = 126;
+constexpr int TAECHANG_PRICE_COMPANY_DLG_HEIGHT      = 178;
 
 // ── 가격 관리 레이아웃 치수 ─────────────────────────────────────────────────
 constexpr int TAECHANG_PRICE_FORM_LABEL_WIDTH      = 70;

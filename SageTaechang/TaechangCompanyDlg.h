@@ -10,6 +10,7 @@ public:
 public:
     virtual INT_PTR DoModal();
     CString GetCompanyName() const;
+    int GetCoverPrice() const;
 
 protected:
     virtual BOOL OnInitDialog();
@@ -31,9 +32,12 @@ private:
 private:
     CWnd* m_pDlgParent;
     CString m_strCompanyName;
+    int m_nCoverPrice;
 
     CStatic m_wndLabel;
     CEdit m_wndCompanyEdit;
+    CStatic m_wndCoverLabel;
+    CEdit m_wndCoverEdit;
     CButton m_wndOkBtn;
     CButton m_wndCancelBtn;
 

@@ -2475,6 +2475,7 @@ void CSageTaechangView::OnPriceAddCompany() {
 		return;
 
 	CString strName = dlg.GetCompanyName();
+	int nCoverPrice = dlg.GetCoverPrice();
 	CStringArray arrNames;
 	CString strError;
 	if (sageDBMgr.GetTaechangPriceService()->LoadAllCompanyNames(arrNames, strError) == FALSE) {
@@ -2503,6 +2504,9 @@ void CSageTaechangView::OnPriceAddCompany() {
 	m_wndPriceCompanyCombo.SetWindowTextW(strName);
 	m_wndPriceCopiesList.DeleteAllItems();
 	ClearPriceForm();
+	CString strCover;
+	strCover.Format(L"%d", nCoverPrice);
+	m_wndPriceCoverEdit.SetWindowTextW(strCover);
 	m_nPricePanelState = TAECHANG_PRICE_PANEL_EDIT_ADD;
 	ApplyPriceRightPanel();
 	m_wndPriceMinCopiesEdit.SetFocus();
@@ -2561,6 +2565,8 @@ void CSageTaechangView::OnPriceAdd() {
 	}
 	m_nPricePanelState = TAECHANG_PRICE_PANEL_EDIT_ADD;
 	ClearPriceForm();
+	if (m_wndPriceCopiesList.GetItemCount() > 0)
+		m_wndPriceCoverEdit.SetWindowTextW(m_wndPriceCopiesList.GetItemText(0, 3));
 	m_wndPriceCopiesList.SetItemState(-1, 0, LVIS_SELECTED);
 	ApplyPriceRightPanel();
 }
