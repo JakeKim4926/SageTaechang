@@ -13,6 +13,7 @@ public:
 
 protected:
     virtual BOOL OnInitDialog();
+    virtual BOOL PreTranslateMessage(MSG* pMsg);
     virtual void OnOK();
     virtual void OnCancel();
 

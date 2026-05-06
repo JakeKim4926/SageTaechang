@@ -95,12 +95,22 @@ BOOL TaechangCompanyDlg::OnInitDialog() {
     return FALSE;
 }
 
+BOOL TaechangCompanyDlg::PreTranslateMessage(MSG* pMsg) {
+    if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_RETURN &&
+        pMsg->hwnd == m_wndCompanyEdit.GetSafeHwnd()) {
+        OnOK();
+        return TRUE;
+    }
+
+    return CDialog::PreTranslateMessage(pMsg);
+}
+
 void TaechangCompanyDlg::CreateControls() {
     CRect rectEmpty(0, 0, 0, 0);
 
     m_wndLabel.Create(TAECHANG_UI_PRICE_COMPANY_DLG_LABEL,
         WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, rectEmpty, this);
-    m_wndCompanyEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL,
+    m_wndCompanyEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOHSCROLL,
         rectEmpty, this, ID_PRICE_COMPANY_DLG_EDIT);
     m_wndOkBtn.Create(TAECHANG_UI_PRICE_COMPANY_DLG_OK,
         WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, IDOK);
@@ -125,6 +135,13 @@ void TaechangCompanyDlg::LayoutControls() {
 
     m_wndLabel.MoveWindow(nM, nLabelTop, nEditW, nEditH);
     m_wndCompanyEdit.MoveWindow(nM, nEditTop, nEditW, nEditH);
+    CRect rectEdit;
+    m_wndCompanyEdit.GetClientRect(&rectEdit);
+    rectEdit.left += 2;
+    rectEdit.top += 4;
+    rectEdit.right -= 2;
+    rectEdit.bottom -= 2;
+    m_wndCompanyEdit.SendMessage(EM_SETRECTNP, 0, reinterpret_cast<LPARAM>(&rectEdit));
 
     int nBtnRight = nClientW - nM;
     m_wndCancelBtn.MoveWindow(nBtnRight - nBtnW, nBtnTop, nBtnW, nBtnH);
