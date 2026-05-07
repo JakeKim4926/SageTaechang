@@ -13,6 +13,7 @@ public:
     BOOL HasMaxCopies() const;
     int GetMaxCopies() const;
     int GetPrintPrice() const;
+    int GetCoverPrice() const;
 
 protected:
     virtual BOOL OnInitDialog();
@@ -39,6 +40,7 @@ private:
     BOOL m_bHasMaxCopies;
     int m_nMaxCopies;
     int m_nPrintPrice;
+    int m_nCoverPrice;
 
     CStatic m_wndMinLabel;
     CEdit m_wndMinEdit;
@@ -47,6 +49,8 @@ private:
     CButton m_wndNoMaxCheck;
     CStatic m_wndPrintLabel;
     CEdit m_wndPrintEdit;
+    CStatic m_wndCoverLabel;
+    CEdit m_wndCoverEdit;
     CButton m_wndOkBtn;
     CButton m_wndCancelBtn;
 

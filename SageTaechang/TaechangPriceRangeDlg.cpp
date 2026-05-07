@@ -14,7 +14,8 @@ TaechangPriceRangeDlg::TaechangPriceRangeDlg(CWnd* pParent)
       m_nMinCopies(0),
       m_bHasMaxCopies(TRUE),
       m_nMaxCopies(0),
-      m_nPrintPrice(0) {
+      m_nPrintPrice(0),
+      m_nCoverPrice(0) {
 }
 
 TaechangPriceRangeDlg::~TaechangPriceRangeDlg() {}
@@ -84,6 +85,10 @@ int TaechangPriceRangeDlg::GetPrintPrice() const {
     return m_nPrintPrice;
 }
 
+int TaechangPriceRangeDlg::GetCoverPrice() const {
+    return m_nCoverPrice;
+}
+
 BOOL TaechangPriceRangeDlg::OnInitDialog() {
     CDialog::OnInitDialog();
     SetWindowText(TAECHANG_UI_PRICE_RANGE_DLG_TITLE);
@@ -114,7 +119,8 @@ BOOL TaechangPriceRangeDlg::PreTranslateMessage(MSG* pMsg) {
     if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_RETURN &&
         (pMsg->hwnd == m_wndMinEdit.GetSafeHwnd() ||
          pMsg->hwnd == m_wndMaxEdit.GetSafeHwnd() ||
-         pMsg->hwnd == m_wndPrintEdit.GetSafeHwnd())) {
+         pMsg->hwnd == m_wndPrintEdit.GetSafeHwnd() ||
+         pMsg->hwnd == m_wndCoverEdit.GetSafeHwnd())) {
         OnOK();
         return TRUE;
     }
@@ -139,6 +145,10 @@ void TaechangPriceRangeDlg::CreateControls() {
         WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, rectEmpty, this);
     m_wndPrintEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_NUMBER | ES_AUTOHSCROLL,
         rectEmpty, this, ID_PRICE_RANGE_DLG_PRINT_EDIT);
+    m_wndCoverLabel.Create(TAECHANG_UI_PRICE_COVER_LABEL,
+        WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, rectEmpty, this);
+    m_wndCoverEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_NUMBER | ES_AUTOHSCROLL,
+        rectEmpty, this, ID_PRICE_RANGE_DLG_COVER_EDIT);
     m_wndOkBtn.Create(TAECHANG_UI_PRICE_RANGE_DLG_OK,
         WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, IDOK);
     m_wndCancelBtn.Create(TAECHANG_UI_PRICE_COMPANY_DLG_CANCEL,
@@ -147,6 +157,7 @@ void TaechangPriceRangeDlg::CreateControls() {
     m_wndMinEdit.SetLimitText(7);
     m_wndMaxEdit.SetLimitText(7);
     m_wndPrintEdit.SetLimitText(8);
+    m_wndCoverEdit.SetLimitText(8);
 }
 
 void TaechangPriceRangeDlg::LayoutControls() {
@@ -177,6 +188,12 @@ void TaechangPriceRangeDlg::LayoutControls() {
     nY += nEditH;
     m_wndPrintEdit.MoveWindow(nM, nY, nEditW, nEditH);
     ApplyEditTextRect(m_wndPrintEdit);
+    nY += nEditH + nGap;
+
+    m_wndCoverLabel.MoveWindow(nM, nY, nEditW, nEditH);
+    nY += nEditH;
+    m_wndCoverEdit.MoveWindow(nM, nY, nEditW, nEditH);
+    ApplyEditTextRect(m_wndCoverEdit);
     nY += nEditH + nM;
 
     int nBtnRight = nClientW - nM;
@@ -194,6 +211,8 @@ void TaechangPriceRangeDlg::ApplyFont() {
     m_wndNoMaxCheck.SetFont(&m_font);
     m_wndPrintLabel.SetFont(&m_font);
     m_wndPrintEdit.SetFont(&m_font);
+    m_wndCoverLabel.SetFont(&m_font);
+    m_wndCoverEdit.SetFont(&m_font);
     m_wndOkBtn.SetFont(&m_font);
     m_wndCancelBtn.SetFont(&m_font);
 }
@@ -216,11 +235,12 @@ void TaechangPriceRangeDlg::OnNoMaxCheck() {
 }
 
 void TaechangPriceRangeDlg::OnOK() {
-    CString strMin, strMax, strPrint;
+    CString strMin, strMax, strPrint, strCover;
     m_wndMinEdit.GetWindowText(strMin);
     m_wndMaxEdit.GetWindowText(strMax);
     m_wndPrintEdit.GetWindowText(strPrint);
-    strMin.Trim(); strMax.Trim(); strPrint.Trim();
+    m_wndCoverEdit.GetWindowText(strCover);
+    strMin.Trim(); strMax.Trim(); strPrint.Trim(); strCover.Trim();
 
     int nMin = strMin.IsEmpty() ? 0 : _wtoi(strMin);
     if (nMin < 1 || nMin > TAECHANG_PRICE_COPIES_MAX) {
@@ -256,10 +276,19 @@ void TaechangPriceRangeDlg::OnOK() {
         return;
     }
 
+    int nCover = strCover.IsEmpty() ? -1 : _wtoi(strCover);
+    if (nCover < 0 || nCover > TAECHANG_PRICE_AMOUNT_MAX) {
+        AfxMessageBox(TAECHANG_UI_PRICE_AMOUNT_OUT_OF_RANGE, MB_ICONWARNING);
+        m_wndCoverEdit.SetSel(0, -1);
+        m_wndCoverEdit.SetFocus();
+        return;
+    }
+
     m_nMinCopies = nMin;
     m_bHasMaxCopies = bHasMax;
     m_nMaxCopies = nMax;
     m_nPrintPrice = nPrint;
+    m_nCoverPrice = nCover;
 
     CDialog::OnOK();
 }

@@ -8,13 +8,14 @@ struct TaechangResultRow;
 struct CalcHistoryEntry {
     CString strCompanyName;
     int nCopies;
-    int nPrintPrice;
+    int nPages;
+    LONGLONG nPrintPrice;
     int nCoverPrice;
     int nFreight;
-    int nTotal;
+    LONGLONG nTotal;
     CTime timeCalc;
 
-    CalcHistoryEntry() : nCopies(0), nPrintPrice(0), nCoverPrice(0), nFreight(0), nTotal(0) {}
+    CalcHistoryEntry() : nCopies(0), nPages(0), nPrintPrice(0), nCoverPrice(0), nFreight(0), nTotal(0) {}
 };
 
 class CTaechangHeaderCtrl : public CHeaderCtrl
@@ -125,7 +126,6 @@ protected:
     CTaechangComboBox   m_wndPriceCompanyCombo;
     CButton             m_wndPriceAddCompanyBtn;
     CButton             m_wndPriceRenameCompanyBtn;
-    CButton             m_wndPriceChangeCoverBtn;
     CButton             m_wndPriceDeleteCompanyBtn;
     CTaechangHeaderCtrl m_wndPriceCopiesHeader;
     CListCtrl           m_wndPriceCopiesList;
@@ -152,6 +152,8 @@ protected:
     CTaechangComboBox    m_wndCalcCompanyCombo;
     CStatic              m_wndCalcCopiesLabel;
     CEdit                m_wndCalcCopiesEdit;
+    CStatic              m_wndCalcPagesLabel;
+    CEdit                m_wndCalcPagesEdit;
     CButton              m_wndCalcBtn;
     CStatic              m_wndCalcPrintLabel;
     CStatic              m_wndCalcPrintValue;
@@ -174,7 +176,7 @@ protected:
     CArray<CalcHistoryEntry, CalcHistoryEntry&> m_arrCalcHistory;
 
     // ── 가격 관리 내부 상태 ─────────────────────────────────────────────────
-    int  m_nCalcPrintPrice;
+    LONGLONG m_nCalcPrintPrice;
     int  m_nCalcCoverPrice;
     int  m_nPricePanelState;
 
@@ -243,7 +245,7 @@ protected:
     void ShowPriceCalcPanel(BOOL bShow);
     void RefreshCalcCompanyCombo();
     void UpdateCalcTotal();
-    void AddCalcHistory(const CString& strCompany, int nCopies, int nPrintPrice, int nCoverPrice, int nFreight, int nTotal);
+    void AddCalcHistory(const CString& strCompany, int nCopies, int nPages, LONGLONG nPrintPrice, int nCoverPrice, int nFreight, LONGLONG nTotal);
     void RefreshCalcHistoryList();
     int  GetCalcHistoryVisibleCapacity() const;
     void TrimCalcHistoryToVisibleCapacity();
@@ -276,7 +278,6 @@ protected:
     afx_msg void OnPriceCompanyEditChanged();
     afx_msg void OnPriceAddCompany();
     afx_msg void OnPriceRenameCompany();
-    afx_msg void OnPriceChangeCover();
     afx_msg void OnPriceDeleteCompany();
     afx_msg void OnPriceCopiesSelChanged(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnPriceNoMaxCheck();
