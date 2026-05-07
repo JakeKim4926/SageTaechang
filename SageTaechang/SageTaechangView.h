@@ -86,6 +86,7 @@ protected:
     CStatic m_wndProgressText;
     CTaechangHeaderCtrl m_wndResultHeader;
     CListCtrl m_wndResultList;
+    CEdit m_wndReceivablesFilter;
     CEdit m_wndDetail;
     CStatic m_wndEmptyStateHint;
     CStatic m_wndActionStatus;
@@ -215,6 +216,7 @@ protected:
     void RunWorkflowTask(int nTaskType);
     void DisplayResponse(int nWorkflowType, int nTaskType, const CString& strResponseJson);
     void InsertResultRow(const TaechangResultRow& row);
+    void RefreshReceivablesResultFilter();
     void AppendExecutionHistory(int nWorkflowType, int nTaskType, const CString& strResponseJson, BOOL bSuccess);
     CString BuildExecutionHistoryLine(int nWorkflowType, int nTaskType, const CString& strResponseJson, BOOL bSuccess) const;
 
@@ -281,6 +283,7 @@ protected:
     // ── 부수 계산 이벤트 ────────────────────────────────────────────────────
     afx_msg void OnCalc();
     afx_msg void OnCalcFreightChanged();
+    afx_msg void OnReceivablesFilterChanged();
 
     DECLARE_MESSAGE_MAP()
 };
