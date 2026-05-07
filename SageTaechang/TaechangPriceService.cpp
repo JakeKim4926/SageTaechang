@@ -416,12 +416,12 @@ BOOL TaechangPriceService::ValidateCopies(int nCopies, CString& strError) {
 
 BOOL TaechangPriceService::ValidatePriceValue(int nPrintPrice, int nCoverPrice, CString& strError) {
     if (nPrintPrice < 0) {
-        strError = _T("인쇄 가격은 0원 이상이어야 합니다.");
+        strError = _T("부수 단가는 0원 이상이어야 합니다.");
         return FALSE;
     }
 
     if (nCoverPrice < 0) {
-        strError = _T("표지 가격은 0원 이상이어야 합니다.");
+        strError = _T("표지 단가는 0원 이상이어야 합니다.");
         return FALSE;
     }
 
