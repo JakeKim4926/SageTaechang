@@ -1,3 +1,9 @@
+## [2026-05-07] fix/price-login-guard
+- **목적**: 단가 데이터 관리, 단가 계산 사이드바 메뉴를 로그인 미인증 시 접근 차단
+- **변경 내용**: `OnSidebarSelChanged`에 `TAECHANG_WORKFLOW_PRICE_MANAGE` / `TAECHANG_WORKFLOW_PRICE_CALC` 로그인 체크 추가
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/52
+- **결과**: merged
+
 ## [2026-05-07] develop → main
 - **목적**: 비밀번호 변경 기능, 단가 관리 UI 개선, 문서 생성 및 미수금 결과 UI 개선을 main에 반영
 - **변경 내용**: 비밀번호 변경 다이얼로그/메뉴 추가, 비밀번호 정책 제한, 단가 관리 신규 다이얼로그(TaechangPriceRangeDlg/TaechangPriceSimpleDlg), 법인 추가 다이얼로그, 부수 계산 패널 이력 UI, 문서 생성 스크립트 개선
