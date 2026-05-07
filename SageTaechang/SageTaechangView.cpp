@@ -969,7 +969,7 @@ void CSageTaechangView::LayoutResultSection(int nLeft, int nTop, int nWidth, int
 		if (bShowSelectAll)
 			m_wndSelectAll.MoveWindow(nLeft + nWidth - TAECHANG_BUTTON_WIDTH, nTop - TAECHANG_BUTTON_VERT_ADJUST, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
 		if (bShowReceivablesFilter) {
-			int nFilterTop = nTop - TAECHANG_BUTTON_VERT_ADJUST - 4;
+			int nFilterTop = nTop - 8;
 			int nFilterLeft = nLeft + nWidth - nFilterTotalW;
 			m_wndReceivablesFilter.MoveWindow(nFilterLeft, nFilterTop, TAECHANG_RECEIVABLES_FILTER_WIDTH, TAECHANG_EDIT_HEIGHT);
 			CRect rcFmt;
@@ -979,9 +979,9 @@ void CSageTaechangView::LayoutResultSection(int nLeft, int nTop, int nWidth, int
 			rcFmt.right = TAECHANG_EDIT_FORMAT_MAX_WIDTH;
 			m_wndReceivablesFilter.SendMessage(EM_SETRECT, 0, reinterpret_cast<LPARAM>(&rcFmt));
 			int nSearchLeft = nFilterLeft + TAECHANG_RECEIVABLES_FILTER_WIDTH + TAECHANG_ACTION_GAP;
-			m_wndReceivablesSearchBtn.MoveWindow(nSearchLeft, nFilterTop - TAECHANG_BUTTON_VERT_ADJUST, TAECHANG_RECEIVABLES_SEARCH_WIDTH, TAECHANG_BUTTON_HEIGHT);
+			m_wndReceivablesSearchBtn.MoveWindow(nSearchLeft, nFilterTop, TAECHANG_RECEIVABLES_SEARCH_WIDTH, TAECHANG_BUTTON_HEIGHT);
 			int nResetLeft = nSearchLeft + TAECHANG_RECEIVABLES_SEARCH_WIDTH + TAECHANG_ACTION_GAP;
-			m_wndReceivablesResetBtn.MoveWindow(nResetLeft, nFilterTop - TAECHANG_BUTTON_VERT_ADJUST, TAECHANG_RECEIVABLES_RESET_WIDTH, TAECHANG_BUTTON_HEIGHT);
+			m_wndReceivablesResetBtn.MoveWindow(nResetLeft, nFilterTop, TAECHANG_RECEIVABLES_RESET_WIDTH, TAECHANG_BUTTON_HEIGHT);
 		}
 		m_wndResultList.MoveWindow(nLeft, nTop + TAECHANG_RESULT_HEADER_HEIGHT, nWidth, nBodyHeight);
 		UpdateResultColumns();
@@ -1968,7 +1968,24 @@ void CSageTaechangView::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct
 	pWnd->GetWindowText(strText);
 
 	pDC->SetBkMode(TRANSPARENT);
-	CFont* pOldFont = pDC->SelectObject(&m_fontContent);
+	if (nIDCtl == ID_TAECHANG_RECEIVABLES_SEARCH_BTN) {
+		COLORREF clrIcon = bDisabled ? TAECHANG_COLOR_SECONDARY_TEXT : TAECHANG_COLOR_BUTTON_TEXT;
+		CPen pen(PS_SOLID, 2, clrIcon);
+		CPen* pOldPen = pDC->SelectObject(&pen);
+		CBrush* pOldBrush = (CBrush*)pDC->SelectStockObject(NULL_BRUSH);
+		int nCx = rect.CenterPoint().x - 2;
+		int nCy = rect.CenterPoint().y - 2;
+		pDC->Ellipse(nCx - 6, nCy - 6, nCx + 7, nCy + 7);
+		pDC->MoveTo(nCx + 5, nCy + 5);
+		pDC->LineTo(nCx + 11, nCy + 11);
+		if (pOldBrush)
+			pDC->SelectObject(pOldBrush);
+		if (pOldPen)
+			pDC->SelectObject(pOldPen);
+		return;
+	}
+
+	CFont* pOldFont = pDC->SelectObject(nIDCtl == ID_TAECHANG_RECEIVABLES_RESET_BTN ? &m_fontHeader : &m_fontContent);
 	rect.OffsetRect(0, TAECHANG_BUTTON_TEXT_TOP_OFFSET);
 	pDC->DrawText(strText, rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 	if (pOldFont)
