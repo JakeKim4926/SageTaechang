@@ -148,7 +148,8 @@ try {
             $numberValue = ConvertTo-TextValue ($rowIndex - 1)
         }
 
-        $baseName = (Safe-FileName $numberValue) + '_' + (Safe-FileName $companyName) + '_' + (Safe-FileName $itemName) + '_' + $rowIndex
+        $timeStamp = (Get-Date).ToString('HHmmssfff')
+        $baseName = (Safe-FileName $numberValue) + '_' + (Safe-FileName $companyName) + '_' + (Safe-FileName $itemName) + '_' + $rowIndex + '_' + $timeStamp
         $outputPath = Join-Path $OutputFolder ($baseName + '.xls')
         $suffix = 1
         while (Test-Path -LiteralPath $outputPath) {

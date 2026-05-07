@@ -596,11 +596,15 @@ void CSageTaechangView::ApplyWorkflowTabs() {
 		m_wndTaskTabs.InsertItem(TAECHANG_TAB_INDEX_DETAIL, TAECHANG_UI_TAB_EXPORT);
 	} else {
 		m_wndTaskTabs.InsertItem(TAECHANG_TAB_INDEX_INPUT, TAECHANG_UI_TAB_INPUT);
-		m_wndTaskTabs.InsertItem(TAECHANG_TAB_INDEX_DOCUMENT_RESULT, TAECHANG_UI_TAB_RESULT);
-		m_wndTaskTabs.InsertItem(TAECHANG_TAB_INDEX_DOCUMENT_HISTORY, TAECHANG_UI_TAB_HISTORY);
+		if (HasDocumentResultTab()) {
+			m_wndTaskTabs.InsertItem(TAECHANG_TAB_INDEX_DOCUMENT_RESULT, TAECHANG_UI_TAB_RESULT);
+			m_wndTaskTabs.InsertItem(TAECHANG_TAB_INDEX_DOCUMENT_HISTORY, TAECHANG_UI_TAB_HISTORY);
+		} else {
+			m_wndTaskTabs.InsertItem(1, TAECHANG_UI_TAB_HISTORY);
+		}
 	}
 	m_nSelectedTaskTab = TAECHANG_TAB_INDEX_INPUT;
-	m_wndTaskTabs.SetCurSel(m_nSelectedTaskTab);
+	m_wndTaskTabs.SetCurSel(GetTaskTabVisualIndex(m_nSelectedTaskTab));
 	UpdateTaskTabVisibility();
 }
 
@@ -1069,6 +1073,31 @@ BOOL CSageTaechangView::IsActionTabVisible() const {
 	return IsInputTabSelected() ? TRUE : FALSE;
 }
 
+BOOL CSageTaechangView::HasDocumentResultTab() const {
+	int nWorkflowType = GetSelectedWorkflow();
+	return (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY || nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE) ? FALSE : TRUE;
+}
+
+int CSageTaechangView::GetTaskTabVisualIndex(int nSemanticTabIndex) const {
+	if (IsCompareWorkflow(GetSelectedWorkflow()))
+		return nSemanticTabIndex;
+	if (HasDocumentResultTab())
+		return nSemanticTabIndex;
+	if (nSemanticTabIndex == TAECHANG_TAB_INDEX_DOCUMENT_HISTORY)
+		return 1;
+	return TAECHANG_TAB_INDEX_INPUT;
+}
+
+int CSageTaechangView::GetTaskTabSemanticIndex(int nVisualTabIndex) const {
+	if (IsCompareWorkflow(GetSelectedWorkflow()))
+		return nVisualTabIndex;
+	if (HasDocumentResultTab())
+		return nVisualTabIndex;
+	if (nVisualTabIndex == 1)
+		return TAECHANG_TAB_INDEX_DOCUMENT_HISTORY;
+	return TAECHANG_TAB_INDEX_INPUT;
+}
+
 BOOL CSageTaechangView::IsReceivablesResultTable() const {
 	if (m_nLastWorkflowType != TAECHANG_WORKFLOW_RECEIVABLES)
 		return FALSE;
@@ -1151,7 +1180,7 @@ void CSageTaechangView::OnSidebarSelectionChanged(NMHDR* pNMHDR, LRESULT* pResul
 
 void CSageTaechangView::OnTaskTabChanged(NMHDR* pNMHDR, LRESULT* pResult) {
 	UNREFERENCED_PARAMETER(pNMHDR);
-	m_nSelectedTaskTab = m_wndTaskTabs.GetCurSel();
+	m_nSelectedTaskTab = GetTaskTabSemanticIndex(m_wndTaskTabs.GetCurSel());
 	LayoutChildControls();
 	Invalidate();
 	*pResult = 0;
@@ -1183,7 +1212,7 @@ void CSageTaechangView::ApplyDroppedInputPaths(const CString& strPaths) {
 	m_wndInputPath.SetWindowTextW(strInputPaths);
 	if (!IsInputTabSelected()) {
 		m_nSelectedTaskTab = TAECHANG_TAB_INDEX_INPUT;
-		m_wndTaskTabs.SetCurSel(m_nSelectedTaskTab);
+		m_wndTaskTabs.SetCurSel(GetTaskTabVisualIndex(m_nSelectedTaskTab));
 		LayoutChildControls();
 	}
 	SetStatusText(L"파일 드롭 수신");
@@ -1615,12 +1644,20 @@ LRESULT CSageTaechangView::OnWorkflowComplete(WPARAM wParam, LPARAM lParam) {
 }
 
 void CSageTaechangView::DisplayResponse(int nWorkflowType, int nTaskType, const CString& strResponseJson) {
-	m_wndResultList.DeleteAllItems();
+	BOOL bDocumentGenerateNoResult =
+		(nTaskType == TAECHANG_TASK_GENERATE &&
+		 (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY || nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE))
+		? TRUE : FALSE;
+	if (!bDocumentGenerateNoResult)
+		m_wndResultList.DeleteAllItems();
 	m_nLastWorkflowType = nWorkflowType;
-	m_nLastTaskType = nTaskType;
+	if (!bDocumentGenerateNoResult)
+		m_nLastTaskType = nTaskType;
 	m_strLastResponseJson = strResponseJson;
-	ApplyResultColumns();
-	UpdateResultColumns();
+	if (!bDocumentGenerateNoResult) {
+		ApplyResultColumns();
+		UpdateResultColumns();
+	}
 
 	TaechangWorkflowResultPresenter presenter;
 	std::vector<TaechangResultRow> arrRows;
@@ -1632,20 +1669,33 @@ void CSageTaechangView::DisplayResponse(int nWorkflowType, int nTaskType, const 
 	else
 		m_wndDetail.SetWindowTextW(m_strExecutionHistory);
 
-	for (int i = 0; i < static_cast<int>(arrRows.size()); ++i)
-		InsertResultRow(arrRows[i]);
+	if (!bDocumentGenerateNoResult) {
+		for (int i = 0; i < static_cast<int>(arrRows.size()); ++i)
+			InsertResultRow(arrRows[i]);
+	}
 
 	if ((nWorkflowType == TAECHANG_WORKFLOW_DELIVERY || nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE) && nTaskType == TAECHANG_TASK_LOAD) {
 		m_nSelectedTaskTab = TAECHANG_TAB_INDEX_INPUT;
-		m_wndTaskTabs.SetCurSel(m_nSelectedTaskTab);
+		m_wndTaskTabs.SetCurSel(GetTaskTabVisualIndex(m_nSelectedTaskTab));
 		UpdateTaskTabVisibility();
 		LayoutChildControls();
+	} else if ((nWorkflowType == TAECHANG_WORKFLOW_DELIVERY || nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE) &&
+			   nTaskType == TAECHANG_TASK_GENERATE) {
+		m_nSelectedTaskTab = TAECHANG_TAB_INDEX_INPUT;
+		m_wndTaskTabs.SetCurSel(GetTaskTabVisualIndex(m_nSelectedTaskTab));
+		UpdateTaskTabVisibility();
+		LayoutChildControls();
+		if (bSuccess) {
+			AfxMessageBox(
+				nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE
+					? TAECHANG_UI_ESTIMATE_GENERATE_COMPLETED
+					: TAECHANG_UI_DELIVERY_GENERATE_COMPLETED,
+				MB_ICONINFORMATION);
+		}
 	} else if ((nWorkflowType == TAECHANG_WORKFLOW_RECEIVABLES && nTaskType == TAECHANG_TASK_GENERATE) ||
-			  (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY && nTaskType == TAECHANG_TASK_GENERATE) ||
-			  (nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE && nTaskType == TAECHANG_TASK_GENERATE) ||
 			  nTaskType == TAECHANG_TASK_LOAD) {
 		m_nSelectedTaskTab = TAECHANG_TAB_INDEX_DOCUMENT_RESULT;
-		m_wndTaskTabs.SetCurSel(m_nSelectedTaskTab);
+		m_wndTaskTabs.SetCurSel(GetTaskTabVisualIndex(m_nSelectedTaskTab));
 		UpdateTaskTabVisibility();
 		LayoutChildControls();
 	}
