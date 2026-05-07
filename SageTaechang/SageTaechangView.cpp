@@ -1218,6 +1218,14 @@ void CSageTaechangView::OnSidebarSelectionChanged(NMHDR* pNMHDR, LRESULT* pResul
 			m_wndSidebarTree.SelectItem(m_hLastWorkflowItem);
 		return;
 	}
+	if (nItemData == TAECHANG_WORKFLOW_PRICE_MANAGE || nItemData == TAECHANG_WORKFLOW_PRICE_CALC) {
+		if (!taechangAuth.IsLoggedIn()) {
+			AfxMessageBox(TAECHANG_UI_LOGIN_REQUIRED, MB_ICONWARNING);
+			if (m_hLastWorkflowItem != NULL)
+				m_wndSidebarTree.SelectItem(m_hLastWorkflowItem);
+			return;
+		}
+	}
 	if (nItemData == TAECHANG_WORKFLOW_PDF_COMPARE || nItemData == TAECHANG_WORKFLOW_HWP_COMPARE) {
 		SetStatusText(TAECHANG_UI_FEATURE_PREPARING);
 		if (m_hLastWorkflowItem != NULL)
