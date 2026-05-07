@@ -1,0 +1,325 @@
+#include "pch.h"
+#include "TaechangPriceRangeDlg.h"
+#include "TaechangDefine.h"
+
+BEGIN_MESSAGE_MAP(TaechangPriceRangeDlg, CDialog)
+    ON_BN_CLICKED(ID_PRICE_RANGE_DLG_NO_MAX_CHECK, &TaechangPriceRangeDlg::OnNoMaxCheck)
+    ON_WM_CTLCOLOR()
+    ON_WM_DRAWITEM()
+END_MESSAGE_MAP()
+
+TaechangPriceRangeDlg::TaechangPriceRangeDlg(CWnd* pParent)
+    : CDialog((UINT)0, pParent),
+      m_pDlgParent(pParent),
+      m_nMinCopies(0),
+      m_bHasMaxCopies(TRUE),
+      m_nMaxCopies(0),
+      m_nPrintPrice(0) {
+}
+
+TaechangPriceRangeDlg::~TaechangPriceRangeDlg() {}
+
+BYTE* TaechangPriceRangeDlg::BuildDialogTemplate() {
+    const WCHAR* szTitle = TAECHANG_UI_PRICE_RANGE_DLG_TITLE;
+    const WCHAR* szFont = TAECHANG_CONTROL_FONT_FACE;
+    const WORD wFontSize = TAECHANG_LOGIN_DLG_FONT_PT;
+
+    size_t nTitleLen = wcslen(szTitle) + 1;
+    size_t nFontLen = wcslen(szFont) + 1;
+    size_t nBufSize = sizeof(DLGTEMPLATE)
+        + sizeof(WORD) * 2
+        + nTitleLen * sizeof(WCHAR)
+        + sizeof(WORD) * 4
+        + nFontLen * sizeof(WCHAR);
+
+    BYTE* pBuf = new BYTE[nBufSize]();
+    BYTE* p = pBuf;
+
+    DLGTEMPLATE* pDlg = (DLGTEMPLATE*)p;
+    pDlg->style = WS_POPUP | WS_CAPTION | WS_SYSMENU | DS_MODALFRAME | DS_SETFONT | DS_CENTER;
+    pDlg->dwExtendedStyle = 0;
+    pDlg->cdit = 0;
+    pDlg->x = 0;
+    pDlg->y = 0;
+    pDlg->cx = TAECHANG_PRICE_RANGE_DLG_TEMPLATE_CX;
+    pDlg->cy = TAECHANG_PRICE_RANGE_DLG_TEMPLATE_CY;
+    p += sizeof(DLGTEMPLATE);
+
+    *(WORD*)p = 0; p += 2;
+    *(WORD*)p = 0; p += 2;
+
+    memcpy(p, szTitle, nTitleLen * sizeof(WCHAR));
+    p += nTitleLen * sizeof(WCHAR);
+
+    if (((ULONG_PTR)(p - pBuf)) % 2 != 0)
+        p++;
+
+    *(WORD*)p = wFontSize; p += 2;
+    memcpy(p, szFont, nFontLen * sizeof(WCHAR));
+
+    return pBuf;
+}
+
+INT_PTR TaechangPriceRangeDlg::DoModal() {
+    BYTE* pTemplate = BuildDialogTemplate();
+    InitModalIndirect((DLGTEMPLATE*)pTemplate, m_pDlgParent);
+    INT_PTR nResult = CDialog::DoModal();
+    delete[] pTemplate;
+    return nResult;
+}
+
+int TaechangPriceRangeDlg::GetMinCopies() const {
+    return m_nMinCopies;
+}
+
+BOOL TaechangPriceRangeDlg::HasMaxCopies() const {
+    return m_bHasMaxCopies;
+}
+
+int TaechangPriceRangeDlg::GetMaxCopies() const {
+    return m_nMaxCopies;
+}
+
+int TaechangPriceRangeDlg::GetPrintPrice() const {
+    return m_nPrintPrice;
+}
+
+BOOL TaechangPriceRangeDlg::OnInitDialog() {
+    CDialog::OnInitDialog();
+    SetWindowText(TAECHANG_UI_PRICE_RANGE_DLG_TITLE);
+
+    CRect rectClient;
+    GetClientRect(&rectClient);
+    CRect rectWindow;
+    GetWindowRect(&rectWindow);
+    int nFrameW = rectWindow.Width() - rectClient.Width();
+    int nFrameH = rectWindow.Height() - rectClient.Height();
+    SetWindowPos(NULL, 0, 0,
+        TAECHANG_PRICE_RANGE_DLG_WIDTH + nFrameW,
+        TAECHANG_PRICE_RANGE_DLG_HEIGHT + nFrameH,
+        SWP_NOMOVE | SWP_NOZORDER);
+
+    m_brushBackground.CreateSolidBrush(TAECHANG_COLOR_APP_BACKGROUND);
+    m_brushPanel.CreateSolidBrush(TAECHANG_COLOR_PANEL);
+
+    CreateControls();
+    ApplyFont();
+    LayoutControls();
+
+    m_wndMinEdit.SetFocus();
+    return FALSE;
+}
+
+BOOL TaechangPriceRangeDlg::PreTranslateMessage(MSG* pMsg) {
+    if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_RETURN &&
+        (pMsg->hwnd == m_wndMinEdit.GetSafeHwnd() ||
+         pMsg->hwnd == m_wndMaxEdit.GetSafeHwnd() ||
+         pMsg->hwnd == m_wndPrintEdit.GetSafeHwnd())) {
+        OnOK();
+        return TRUE;
+    }
+
+    return CDialog::PreTranslateMessage(pMsg);
+}
+
+void TaechangPriceRangeDlg::CreateControls() {
+    CRect rectEmpty(0, 0, 0, 0);
+
+    m_wndMinLabel.Create(TAECHANG_UI_PRICE_MIN_COPIES_LABEL,
+        WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, rectEmpty, this);
+    m_wndMinEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_NUMBER | ES_AUTOHSCROLL,
+        rectEmpty, this, ID_PRICE_RANGE_DLG_MIN_EDIT);
+    m_wndMaxLabel.Create(TAECHANG_UI_PRICE_MAX_COPIES_LABEL,
+        WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, rectEmpty, this);
+    m_wndMaxEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_NUMBER | ES_AUTOHSCROLL,
+        rectEmpty, this, ID_PRICE_RANGE_DLG_MAX_EDIT);
+    m_wndNoMaxCheck.Create(TAECHANG_UI_PRICE_RANGE_NO_MAX_LABEL,
+        WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, rectEmpty, this, ID_PRICE_RANGE_DLG_NO_MAX_CHECK);
+    m_wndPrintLabel.Create(TAECHANG_UI_PRICE_PRINT_LABEL,
+        WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, rectEmpty, this);
+    m_wndPrintEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_NUMBER | ES_AUTOHSCROLL,
+        rectEmpty, this, ID_PRICE_RANGE_DLG_PRINT_EDIT);
+    m_wndOkBtn.Create(TAECHANG_UI_PRICE_RANGE_DLG_OK,
+        WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, IDOK);
+    m_wndCancelBtn.Create(TAECHANG_UI_PRICE_COMPANY_DLG_CANCEL,
+        WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, IDCANCEL);
+
+    m_wndMinEdit.SetLimitText(7);
+    m_wndMaxEdit.SetLimitText(7);
+    m_wndPrintEdit.SetLimitText(8);
+}
+
+void TaechangPriceRangeDlg::LayoutControls() {
+    int nM = TAECHANG_MARGIN;
+    int nEditH = TAECHANG_EDIT_HEIGHT;
+    int nBtnW = TAECHANG_LOGIN_DLG_BTN_WIDTH;
+    int nBtnH = TAECHANG_BUTTON_HEIGHT;
+    int nGap = TAECHANG_ROW_GAP;
+    int nClientW = TAECHANG_PRICE_RANGE_DLG_WIDTH;
+    int nEditW = nClientW - nM * 2;
+    int nCheckW = 170;
+
+    int nY = nM;
+    m_wndMinLabel.MoveWindow(nM, nY, nEditW, nEditH);
+    nY += nEditH;
+    m_wndMinEdit.MoveWindow(nM, nY, nEditW, nEditH);
+    ApplyEditTextRect(m_wndMinEdit);
+    nY += nEditH + nGap;
+
+    m_wndMaxLabel.MoveWindow(nM, nY, nEditW - nCheckW - nGap, nEditH);
+    m_wndNoMaxCheck.MoveWindow(nClientW - nM - nCheckW, nY, nCheckW, nEditH);
+    nY += nEditH;
+    m_wndMaxEdit.MoveWindow(nM, nY, nEditW, nEditH);
+    ApplyEditTextRect(m_wndMaxEdit);
+    nY += nEditH + nGap;
+
+    m_wndPrintLabel.MoveWindow(nM, nY, nEditW, nEditH);
+    nY += nEditH;
+    m_wndPrintEdit.MoveWindow(nM, nY, nEditW, nEditH);
+    ApplyEditTextRect(m_wndPrintEdit);
+    nY += nEditH + nM;
+
+    int nBtnRight = nClientW - nM;
+    m_wndCancelBtn.MoveWindow(nBtnRight - nBtnW, nY, nBtnW, nBtnH);
+    m_wndOkBtn.MoveWindow(nBtnRight - nBtnW * 2 - nGap, nY, nBtnW, nBtnH);
+}
+
+void TaechangPriceRangeDlg::ApplyFont() {
+    m_font.CreatePointFont(TAECHANG_CONTENT_FONT_POINT_SIZE, TAECHANG_CONTROL_FONT_FACE);
+
+    m_wndMinLabel.SetFont(&m_font);
+    m_wndMinEdit.SetFont(&m_font);
+    m_wndMaxLabel.SetFont(&m_font);
+    m_wndMaxEdit.SetFont(&m_font);
+    m_wndNoMaxCheck.SetFont(&m_font);
+    m_wndPrintLabel.SetFont(&m_font);
+    m_wndPrintEdit.SetFont(&m_font);
+    m_wndOkBtn.SetFont(&m_font);
+    m_wndCancelBtn.SetFont(&m_font);
+}
+
+void TaechangPriceRangeDlg::ApplyEditTextRect(CEdit& edit) {
+    CRect rectEdit;
+    edit.GetClientRect(&rectEdit);
+    rectEdit.left += 2;
+    rectEdit.top += 4;
+    rectEdit.right -= 2;
+    rectEdit.bottom -= 2;
+    edit.SendMessage(EM_SETRECTNP, 0, reinterpret_cast<LPARAM>(&rectEdit));
+}
+
+void TaechangPriceRangeDlg::OnNoMaxCheck() {
+    BOOL bNoMax = (m_wndNoMaxCheck.GetCheck() == BST_CHECKED);
+    m_wndMaxEdit.EnableWindow(!bNoMax);
+    if (bNoMax)
+        m_wndMaxEdit.SetWindowTextW(L"");
+}
+
+void TaechangPriceRangeDlg::OnOK() {
+    CString strMin, strMax, strPrint;
+    m_wndMinEdit.GetWindowText(strMin);
+    m_wndMaxEdit.GetWindowText(strMax);
+    m_wndPrintEdit.GetWindowText(strPrint);
+    strMin.Trim(); strMax.Trim(); strPrint.Trim();
+
+    int nMin = strMin.IsEmpty() ? 0 : _wtoi(strMin);
+    if (nMin < 1 || nMin > TAECHANG_PRICE_COPIES_MAX) {
+        AfxMessageBox(TAECHANG_UI_PRICE_COPIES_OUT_OF_RANGE, MB_ICONWARNING);
+        m_wndMinEdit.SetSel(0, -1);
+        m_wndMinEdit.SetFocus();
+        return;
+    }
+
+    BOOL bHasMax = (m_wndNoMaxCheck.GetCheck() == BST_CHECKED) ? FALSE : TRUE;
+    int nMax = 0;
+    if (bHasMax) {
+        nMax = strMax.IsEmpty() ? 0 : _wtoi(strMax);
+        if (nMax < 1 || nMax > TAECHANG_PRICE_COPIES_MAX) {
+            AfxMessageBox(TAECHANG_UI_PRICE_COPIES_OUT_OF_RANGE, MB_ICONWARNING);
+            m_wndMaxEdit.SetSel(0, -1);
+            m_wndMaxEdit.SetFocus();
+            return;
+        }
+        if (nMin >= nMax) {
+            AfxMessageBox(TAECHANG_UI_PRICE_MIN_LESS_THAN_MAX, MB_ICONWARNING);
+            m_wndMaxEdit.SetSel(0, -1);
+            m_wndMaxEdit.SetFocus();
+            return;
+        }
+    }
+
+    int nPrint = strPrint.IsEmpty() ? -1 : _wtoi(strPrint);
+    if (nPrint < 0 || nPrint > TAECHANG_PRICE_AMOUNT_MAX) {
+        AfxMessageBox(TAECHANG_UI_PRICE_AMOUNT_OUT_OF_RANGE, MB_ICONWARNING);
+        m_wndPrintEdit.SetSel(0, -1);
+        m_wndPrintEdit.SetFocus();
+        return;
+    }
+
+    m_nMinCopies = nMin;
+    m_bHasMaxCopies = bHasMax;
+    m_nMaxCopies = nMax;
+    m_nPrintPrice = nPrint;
+
+    CDialog::OnOK();
+}
+
+void TaechangPriceRangeDlg::OnCancel() {
+    CDialog::OnCancel();
+}
+
+HBRUSH TaechangPriceRangeDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
+    HBRUSH hBrush = CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
+
+    if (nCtlColor == CTLCOLOR_STATIC) {
+        pDC->SetTextColor(TAECHANG_COLOR_TEXT);
+        pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
+        return m_brushBackground;
+    }
+
+    if (nCtlColor == CTLCOLOR_EDIT) {
+        pDC->SetTextColor(TAECHANG_COLOR_TEXT);
+        pDC->SetBkColor(TAECHANG_COLOR_PANEL);
+        return m_brushPanel;
+    }
+
+    pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
+    return m_brushBackground;
+}
+
+void TaechangPriceRangeDlg::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct) {
+    if (lpDrawItemStruct->CtlType != ODT_BUTTON) {
+        CDialog::OnDrawItem(nIDCtl, lpDrawItemStruct);
+        return;
+    }
+
+    CDC* pDC = CDC::FromHandle(lpDrawItemStruct->hDC);
+    CRect rect = lpDrawItemStruct->rcItem;
+    BOOL bPressed = (lpDrawItemStruct->itemState & ODS_SELECTED) != 0;
+    BOOL bDisabled = (lpDrawItemStruct->itemState & ODS_DISABLED) != 0;
+    BOOL bPrimary = (nIDCtl == IDOK);
+
+    if (bPrimary) {
+        COLORREF clrBg = bDisabled ? TAECHANG_COLOR_BORDER
+            : bPressed ? TAECHANG_COLOR_PRIMARY_PRESS : TAECHANG_COLOR_PRIMARY;
+        pDC->FillSolidRect(rect, clrBg);
+        pDC->SetTextColor(bDisabled ? TAECHANG_COLOR_SECONDARY_TEXT : TAECHANG_COLOR_BUTTON_TEXT);
+    } else {
+        pDC->FillSolidRect(rect, bDisabled ? TAECHANG_COLOR_APP_BACKGROUND : TAECHANG_COLOR_PANEL);
+        CBrush brBorder;
+        brBorder.CreateSolidBrush(bDisabled ? TAECHANG_COLOR_BORDER : TAECHANG_COLOR_PRIMARY);
+        pDC->FrameRect(rect, &brBorder);
+        pDC->SetTextColor(bDisabled ? TAECHANG_COLOR_SECONDARY_TEXT : TAECHANG_COLOR_PRIMARY);
+    }
+
+    CWnd* pWnd = CWnd::FromHandle(lpDrawItemStruct->hwndItem);
+    CString strText;
+    pWnd->GetWindowText(strText);
+
+    pDC->SetBkMode(TRANSPARENT);
+    CFont* pOldFont = pDC->SelectObject(&m_font);
+    rect.OffsetRect(0, TAECHANG_BUTTON_TEXT_TOP_OFFSET);
+    pDC->DrawText(strText, rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+    if (pOldFont)
+        pDC->SelectObject(pOldFont);
+}

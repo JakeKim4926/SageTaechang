@@ -5,6 +5,18 @@
 
 struct TaechangResultRow;
 
+struct CalcHistoryEntry {
+    CString strCompanyName;
+    int nCopies;
+    int nPrintPrice;
+    int nCoverPrice;
+    int nFreight;
+    int nTotal;
+    CTime timeCalc;
+
+    CalcHistoryEntry() : nCopies(0), nPrintPrice(0), nCoverPrice(0), nFreight(0), nTotal(0) {}
+};
+
 class CTaechangHeaderCtrl : public CHeaderCtrl
 {
     DECLARE_MESSAGE_MAP()
@@ -74,6 +86,9 @@ protected:
     CStatic m_wndProgressText;
     CTaechangHeaderCtrl m_wndResultHeader;
     CListCtrl m_wndResultList;
+    CEdit m_wndReceivablesFilter;
+    CButton m_wndReceivablesSearchBtn;
+    CButton m_wndReceivablesResetBtn;
     CEdit m_wndDetail;
     CStatic m_wndEmptyStateHint;
     CStatic m_wndActionStatus;
@@ -84,6 +99,7 @@ protected:
     CBrush m_brushAppBackground;
     CBrush m_brushPanel;
     CBrush m_brushSidebar;
+    CBrush m_brushListHeader;
     CBrush m_brushHeaderStatus;
     BOOL m_bRunning;
     int m_nProgressPercent;
@@ -98,6 +114,7 @@ protected:
     CString m_strLastResponseJson;
     CString m_strExecutionHistory;
     CString m_strRunningInputPath;
+    CString m_strReceivablesFilterKeyword;
 
     CButton m_wndLoginBtn;
     CButton m_wndLogoutBtn;
@@ -107,6 +124,8 @@ protected:
     CStatic             m_wndPriceCompanyLabel;
     CTaechangComboBox   m_wndPriceCompanyCombo;
     CButton             m_wndPriceAddCompanyBtn;
+    CButton             m_wndPriceRenameCompanyBtn;
+    CButton             m_wndPriceChangeCoverBtn;
     CTaechangHeaderCtrl m_wndPriceCopiesHeader;
     CListCtrl           m_wndPriceCopiesList;
     CStatic             m_wndPriceMinCopiesLabel;
@@ -128,22 +147,30 @@ protected:
     CRect               m_rectPriceSummaryCard;
 
     // ── 부수 계산 패널 ───────────────────────────────────────────────────────
-    CStatic   m_wndCalcCompanyLabel;
-    CComboBox m_wndCalcCompanyCombo;
-    CStatic   m_wndCalcCopiesLabel;
-    CEdit     m_wndCalcCopiesEdit;
-    CButton   m_wndCalcBtn;
-    CStatic   m_wndCalcPrintLabel;
-    CStatic   m_wndCalcPrintValue;
-    CStatic   m_wndCalcCoverLabel;
-    CStatic   m_wndCalcCoverValue;
-    CStatic   m_wndCalcSubtotalLabel;
-    CStatic   m_wndCalcSubtotalValue;
-    CStatic   m_wndCalcFreightLabel;
-    CEdit     m_wndCalcFreightEdit;
-    CStatic   m_wndCalcDivider;
-    CStatic   m_wndCalcTotalLabel;
-    CStatic   m_wndCalcTotalValue;
+    CStatic              m_wndCalcCompanyLabel;
+    CTaechangComboBox    m_wndCalcCompanyCombo;
+    CStatic              m_wndCalcCopiesLabel;
+    CEdit                m_wndCalcCopiesEdit;
+    CButton              m_wndCalcBtn;
+    CStatic              m_wndCalcPrintLabel;
+    CStatic              m_wndCalcPrintValue;
+    CStatic              m_wndCalcCoverLabel;
+    CStatic              m_wndCalcCoverValue;
+    CStatic              m_wndCalcSubtotalLabel;
+    CStatic              m_wndCalcSubtotalValue;
+    CStatic              m_wndCalcFreightLabel;
+    CEdit                m_wndCalcFreightEdit;
+    CStatic              m_wndCalcFreightUnitLabel;
+    CStatic              m_wndCalcDivider;
+    CStatic              m_wndCalcTotalDivider;
+    CStatic              m_wndCalcTotalLabel;
+    CStatic              m_wndCalcTotalValue;
+    CStatic              m_wndCalcHistorySection;
+    CTaechangHeaderCtrl  m_wndCalcHistoryHeader;
+    CListCtrl            m_wndCalcHistoryList;
+    CRect                m_rectCalcInputPanel;
+    CRect                m_rectCalcResultPanel;
+    CArray<CalcHistoryEntry, CalcHistoryEntry&> m_arrCalcHistory;
 
     // ── 가격 관리 내부 상태 ─────────────────────────────────────────────────
     int  m_nCalcPrintPrice;
@@ -175,6 +202,9 @@ protected:
     BOOL IsDetailTab() const;
     BOOL IsExportTab() const;
     BOOL IsActionTabVisible() const;
+    BOOL HasDocumentResultTab() const;
+    int GetTaskTabVisualIndex(int nSemanticTabIndex) const;
+    int GetTaskTabSemanticIndex(int nVisualTabIndex) const;
     BOOL IsReceivablesResultTable() const;
     BOOL IsDeliveryInputTable() const;
     BOOL IsEstimateInputTable() const;
@@ -189,6 +219,7 @@ protected:
     void RunWorkflowTask(int nTaskType);
     void DisplayResponse(int nWorkflowType, int nTaskType, const CString& strResponseJson);
     void InsertResultRow(const TaechangResultRow& row);
+    void RefreshReceivablesResultFilter();
     void AppendExecutionHistory(int nWorkflowType, int nTaskType, const CString& strResponseJson, BOOL bSuccess);
     CString BuildExecutionHistoryLine(int nWorkflowType, int nTaskType, const CString& strResponseJson, BOOL bSuccess) const;
 
@@ -211,6 +242,10 @@ protected:
     void ShowPriceCalcPanel(BOOL bShow);
     void RefreshCalcCompanyCombo();
     void UpdateCalcTotal();
+    void AddCalcHistory(const CString& strCompany, int nCopies, int nPrintPrice, int nCoverPrice, int nFreight, int nTotal);
+    void RefreshCalcHistoryList();
+    int  GetCalcHistoryVisibleCapacity() const;
+    void TrimCalcHistoryToVisibleCapacity();
 
 protected:
     afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
@@ -239,6 +274,8 @@ protected:
     afx_msg void OnPriceCompanySelChanged();
     afx_msg void OnPriceCompanyEditChanged();
     afx_msg void OnPriceAddCompany();
+    afx_msg void OnPriceRenameCompany();
+    afx_msg void OnPriceChangeCover();
     afx_msg void OnPriceCopiesSelChanged(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnPriceNoMaxCheck();
     afx_msg void OnPriceAdd();
@@ -249,6 +286,8 @@ protected:
     // ── 부수 계산 이벤트 ────────────────────────────────────────────────────
     afx_msg void OnCalc();
     afx_msg void OnCalcFreightChanged();
+    afx_msg void OnReceivablesSearch();
+    afx_msg void OnReceivablesFilterReset();
 
     DECLARE_MESSAGE_MAP()
 };

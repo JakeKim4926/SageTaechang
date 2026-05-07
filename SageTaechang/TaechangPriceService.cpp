@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "TaechangPriceService.h"
+#include "TaechangDefine.h"
 
 TaechangPriceService::TaechangPriceService(TaechangPriceRepository* pRepository) {
     m_pRepository = pRepository;
@@ -205,6 +206,85 @@ BOOL TaechangPriceService::ChangePriceByCompanyAndCopies(
 
     if (nAffectedCount <= 0) {
         strError = _T("해당 법인과 부수에 맞는 가격 데이터가 없습니다.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL TaechangPriceService::RenameCompany(
+    const CString& strOldCompanyName,
+    const CString& strNewCompanyName,
+    int& nAffectedCount,
+    CString& strError
+) {
+    nAffectedCount = 0;
+
+    if (m_pRepository == NULL) {
+        strError = _T("TaechangPriceRepository媛 NULL?낅땲??");
+        return FALSE;
+    }
+
+    if (ValidateCompanyName(strOldCompanyName, strError) == FALSE ||
+        ValidateCompanyName(strNewCompanyName, strError) == FALSE) {
+        return FALSE;
+    }
+
+    if (m_pRepository->UpdateCompanyName(
+        strOldCompanyName,
+        strNewCompanyName,
+        REPORT_TYPE_AUDIT_REPORT,
+        nAffectedCount,
+        strError
+    ) == FALSE) {
+        return FALSE;
+    }
+
+    if (nAffectedCount <= 0) {
+        strError = _T("변경할 법인 데이터가 없습니다.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL TaechangPriceService::ChangeCoverPriceByCompany(
+    const CString& strCompanyName,
+    int nCoverPrice,
+    int& nAffectedCount,
+    CString& strError
+) {
+    nAffectedCount = 0;
+
+    if (m_pRepository == NULL) {
+        strError = _T("TaechangPriceRepository媛 NULL?낅땲??");
+        return FALSE;
+    }
+
+    if (ValidateCompanyName(strCompanyName, strError) == FALSE) {
+        return FALSE;
+    }
+
+    if (ValidatePriceValue(0, nCoverPrice, strError) == FALSE) {
+        return FALSE;
+    }
+    if (nCoverPrice > TAECHANG_PRICE_AMOUNT_MAX) {
+        strError = TAECHANG_UI_PRICE_AMOUNT_OUT_OF_RANGE;
+        return FALSE;
+    }
+
+    if (m_pRepository->UpdateCoverPriceByCompany(
+        strCompanyName,
+        REPORT_TYPE_AUDIT_REPORT,
+        nCoverPrice,
+        nAffectedCount,
+        strError
+    ) == FALSE) {
+        return FALSE;
+    }
+
+    if (nAffectedCount <= 0) {
+        strError = _T("변경할 표지 단가 데이터가 없습니다.");
         return FALSE;
     }
 
