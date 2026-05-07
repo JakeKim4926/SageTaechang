@@ -148,7 +148,15 @@ try {
             $numberValue = ConvertTo-TextValue ($rowIndex - 1)
         }
 
-        $baseName = (Safe-FileName $numberValue) + '_' + (Safe-FileName $companyName) + '_' + (Safe-FileName $itemName) + '_' + $rowIndex
+        $generatedAt = Get-Date
+        if ($deliveryDate.Year -ne '' -and $deliveryDate.Month -ne '' -and $deliveryDate.Day -ne '') {
+            $datePart = '{0:D4}{1:D2}{2:D2}' -f [int]$deliveryDate.Year, [int]$deliveryDate.Month, [int]$deliveryDate.Day
+        } else {
+            $datePart = $generatedAt.ToString('yyyyMMdd')
+        }
+        $timePart = $generatedAt.ToString('HHmmss')
+        $msPart = $generatedAt.ToString('fff')
+        $baseName = (Safe-FileName $companyName) + '_' + (Safe-FileName $productType) + '_' + $datePart + '_' + $timePart + '_' + $msPart
         $outputPath = Join-Path $OutputFolder ($baseName + '.xls')
         $suffix = 1
         while (Test-Path -LiteralPath $outputPath) {

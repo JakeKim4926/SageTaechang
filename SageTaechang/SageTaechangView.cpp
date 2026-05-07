@@ -335,6 +335,8 @@ BEGIN_MESSAGE_MAP(CSageTaechangView, CView)
 	ON_BN_CLICKED(ID_PRICE_CANCEL_BTN, &CSageTaechangView::OnPriceCancel)
 	ON_BN_CLICKED(ID_CALC_BTN, &CSageTaechangView::OnCalc)
 	ON_EN_CHANGE(ID_CALC_FREIGHT_EDIT, &CSageTaechangView::OnCalcFreightChanged)
+	ON_BN_CLICKED(ID_TAECHANG_RECEIVABLES_SEARCH_BTN, &CSageTaechangView::OnReceivablesSearch)
+	ON_BN_CLICKED(ID_TAECHANG_RECEIVABLES_RESET_BTN, &CSageTaechangView::OnReceivablesFilterReset)
 	ON_MESSAGE(WM_TAECHANG_WORKFLOW_COMPLETE, &CSageTaechangView::OnWorkflowComplete)
 	ON_WM_DROPFILES()
 	ON_WM_DRAWITEM()
@@ -429,6 +431,9 @@ void CSageTaechangView::CreateChildControls() {
 			SetWindowTheme(m_wndResultHeader.GetSafeHwnd(), L"", L"");
 		}
 	}
+	m_wndReceivablesFilter.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOHSCROLL, rectEmpty, this, ID_TAECHANG_RECEIVABLES_FILTER_EDIT);
+	m_wndReceivablesSearchBtn.Create(TAECHANG_UI_RECEIVABLES_SEARCH_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_RECEIVABLES_SEARCH_BTN);
+	m_wndReceivablesResetBtn.Create(TAECHANG_UI_RECEIVABLES_RESET_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_RECEIVABLES_RESET_BTN);
 	m_wndDetail.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | WS_VSCROLL, rectEmpty, this, ID_TAECHANG_DETAIL_EDIT);
 	m_wndEmptyStateHint.Create(TAECHANG_UI_EMPTY_STATE_HINT, WS_CHILD | WS_VISIBLE | SS_CENTER | SS_CENTERIMAGE, rectEmpty, this);
 	m_wndActionStatus.Create(L"", WS_CHILD | SS_LEFT | SS_CENTERIMAGE, rectEmpty, this);
@@ -438,6 +443,7 @@ void CSageTaechangView::CreateChildControls() {
 	m_wndUserLabel.Create(L"", WS_CHILD | SS_RIGHT | SS_CENTERIMAGE, rectEmpty, this, ID_TAECHANG_USER_LABEL);
 
 	m_wndResultList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
+	m_wndReceivablesFilter.LimitText(20);
 	EnableFileDropForWindow(m_wndInputSection);
 	EnableFileDropForWindow(m_wndInputPath);
 	EnableFileDropForWindow(m_wndSelectInput);
@@ -531,6 +537,9 @@ void CSageTaechangView::ApplyControlFonts() {
 	m_wndResultList.SetFont(&m_fontContent);
 	if (::IsWindow(m_wndResultHeader.GetSafeHwnd()))
 		m_wndResultHeader.SetFont(&m_fontContent);
+	m_wndReceivablesFilter.SetFont(&m_fontContent);
+	m_wndReceivablesSearchBtn.SetFont(&m_fontContent);
+	m_wndReceivablesResetBtn.SetFont(&m_fontContent);
 	m_wndDetail.SetFont(&m_fontContent);
 	m_wndEmptyStateHint.SetFont(&m_fontContent);
 	m_wndActionStatus.SetFont(&m_fontContent);
@@ -596,11 +605,15 @@ void CSageTaechangView::ApplyWorkflowTabs() {
 		m_wndTaskTabs.InsertItem(TAECHANG_TAB_INDEX_DETAIL, TAECHANG_UI_TAB_EXPORT);
 	} else {
 		m_wndTaskTabs.InsertItem(TAECHANG_TAB_INDEX_INPUT, TAECHANG_UI_TAB_INPUT);
-		m_wndTaskTabs.InsertItem(TAECHANG_TAB_INDEX_DOCUMENT_RESULT, TAECHANG_UI_TAB_RESULT);
-		m_wndTaskTabs.InsertItem(TAECHANG_TAB_INDEX_DOCUMENT_HISTORY, TAECHANG_UI_TAB_HISTORY);
+		if (HasDocumentResultTab()) {
+			m_wndTaskTabs.InsertItem(TAECHANG_TAB_INDEX_DOCUMENT_RESULT, TAECHANG_UI_TAB_RESULT);
+			m_wndTaskTabs.InsertItem(TAECHANG_TAB_INDEX_DOCUMENT_HISTORY, TAECHANG_UI_TAB_HISTORY);
+		} else {
+			m_wndTaskTabs.InsertItem(1, TAECHANG_UI_TAB_HISTORY);
+		}
 	}
 	m_nSelectedTaskTab = TAECHANG_TAB_INDEX_INPUT;
-	m_wndTaskTabs.SetCurSel(m_nSelectedTaskTab);
+	m_wndTaskTabs.SetCurSel(GetTaskTabVisualIndex(m_nSelectedTaskTab));
 	UpdateTaskTabVisibility();
 }
 
@@ -704,6 +717,11 @@ void CSageTaechangView::UpdateTaskTabVisibility() {
 
 	m_wndResultSection.ShowWindow(bShowResult ? SW_SHOW : SW_HIDE);
 	m_wndResultList.ShowWindow(bShowResult ? SW_SHOW : SW_HIDE);
+	BOOL bShowReceivablesFilter =
+		(bShowResult && GetSelectedWorkflow() == TAECHANG_WORKFLOW_RECEIVABLES && IsReceivablesResultTable()) ? TRUE : FALSE;
+	m_wndReceivablesFilter.ShowWindow(bShowReceivablesFilter ? SW_SHOW : SW_HIDE);
+	m_wndReceivablesSearchBtn.ShowWindow(bShowReceivablesFilter ? SW_SHOW : SW_HIDE);
+	m_wndReceivablesResetBtn.ShowWindow(bShowReceivablesFilter ? SW_SHOW : SW_HIDE);
 	m_wndDetailSection.ShowWindow(bShowDetail ? SW_SHOW : SW_HIDE);
 	m_wndDetail.ShowWindow(bShowDetail ? SW_SHOW : SW_HIDE);
 	m_wndEmptyStateHint.ShowWindow(bShowHint ? SW_SHOW : SW_HIDE);
@@ -939,9 +957,32 @@ void CSageTaechangView::LayoutResultSection(int nLeft, int nTop, int nWidth, int
 	if (IsResultTab() || (IsInputTabSelected() && (IsDeliveryInputTable() || IsEstimateInputTable()))) {
 		BOOL bShowSelectAll = IsInputTabSelected() && (IsDeliveryInputTable() || IsEstimateInputTable());
 		int nSectionWidth = bShowSelectAll ? nWidth - TAECHANG_BUTTON_WIDTH - TAECHANG_ROW_GAP : nWidth;
+		BOOL bShowReceivablesFilter =
+			(GetSelectedWorkflow() == TAECHANG_WORKFLOW_RECEIVABLES && IsReceivablesResultTable()) ? TRUE : FALSE;
+		int nFilterTotalW = TAECHANG_RECEIVABLES_FILTER_WIDTH + TAECHANG_ACTION_GAP
+			+ TAECHANG_RECEIVABLES_SEARCH_WIDTH + TAECHANG_ACTION_GAP + TAECHANG_RECEIVABLES_RESET_WIDTH;
+		if (bShowReceivablesFilter)
+			nSectionWidth -= nFilterTotalW + TAECHANG_ROW_GAP;
+		if (nSectionWidth < 0)
+			nSectionWidth = 0;
 		m_wndResultSection.MoveWindow(nLeft, nTop, nSectionWidth, TAECHANG_RESULT_HEADER_HEIGHT);
 		if (bShowSelectAll)
 			m_wndSelectAll.MoveWindow(nLeft + nWidth - TAECHANG_BUTTON_WIDTH, nTop - TAECHANG_BUTTON_VERT_ADJUST, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
+		if (bShowReceivablesFilter) {
+			int nFilterTop = nTop - 8;
+			int nFilterLeft = nLeft + nWidth - nFilterTotalW;
+			m_wndReceivablesFilter.MoveWindow(nFilterLeft, nFilterTop, TAECHANG_RECEIVABLES_FILTER_WIDTH, TAECHANG_EDIT_HEIGHT);
+			CRect rcFmt;
+			m_wndReceivablesFilter.GetClientRect(&rcFmt);
+			rcFmt.top += TAECHANG_EDIT_TEXT_TOP_PAD;
+			rcFmt.left += 6;
+			rcFmt.right = TAECHANG_EDIT_FORMAT_MAX_WIDTH;
+			m_wndReceivablesFilter.SendMessage(EM_SETRECT, 0, reinterpret_cast<LPARAM>(&rcFmt));
+			int nSearchLeft = nFilterLeft + TAECHANG_RECEIVABLES_FILTER_WIDTH + TAECHANG_ACTION_GAP;
+			m_wndReceivablesSearchBtn.MoveWindow(nSearchLeft, nFilterTop, TAECHANG_RECEIVABLES_SEARCH_WIDTH, TAECHANG_BUTTON_HEIGHT);
+			int nResetLeft = nSearchLeft + TAECHANG_RECEIVABLES_SEARCH_WIDTH + TAECHANG_ACTION_GAP;
+			m_wndReceivablesResetBtn.MoveWindow(nResetLeft, nFilterTop, TAECHANG_RECEIVABLES_RESET_WIDTH, TAECHANG_BUTTON_HEIGHT);
+		}
 		m_wndResultList.MoveWindow(nLeft, nTop + TAECHANG_RESULT_HEADER_HEIGHT, nWidth, nBodyHeight);
 		UpdateResultColumns();
 	}
@@ -964,6 +1005,7 @@ void CSageTaechangView::OnDraw(CDC* pDC) {
 	pDC->FillSolidRect(TAECHANG_SIDEBAR_WIDTH + 1, TAECHANG_MARGIN + TAECHANG_HEADER_HEIGHT, rectClient.Width() - TAECHANG_SIDEBAR_WIDTH - 1, 1, TAECHANG_COLOR_BORDER);
 	DrawEditBorder(pDC, m_wndInputPath);
 	DrawEditBorder(pDC, m_wndOutputFolder);
+	DrawEditBorder(pDC, m_wndReceivablesFilter);
 	DrawEditBorder(pDC, m_wndPriceCompanyCombo);
 	DrawEditBorder(pDC, m_wndPriceMinCopiesEdit);
 	DrawEditBorder(pDC, m_wndPriceMaxCopiesEdit);
@@ -1069,6 +1111,31 @@ BOOL CSageTaechangView::IsActionTabVisible() const {
 	return IsInputTabSelected() ? TRUE : FALSE;
 }
 
+BOOL CSageTaechangView::HasDocumentResultTab() const {
+	int nWorkflowType = GetSelectedWorkflow();
+	return (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY || nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE) ? FALSE : TRUE;
+}
+
+int CSageTaechangView::GetTaskTabVisualIndex(int nSemanticTabIndex) const {
+	if (IsCompareWorkflow(GetSelectedWorkflow()))
+		return nSemanticTabIndex;
+	if (HasDocumentResultTab())
+		return nSemanticTabIndex;
+	if (nSemanticTabIndex == TAECHANG_TAB_INDEX_DOCUMENT_HISTORY)
+		return 1;
+	return TAECHANG_TAB_INDEX_INPUT;
+}
+
+int CSageTaechangView::GetTaskTabSemanticIndex(int nVisualTabIndex) const {
+	if (IsCompareWorkflow(GetSelectedWorkflow()))
+		return nVisualTabIndex;
+	if (HasDocumentResultTab())
+		return nVisualTabIndex;
+	if (nVisualTabIndex == 1)
+		return TAECHANG_TAB_INDEX_DOCUMENT_HISTORY;
+	return TAECHANG_TAB_INDEX_INPUT;
+}
+
 BOOL CSageTaechangView::IsReceivablesResultTable() const {
 	if (m_nLastWorkflowType != TAECHANG_WORKFLOW_RECEIVABLES)
 		return FALSE;
@@ -1102,6 +1169,8 @@ void CSageTaechangView::OnWorkflowChanged() {
 	m_strRunningInputPath.Empty();
 	m_wndInputPath.SetWindowTextW(L"");
 	m_wndOutputFolder.SetWindowTextW(L"");
+	m_wndReceivablesFilter.SetWindowTextW(L"");
+	m_strReceivablesFilterKeyword.Empty();
 
 	if (IsPriceWorkflowType(m_nCurrentWorkflow)) {
 		m_wndHeaderTitle.SetWindowTextW(
@@ -1151,7 +1220,7 @@ void CSageTaechangView::OnSidebarSelectionChanged(NMHDR* pNMHDR, LRESULT* pResul
 
 void CSageTaechangView::OnTaskTabChanged(NMHDR* pNMHDR, LRESULT* pResult) {
 	UNREFERENCED_PARAMETER(pNMHDR);
-	m_nSelectedTaskTab = m_wndTaskTabs.GetCurSel();
+	m_nSelectedTaskTab = GetTaskTabSemanticIndex(m_wndTaskTabs.GetCurSel());
 	LayoutChildControls();
 	Invalidate();
 	*pResult = 0;
@@ -1183,7 +1252,7 @@ void CSageTaechangView::ApplyDroppedInputPaths(const CString& strPaths) {
 	m_wndInputPath.SetWindowTextW(strInputPaths);
 	if (!IsInputTabSelected()) {
 		m_nSelectedTaskTab = TAECHANG_TAB_INDEX_INPUT;
-		m_wndTaskTabs.SetCurSel(m_nSelectedTaskTab);
+		m_wndTaskTabs.SetCurSel(GetTaskTabVisualIndex(m_nSelectedTaskTab));
 		LayoutChildControls();
 	}
 	SetStatusText(L"파일 드롭 수신");
@@ -1615,12 +1684,20 @@ LRESULT CSageTaechangView::OnWorkflowComplete(WPARAM wParam, LPARAM lParam) {
 }
 
 void CSageTaechangView::DisplayResponse(int nWorkflowType, int nTaskType, const CString& strResponseJson) {
-	m_wndResultList.DeleteAllItems();
+	BOOL bDocumentGenerateNoResult =
+		(nTaskType == TAECHANG_TASK_GENERATE &&
+		 (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY || nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE))
+		? TRUE : FALSE;
+	if (!bDocumentGenerateNoResult)
+		m_wndResultList.DeleteAllItems();
 	m_nLastWorkflowType = nWorkflowType;
-	m_nLastTaskType = nTaskType;
+	if (!bDocumentGenerateNoResult)
+		m_nLastTaskType = nTaskType;
 	m_strLastResponseJson = strResponseJson;
-	ApplyResultColumns();
-	UpdateResultColumns();
+	if (!bDocumentGenerateNoResult) {
+		ApplyResultColumns();
+		UpdateResultColumns();
+	}
 
 	TaechangWorkflowResultPresenter presenter;
 	std::vector<TaechangResultRow> arrRows;
@@ -1632,20 +1709,37 @@ void CSageTaechangView::DisplayResponse(int nWorkflowType, int nTaskType, const 
 	else
 		m_wndDetail.SetWindowTextW(m_strExecutionHistory);
 
-	for (int i = 0; i < static_cast<int>(arrRows.size()); ++i)
-		InsertResultRow(arrRows[i]);
+	if (!bDocumentGenerateNoResult) {
+		if (nWorkflowType == TAECHANG_WORKFLOW_RECEIVABLES)
+			RefreshReceivablesResultFilter();
+		else {
+			for (int i = 0; i < static_cast<int>(arrRows.size()); ++i)
+				InsertResultRow(arrRows[i]);
+		}
+	}
 
 	if ((nWorkflowType == TAECHANG_WORKFLOW_DELIVERY || nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE) && nTaskType == TAECHANG_TASK_LOAD) {
 		m_nSelectedTaskTab = TAECHANG_TAB_INDEX_INPUT;
-		m_wndTaskTabs.SetCurSel(m_nSelectedTaskTab);
+		m_wndTaskTabs.SetCurSel(GetTaskTabVisualIndex(m_nSelectedTaskTab));
 		UpdateTaskTabVisibility();
 		LayoutChildControls();
+	} else if ((nWorkflowType == TAECHANG_WORKFLOW_DELIVERY || nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE) &&
+			   nTaskType == TAECHANG_TASK_GENERATE) {
+		m_nSelectedTaskTab = TAECHANG_TAB_INDEX_INPUT;
+		m_wndTaskTabs.SetCurSel(GetTaskTabVisualIndex(m_nSelectedTaskTab));
+		UpdateTaskTabVisibility();
+		LayoutChildControls();
+		if (bSuccess) {
+			AfxMessageBox(
+				nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE
+					? TAECHANG_UI_ESTIMATE_GENERATE_COMPLETED
+					: TAECHANG_UI_DELIVERY_GENERATE_COMPLETED,
+				MB_ICONINFORMATION);
+		}
 	} else if ((nWorkflowType == TAECHANG_WORKFLOW_RECEIVABLES && nTaskType == TAECHANG_TASK_GENERATE) ||
-			  (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY && nTaskType == TAECHANG_TASK_GENERATE) ||
-			  (nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE && nTaskType == TAECHANG_TASK_GENERATE) ||
 			  nTaskType == TAECHANG_TASK_LOAD) {
 		m_nSelectedTaskTab = TAECHANG_TAB_INDEX_DOCUMENT_RESULT;
-		m_wndTaskTabs.SetCurSel(m_nSelectedTaskTab);
+		m_wndTaskTabs.SetCurSel(GetTaskTabVisualIndex(m_nSelectedTaskTab));
 		UpdateTaskTabVisibility();
 		LayoutChildControls();
 	}
@@ -1716,6 +1810,50 @@ void CSageTaechangView::InsertResultRow(const TaechangResultRow& row) {
 	m_wndResultList.SetItemText(nIndex, nCol++, row.m_strStatus);
 	m_wndResultList.SetItemText(nIndex, nCol++, row.m_strReason);
 	m_wndResultList.SetItemData(nIndex, static_cast<DWORD_PTR>(row.m_nSourceRowIndex));
+}
+
+void CSageTaechangView::RefreshReceivablesResultFilter() {
+	if (!::IsWindow(m_wndResultList.GetSafeHwnd()) || !IsReceivablesResultTable())
+		return;
+
+	CString strFilter = m_strReceivablesFilterKeyword;
+	strFilter.Trim();
+	CString strFilterLower = strFilter;
+	strFilterLower.MakeLower();
+
+	m_wndResultList.DeleteAllItems();
+
+	TaechangWorkflowResultPresenter presenter;
+	std::vector<TaechangResultRow> arrRows;
+	CString strDetailText;
+	presenter.BuildRows(m_nLastWorkflowType, m_nLastTaskType, m_strLastResponseJson, arrRows, strDetailText);
+	for (int i = 0; i < static_cast<int>(arrRows.size()); ++i) {
+		if (!strFilterLower.IsEmpty()) {
+			CString strCompanyLower = arrRows[i].m_strCompanyName;
+			strCompanyLower.MakeLower();
+			if (strCompanyLower.Find(strFilterLower) < 0)
+				continue;
+		}
+		InsertResultRow(arrRows[i]);
+	}
+}
+
+void CSageTaechangView::OnReceivablesSearch() {
+	if (GetSelectedWorkflow() != TAECHANG_WORKFLOW_RECEIVABLES || !IsReceivablesResultTable())
+		return;
+
+	m_wndReceivablesFilter.GetWindowTextW(m_strReceivablesFilterKeyword);
+	m_strReceivablesFilterKeyword.Trim();
+	RefreshReceivablesResultFilter();
+}
+
+void CSageTaechangView::OnReceivablesFilterReset() {
+	if (GetSelectedWorkflow() != TAECHANG_WORKFLOW_RECEIVABLES || !IsReceivablesResultTable())
+		return;
+
+	m_strReceivablesFilterKeyword.Empty();
+	m_wndReceivablesFilter.SetWindowTextW(L"");
+	RefreshReceivablesResultFilter();
 }
 
 void CSageTaechangView::AppendExecutionHistory(int nWorkflowType, int nTaskType, const CString& strResponseJson, BOOL bSuccess) {
@@ -1807,6 +1945,7 @@ void CSageTaechangView::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct
 
 	BOOL bPrimary = (nIDCtl == ID_TAECHANG_GENERATE_WORKFLOW || nIDCtl == ID_TAECHANG_LOAD_WORKFLOW
 		|| nIDCtl == ID_TAECHANG_LOGIN_BTN
+		|| nIDCtl == ID_TAECHANG_RECEIVABLES_SEARCH_BTN
 		|| nIDCtl == ID_PRICE_ADD_COMPANY_BTN || nIDCtl == ID_PRICE_ADD_BTN || nIDCtl == ID_PRICE_RENAME_COMPANY_BTN
 		|| nIDCtl == ID_PRICE_CHANGE_COVER_BTN || nIDCtl == ID_PRICE_MODIFY_BTN
 		|| nIDCtl == ID_CALC_BTN);
@@ -1829,7 +1968,24 @@ void CSageTaechangView::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct
 	pWnd->GetWindowText(strText);
 
 	pDC->SetBkMode(TRANSPARENT);
-	CFont* pOldFont = pDC->SelectObject(&m_fontContent);
+	if (nIDCtl == ID_TAECHANG_RECEIVABLES_SEARCH_BTN) {
+		COLORREF clrIcon = bDisabled ? TAECHANG_COLOR_SECONDARY_TEXT : TAECHANG_COLOR_BUTTON_TEXT;
+		CPen pen(PS_SOLID, 2, clrIcon);
+		CPen* pOldPen = pDC->SelectObject(&pen);
+		CBrush* pOldBrush = (CBrush*)pDC->SelectStockObject(NULL_BRUSH);
+		int nCx = rect.CenterPoint().x - 2;
+		int nCy = rect.CenterPoint().y - 2;
+		pDC->Ellipse(nCx - 6, nCy - 6, nCx + 7, nCy + 7);
+		pDC->MoveTo(nCx + 5, nCy + 5);
+		pDC->LineTo(nCx + 11, nCy + 11);
+		if (pOldBrush)
+			pDC->SelectObject(pOldBrush);
+		if (pOldPen)
+			pDC->SelectObject(pOldPen);
+		return;
+	}
+
+	CFont* pOldFont = pDC->SelectObject(nIDCtl == ID_TAECHANG_RECEIVABLES_RESET_BTN ? &m_fontHeader : &m_fontContent);
 	rect.OffsetRect(0, TAECHANG_BUTTON_TEXT_TOP_OFFSET);
 	pDC->DrawText(strText, rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 	if (pOldFont)

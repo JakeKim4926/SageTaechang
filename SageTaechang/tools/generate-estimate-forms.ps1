@@ -112,7 +112,7 @@ try {
         if ($dateSerial -gt 0) {
             $dateStr = [datetime]::FromOADate($dateSerial).ToString("yyyyMMdd")
         }
-        $timeStr = (Get-Date).ToString("HHmmss")
+        $timeStr = (Get-Date).ToString("HHmmssfff")
         if ($dateStr.Length -gt 0) {
             $baseName = (Safe-FileName $companyName) + '_견적서_' + $dateStr + '_' + $timeStr
         } else {
