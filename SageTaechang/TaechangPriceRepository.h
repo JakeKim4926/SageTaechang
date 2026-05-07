@@ -83,6 +83,13 @@ public:
 
     BOOL DeleteByPriceId(int nPriceId, CString& strError);
 
+    BOOL DeleteByCompany(
+        const CString& strCompanyName,
+        int nReportType,
+        int& nAffectedCount,
+        CString& strError
+    );
+
     BOOL SelectAllCompanyNames(
         int nReportType,
         CStringArray& arrNames,

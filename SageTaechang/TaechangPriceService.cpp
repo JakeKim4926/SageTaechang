@@ -305,6 +305,39 @@ BOOL TaechangPriceService::RemovePrice(int nPriceId, CString& strError) {
     return m_pRepository->DeleteByPriceId(nPriceId, strError);
 }
 
+BOOL TaechangPriceService::RemoveCompany(
+    const CString& strCompanyName,
+    int& nAffectedCount,
+    CString& strError
+) {
+    nAffectedCount = 0;
+
+    if (m_pRepository == NULL) {
+        strError = _T("TaechangPriceRepository媛 NULL?낅땲??");
+        return FALSE;
+    }
+
+    if (ValidateCompanyName(strCompanyName, strError) == FALSE) {
+        return FALSE;
+    }
+
+    if (m_pRepository->DeleteByCompany(
+        strCompanyName,
+        REPORT_TYPE_AUDIT_REPORT,
+        nAffectedCount,
+        strError
+    ) == FALSE) {
+        return FALSE;
+    }
+
+    if (nAffectedCount <= 0) {
+        strError = TAECHANG_UI_PRICE_DELETE_COMPANY_EMPTY;
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
 BOOL TaechangPriceService::LoadAllCompanyNames(CStringArray& arrNames, CString& strError) {
     arrNames.RemoveAll();
 

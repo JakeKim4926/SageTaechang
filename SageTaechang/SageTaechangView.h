@@ -126,6 +126,7 @@ protected:
     CButton             m_wndPriceAddCompanyBtn;
     CButton             m_wndPriceRenameCompanyBtn;
     CButton             m_wndPriceChangeCoverBtn;
+    CButton             m_wndPriceDeleteCompanyBtn;
     CTaechangHeaderCtrl m_wndPriceCopiesHeader;
     CListCtrl           m_wndPriceCopiesList;
     CStatic             m_wndPriceMinCopiesLabel;
@@ -276,6 +277,7 @@ protected:
     afx_msg void OnPriceAddCompany();
     afx_msg void OnPriceRenameCompany();
     afx_msg void OnPriceChangeCover();
+    afx_msg void OnPriceDeleteCompany();
     afx_msg void OnPriceCopiesSelChanged(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnPriceNoMaxCheck();
     afx_msg void OnPriceAdd();
