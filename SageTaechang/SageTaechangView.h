@@ -87,6 +87,8 @@ protected:
     CTaechangHeaderCtrl m_wndResultHeader;
     CListCtrl m_wndResultList;
     CEdit m_wndReceivablesFilter;
+    CButton m_wndReceivablesSearchBtn;
+    CButton m_wndReceivablesResetBtn;
     CEdit m_wndDetail;
     CStatic m_wndEmptyStateHint;
     CStatic m_wndActionStatus;
@@ -112,6 +114,7 @@ protected:
     CString m_strLastResponseJson;
     CString m_strExecutionHistory;
     CString m_strRunningInputPath;
+    CString m_strReceivablesFilterKeyword;
 
     CButton m_wndLoginBtn;
     CButton m_wndLogoutBtn;
@@ -283,7 +286,8 @@ protected:
     // ── 부수 계산 이벤트 ────────────────────────────────────────────────────
     afx_msg void OnCalc();
     afx_msg void OnCalcFreightChanged();
-    afx_msg void OnReceivablesFilterChanged();
+    afx_msg void OnReceivablesSearch();
+    afx_msg void OnReceivablesFilterReset();
 
     DECLARE_MESSAGE_MAP()
 };
