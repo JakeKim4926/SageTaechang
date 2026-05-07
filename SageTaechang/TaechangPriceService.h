@@ -65,6 +65,12 @@ public:
 
     BOOL RemovePrice(int nPriceId, CString& strError);
 
+    BOOL RemoveCompany(
+        const CString& strCompanyName,
+        int& nAffectedCount,
+        CString& strError
+    );
+
     BOOL LoadAllCompanyNames(CStringArray& arrNames, CString& strError);
 
     BOOL ModifyPriceById(const TaechangPriceDto& dto, CString& strError);

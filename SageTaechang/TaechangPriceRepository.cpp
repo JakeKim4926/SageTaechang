@@ -657,6 +657,56 @@ BOOL TaechangPriceRepository::DeleteByPriceId(int nPriceId, CString& strError) {
     return TRUE;
 }
 
+BOOL TaechangPriceRepository::DeleteByCompany(
+    const CString& strCompanyName,
+    int nReportType,
+    int& nAffectedCount,
+    CString& strError
+) {
+    sqlite3* pDb;
+    sqlite3_stmt* pStatement;
+    CStringA strSqlA;
+    int nResult;
+
+    nAffectedCount = 0;
+
+    if (m_pSqlContext == NULL || m_pSqlContext->IsOpened() == FALSE) {
+        strError = _T("SQLite DB媛 ?대젮 ?덉? ?딆뒿?덈떎.");
+        return FALSE;
+    }
+
+    pDb = m_pSqlContext->GetDb();
+    pStatement = NULL;
+
+    strSqlA =
+        "DELETE FROM TaechangPrice "
+        "WHERE company_name = ? "
+        "  AND report_type = ?;";
+
+    nResult = sqlite3_prepare_v2(pDb, strSqlA.GetString(), -1, &pStatement, NULL);
+    if (nResult != SQLITE_OK) {
+        strError = RepositoryHelper::GetLastError(pDb);
+        return FALSE;
+    }
+
+    if (RepositoryHelper::BindText(pStatement, 1, strCompanyName, strError) == FALSE ||
+        RepositoryHelper::BindInt(pStatement, 2, nReportType, strError) == FALSE) {
+        sqlite3_finalize(pStatement);
+        return FALSE;
+    }
+
+    nResult = sqlite3_step(pStatement);
+    if (nResult != SQLITE_DONE) {
+        strError = RepositoryHelper::GetLastError(pDb);
+        sqlite3_finalize(pStatement);
+        return FALSE;
+    }
+
+    nAffectedCount = sqlite3_changes(pDb);
+    sqlite3_finalize(pStatement);
+    return TRUE;
+}
+
 BOOL TaechangPriceRepository::SelectAllCompanyNames(
     int nReportType,
     CStringArray& arrNames,
