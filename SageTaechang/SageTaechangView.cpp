@@ -476,13 +476,6 @@ void CSageTaechangView::BuildSidebarTree() {
 	HTREEITEM hEstimate = m_wndSidebarTree.InsertItem(TAECHANG_UI_ESTIMATE_NAME, hDocument, TVI_LAST);
 	m_wndSidebarTree.SetItemData(hEstimate, TAECHANG_WORKFLOW_ESTIMATE);
 
-	HTREEITEM hInspection = m_wndSidebarTree.InsertItem(TAECHANG_UI_SIDEBAR_GROUP_INSPECTION, TVI_ROOT, TVI_LAST);
-	m_wndSidebarTree.SetItemData(hInspection, TAECHANG_SIDEBAR_ACTION_NONE);
-	HTREEITEM hPdf = m_wndSidebarTree.InsertItem(CString(TAECHANG_UI_PDF_COMPARE_NAME) + TAECHANG_UI_PREPARING_SUFFIX, hInspection, TVI_LAST);
-	m_wndSidebarTree.SetItemData(hPdf, TAECHANG_WORKFLOW_PDF_COMPARE);
-	HTREEITEM hHwp = m_wndSidebarTree.InsertItem(CString(TAECHANG_UI_HWP_COMPARE_NAME) + TAECHANG_UI_PREPARING_SUFFIX, hInspection, TVI_LAST);
-	m_wndSidebarTree.SetItemData(hHwp, TAECHANG_WORKFLOW_HWP_COMPARE);
-
 	HTREEITEM hPrice = m_wndSidebarTree.InsertItem(TAECHANG_UI_SIDEBAR_GROUP_PRICE, TVI_ROOT, TVI_LAST);
 	m_wndSidebarTree.SetItemData(hPrice, TAECHANG_SIDEBAR_ACTION_NONE);
 	HTREEITEM hPriceManage = m_wndSidebarTree.InsertItem(TAECHANG_UI_PRICE_MANAGE_NAME, hPrice, TVI_LAST);
@@ -491,7 +484,6 @@ void CSageTaechangView::BuildSidebarTree() {
 	m_wndSidebarTree.SetItemData(hPriceCalc, TAECHANG_WORKFLOW_PRICE_CALC);
 
 	m_wndSidebarTree.Expand(hDocument, TVE_EXPAND);
-	m_wndSidebarTree.Expand(hInspection, TVE_EXPAND);
 	m_wndSidebarTree.Expand(hPrice, TVE_EXPAND);
 
 	m_hLastWorkflowItem = hReceivables;
