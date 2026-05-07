@@ -120,6 +120,8 @@ void TaechangPasswordChangeDlg::CreateControls() {
     m_wndCurrentEdit.SetPasswordChar(L'*');
     m_wndNewEdit.SetPasswordChar(L'*');
     m_wndConfirmEdit.SetPasswordChar(L'*');
+    m_wndNewEdit.SetLimitText(TAECHANG_USER_PW_MAX_LEN);
+    m_wndConfirmEdit.SetLimitText(TAECHANG_USER_PW_MAX_LEN);
 
     m_wndOkBtn.Create(TAECHANG_UI_CHANGE_PW_OK, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, IDOK);
     m_wndCancelBtn.Create(TAECHANG_UI_CHANGE_PW_CANCEL, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, IDCANCEL);
@@ -198,12 +200,6 @@ void TaechangPasswordChangeDlg::OnOK() {
     }
     if (strNew.IsEmpty()) {
         AfxMessageBox(TAECHANG_UI_CHANGE_PW_EMPTY_NEW, MB_ICONWARNING);
-        m_wndNewEdit.SetFocus();
-        return;
-    }
-    if (strNew.GetLength() < TAECHANG_USER_PW_MIN_LEN) {
-        AfxMessageBox(TAECHANG_UI_CHANGE_PW_TOO_SHORT, MB_ICONWARNING);
-        m_wndNewEdit.SetSel(0, -1);
         m_wndNewEdit.SetFocus();
         return;
     }

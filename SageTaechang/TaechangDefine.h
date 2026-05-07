@@ -357,6 +357,7 @@ constexpr WORD TAECHANG_LOGIN_DLG_FONT_PT = 10;
 constexpr int TAECHANG_USER_LOGIN_ID_MIN_LEN = 2;
 constexpr int TAECHANG_USER_LOGIN_ID_MAX_LEN = 30;
 constexpr int TAECHANG_USER_PW_MIN_LEN = 4;
+constexpr int TAECHANG_USER_PW_MAX_LEN = 15;
 
 constexpr LPCWSTR TAECHANG_UI_LOGIN_BTN = L"로그인";
 constexpr LPCWSTR TAECHANG_UI_LOGOUT_BTN = L"로그아웃";
@@ -382,6 +383,8 @@ constexpr LPCWSTR TAECHANG_UI_CHANGE_PW_EMPTY_CURRENT = L"현재 비밀번호를
 constexpr LPCWSTR TAECHANG_UI_CHANGE_PW_EMPTY_NEW = L"변경할 비밀번호를 입력하세요.";
 constexpr LPCWSTR TAECHANG_UI_CHANGE_PW_EMPTY_CONFIRM = L"변경할 비밀번호 확인을 입력하세요.";
 constexpr LPCWSTR TAECHANG_UI_CHANGE_PW_TOO_SHORT = L"비밀번호는 4자 이상이어야 합니다.";
+constexpr LPCWSTR TAECHANG_UI_CHANGE_PW_TOO_LONG = L"비밀번호는 15자 이하이어야 합니다.";
+constexpr LPCWSTR TAECHANG_UI_CHANGE_PW_INVALID_CHAR = L"비밀번호는 영문과 숫자만 사용할 수 있습니다.";
 constexpr LPCWSTR TAECHANG_UI_CHANGE_PW_MISMATCH = L"변경할 비밀번호가 서로 다릅니다.";
 constexpr LPCWSTR TAECHANG_UI_CHANGE_PW_CURRENT_INVALID = L"현재 비밀번호가 올바르지 않습니다.";
 constexpr LPCWSTR TAECHANG_UI_CHANGE_PW_COMPLETED = L"비밀번호가 변경되었습니다.";
