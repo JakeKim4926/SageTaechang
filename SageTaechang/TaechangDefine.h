@@ -431,6 +431,7 @@ constexpr UINT ID_CALC_COMPANY_COMBO      = 41050;
 constexpr UINT ID_CALC_COPIES_EDIT        = 41051;
 constexpr UINT ID_CALC_BTN                = 41052;
 constexpr UINT ID_CALC_FREIGHT_EDIT       = 41053;
+constexpr UINT ID_CALC_PAGES_EDIT         = 41060;
 
 // ── 사이드바 UI 문자열 ───────────────────────────────────────────────────────
 constexpr LPCWSTR TAECHANG_UI_SIDEBAR_GROUP_PRICE = L"단가 관리";
@@ -499,9 +500,10 @@ constexpr LPCWSTR TAECHANG_UI_PRICE_RANGE_NO_MAX_LABEL   = L"최대부수 없음
 // ── 부수 계산 화면 문자열 ────────────────────────────────────────────────────
 constexpr LPCWSTR TAECHANG_UI_CALC_COMPANY_LABEL   = L"법인명";
 constexpr LPCWSTR TAECHANG_UI_CALC_COPIES_LABEL    = L"부수";
+constexpr LPCWSTR TAECHANG_UI_CALC_PAGES_LABEL     = L"페이지";
 constexpr LPCWSTR TAECHANG_UI_CALC_BTN             = L"계산";
 constexpr LPCWSTR TAECHANG_UI_CALC_PRINT_LABEL     = L"부수 단가";
-constexpr LPCWSTR TAECHANG_UI_CALC_COVER_LABEL     = L"표지 가격";
+constexpr LPCWSTR TAECHANG_UI_CALC_COVER_LABEL     = L"표지 단가";
 constexpr LPCWSTR TAECHANG_UI_CALC_SUBTOTAL_LABEL  = L"소계";
 constexpr LPCWSTR TAECHANG_UI_CALC_FREIGHT_LABEL   = L"운임";
 constexpr LPCWSTR TAECHANG_UI_CALC_TOTAL_LABEL     = L"합계";
@@ -510,6 +512,8 @@ constexpr LPCWSTR TAECHANG_UI_CALC_NO_DATA         = L"해당 부수에 대한 �
 constexpr LPCWSTR TAECHANG_UI_CALC_SELECT_COMPANY  = L"법인명을 선택하세요.";
 constexpr LPCWSTR TAECHANG_UI_CALC_COPIES_REQUIRED = L"부수를 입력하세요.";
 constexpr LPCWSTR TAECHANG_UI_CALC_COPIES_INVALID  = L"부수는 1 이상의 숫자여야 합니다.";
+constexpr LPCWSTR TAECHANG_UI_CALC_PAGES_REQUIRED  = L"페이지 수를 입력하세요.";
+constexpr LPCWSTR TAECHANG_UI_CALC_PAGES_INVALID   = L"페이지 수는 1 이상 1,000,000 이하의 숫자여야 합니다.";
 
 // ── 가격 관리 입력 검증 상수 ────────────────────────────────────────────────
 constexpr int TAECHANG_PRICE_COMPANY_MAX_LEN    = 20;
@@ -571,20 +575,23 @@ constexpr UINT ID_CALC_HISTORY_SECTION             = 41055;
 constexpr int  TAECHANG_CALC_MAX_HISTORY           = 10;
 constexpr int  TAECHANG_CALC_HIST_COL_COMPANY_W    = 170;
 constexpr int  TAECHANG_CALC_HIST_COL_COPIES_W     =  70;
-constexpr int  TAECHANG_CALC_HIST_COL_PRINT_W      = 125;
+constexpr int  TAECHANG_CALC_HIST_COL_PAGES_W      =  70;
+constexpr int  TAECHANG_CALC_HIST_COL_PRINT_W      = 135;
 constexpr int  TAECHANG_CALC_HIST_COL_COVER_W      = 125;
 constexpr int  TAECHANG_CALC_HIST_COL_FREIGHT_W    = 105;
-constexpr int  TAECHANG_CALC_HIST_COL_TOTAL_W      = 125;
+constexpr int  TAECHANG_CALC_HIST_COL_TOTAL_W      = 135;
 constexpr int  TAECHANG_CALC_HIST_COL_TIME_W       = 210;
 
 constexpr LPCWSTR TAECHANG_UI_CALC_SECTION_RESULT   = L"계산 결과";
 constexpr LPCWSTR TAECHANG_UI_CALC_SECTION_HISTORY  = L"최근 계산 내역";
 constexpr LPCWSTR TAECHANG_UI_CALC_HIST_COL_COMPANY = L"법인명";
 constexpr LPCWSTR TAECHANG_UI_CALC_HIST_COL_COPIES  = L"부수";
+constexpr LPCWSTR TAECHANG_UI_CALC_HIST_COL_PAGES   = L"페이지";
 constexpr LPCWSTR TAECHANG_UI_CALC_HIST_COL_PRINT   = L"부수 단가";
 constexpr LPCWSTR TAECHANG_UI_CALC_HIST_COL_COVER   = L"표지 단가";
 constexpr LPCWSTR TAECHANG_UI_CALC_HIST_COL_FREIGHT = L"운임";
 constexpr LPCWSTR TAECHANG_UI_CALC_HIST_COL_TOTAL   = L"합계";
 constexpr LPCWSTR TAECHANG_UI_CALC_HIST_COL_TIME    = L"계산 일시";
 constexpr LPCWSTR TAECHANG_UI_CALC_HIST_COPIES_FMT  = L"%d";
+constexpr LPCWSTR TAECHANG_UI_CALC_HIST_PAGES_FMT   = L"%d";
 constexpr LPCWSTR TAECHANG_UI_CALC_HIST_TIME_FMT    = L"%Y-%m-%d %H:%M:%S";
