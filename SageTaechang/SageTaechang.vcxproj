@@ -239,6 +239,7 @@ if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templ
     <ClInclude Include="TaechangUserService.h" />
     <ClInclude Include="TaechangAuthSession.h" />
     <ClInclude Include="TaechangLoginDlg.h" />
+    <ClInclude Include="TaechangPasswordChangeDlg.h" />
     <ClInclude Include="TaechangCompanyDlg.h" />
     <ClInclude Include="TaechangPriceRangeDlg.h" />
     <ClInclude Include="TaechangPriceSimpleDlg.h" />
@@ -295,6 +296,7 @@ if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templ
     <ClCompile Include="TaechangUserService.cpp" />
     <ClCompile Include="TaechangAuthSession.cpp" />
     <ClCompile Include="TaechangLoginDlg.cpp" />
+    <ClCompile Include="TaechangPasswordChangeDlg.cpp" />
     <ClCompile Include="TaechangCompanyDlg.cpp" />
     <ClCompile Include="TaechangPriceRangeDlg.cpp" />
     <ClCompile Include="TaechangPriceSimpleDlg.cpp" />

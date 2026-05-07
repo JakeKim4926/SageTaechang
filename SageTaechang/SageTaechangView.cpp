@@ -20,6 +20,7 @@
 #include "app/presentation/TaechangWorkflowResultPresenter.h"
 #include "TaechangAuthSession.h"
 #include "TaechangLoginDlg.h"
+#include "TaechangPasswordChangeDlg.h"
 #include "TaechangCompanyDlg.h"
 #include "TaechangPriceRangeDlg.h"
 #include "TaechangPriceSimpleDlg.h"
@@ -483,8 +484,14 @@ void CSageTaechangView::BuildSidebarTree() {
 	HTREEITEM hPriceCalc = m_wndSidebarTree.InsertItem(TAECHANG_UI_PRICE_CALC_NAME, hPrice, TVI_LAST);
 	m_wndSidebarTree.SetItemData(hPriceCalc, TAECHANG_WORKFLOW_PRICE_CALC);
 
+	HTREEITEM hEtc = m_wndSidebarTree.InsertItem(TAECHANG_UI_SIDEBAR_GROUP_ETC, TVI_ROOT, TVI_LAST);
+	m_wndSidebarTree.SetItemData(hEtc, TAECHANG_SIDEBAR_ACTION_NONE);
+	HTREEITEM hChangePassword = m_wndSidebarTree.InsertItem(TAECHANG_UI_CHANGE_PW_MENU, hEtc, TVI_LAST);
+	m_wndSidebarTree.SetItemData(hChangePassword, TAECHANG_SIDEBAR_ACTION_CHANGE_PASSWORD);
+
 	m_wndSidebarTree.Expand(hDocument, TVE_EXPAND);
 	m_wndSidebarTree.Expand(hPrice, TVE_EXPAND);
+	m_wndSidebarTree.Expand(hEtc, TVE_EXPAND);
 
 	m_hLastWorkflowItem = hReceivables;
 	m_wndSidebarTree.SelectItem(hReceivables);
@@ -1196,6 +1203,19 @@ void CSageTaechangView::OnSidebarSelectionChanged(NMHDR* pNMHDR, LRESULT* pResul
 	DWORD_PTR nItemData = m_wndSidebarTree.GetItemData(hItem);
 	if (nItemData == TAECHANG_SIDEBAR_ACTION_NONE)
 		return;
+	if (nItemData == TAECHANG_SIDEBAR_ACTION_CHANGE_PASSWORD) {
+		if (!taechangAuth.IsLoggedIn()) {
+			AfxMessageBox(TAECHANG_UI_LOGIN_REQUIRED, MB_ICONWARNING);
+			if (m_hLastWorkflowItem != NULL)
+				m_wndSidebarTree.SelectItem(m_hLastWorkflowItem);
+			return;
+		}
+		TaechangPasswordChangeDlg dlg(this);
+		dlg.DoModal();
+		if (m_hLastWorkflowItem != NULL)
+			m_wndSidebarTree.SelectItem(m_hLastWorkflowItem);
+		return;
+	}
 	if (nItemData == TAECHANG_WORKFLOW_PDF_COMPARE || nItemData == TAECHANG_WORKFLOW_HWP_COMPARE) {
 		SetStatusText(TAECHANG_UI_FEATURE_PREPARING);
 		if (m_hLastWorkflowItem != NULL)
