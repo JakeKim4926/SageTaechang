@@ -871,6 +871,11 @@ void CSageTaechangView::LayoutChildControls() {
 		return;
 	}
 
+	if (m_nCurrentWorkflow == TAECHANG_WORKFLOW_RECEIVABLES ||
+		m_nCurrentWorkflow == TAECHANG_WORKFLOW_DELIVERY ||
+		m_nCurrentWorkflow == TAECHANG_WORKFLOW_ESTIMATE)
+		nContentTop += TAECHANG_PANEL_GAP;
+
 	m_wndTaskTabs.ShowWindow(SW_SHOW);
 	m_wndTaskTabs.MoveWindow(nContentLeft, nContentTop, nContentWidth, TAECHANG_TAB_HEIGHT);
 	nContentTop += TAECHANG_TAB_HEIGHT + TAECHANG_PANEL_GAP;
