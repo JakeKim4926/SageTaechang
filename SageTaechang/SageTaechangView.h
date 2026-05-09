@@ -87,9 +87,9 @@ protected:
     CStatic m_wndProgressText;
     CTaechangHeaderCtrl m_wndResultHeader;
     CListCtrl m_wndResultList;
-    CEdit m_wndReceivablesFilter;
-    CButton m_wndReceivablesSearchBtn;
-    CButton m_wndReceivablesResetBtn;
+    CEdit m_wndResultFilter;
+    CButton m_wndResultSearchBtn;
+    CButton m_wndResultResetBtn;
     CEdit m_wndDetail;
     CStatic m_wndEmptyStateHint;
     CStatic m_wndActionStatus;
@@ -115,7 +115,7 @@ protected:
     CString m_strLastResponseJson;
     CString m_strExecutionHistory;
     CString m_strRunningInputPath;
-    CString m_strReceivablesFilterKeyword;
+    CString m_strResultFilterKeyword;
 
     CButton m_wndLoginBtn;
     CButton m_wndLogoutBtn;
@@ -211,6 +211,7 @@ protected:
     BOOL IsReceivablesResultTable() const;
     BOOL IsDeliveryInputTable() const;
     BOOL IsEstimateInputTable() const;
+    BOOL IsDocumentResultFilterVisible() const;
     COLORREF ResolveStatusColor(const CString& strStatus) const;
     COLORREF ResolveStatusBgColor(const CString& strStatus) const;
     void DrawSectionLabel(LPDRAWITEMSTRUCT lpDrawItemStruct);
@@ -222,7 +223,7 @@ protected:
     void RunWorkflowTask(int nTaskType);
     void DisplayResponse(int nWorkflowType, int nTaskType, const CString& strResponseJson);
     void InsertResultRow(const TaechangResultRow& row);
-    void RefreshReceivablesResultFilter();
+    void RefreshDocumentResultFilter();
     void AppendExecutionHistory(int nWorkflowType, int nTaskType, const CString& strResponseJson, BOOL bSuccess);
     CString BuildExecutionHistoryLine(int nWorkflowType, int nTaskType, const CString& strResponseJson, BOOL bSuccess) const;
 
@@ -289,8 +290,8 @@ protected:
     // ── 부수 계산 이벤트 ────────────────────────────────────────────────────
     afx_msg void OnCalc();
     afx_msg void OnCalcFreightChanged();
-    afx_msg void OnReceivablesSearch();
-    afx_msg void OnReceivablesFilterReset();
+    afx_msg void OnResultSearch();
+    afx_msg void OnResultFilterReset();
 
     DECLARE_MESSAGE_MAP()
 };
