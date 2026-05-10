@@ -5,6 +5,25 @@
 
 struct TaechangResultRow;
 
+struct TaechangWorkflowUiState {
+    int nSelectedTaskTab;
+    int nLastWorkflowType;
+    int nLastTaskType;
+    BOOL bLastTaskSuccess;
+    CString strLastResponseJson;
+    CString strRunningInputPath;
+    CString strResultFilterKeyword;
+    CString strInputPath;
+    CString strOutputFolder;
+    CString strCheckedRowNums;
+
+    TaechangWorkflowUiState()
+        : nSelectedTaskTab(TAECHANG_TAB_INDEX_INPUT)
+        , nLastWorkflowType(0)
+        , nLastTaskType(0)
+        , bLastTaskSuccess(FALSE) {}
+};
+
 struct CalcHistoryEntry {
     CString strCompanyName;
     int nCopies;
@@ -83,6 +102,7 @@ protected:
     CButton m_wndGenerate;
     CButton m_wndExportCsv;
     CButton m_wndSelectAll;
+    CButton m_wndInputReset;
     CProgressCtrl m_wndProgress;
     CStatic m_wndProgressText;
     CTaechangHeaderCtrl m_wndResultHeader;
@@ -116,6 +136,9 @@ protected:
     CString m_strExecutionHistory;
     CString m_strRunningInputPath;
     CString m_strResultFilterKeyword;
+    TaechangWorkflowUiState m_stateReceivables;
+    TaechangWorkflowUiState m_stateDelivery;
+    TaechangWorkflowUiState m_stateEstimate;
 
     CButton m_wndLoginBtn;
     CButton m_wndLogoutBtn;
@@ -211,7 +234,15 @@ protected:
     BOOL IsReceivablesResultTable() const;
     BOOL IsDeliveryInputTable() const;
     BOOL IsEstimateInputTable() const;
+    BOOL IsInputResetVisible() const;
     BOOL IsDocumentResultFilterVisible() const;
+    BOOL IsDocumentWorkflowStateTarget(int nWorkflowType) const;
+    TaechangWorkflowUiState& GetWorkflowUiState(int nWorkflowType);
+    void SaveWorkflowUiState(int nWorkflowType);
+    void RestoreWorkflowUiState(int nWorkflowType);
+    void SaveCheckedRowNums(TaechangWorkflowUiState& state);
+    void RestoreCheckedRowNums(const TaechangWorkflowUiState& state);
+    void RebuildCurrentWorkflowResultList();
     COLORREF ResolveStatusColor(const CString& strStatus) const;
     COLORREF ResolveStatusBgColor(const CString& strStatus) const;
     void DrawSectionLabel(LPDRAWITEMSTRUCT lpDrawItemStruct);
@@ -266,6 +297,7 @@ protected:
     afx_msg void OnGenerateWorkflow();
     afx_msg void OnExportCsv();
     afx_msg void OnSelectAll();
+    afx_msg void OnInputReset();
     afx_msg LRESULT OnWorkflowComplete(WPARAM wParam, LPARAM lParam);
     afx_msg void OnDropFiles(HDROP hDropInfo);
     afx_msg void OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct);

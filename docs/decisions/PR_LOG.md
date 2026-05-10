@@ -196,3 +196,8 @@
 - **변경 내용**: m_wndWorkflowMenu(CListBox) → m_wndSidebarTree(CTreeCtrl) 교체, 트리 노드를 세 그룹으로 구성(항상 펼침), 본문 m_wndSettings 버튼 제거 후 "관리 > 설정"으로 이전, OnSidebarSelectionChanged에서 ItemData 기반 라우팅(워크플로우 변경/설정 호출/그룹 헤더 무시), m_nCurrentWorkflow 멤버 도입, 미사용 ID/UI 상수 정리
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/17
 - **결과**: merged
+## [2026-05-10] fix/preserve-document-tab-data
+- **목적**: 문서 생성 업무 탭 전환 시 미수금/납품서/견적서 표 데이터 유지 및 납품서/견적서 입력 파일 초기화 지원
+- **변경 내용**: 업무별 UI 상태 저장/복원, 입력 표 체크·필터 상태 보존, 납품서/견적서 입력 초기화 버튼 추가, 로드 완료 직후 초기화 버튼 레이아웃 갱신 보정
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/57
+- **결과**: merged
