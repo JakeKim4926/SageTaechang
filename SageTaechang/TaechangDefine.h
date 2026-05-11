@@ -442,6 +442,9 @@ constexpr UINT ID_CALC_COPIES_EDIT        = 41051;
 constexpr UINT ID_CALC_BTN                = 41052;
 constexpr UINT ID_CALC_FREIGHT_EDIT       = 41053;
 constexpr UINT ID_CALC_PAGES_EDIT         = 41060;
+constexpr UINT ID_CALC_COMPANY_PICK_BTN   = 41061;
+constexpr UINT ID_PICKER_DLG_SEARCH_EDIT  = 41062;
+constexpr UINT ID_PICKER_DLG_LIST         = 41063;
 
 // ── 사이드바 UI 문자열 ───────────────────────────────────────────────────────
 constexpr LPCWSTR TAECHANG_UI_SIDEBAR_GROUP_PRICE = L"단가 관리";
@@ -507,6 +510,17 @@ constexpr LPCWSTR TAECHANG_UI_PRICE_RANGE_OVERLAP        = L"이미 등록된 �
 constexpr LPCWSTR TAECHANG_UI_PRICE_MIN_LESS_THAN_MAX    = L"최소부수는 최대부수보다 작아야 합니다.";
 constexpr LPCWSTR TAECHANG_UI_PRICE_RANGE_NO_MAX_LABEL   = L"최대부수 없음";
 
+// ── 법인 선택 다이얼로그 ─────────────────────────────────────────────────────
+constexpr int TAECHANG_PICKER_DLG_TEMPLATE_CX      = 230;
+constexpr int TAECHANG_PICKER_DLG_TEMPLATE_CY      = 200;
+constexpr int TAECHANG_PICKER_DLG_WIDTH            = 360;
+constexpr int TAECHANG_PICKER_DLG_HEIGHT           = 300;
+constexpr LPCWSTR TAECHANG_UI_PICKER_DLG_TITLE     = L"법인 선택";
+constexpr LPCWSTR TAECHANG_UI_PICKER_DLG_OK        = L"선택";
+constexpr LPCWSTR TAECHANG_UI_PICKER_DLG_CANCEL    = L"취소";
+constexpr LPCWSTR TAECHANG_UI_PICKER_SEARCH_CUE    = L"법인명 검색";
+constexpr LPCWSTR TAECHANG_UI_PICKER_SELECT_REQUIRED = L"법인을 선택하세요.";
+
 // ── 부수 계산 화면 문자열 ────────────────────────────────────────────────────
 constexpr LPCWSTR TAECHANG_UI_CALC_COMPANY_LABEL   = L"법인명";
 constexpr LPCWSTR TAECHANG_UI_CALC_COPIES_LABEL    = L"부수";
@@ -571,6 +585,7 @@ constexpr int TAECHANG_PRICE_SUMMARY_ROW_GAP       = 8;
 
 // ── 부수 계산 레이아웃 치수 ─────────────────────────────────────────────────
 constexpr int TAECHANG_CALC_COMBO_WIDTH            = 200;
+constexpr int TAECHANG_CALC_COMPANY_PICK_BTN_W     = 34;
 constexpr int TAECHANG_CALC_COPIES_EDIT_WIDTH      = 80;
 constexpr int TAECHANG_CALC_COPIES_EDIT_SHORT_W    = 70;
 constexpr int TAECHANG_CALC_RESULT_LABEL_WIDTH     = 92;
