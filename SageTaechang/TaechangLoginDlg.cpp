@@ -94,6 +94,18 @@ BOOL TaechangLoginDlg::OnInitDialog() {
     return FALSE;
 }
 
+BOOL TaechangLoginDlg::PreTranslateMessage(MSG* pMsg) {
+    if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_RETURN) {
+        HWND hWnd = pMsg->hwnd;
+        if (hWnd == m_wndIdEdit.GetSafeHwnd() ||
+            hWnd == m_wndPwEdit.GetSafeHwnd()) {
+            OnOK();
+            return TRUE;
+        }
+    }
+    return CDialog::PreTranslateMessage(pMsg);
+}
+
 void TaechangLoginDlg::CreateControls() {
     CRect rectEmpty(0, 0, 0, 0);
 
@@ -102,10 +114,11 @@ void TaechangLoginDlg::CreateControls() {
     m_wndPwLabel.Create(TAECHANG_UI_LOGIN_PW_LABEL,
         WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, rectEmpty, this);
 
-    m_wndIdEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL,
+    m_wndIdEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOHSCROLL,
         rectEmpty, this, ID_TAECHANG_LOGIN_ID_EDIT);
-    m_wndPwEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL | ES_PASSWORD,
+    m_wndPwEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOHSCROLL | ES_PASSWORD,
         rectEmpty, this, ID_TAECHANG_LOGIN_PW_EDIT);
+    m_wndPwEdit.SetPasswordChar(L'*');
 
     m_wndOkBtn.Create(TAECHANG_UI_LOGIN_OK,
         WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, IDOK);
@@ -129,9 +142,11 @@ void TaechangLoginDlg::LayoutControls() {
 
     m_wndIdLabel.MoveWindow(nM, nRow1Top + TAECHANG_LABEL_VERT_OFFSET, nLabelW, nEditH);
     m_wndIdEdit.MoveWindow(nM + nLabelW + nGap, nRow1Top, nEditW, nEditH);
+    ApplyEditTextRect(m_wndIdEdit);
 
     m_wndPwLabel.MoveWindow(nM, nRow2Top + TAECHANG_LABEL_VERT_OFFSET, nLabelW, nEditH);
     m_wndPwEdit.MoveWindow(nM + nLabelW + nGap, nRow2Top, nEditW, nEditH);
+    ApplyEditTextRect(m_wndPwEdit);
 
     int nBtnRight = nClientW - nM;
     m_wndCancelBtn.MoveWindow(nBtnRight - nBtnW, nBtnTop, nBtnW, nBtnH);
@@ -147,6 +162,16 @@ void TaechangLoginDlg::ApplyFont() {
     m_wndPwEdit.SetFont(&m_font);
     m_wndOkBtn.SetFont(&m_font);
     m_wndCancelBtn.SetFont(&m_font);
+}
+
+void TaechangLoginDlg::ApplyEditTextRect(CEdit& edit) {
+    CRect rc;
+    edit.GetClientRect(&rc);
+    rc.left += 4;
+    rc.top += TAECHANG_EDIT_TEXT_TOP_PAD;
+    rc.right -= 4;
+    rc.bottom -= 2;
+    edit.SendMessage(EM_SETRECTNP, 0, reinterpret_cast<LPARAM>(&rc));
 }
 
 void TaechangLoginDlg::OnOK() {
