@@ -580,6 +580,7 @@ void CSageTaechangView::ApplyControlFonts() {
 	m_wndPriceModifyBtn.SetFont(&m_fontContent);
 	m_wndPriceDeleteBtn.SetFont(&m_fontContent);
 	m_wndPriceCancelBtn.SetFont(&m_fontContent);
+	m_wndPriceDetailHeader.SetFont(&m_fontHeader);
 	m_wndPriceSummaryTitle.SetFont(&m_fontContent);
 	m_wndPriceSummaryCount.SetFont(&m_fontContent);
 	m_wndPriceSummaryRange.SetFont(&m_fontContent);
@@ -1851,13 +1852,18 @@ HBRUSH CSageTaechangView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
 		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
 		return m_brushPanel;
 	}
+	if (pWnd->GetSafeHwnd() == m_wndPriceDetailHeader.GetSafeHwnd()) {
+		pDC->SetTextColor(TAECHANG_COLOR_TEXT);
+		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
+		return m_brushPanel;
+	}
 	if (pWnd->GetSafeHwnd() == m_wndPriceMinCopiesLabel.GetSafeHwnd() ||
 		pWnd->GetSafeHwnd() == m_wndPriceMaxCopiesLabel.GetSafeHwnd() ||
 		pWnd->GetSafeHwnd() == m_wndPricePrintLabel.GetSafeHwnd() ||
 		pWnd->GetSafeHwnd() == m_wndPriceCoverLabel.GetSafeHwnd()) {
-		pDC->SetTextColor(TAECHANG_COLOR_BUTTON_TEXT);
-		pDC->SetBkColor(TAECHANG_COLOR_LIST_HEADER);
-		return m_brushListHeader;
+		pDC->SetTextColor(TAECHANG_COLOR_SECONDARY_TEXT);
+		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
+		return m_brushPanel;
 	}
 	if (pWnd->GetSafeHwnd() == m_wndCalcTotalLabel.GetSafeHwnd() ||
 		pWnd->GetSafeHwnd() == m_wndCalcTotalValue.GetSafeHwnd()) {
@@ -1877,12 +1883,8 @@ HBRUSH CSageTaechangView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
 		pWnd->GetSafeHwnd() == m_wndCalcFreightLabel.GetSafeHwnd() ||
 		pWnd->GetSafeHwnd() == m_wndCalcFreightUnitLabel.GetSafeHwnd() ||
 		pWnd->GetSafeHwnd() == m_wndCalcDivider.GetSafeHwnd() ||
-		pWnd->GetSafeHwnd() == m_wndCalcTotalDivider.GetSafeHwnd()) {
-		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
-		return m_brushPanel;
-	}
-	if (pWnd->GetSafeHwnd() == m_wndPriceCoverEdit.GetSafeHwnd()) {
-		pDC->SetTextColor(TAECHANG_COLOR_SECONDARY_TEXT);
+		pWnd->GetSafeHwnd() == m_wndCalcTotalDivider.GetSafeHwnd() ||
+		pWnd->GetSafeHwnd() == m_wndPriceDetailDivider.GetSafeHwnd()) {
 		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
 		return m_brushPanel;
 	}
@@ -2444,6 +2446,8 @@ void CSageTaechangView::CreatePriceManagePanel() {
 	m_wndPriceDeleteBtn.Create(TAECHANG_UI_PRICE_REMOVE_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_PRICE_DELETE_BTN);
 	m_wndPriceCancelBtn.Create(TAECHANG_UI_PRICE_CANCEL_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_PRICE_CANCEL_BTN);
 
+	m_wndPriceDetailHeader.Create(TAECHANG_UI_PRICE_DETAIL_HEADER, WS_CHILD | SS_LEFT | SS_CENTERIMAGE, r, this);
+	m_wndPriceDetailDivider.Create(L"", WS_CHILD | SS_ETCHEDHORZ, r, this);
 	m_wndPriceSummaryTitle.Create(TAECHANG_UI_PRICE_SUMMARY_GUIDE, WS_CHILD | SS_LEFT, r, this);
 	m_wndPriceSummaryCount.Create(L"", WS_CHILD | SS_LEFT, r, this);
 	m_wndPriceSummaryRange.Create(L"", WS_CHILD | SS_LEFT, r, this);
@@ -2597,17 +2601,21 @@ void CSageTaechangView::LayoutPriceManagePanel(int nLeft, int nTop, int nWidth, 
 		edit.SendMessage(EM_SETRECTNP, 0, reinterpret_cast<LPARAM>(&rc));
 	};
 
+	m_wndPriceDetailHeader.MoveWindow(nCardInnerX, nFormY, nCardInnerW, TAECHANG_PRICE_PANEL_LABEL_HEIGHT);
+	nFormY += TAECHANG_PRICE_PANEL_LABEL_HEIGHT + TAECHANG_PRICE_PANEL_LABEL_FIELD_GAP;
+	m_wndPriceDetailDivider.MoveWindow(nCardInnerX, nFormY, nCardInnerW, 2);
+	nFormY += 2 + TAECHANG_ROW_GAP;
+
 	m_wndPriceMinCopiesLabel.MoveWindow(nCardInnerX, nFormY, nFormLabelW, TAECHANG_PRICE_EDIT_HEIGHT);
 	m_wndPriceMinCopiesEdit.MoveWindow(nEditX, nFormY, nInlineEditW, TAECHANG_PRICE_EDIT_HEIGHT);
 	ApplyPriceEditTextRect(m_wndPriceMinCopiesEdit);
 	nFormY += TAECHANG_PRICE_EDIT_HEIGHT + TAECHANG_ROW_GAP;
 
-	int nMaxEditW = nInlineEditW - nCheckW - TAECHANG_ACTION_GAP;
 	m_wndPriceMaxCopiesLabel.MoveWindow(nCardInnerX, nFormY, nFormLabelW, TAECHANG_PRICE_EDIT_HEIGHT);
-	m_wndPriceMaxCopiesEdit.MoveWindow(nEditX, nFormY, nMaxEditW, TAECHANG_PRICE_EDIT_HEIGHT);
+	m_wndPriceMaxCopiesEdit.MoveWindow(nEditX, nFormY, nInlineEditW, TAECHANG_PRICE_EDIT_HEIGHT);
 	ApplyPriceEditTextRect(m_wndPriceMaxCopiesEdit);
-	m_wndPriceNoMaxCheck.MoveWindow(nEditX + nMaxEditW + TAECHANG_ACTION_GAP, nFormY, nCheckW, TAECHANG_PRICE_EDIT_HEIGHT);
-	nFormY += TAECHANG_PRICE_EDIT_HEIGHT + TAECHANG_ROW_GAP;
+	m_wndPriceNoMaxCheck.MoveWindow(nEditX, nFormY + TAECHANG_PRICE_EDIT_HEIGHT + TAECHANG_PRICE_PANEL_LABEL_FIELD_GAP, nCheckW, TAECHANG_PRICE_PANEL_LABEL_HEIGHT);
+	nFormY += TAECHANG_PRICE_EDIT_HEIGHT + TAECHANG_PRICE_PANEL_LABEL_FIELD_GAP + TAECHANG_PRICE_PANEL_LABEL_HEIGHT + TAECHANG_ROW_GAP;
 
 	m_wndPricePrintLabel.MoveWindow(nCardInnerX, nFormY, nFormLabelW, TAECHANG_PRICE_EDIT_HEIGHT);
 	m_wndPricePrintEdit.MoveWindow(nEditX, nFormY, nInlineEditW, TAECHANG_PRICE_EDIT_HEIGHT);
@@ -2826,6 +2834,8 @@ void CSageTaechangView::ApplyPriceRightPanel() {
 	m_wndPriceSummaryCount.ShowWindow(nSummaryCmd);
 	m_wndPriceSummaryRange.ShowWindow(nSummaryCmd);
 
+	m_wndPriceDetailHeader.ShowWindow(nEditCmd);
+	m_wndPriceDetailDivider.ShowWindow(nEditCmd);
 	m_wndPriceMinCopiesLabel.ShowWindow(nEditCmd);
 	m_wndPriceMinCopiesEdit.ShowWindow(nEditCmd);
 	m_wndPriceMaxCopiesLabel.ShowWindow(nEditCmd);

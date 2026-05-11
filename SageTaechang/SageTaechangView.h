@@ -168,6 +168,8 @@ protected:
     CButton             m_wndPriceModifyBtn;
     CButton             m_wndPriceDeleteBtn;
     CButton             m_wndPriceCancelBtn;
+    CStatic             m_wndPriceDetailHeader;
+    CStatic             m_wndPriceDetailDivider;
     CStatic             m_wndPriceSummaryTitle;
     CStatic             m_wndPriceSummaryCount;
     CStatic             m_wndPriceSummaryRange;
