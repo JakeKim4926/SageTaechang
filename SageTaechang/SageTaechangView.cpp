@@ -3345,8 +3345,6 @@ void CSageTaechangView::RefreshCalcCompanyCombo() {
 		return;
 	for (int i = 0; i < arrNames.GetSize(); ++i)
 		m_wndCalcCompanyCombo.AddString(arrNames[i]);
-	if (m_wndCalcCompanyCombo.GetCount() > 0)
-		m_wndCalcCompanyCombo.SetCurSel(0);
 }
 
 void CSageTaechangView::UpdateCalcTotal() {
