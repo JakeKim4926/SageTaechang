@@ -8,7 +8,7 @@
 - **목적**: 로그인 다이얼로그 ID/PW 입력 박스의 텍스트가 위로 치우쳐 보이는 문제 수정
 - **변경 내용**: 로그인 edit 컨트롤에 내부 텍스트 영역 보정 적용, Enter 키 로그인 동작 유지
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/62
-- **결과**: pending
+- **결과**: merged
 
 ## [2026-05-11] codex/estimate-one-page-mode
 - **목적**: 견적서 생성에서 선택한 여러 행을 하나의 견적서 파일에 작성하는 한 페이지 작성 모드 추가
