@@ -176,6 +176,7 @@ protected:
     // ── 부수 계산 패널 ───────────────────────────────────────────────────────
     CStatic              m_wndCalcCompanyLabel;
     CTaechangComboBox    m_wndCalcCompanyCombo;
+    CButton              m_wndCalcCompanyPickBtn;
     CStatic              m_wndCalcCopiesLabel;
     CEdit                m_wndCalcCopiesEdit;
     CStatic              m_wndCalcPagesLabel;
@@ -327,6 +328,7 @@ protected:
     // ── 부수 계산 이벤트 ────────────────────────────────────────────────────
     afx_msg void OnCalc();
     afx_msg void OnCalcFreightChanged();
+    afx_msg void OnCalcCompanyPick();
     afx_msg void OnResultSearch();
     afx_msg void OnResultFilterReset();
 

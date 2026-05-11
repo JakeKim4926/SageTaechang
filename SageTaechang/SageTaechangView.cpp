@@ -24,6 +24,7 @@
 #include "TaechangCompanyDlg.h"
 #include "TaechangPriceRangeDlg.h"
 #include "TaechangPriceSimpleDlg.h"
+#include "TaechangCalcCompanyPickerDlg.h"
 #include "SageDBMgr.h"
 #include <climits>
 #include <uxtheme.h>
@@ -341,6 +342,7 @@ BEGIN_MESSAGE_MAP(CSageTaechangView, CView)
 	ON_BN_CLICKED(ID_PRICE_CANCEL_BTN, &CSageTaechangView::OnPriceCancel)
 	ON_BN_CLICKED(ID_CALC_BTN, &CSageTaechangView::OnCalc)
 	ON_EN_CHANGE(ID_CALC_FREIGHT_EDIT, &CSageTaechangView::OnCalcFreightChanged)
+	ON_BN_CLICKED(ID_CALC_COMPANY_PICK_BTN, &CSageTaechangView::OnCalcCompanyPick)
 	ON_BN_CLICKED(ID_TAECHANG_RESULT_SEARCH_BTN, &CSageTaechangView::OnResultSearch)
 	ON_BN_CLICKED(ID_TAECHANG_RESULT_RESET_BTN, &CSageTaechangView::OnResultFilterReset)
 	ON_MESSAGE(WM_TAECHANG_WORKFLOW_COMPLETE, &CSageTaechangView::OnWorkflowComplete)
@@ -585,6 +587,7 @@ void CSageTaechangView::ApplyControlFonts() {
 	// 부수 계산 패널
 	m_wndCalcCompanyLabel.SetFont(&m_fontContent);
 	m_wndCalcCompanyCombo.SetFont(&m_fontContent);
+	m_wndCalcCompanyPickBtn.SetFont(&m_fontContent);
 	m_wndCalcCopiesLabel.SetFont(&m_fontContent);
 	m_wndCalcCopiesEdit.SetFont(&m_fontContent);
 	m_wndCalcPagesLabel.SetFont(&m_fontContent);
@@ -2458,6 +2461,7 @@ void CSageTaechangView::CreatePriceCalcPanel() {
 	CRect r(0, 0, 0, 0);
 	m_wndCalcCompanyLabel.Create(TAECHANG_UI_CALC_COMPANY_LABEL, WS_CHILD | SS_RIGHT | SS_CENTERIMAGE, r, this);
 	m_wndCalcCompanyCombo.Create(WS_CHILD | CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL, r, this, ID_CALC_COMPANY_COMBO);
+	m_wndCalcCompanyPickBtn.Create(L"…", WS_CHILD | BS_OWNERDRAW, r, this, ID_CALC_COMPANY_PICK_BTN);
 	m_wndCalcCopiesLabel.Create(TAECHANG_UI_CALC_COPIES_LABEL, WS_CHILD | SS_RIGHT | SS_CENTERIMAGE, r, this);
 	m_wndCalcCopiesEdit.Create(WS_CHILD | ES_MULTILINE | ES_NUMBER | ES_RIGHT | ES_AUTOHSCROLL, r, this, ID_CALC_COPIES_EDIT);
 	m_wndCalcPagesLabel.Create(TAECHANG_UI_CALC_PAGES_LABEL, WS_CHILD | SS_RIGHT | SS_CENTERIMAGE, r, this);
@@ -2659,10 +2663,15 @@ void CSageTaechangView::LayoutPriceCalcPanel(int nLeft, int nTop, int nWidth, in
 
 	int nCX = nX + nPad;
 	int nCY = nY + nPad;
-	int nComboW = min(TAECHANG_CALC_COMBO_WIDTH, nInputContentW - nInputLabelW - TAECHANG_LABEL_EDIT_GAP);
+	int nPickBtnGap = TAECHANG_LABEL_EDIT_GAP;
+	int nPickBtnW = TAECHANG_CALC_COMPANY_PICK_BTN_W;
+	int nComboW = min(TAECHANG_CALC_COMBO_WIDTH,
+		nInputContentW - nInputLabelW - TAECHANG_LABEL_EDIT_GAP - nPickBtnW - nPickBtnGap);
 
 	m_wndCalcCompanyLabel.MoveWindow(nCX, nCY, nInputLabelW, TAECHANG_EDIT_HEIGHT);
-	m_wndCalcCompanyCombo.MoveWindow(nCX + nInputLabelW + TAECHANG_LABEL_EDIT_GAP, nCY, nComboW, TAECHANG_EDIT_HEIGHT * 8);
+	int nComboX = nCX + nInputLabelW + TAECHANG_LABEL_EDIT_GAP;
+	m_wndCalcCompanyCombo.MoveWindow(nComboX, nCY, nComboW, TAECHANG_EDIT_HEIGHT * 8);
+	m_wndCalcCompanyPickBtn.MoveWindow(nComboX + nComboW + nPickBtnGap, nCY - TAECHANG_BUTTON_VERT_ADJUST, nPickBtnW, TAECHANG_BUTTON_HEIGHT);
 	COMBOBOXINFO cbiCalcCompany = {};
 	cbiCalcCompany.cbSize = sizeof(COMBOBOXINFO);
 	if (m_wndCalcCompanyCombo.GetComboBoxInfo(&cbiCalcCompany) && ::IsWindow(cbiCalcCompany.hwndItem)) {
@@ -2839,6 +2848,7 @@ void CSageTaechangView::ShowPriceCalcPanel(BOOL bShow) {
 	int nCmd = bShow ? SW_SHOW : SW_HIDE;
 	m_wndCalcCompanyLabel.ShowWindow(nCmd);
 	m_wndCalcCompanyCombo.ShowWindow(nCmd);
+	m_wndCalcCompanyPickBtn.ShowWindow(nCmd);
 	m_wndCalcCopiesLabel.ShowWindow(nCmd);
 	m_wndCalcCopiesEdit.ShowWindow(nCmd);
 	m_wndCalcPagesLabel.ShowWindow(nCmd);
@@ -3429,6 +3439,29 @@ void CSageTaechangView::OnCalc() {
 
 void CSageTaechangView::OnCalcFreightChanged() {
 	UpdateCalcTotal();
+}
+
+void CSageTaechangView::OnCalcCompanyPick() {
+	int nCount = m_wndCalcCompanyCombo.GetCount();
+	CStringArray arrNames;
+	for (int i = 0; i < nCount; i++) {
+		CString strName;
+		m_wndCalcCompanyCombo.GetLBText(i, strName);
+		arrNames.Add(strName);
+	}
+
+	CString strCurrent;
+	int nCurSel = m_wndCalcCompanyCombo.GetCurSel();
+	if (nCurSel != CB_ERR)
+		m_wndCalcCompanyCombo.GetLBText(nCurSel, strCurrent);
+
+	TaechangCalcCompanyPickerDlg dlg(arrNames, strCurrent, this);
+	if (dlg.DoModal() == IDOK) {
+		CString strSelected = dlg.GetSelectedName();
+		int nIdx = m_wndCalcCompanyCombo.FindStringExact(-1, strSelected);
+		if (nIdx != CB_ERR)
+			m_wndCalcCompanyCombo.SetCurSel(nIdx);
+	}
 }
 
 void CSageTaechangView::AddCalcHistory(const CString& strCompany, int nCopies, int nPages, LONGLONG nPrintPrice, int nCoverPrice, int nFreight, LONGLONG nTotal) {
