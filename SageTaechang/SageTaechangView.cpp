@@ -42,6 +42,7 @@ struct TaechangWorkflowTask {
 	CString m_strPdfFilePaths;
 	CString m_strHwpFilePaths;
 	CString m_strSelectedRowNums;
+	BOOL m_bEstimateOnePage;
 };
 
 struct TaechangWorkflowResult {
@@ -50,12 +51,14 @@ struct TaechangWorkflowResult {
 	CString m_strResponseJson;
 };
 
-static CString BuildWorkflowPayload(const CString& strInputPath, const CString& strOutputFolder, const CString& strRowNums) {
+static CString BuildWorkflowPayload(const CString& strInputPath, const CString& strOutputFolder, const CString& strRowNums, BOOL bEstimateOnePage) {
 	CString strPayload = L"{\"inputPath\":\"" + JsonEscapeString(strInputPath) + L"\"";
 	if (!strOutputFolder.IsEmpty())
 		strPayload += L",\"outputFolder\":\"" + JsonEscapeString(strOutputFolder) + L"\"";
 	if (!strRowNums.IsEmpty())
 		strPayload += L",\"" + CString(TAECHANG_JSON_KEY_ROW_NUMS) + L"\":\"" + JsonEscapeString(strRowNums) + L"\"";
+	if (bEstimateOnePage)
+		strPayload += L",\"" + CString(TAECHANG_JSON_KEY_ESTIMATE_ONE_PAGE) + L"\":true";
 	strPayload += L"}";
 	return strPayload;
 }
@@ -114,7 +117,7 @@ static UINT RunWorkflowWorker(LPVOID pParam) {
 		else if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_HWP_COMPARE)
 			strPayload = BuildComparePayload(L"hwpFilePaths", pTask->m_strHwpFilePaths);
 		else
-			strPayload = BuildWorkflowPayload(pTask->m_strInputPath, pTask->m_strOutputFolder, pTask->m_strSelectedRowNums);
+			strPayload = BuildWorkflowPayload(pTask->m_strInputPath, pTask->m_strOutputFolder, pTask->m_strSelectedRowNums, pTask->m_bEstimateOnePage);
 		if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_PDF_COMPARE) {
 			TaechangPdfCompareService service;
 			pResult->m_strResponseJson = service.BuildRunCompareResponse(TAECHANG_REQUEST_PDF_COMPARE, strPayload);
@@ -321,6 +324,7 @@ BEGIN_MESSAGE_MAP(CSageTaechangView, CView)
 	ON_BN_CLICKED(ID_TAECHANG_GENERATE_WORKFLOW, &CSageTaechangView::OnGenerateWorkflow)
 	ON_BN_CLICKED(ID_TAECHANG_EXPORT_CSV, &CSageTaechangView::OnExportCsv)
 	ON_BN_CLICKED(ID_TAECHANG_SELECT_ALL, &CSageTaechangView::OnSelectAll)
+	ON_BN_CLICKED(ID_TAECHANG_ESTIMATE_ONE_PAGE, &CSageTaechangView::OnEstimateOnePage)
 	ON_BN_CLICKED(ID_TAECHANG_INPUT_RESET_BTN, &CSageTaechangView::OnInputReset)
 	ON_BN_CLICKED(ID_TAECHANG_LOGIN_BTN, &CSageTaechangView::OnLogin)
 	ON_BN_CLICKED(ID_TAECHANG_LOGOUT_BTN, &CSageTaechangView::OnLogout)
@@ -343,6 +347,7 @@ BEGIN_MESSAGE_MAP(CSageTaechangView, CView)
 	ON_WM_DROPFILES()
 	ON_WM_DRAWITEM()
 	ON_NOTIFY(NM_CUSTOMDRAW, ID_TAECHANG_SIDEBAR_TREE, &CSageTaechangView::OnSidebarTreeCustomDraw)
+	ON_NOTIFY(LVN_ITEMCHANGED, ID_TAECHANG_RESULT_LIST, &CSageTaechangView::OnResultListItemChanged)
 	ON_NOTIFY(NM_CUSTOMDRAW, ID_TAECHANG_RESULT_LIST, &CSageTaechangView::OnListCustomDraw)
 	ON_NOTIFY(NM_CUSTOMDRAW, ID_PRICE_COPIES_LIST, &CSageTaechangView::OnListCustomDraw)
 END_MESSAGE_MAP()
@@ -423,6 +428,7 @@ void CSageTaechangView::CreateChildControls() {
 	m_wndGenerate.Create(TAECHANG_UI_RECEIVABLES_GENERATE_BUTTON, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_GENERATE_WORKFLOW);
 	m_wndExportCsv.Create(TAECHANG_UI_EXPORT_CSV_BUTTON, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_EXPORT_CSV);
 	m_wndSelectAll.Create(TAECHANG_UI_SELECT_ALL_BUTTON, WS_CHILD | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_SELECT_ALL);
+	m_wndEstimateOnePage.Create(TAECHANG_UI_ESTIMATE_ONE_PAGE_CHECK, WS_CHILD | BS_AUTOCHECKBOX, rectEmpty, this, ID_TAECHANG_ESTIMATE_ONE_PAGE);
 	m_wndInputReset.Create(TAECHANG_UI_INPUT_RESET_BTN, WS_CHILD | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_INPUT_RESET_BTN);
 	m_wndProgress.Create(WS_CHILD | WS_VISIBLE | PBS_MARQUEE, rectEmpty, this, ID_TAECHANG_PROGRESS);
 	m_wndProgressText.Create(L"", WS_CHILD | WS_VISIBLE | SS_RIGHT, rectEmpty, this);
@@ -534,6 +540,7 @@ void CSageTaechangView::ApplyControlFonts() {
 	m_wndGenerate.SetFont(&m_fontContent);
 	m_wndExportCsv.SetFont(&m_fontContent);
 	m_wndSelectAll.SetFont(&m_fontContent);
+	m_wndEstimateOnePage.SetFont(&m_fontContent);
 	m_wndInputReset.SetFont(&m_fontHeader);
 	m_wndProgressText.SetFont(&m_fontContent);
 	m_wndResultList.SetFont(&m_fontContent);
@@ -715,6 +722,8 @@ void CSageTaechangView::UpdateTaskTabVisibility() {
 	m_wndInputReset.ShowWindow(bShowInputReset ? SW_SHOW : SW_HIDE);
 	BOOL bShowSelectAll = (bShowAction && (IsDeliveryInputTable() || IsEstimateInputTable())) ? TRUE : FALSE;
 	m_wndSelectAll.ShowWindow(bShowSelectAll ? SW_SHOW : SW_HIDE);
+	BOOL bShowEstimateOnePage = (bShowAction && IsEstimateInputTable()) ? TRUE : FALSE;
+	m_wndEstimateOnePage.ShowWindow(bShowEstimateOnePage ? SW_SHOW : SW_HIDE);
 	BOOL bShowActionStatus = (bShowAction && !m_bRunning && m_nLastTaskType != 0 && !bShowInputReset) ? TRUE : FALSE;
 	m_wndProgress.ShowWindow((bShowAction && m_bRunning) ? SW_SHOW : SW_HIDE);
 	m_wndProgressText.ShowWindow((bShowAction && m_bRunning) ? SW_SHOW : SW_HIDE);
@@ -853,6 +862,7 @@ void CSageTaechangView::LayoutChildControls() {
 		m_wndGenerate.ShowWindow(SW_HIDE);
 		m_wndExportCsv.ShowWindow(SW_HIDE);
 		m_wndSelectAll.ShowWindow(SW_HIDE);
+		m_wndEstimateOnePage.ShowWindow(SW_HIDE);
 		m_wndInputReset.ShowWindow(SW_HIDE);
 		m_wndProgress.ShowWindow(SW_HIDE);
 		m_wndProgressText.ShowWindow(SW_HIDE);
@@ -983,6 +993,10 @@ void CSageTaechangView::LayoutResultSection(int nLeft, int nTop, int nWidth, int
 		if (bShowSelectAll) {
 			m_wndResultSection.MoveWindow(0, 0, 0, 0);
 			m_wndSelectAll.MoveWindow(nLeft, nTop - TAECHANG_BUTTON_VERT_ADJUST, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
+			if (IsEstimateInputTable()) {
+				int nOnePageLeft = nLeft + TAECHANG_BUTTON_WIDTH + TAECHANG_ACTION_GAP;
+				m_wndEstimateOnePage.MoveWindow(nOnePageLeft, nTop - TAECHANG_BUTTON_VERT_ADJUST, TAECHANG_ESTIMATE_ONE_PAGE_WIDTH, TAECHANG_BUTTON_HEIGHT);
+			}
 		} else {
 			m_wndResultSection.MoveWindow(nLeft, nTop, nSectionWidth, TAECHANG_RESULT_HEADER_HEIGHT);
 		}
@@ -1224,6 +1238,8 @@ void CSageTaechangView::SaveWorkflowUiState(int nWorkflowType) {
 		m_wndInputPath.GetWindowTextW(state.strInputPath);
 	if (::IsWindow(m_wndOutputFolder.GetSafeHwnd()))
 		m_wndOutputFolder.GetWindowTextW(state.strOutputFolder);
+	if (::IsWindow(m_wndEstimateOnePage.GetSafeHwnd()))
+		state.bEstimateOnePage = m_wndEstimateOnePage.GetCheck() == BST_CHECKED ? TRUE : FALSE;
 	SaveCheckedRowNums(state);
 }
 
@@ -1253,6 +1269,8 @@ void CSageTaechangView::RestoreWorkflowUiState(int nWorkflowType) {
 		m_wndOutputFolder.SetWindowTextW(state.strOutputFolder);
 	if (::IsWindow(m_wndResultFilter.GetSafeHwnd()))
 		m_wndResultFilter.SetWindowTextW(state.strResultFilterKeyword);
+	if (::IsWindow(m_wndEstimateOnePage.GetSafeHwnd()))
+		m_wndEstimateOnePage.SetCheck(state.bEstimateOnePage ? BST_CHECKED : BST_UNCHECKED);
 }
 
 void CSageTaechangView::SaveCheckedRowNums(TaechangWorkflowUiState& state) {
@@ -1553,8 +1571,31 @@ void CSageTaechangView::OnSelectAll() {
 		}
 	}
 	BOOL bCheck = bAllChecked ? FALSE : TRUE;
+	if (bCheck && IsEstimateInputTable() && m_wndEstimateOnePage.GetCheck() == BST_CHECKED && nCount > TAECHANG_ESTIMATE_ONE_PAGE_MAX_ROWS) {
+		for (int i = 0; i < nCount; ++i)
+			m_wndResultList.SetCheck(i, i < TAECHANG_ESTIMATE_ONE_PAGE_MAX_ROWS ? TRUE : FALSE);
+		AfxMessageBox(TAECHANG_UI_ESTIMATE_ONE_PAGE_LIMIT, MB_ICONWARNING);
+		return;
+	}
 	for (int i = 0; i < nCount; ++i)
 		m_wndResultList.SetCheck(i, bCheck);
+}
+
+void CSageTaechangView::OnEstimateOnePage() {
+	if (!IsEstimateInputTable() || m_wndEstimateOnePage.GetCheck() != BST_CHECKED)
+		return;
+
+	int nCheckedCount = 0;
+	int nListCount = m_wndResultList.GetItemCount();
+	for (int i = 0; i < nListCount; ++i) {
+		if (!m_wndResultList.GetCheck(i))
+			continue;
+		++nCheckedCount;
+		if (nCheckedCount > TAECHANG_ESTIMATE_ONE_PAGE_MAX_ROWS)
+			m_wndResultList.SetCheck(i, FALSE);
+	}
+	if (nCheckedCount > TAECHANG_ESTIMATE_ONE_PAGE_MAX_ROWS)
+		AfxMessageBox(TAECHANG_UI_ESTIMATE_ONE_PAGE_LIMIT, MB_ICONWARNING);
 }
 
 void CSageTaechangView::OnInputReset() {
@@ -1570,6 +1611,7 @@ void CSageTaechangView::OnInputReset() {
 	m_nLastWorkflowType = 0;
 	m_nLastTaskType = 0;
 	m_bLastTaskSuccess = FALSE;
+	m_wndEstimateOnePage.SetCheck(BST_UNCHECKED);
 	m_wndResultList.DeleteAllItems();
 	ApplyResultColumns();
 	UpdateResultColumns();
@@ -1594,10 +1636,12 @@ void CSageTaechangView::RunWorkflowTask(int nTaskType) {
 
 	CString strSelectedRowNums;
 	if ((nWorkflowType == TAECHANG_WORKFLOW_DELIVERY || nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE) && nTaskType == TAECHANG_TASK_GENERATE) {
+		int nSelectedCount = 0;
 		int nListCount = m_wndResultList.GetItemCount();
 		for (int i = 0; i < nListCount; ++i) {
 			if (!m_wndResultList.GetCheck(i))
 				continue;
+			++nSelectedCount;
 			DWORD_PTR nSourceRowIndex = m_wndResultList.GetItemData(i);
 			if (nSourceRowIndex == 0)
 				continue;
@@ -1614,6 +1658,12 @@ void CSageTaechangView::RunWorkflowTask(int nTaskType) {
 			AfxMessageBox(pszMsg, MB_ICONWARNING);
 			return;
 		}
+		if (nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE &&
+			m_wndEstimateOnePage.GetCheck() == BST_CHECKED &&
+			nSelectedCount > TAECHANG_ESTIMATE_ONE_PAGE_MAX_ROWS) {
+			AfxMessageBox(TAECHANG_UI_ESTIMATE_ONE_PAGE_LIMIT, MB_ICONWARNING);
+			return;
+		}
 	}
 
 	TaechangWorkflowTask* pTask = new TaechangWorkflowTask();
@@ -1623,6 +1673,7 @@ void CSageTaechangView::RunWorkflowTask(int nTaskType) {
 	pTask->m_strInputPath = strInputPath;
 	pTask->m_strOutputFolder = strOutputFolder;
 	pTask->m_strSelectedRowNums = strSelectedRowNums;
+	pTask->m_bEstimateOnePage = (nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE && m_wndEstimateOnePage.GetCheck() == BST_CHECKED) ? TRUE : FALSE;
 	m_strRunningInputPath = strInputPath;
 	if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_PDF_COMPARE)
 		pTask->m_strPdfFilePaths = strInputPath;
@@ -1670,6 +1721,7 @@ void CSageTaechangView::SetRunningState(BOOL bRunning) {
 	m_wndLoad.EnableWindow(!bRunning);
 	m_wndGenerate.EnableWindow(!bRunning);
 	m_wndSelectAll.EnableWindow(!bRunning);
+	m_wndEstimateOnePage.EnableWindow(!bRunning);
 	m_wndInputReset.EnableWindow(!bRunning);
 	if (bRunning) {
 		UpdateProgressPercent(0);
@@ -2300,6 +2352,33 @@ void CSageTaechangView::OnListCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
 			break;
 		}
 	}
+}
+
+void CSageTaechangView::OnResultListItemChanged(NMHDR* pNMHDR, LRESULT* pResult) {
+	*pResult = 0;
+	if (!IsEstimateInputTable() || m_wndEstimateOnePage.GetCheck() != BST_CHECKED)
+		return;
+
+	NM_LISTVIEW* pList = reinterpret_cast<NM_LISTVIEW*>(pNMHDR);
+	if ((pList->uChanged & LVIF_STATE) == 0 || pList->iItem < 0)
+		return;
+
+	UINT uOldCheck = pList->uOldState & LVIS_STATEIMAGEMASK;
+	UINT uNewCheck = pList->uNewState & LVIS_STATEIMAGEMASK;
+	if (uOldCheck == uNewCheck || uNewCheck != INDEXTOSTATEIMAGEMASK(2))
+		return;
+
+	int nCheckedCount = 0;
+	int nListCount = m_wndResultList.GetItemCount();
+	for (int i = 0; i < nListCount; ++i) {
+		if (m_wndResultList.GetCheck(i))
+			++nCheckedCount;
+	}
+	if (nCheckedCount <= TAECHANG_ESTIMATE_ONE_PAGE_MAX_ROWS)
+		return;
+
+	m_wndResultList.SetCheck(pList->iItem, FALSE);
+	AfxMessageBox(TAECHANG_UI_ESTIMATE_ONE_PAGE_LIMIT, MB_ICONWARNING);
 }
 
 

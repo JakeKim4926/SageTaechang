@@ -16,12 +16,14 @@ struct TaechangWorkflowUiState {
     CString strInputPath;
     CString strOutputFolder;
     CString strCheckedRowNums;
+    BOOL bEstimateOnePage;
 
     TaechangWorkflowUiState()
         : nSelectedTaskTab(TAECHANG_TAB_INDEX_INPUT)
         , nLastWorkflowType(0)
         , nLastTaskType(0)
-        , bLastTaskSuccess(FALSE) {}
+        , bLastTaskSuccess(FALSE)
+        , bEstimateOnePage(FALSE) {}
 };
 
 struct CalcHistoryEntry {
@@ -102,6 +104,7 @@ protected:
     CButton m_wndGenerate;
     CButton m_wndExportCsv;
     CButton m_wndSelectAll;
+    CButton m_wndEstimateOnePage;
     CButton m_wndInputReset;
     CProgressCtrl m_wndProgress;
     CStatic m_wndProgressText;
@@ -297,12 +300,14 @@ protected:
     afx_msg void OnGenerateWorkflow();
     afx_msg void OnExportCsv();
     afx_msg void OnSelectAll();
+    afx_msg void OnEstimateOnePage();
     afx_msg void OnInputReset();
     afx_msg LRESULT OnWorkflowComplete(WPARAM wParam, LPARAM lParam);
     afx_msg void OnDropFiles(HDROP hDropInfo);
     afx_msg void OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct);
     afx_msg void OnSidebarTreeCustomDraw(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnListCustomDraw(NMHDR* pNMHDR, LRESULT* pResult);
+    afx_msg void OnResultListItemChanged(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnLogin();
     afx_msg void OnLogout();
 
