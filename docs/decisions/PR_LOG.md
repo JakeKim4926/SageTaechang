@@ -1,3 +1,9 @@
+## [2026-05-12] fix/auth-header-ui
+- **목적**: 헤더 우측 로그인 사용자 표시(텍스트+로그아웃 버튼) UI 통일성 개선
+- **변경 내용**: 사용자 라벨 색상 SECONDARY_TEXT 적용, Y축 버튼 텍스트 오프셋 맞춤, SS_RIGHT→SS_NOPREFIX 교체, 구분선 추가
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/64
+- **결과**: merged
+
 ## [2026-05-11] feature/price-detail-inline-form
 - **목적**: 단가 데이터 관리 우측 상세 패널 UI 전반 개선
 - **변경 내용**: 인라인 폼 레이아웃 전환, 헤더/구분선 추가, 레이블 배경 정리, 체크박스 위치·폭·배경 수정, 초기 자동 선택 제거, 선택 전·후 패널 헤더 일관화
