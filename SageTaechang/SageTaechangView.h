@@ -146,6 +146,7 @@ protected:
     CButton m_wndLoginBtn;
     CButton m_wndLogoutBtn;
     CStatic m_wndUserLabel;
+    int m_nAuthDividerX;
 
     // ── 가격 데이터 관리 패널 ────────────────────────────────────────────────
     CStatic             m_wndPriceCompanyLabel;

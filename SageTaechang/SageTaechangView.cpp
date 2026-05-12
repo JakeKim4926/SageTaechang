@@ -368,7 +368,8 @@ CSageTaechangView::CSageTaechangView() noexcept
 	, m_nCalcPrintPrice(0)
 	, m_nCalcCoverPrice(0)
 	, m_nPricePanelState(TAECHANG_PRICE_PANEL_SUMMARY)
-	, m_rectPriceSummaryCard(0, 0, 0, 0) {
+	, m_rectPriceSummaryCard(0, 0, 0, 0)
+	, m_nAuthDividerX(0) {
 	m_brushAppBackground.CreateSolidBrush(TAECHANG_COLOR_APP_BACKGROUND);
 	m_brushPanel.CreateSolidBrush(TAECHANG_COLOR_PANEL);
 	m_brushSidebar.CreateSolidBrush(TAECHANG_COLOR_SIDEBAR);
@@ -451,7 +452,7 @@ void CSageTaechangView::CreateChildControls() {
 
 	m_wndLoginBtn.Create(TAECHANG_UI_LOGIN_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_LOGIN_BTN);
 	m_wndLogoutBtn.Create(TAECHANG_UI_LOGOUT_BTN, WS_CHILD | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_LOGOUT_BTN);
-	m_wndUserLabel.Create(L"", WS_CHILD | SS_RIGHT | SS_CENTERIMAGE, rectEmpty, this, ID_TAECHANG_USER_LABEL);
+	m_wndUserLabel.Create(L"", WS_CHILD | SS_CENTERIMAGE | SS_NOPREFIX, rectEmpty, this, ID_TAECHANG_USER_LABEL);
 
 	m_wndResultList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
 	m_wndResultFilter.LimitText(20);
@@ -839,10 +840,11 @@ void CSageTaechangView::LayoutChildControls() {
 		int nLoginBtnRight = rectClient.Width() - TAECHANG_MARGIN;
 		int nLoginBtnLeft = nLoginBtnRight - TAECHANG_LOGIN_BTN_WIDTH;
 		int nUserLabelLeft = nLoginBtnLeft - TAECHANG_USER_LABEL_WIDTH - TAECHANG_ROW_GAP;
+		m_nAuthDividerX = nUserLabelLeft - TAECHANG_ROW_GAP;
 
 		m_wndLoginBtn.MoveWindow(nLoginBtnLeft, nLoginBtnTop, TAECHANG_LOGIN_BTN_WIDTH, TAECHANG_BUTTON_HEIGHT);
 		m_wndLogoutBtn.MoveWindow(nLoginBtnLeft, nLoginBtnTop, TAECHANG_LOGIN_BTN_WIDTH, TAECHANG_BUTTON_HEIGHT);
-		m_wndUserLabel.MoveWindow(nUserLabelLeft, nLoginBtnTop, TAECHANG_USER_LABEL_WIDTH, TAECHANG_BUTTON_HEIGHT);
+		m_wndUserLabel.MoveWindow(nUserLabelLeft, nLoginBtnTop + TAECHANG_BUTTON_TEXT_TOP_OFFSET, TAECHANG_USER_LABEL_WIDTH, TAECHANG_BUTTON_HEIGHT);
 	}
 
 	int nHeaderTitleWidth = nContentWidth - TAECHANG_LOGIN_BTN_WIDTH - TAECHANG_USER_LABEL_WIDTH - TAECHANG_ROW_GAP * 2 - TAECHANG_MARGIN;
@@ -1073,6 +1075,10 @@ void CSageTaechangView::OnDraw(CDC* pDC) {
 	DrawEditBorder(pDC, m_wndCalcCopiesEdit);
 	DrawEditBorder(pDC, m_wndCalcPagesEdit);
 	DrawEditBorder(pDC, m_wndCalcFreightEdit);
+	if (taechangAuth.IsLoggedIn() && m_nAuthDividerX > 0) {
+		int nDivTop = (TAECHANG_TOP_BAR_HEIGHT - TAECHANG_BUTTON_HEIGHT) / 2;
+		pDC->FillSolidRect(m_nAuthDividerX, nDivTop, 1, TAECHANG_BUTTON_HEIGHT, TAECHANG_COLOR_BORDER);
+	}
 }
 
 void CSageTaechangView::DrawEditBorder(CDC* pDC, CWnd& wnd) {
@@ -1822,7 +1828,7 @@ HBRUSH CSageTaechangView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
 		return m_brushAppBackground;
 	}
 	if (pWnd->GetSafeHwnd() == m_wndUserLabel.GetSafeHwnd()) {
-		pDC->SetTextColor(TAECHANG_COLOR_TEXT);
+		pDC->SetTextColor(TAECHANG_COLOR_SECONDARY_TEXT);
 		pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
 		return m_brushAppBackground;
 	}
