@@ -22,6 +22,12 @@
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/58
 - **결과**: merged
 
+## [2026-05-14] fix/keep-price-dialog-on-validation
+- **목적**: 단가 추가 검증 실패 시 다이얼로그 유지 및 부수 계산 라벨 문구 보정
+- **변경 내용**: 기존 부수 범위 중복 검증을 단가 추가 다이얼로그 내부로 이동, 검증 실패 시 경고 후 입력 창 유지, 부수 계산/최근 계산 내역 라벨을 내용 금액·표지 금액으로 변경
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/66
+- **결과**: merged
+
 ## [2026-05-14] fix/preserve-generated-input-table
 - **목적**: 납품서/견적서 생성 후 탭 전환 시 입력 표 유지 및 단가 데이터 관리 화면의 문서 필터 컨트롤 겹침 제거
 - **변경 내용**: 생성 완료 응답이 로드 결과 JSON을 덮어쓰지 않도록 보정, 가격 관리 계열 화면 진입 시 결과 필터 에디트/검색/초기화 버튼 숨김 처리

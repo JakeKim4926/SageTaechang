@@ -89,6 +89,12 @@ int TaechangPriceRangeDlg::GetCoverPrice() const {
     return m_nCoverPrice;
 }
 
+void TaechangPriceRangeDlg::AddExistingRange(int nMinCopies, BOOL bHasMaxCopies, int nMaxCopies) {
+    m_arrExistingMinCopies.Add(nMinCopies);
+    m_arrExistingHasMaxCopies.Add(bHasMaxCopies ? TRUE : FALSE);
+    m_arrExistingMaxCopies.Add(nMaxCopies);
+}
+
 BOOL TaechangPriceRangeDlg::OnInitDialog() {
     CDialog::OnInitDialog();
     SetWindowText(TAECHANG_UI_PRICE_RANGE_DLG_TITLE);
@@ -234,6 +240,29 @@ void TaechangPriceRangeDlg::OnNoMaxCheck() {
         m_wndMaxEdit.SetWindowTextW(L"");
 }
 
+BOOL TaechangPriceRangeDlg::IsCopiesRangeOverlap(int nMinA, BOOL bHasMaxA, int nMaxA, int nMinB, BOOL bHasMaxB, int nMaxB) const {
+    int nEndA = bHasMaxA ? nMaxA : INT_MAX;
+    int nEndB = bHasMaxB ? nMaxB : INT_MAX;
+    return (nMinA <= nEndB && nMinB <= nEndA) ? TRUE : FALSE;
+}
+
+BOOL TaechangPriceRangeDlg::IsOverlappingExistingRange(int nMinCopies, BOOL bHasMaxCopies, int nMaxCopies) const {
+    int nCount = static_cast<int>(m_arrExistingMinCopies.GetCount());
+    for (int i = 0; i < nCount; ++i) {
+        BOOL bExistingHasMax = m_arrExistingHasMaxCopies.GetAt(i) ? TRUE : FALSE;
+        if (IsCopiesRangeOverlap(
+            nMinCopies,
+            bHasMaxCopies,
+            nMaxCopies,
+            m_arrExistingMinCopies.GetAt(i),
+            bExistingHasMax,
+            m_arrExistingMaxCopies.GetAt(i))) {
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
 void TaechangPriceRangeDlg::OnOK() {
     CString strMin, strMax, strPrint, strCover;
     m_wndMinEdit.GetWindowText(strMin);
@@ -281,6 +310,13 @@ void TaechangPriceRangeDlg::OnOK() {
         AfxMessageBox(TAECHANG_UI_PRICE_AMOUNT_OUT_OF_RANGE, MB_ICONWARNING);
         m_wndCoverEdit.SetSel(0, -1);
         m_wndCoverEdit.SetFocus();
+        return;
+    }
+
+    if (IsOverlappingExistingRange(nMin, bHasMax, nMax)) {
+        AfxMessageBox(TAECHANG_UI_PRICE_RANGE_OVERLAP, MB_ICONWARNING);
+        m_wndMinEdit.SetSel(0, -1);
+        m_wndMinEdit.SetFocus();
         return;
     }
 

@@ -2413,12 +2413,6 @@ static CString FormatPrice(LONGLONG nPrice) {
 	return str;
 }
 
-static BOOL IsCopiesRangeOverlap(int nMinA, BOOL bHasMaxA, int nMaxA, int nMinB, BOOL bHasMaxB, int nMaxB) {
-	int nEndA = bHasMaxA ? nMaxA : INT_MAX;
-	int nEndB = bHasMaxB ? nMaxB : INT_MAX;
-	return (nMinA <= nEndB && nMinB <= nEndA) ? TRUE : FALSE;
-}
-
 // ── 가격 데이터 관리 패널 생성 ────────────────────────────────────────────────
 
 void CSageTaechangView::CreatePriceManagePanel() {
@@ -3240,29 +3234,22 @@ void CSageTaechangView::OnPriceAdd() {
 	}
 
 	TaechangPriceRangeDlg dlg(this);
-	if (dlg.DoModal() != IDOK)
-		return;
-
-	int nMinCopies = dlg.GetMinCopies();
-	BOOL bHasMaxCopies = dlg.HasMaxCopies();
-	int nMaxCopies = dlg.GetMaxCopies();
 	for (int i = 0; i < m_wndPriceCopiesList.GetItemCount(); ++i) {
 		int nExistingMin = _wtoi(m_wndPriceCopiesList.GetItemText(i, 0));
 		CString strExistingMax = m_wndPriceCopiesList.GetItemText(i, 1);
 		BOOL bExistingHasMax = (strExistingMax == TAECHANG_UI_PRICE_MAX_COPIES_NONE) ? FALSE : TRUE;
 		int nExistingMax = bExistingHasMax ? _wtoi(strExistingMax) : 0;
-		if (IsCopiesRangeOverlap(nMinCopies, bHasMaxCopies, nMaxCopies, nExistingMin, bExistingHasMax, nExistingMax)) {
-			AfxMessageBox(TAECHANG_UI_PRICE_RANGE_OVERLAP, MB_ICONWARNING);
-			return;
-		}
+		dlg.AddExistingRange(nExistingMin, bExistingHasMax, nExistingMax);
 	}
+	if (dlg.DoModal() != IDOK)
+		return;
 
 	TaechangPriceDto dto;
 	dto.strCompanyName = strCompany;
 	dto.nReportType = REPORT_TYPE_AUDIT_REPORT;
-	dto.nMinCopies = nMinCopies;
-	dto.bHasMaxCopies = bHasMaxCopies;
-	dto.nMaxCopies = nMaxCopies;
+	dto.nMinCopies = dlg.GetMinCopies();
+	dto.bHasMaxCopies = dlg.HasMaxCopies();
+	dto.nMaxCopies = dlg.GetMaxCopies();
 	dto.nPrintPrice = dlg.GetPrintPrice();
 	dto.nCoverPrice = dlg.GetCoverPrice();
 

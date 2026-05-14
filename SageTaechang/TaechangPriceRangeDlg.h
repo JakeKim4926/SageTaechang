@@ -14,6 +14,7 @@ public:
     int GetMaxCopies() const;
     int GetPrintPrice() const;
     int GetCoverPrice() const;
+    void AddExistingRange(int nMinCopies, BOOL bHasMaxCopies, int nMaxCopies);
 
 protected:
     virtual BOOL OnInitDialog();
@@ -32,6 +33,8 @@ private:
     void LayoutControls();
     void ApplyFont();
     void ApplyEditTextRect(CEdit& edit);
+    BOOL IsCopiesRangeOverlap(int nMinA, BOOL bHasMaxA, int nMaxA, int nMinB, BOOL bHasMaxB, int nMaxB) const;
+    BOOL IsOverlappingExistingRange(int nMinCopies, BOOL bHasMaxCopies, int nMaxCopies) const;
     BYTE* BuildDialogTemplate();
 
 private:
@@ -41,6 +44,9 @@ private:
     int m_nMaxCopies;
     int m_nPrintPrice;
     int m_nCoverPrice;
+    CArray<int, int> m_arrExistingMinCopies;
+    CArray<int, int> m_arrExistingHasMaxCopies;
+    CArray<int, int> m_arrExistingMaxCopies;
 
     CStatic m_wndMinLabel;
     CEdit m_wndMinEdit;
