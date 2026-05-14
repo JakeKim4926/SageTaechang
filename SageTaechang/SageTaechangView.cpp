@@ -875,6 +875,9 @@ void CSageTaechangView::LayoutChildControls() {
 		m_wndActionStatus.ShowWindow(SW_HIDE);
 		m_wndResultSection.ShowWindow(SW_HIDE);
 		m_wndResultList.ShowWindow(SW_HIDE);
+		m_wndResultFilter.ShowWindow(SW_HIDE);
+		m_wndResultSearchBtn.ShowWindow(SW_HIDE);
+		m_wndResultResetBtn.ShowWindow(SW_HIDE);
 		m_wndDetailSection.ShowWindow(SW_HIDE);
 		m_wndDetail.ShowWindow(SW_HIDE);
 		m_wndEmptyStateHint.ShowWindow(SW_HIDE);
@@ -1967,7 +1970,8 @@ void CSageTaechangView::DisplayResponse(int nWorkflowType, int nTaskType, const 
 	m_nLastWorkflowType = nWorkflowType;
 	if (!bDocumentGenerateNoResult)
 		m_nLastTaskType = nTaskType;
-	m_strLastResponseJson = strResponseJson;
+	if (!bDocumentGenerateNoResult)
+		m_strLastResponseJson = strResponseJson;
 	if (!bDocumentGenerateNoResult) {
 		ApplyResultColumns();
 		UpdateResultColumns();

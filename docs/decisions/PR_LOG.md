@@ -22,6 +22,12 @@
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/58
 - **결과**: merged
 
+## [2026-05-14] fix/preserve-generated-input-table
+- **목적**: 납품서/견적서 생성 후 탭 전환 시 입력 표 유지 및 단가 데이터 관리 화면의 문서 필터 컨트롤 겹침 제거
+- **변경 내용**: 생성 완료 응답이 로드 결과 JSON을 덮어쓰지 않도록 보정, 가격 관리 계열 화면 진입 시 결과 필터 에디트/검색/초기화 버튼 숨김 처리
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/65
+- **결과**: merged
+
 ## [2026-05-07] fix/price-login-guard
 - **목적**: 단가 데이터 관리, 단가 계산 사이드바 메뉴를 로그인 미인증 시 접근 차단
 - **변경 내용**: `OnSidebarSelChanged`에 `TAECHANG_WORKFLOW_PRICE_MANAGE` / `TAECHANG_WORKFLOW_PRICE_CALC` 로그인 체크 추가
