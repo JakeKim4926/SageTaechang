@@ -152,7 +152,7 @@ constexpr int TAECHANG_TASK_LOAD = 1;
 constexpr int TAECHANG_TASK_GENERATE = 2;
 
 constexpr LPCWSTR TAECHANG_UI_TITLE = L"SageTaechang MFC Workflow";
-constexpr LPCWSTR TAECHANG_UI_APP_TITLE = L"태창기획";
+constexpr LPCWSTR TAECHANG_UI_APP_TITLE = L"태창기획·인쇄";
 constexpr LPCWSTR TAECHANG_UI_SIDEBAR_TITLE = L"업무 메뉴";
 constexpr LPCWSTR TAECHANG_UI_WORKFLOW_LABEL = L"Workflow";
 constexpr LPCWSTR TAECHANG_UI_RECEIVABLES_NAME = L"미수금 내역서";
