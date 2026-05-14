@@ -195,11 +195,14 @@ try {
         $priority = [int]$priorityMap[$etcKey].priority
         $priorityName = $etcName
         $displayCompanyName = $etcName
+        $sortCompanyName = $etcName
         if ($priorityMap.ContainsKey($companyKey)) {
             $priority = [int]$priorityMap[$companyKey].priority
             $priorityName = $priorityMap[$companyKey].companyName
             $displayCompanyName = $priorityName
+            $sortCompanyName = $priorityName
         } elseif ($companyName.Length -gt 0) {
+            $displayCompanyName = $companyName
             $missingCompanies[$companyName] = $true
         }
 
@@ -210,6 +213,7 @@ try {
             issueDate = $issueDate
             manager = $manager
             managerSortKey = Get-ManagerSortKey $manager
+            companySortName = $sortCompanyName
             companyName = $displayCompanyName
             totalAmount = $totalAmount
             issueType = $issueType
@@ -218,10 +222,13 @@ try {
         })
     }
 
-    $rows = @($rows | Sort-Object @{ Expression = { $_.priority }; Ascending = $true }, @{ Expression = { $_.managerSortKey }; Ascending = $true }, @{ Expression = { $_.companyName }; Ascending = $true })
+    $rows = @($rows | Sort-Object @{ Expression = { $_.priority }; Ascending = $true }, @{ Expression = { $_.managerSortKey }; Ascending = $true }, @{ Expression = { $_.companySortName }; Ascending = $true }, @{ Expression = { $_.companyName }; Ascending = $true })
     foreach ($row in $rows) {
         if ($row.Contains('managerSortKey')) {
             $row.Remove('managerSortKey')
+        }
+        if ($row.Contains('companySortName')) {
+            $row.Remove('companySortName')
         }
     }
 
