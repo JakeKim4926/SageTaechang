@@ -7,6 +7,8 @@
 
 #include "TaechangPriceRepository.h"
 #include "TaechangPriceService.h"
+#include "TaechangReceivableCompanyOrderRepository.h"
+#include "TaechangReceivableCompanyOrderService.h"
 #include "TaechangUserRepository.h"
 #include "TaechangUserService.h"
 
@@ -36,6 +38,9 @@ public:
     TaechangPriceRepository* GetTaechangPriceRepository();
     TaechangPriceService* GetTaechangPriceService();
 
+    TaechangReceivableCompanyOrderRepository* GetReceivableCompanyOrderRepository();
+    TaechangReceivableCompanyOrderService* GetReceivableCompanyOrderService();
+
     TaechangUserRepository* GetUserRepository();
     TaechangUserService* GetUserService();
 
@@ -53,6 +58,9 @@ private:
 
     TaechangPriceRepository* m_pTaechangPriceRepository;
     TaechangPriceService* m_pTaechangPriceService;
+
+    TaechangReceivableCompanyOrderRepository* m_pReceivableCompanyOrderRepository;
+    TaechangReceivableCompanyOrderService* m_pReceivableCompanyOrderService;
 
     TaechangUserRepository* m_pUserRepository;
     TaechangUserService* m_pUserService;
