@@ -4,6 +4,7 @@
 #include "app/common/TaechangFileUtils.h"
 #include "app/common/TaechangDialogHelper.h"
 #include "app/infrastructure/bridge/TaechangBridgeResponse.h"
+#include "SageDBMgr.h"
 #include "TaechangDefine.h"
 
 namespace
@@ -40,6 +41,66 @@ namespace
 		return TRUE;
 	}
 
+	BOOL WriteUtf8File(const CString& strPath, const CString& strContent, CString& strError) {
+		std::ofstream file(WideToUtf8(strPath), std::ios::out | std::ios::binary | std::ios::trunc);
+		if (!file.is_open()) {
+			strError = L"정렬 기준 파일을 쓰지 못했습니다.";
+			return FALSE;
+		}
+
+		std::string strUtf8 = WideToUtf8(strContent);
+		file.write(strUtf8.c_str(), strUtf8.size());
+		return TRUE;
+	}
+
+	CString BuildReceivableCompanyOrderJson(
+		const CArray<TaechangReceivableCompanyOrderDto, TaechangReceivableCompanyOrderDto&>& arrOrder) {
+		CString strJson;
+
+		strJson = L"[";
+		for (INT_PTR nIndex = 0; nIndex < arrOrder.GetCount(); ++nIndex) {
+			const TaechangReceivableCompanyOrderDto& dto = arrOrder.GetAt(nIndex);
+
+			if (nIndex > 0) {
+				strJson += L",";
+			}
+
+			CString strItem;
+			strItem.Format(
+				L"{\"p\":%d,\"n\":\"%s\"}",
+				dto.nSortOrder,
+				JsonEscapeString(dto.strCompanyName).GetString()
+			);
+			strJson += strItem;
+		}
+		strJson += L"]";
+
+		return strJson;
+	}
+
+	BOOL BuildReceivableCompanyOrderFile(CString& outPriorityPath, CString& strError) {
+		CArray<TaechangReceivableCompanyOrderDto, TaechangReceivableCompanyOrderDto&> arrOrder;
+		TaechangReceivableCompanyOrderService* pService;
+
+		outPriorityPath.Empty();
+		pService = sageDBMgr.GetReceivableCompanyOrderService();
+
+		if (pService == NULL) {
+			return TRUE;
+		}
+
+		if (pService->LoadAllCompanyOrders(arrOrder, strError) == FALSE) {
+			return FALSE;
+		}
+
+		if (arrOrder.GetCount() <= 0) {
+			return TRUE;
+		}
+
+		outPriorityPath = BuildTempJsonPath(L"tcr_order");
+		return WriteUtf8File(outPriorityPath, BuildReceivableCompanyOrderJson(arrOrder), strError);
+	}
+
 	CString HandleOpenInputDialog(const CString& strRequestId) {
 		COMDLG_FILTERSPEC aTypes[] = {
 			{ L"Excel 파일", L"*.xls;*.xlsx" },
@@ -71,23 +132,37 @@ namespace
 			return BuildErrorResponse(strRequestId, TAECHANG_RECEIVABLES_ERR_SCRIPT_MISSING, L"미수금 데이터 로드 스크립트가 없습니다.");
 
 		CString strResultPath = BuildTempJsonPath(L"tcr");
+		CString strPriorityPath;
+		CString strError;
+		if (BuildReceivableCompanyOrderFile(strPriorityPath, strError) == FALSE) {
+			return BuildErrorResponse(strRequestId, TAECHANG_RECEIVABLES_ERR_PROCESS_FAILED, strError);
+		}
+
 		CString strCommandLine = QuoteArgument(TAECHANG_POWERSHELL_PATH) +
 			L" -NoProfile -ExecutionPolicy Bypass -File " + QuoteArgument(strScriptPath) +
 			L" -InputPath " + QuoteArgument(strInputPath) +
 			L" -ResultPath " + QuoteArgument(strResultPath);
+		if (strPriorityPath.IsEmpty() == FALSE) {
+			strCommandLine += L" -PriorityPath " + QuoteArgument(strPriorityPath);
+		}
 
 		DWORD dwExitCode = 0;
-		CString strError;
 		if (!RunProcessAndWait(strCommandLine, dwExitCode, strError)) {
+			if (strPriorityPath.IsEmpty() == FALSE)
+				DeleteFileW(strPriorityPath);
 			DeleteFileW(strResultPath);
 			return BuildErrorResponse(strRequestId, TAECHANG_RECEIVABLES_ERR_PROCESS_FAILED, strError);
 		}
 
 		CString strResultJson;
 		if (!ReadUtf8File(strResultPath, strResultJson, strError)) {
+			if (strPriorityPath.IsEmpty() == FALSE)
+				DeleteFileW(strPriorityPath);
 			DeleteFileW(strResultPath);
 			return BuildErrorResponse(strRequestId, TAECHANG_RECEIVABLES_ERR_RESULT_MISSING, strError);
 		}
+		if (strPriorityPath.IsEmpty() == FALSE)
+			DeleteFileW(strPriorityPath);
 		DeleteFileW(strResultPath);
 
 		if (dwExitCode != 0) {
@@ -167,25 +242,39 @@ namespace
 			return BuildErrorResponse(strRequestId, TAECHANG_RECEIVABLES_ERR_SCRIPT_MISSING, L"미수금 내역서 생성 스크립트가 없습니다.");
 
 		CString strResultPath = BuildTempJsonPath(L"tcr");
+		CString strPriorityPath;
+		CString strError;
+		if (BuildReceivableCompanyOrderFile(strPriorityPath, strError) == FALSE) {
+			return BuildErrorResponse(strRequestId, TAECHANG_RECEIVABLES_ERR_PROCESS_FAILED, strError);
+		}
+
 		CString strCommandLine = QuoteArgument(TAECHANG_POWERSHELL_PATH) +
 			L" -NoProfile -ExecutionPolicy Bypass -File " + QuoteArgument(strScriptPath) +
 			L" -InputPath " + QuoteArgument(strInputPath) +
 			L" -TemplatePath " + QuoteArgument(strTemplatePath) +
 			L" -OutputFolder " + QuoteArgument(strOutputFolder) +
 			L" -ResultPath " + QuoteArgument(strResultPath);
+		if (strPriorityPath.IsEmpty() == FALSE) {
+			strCommandLine += L" -PriorityPath " + QuoteArgument(strPriorityPath);
+		}
 
 		DWORD dwExitCode = 0;
-		CString strError;
 		if (!RunProcessAndWait(strCommandLine, dwExitCode, strError)) {
+			if (strPriorityPath.IsEmpty() == FALSE)
+				DeleteFileW(strPriorityPath);
 			DeleteFileW(strResultPath);
 			return BuildErrorResponse(strRequestId, TAECHANG_RECEIVABLES_ERR_PROCESS_FAILED, strError);
 		}
 
 		CString strResultJson;
 		if (!ReadUtf8File(strResultPath, strResultJson, strError)) {
+			if (strPriorityPath.IsEmpty() == FALSE)
+				DeleteFileW(strPriorityPath);
 			DeleteFileW(strResultPath);
 			return BuildErrorResponse(strRequestId, TAECHANG_RECEIVABLES_ERR_RESULT_MISSING, strError);
 		}
+		if (strPriorityPath.IsEmpty() == FALSE)
+			DeleteFileW(strPriorityPath);
 		DeleteFileW(strResultPath);
 
 		if (dwExitCode != 0) {
