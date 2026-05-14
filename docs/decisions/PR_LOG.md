@@ -249,3 +249,9 @@
 - **변경 내용**: 법인명/정렬 순서 테이블 생성, DTO/Repository/Service CRUD 추가, SageDBMgr 접근자와 생성/삭제 흐름 연결
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/68
 - **결과**: merged
+
+## [2026-05-14] feature/use-db-receivables-company-order
+- **목적**: 미수금 내역서 로드/생성 정렬 기준을 DB에 관리되는 법인 정렬 순서로 적용
+- **변경 내용**: DB 정렬 기준을 임시 JSON으로 PowerShell에 전달하고, PriorityPath가 있으면 엑셀 번호 시트보다 DB 기준을 우선 사용하도록 변경
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/69
+- **결과**: merged
