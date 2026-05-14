@@ -180,10 +180,19 @@
     <ClInclude Include="TaechangPriceDto.h">
       <Filter>헤더 파일\SQLite\Dto</Filter>
     </ClInclude>
+    <ClInclude Include="TaechangReceivableCompanyOrderDto.h">
+      <Filter>헤더 파일\SQLite\Dto</Filter>
+    </ClInclude>
     <ClInclude Include="TaechangPriceRepository.h">
       <Filter>헤더 파일\SQLite\Repository</Filter>
     </ClInclude>
+    <ClInclude Include="TaechangReceivableCompanyOrderRepository.h">
+      <Filter>헤더 파일\SQLite\Repository</Filter>
+    </ClInclude>
     <ClInclude Include="TaechangPriceService.h">
+      <Filter>헤더 파일\SQLite\Service</Filter>
+    </ClInclude>
+    <ClInclude Include="TaechangReceivableCompanyOrderService.h">
       <Filter>헤더 파일\SQLite\Service</Filter>
     </ClInclude>
     <ClInclude Include="TaechangUserDto.h">
@@ -287,10 +296,16 @@
     <ClCompile Include="TaechangPriceRepository.cpp">
       <Filter>소스 파일\SQLite\Repository</Filter>
     </ClCompile>
+    <ClCompile Include="TaechangReceivableCompanyOrderRepository.cpp">
+      <Filter>소스 파일\SQLite\Repository</Filter>
+    </ClCompile>
     <ClCompile Include="TaechangUserRepository.cpp">
       <Filter>소스 파일\SQLite\Repository</Filter>
     </ClCompile>
     <ClCompile Include="TaechangUserService.cpp">
+      <Filter>소스 파일\SQLite\Service</Filter>
+    </ClCompile>
+    <ClCompile Include="TaechangReceivableCompanyOrderService.cpp">
       <Filter>소스 파일\SQLite\Service</Filter>
     </ClCompile>
     <ClCompile Include="TaechangAuthSession.cpp">

@@ -52,6 +52,9 @@ BOOL SQLInitializer::CreateTables(CString& strError) {
     if (CreateTaechangUserTable(strError) == FALSE)
         return FALSE;
 
+    if (CreateTaechangReceivableCompanyOrderTable(strError) == FALSE)
+        return FALSE;
+
     return TRUE;
 }
 
@@ -102,6 +105,14 @@ BOOL SQLInitializer::CreateIndexes(CString& strError) {
     strSql =
         _T("CREATE INDEX IF NOT EXISTS idx_TaechangPrice_price ")
         _T("ON TaechangPrice(print_price, cover_price);");
+
+    if (m_pSqlContext->Execute(strSql, strError) == FALSE) {
+        return FALSE;
+    }
+
+    strSql =
+        _T("CREATE INDEX IF NOT EXISTS idx_TaechangReceivableCompanyOrder_sort ")
+        _T("ON TaechangReceivableCompanyOrder(sort_order, company_name);");
 
     if (m_pSqlContext->Execute(strSql, strError) == FALSE) {
         return FALSE;
@@ -164,4 +175,20 @@ BOOL SQLInitializer::SeedDefaultAdmin(CString& strError) {
 
     int nNewId = 0;
     return repo.Insert(adminDto, nNewId, strError);
+}
+
+BOOL SQLInitializer::CreateTaechangReceivableCompanyOrderTable(CString& strError) {
+    CString strSql;
+
+    strSql =
+        _T("CREATE TABLE IF NOT EXISTS TaechangReceivableCompanyOrder (")
+        _T("    order_id INTEGER PRIMARY KEY AUTOINCREMENT,")
+        _T("    company_name TEXT NOT NULL UNIQUE,")
+        _T("    sort_order INTEGER NOT NULL,")
+        _T("    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,")
+        _T("    updated_at TEXT,")
+        _T("    CHECK (sort_order >= 0)")
+        _T(");");
+
+    return m_pSqlContext->Execute(strSql, strError);
 }

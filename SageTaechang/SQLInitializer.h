@@ -18,6 +18,7 @@ private:
 private:
     BOOL CreateTaechangPriceTable(CString& strError);
     BOOL CreateTaechangUserTable(CString& strError);
+    BOOL CreateTaechangReceivableCompanyOrderTable(CString& strError);
 
 private:
     BOOL SeedDefaultAdmin(CString& strError);

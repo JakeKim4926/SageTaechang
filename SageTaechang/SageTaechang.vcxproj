@@ -234,6 +234,9 @@ if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templ
     <ClInclude Include="TaechangPriceDto.h" />
     <ClInclude Include="TaechangPriceRepository.h" />
     <ClInclude Include="TaechangPriceService.h" />
+    <ClInclude Include="TaechangReceivableCompanyOrderDto.h" />
+    <ClInclude Include="TaechangReceivableCompanyOrderRepository.h" />
+    <ClInclude Include="TaechangReceivableCompanyOrderService.h" />
     <ClInclude Include="TaechangUserDto.h" />
     <ClInclude Include="TaechangUserRepository.h" />
     <ClInclude Include="TaechangUserService.h" />
@@ -293,6 +296,8 @@ if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templ
     <ClCompile Include="SQLInitializer.cpp" />
     <ClCompile Include="TaechangPriceRepository.cpp" />
     <ClCompile Include="TaechangPriceService.cpp" />
+    <ClCompile Include="TaechangReceivableCompanyOrderRepository.cpp" />
+    <ClCompile Include="TaechangReceivableCompanyOrderService.cpp" />
     <ClCompile Include="TaechangUserRepository.cpp" />
     <ClCompile Include="TaechangUserService.cpp" />
     <ClCompile Include="TaechangAuthSession.cpp" />

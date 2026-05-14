@@ -243,3 +243,9 @@
 - **변경 내용**: 미수금 미리보기/생성 스크립트에서 정렬용 법인명과 표시/저장 법인명을 분리하고, 정렬 전용 필드를 결과에서 제거
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/67
 - **결과**: merged
+
+## [2026-05-14] feature/receivables-company-sort-order-crud
+- **목적**: 미수금 내역서 법인명 정렬 기준을 사용자가 직접 관리할 수 있도록 DB CRUD 기반 추가
+- **변경 내용**: 법인명/정렬 순서 테이블 생성, DTO/Repository/Service CRUD 추가, SageDBMgr 접근자와 생성/삭제 흐름 연결
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/68
+- **결과**: merged
