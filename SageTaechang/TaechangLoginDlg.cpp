@@ -95,6 +95,13 @@ BOOL TaechangLoginDlg::OnInitDialog() {
 }
 
 BOOL TaechangLoginDlg::PreTranslateMessage(MSG* pMsg) {
+    if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_TAB) {
+        HWND hWnd = pMsg->hwnd;
+        if (hWnd == m_wndIdEdit.GetSafeHwnd() && GetKeyState(VK_SHIFT) >= 0) {
+            m_wndPwEdit.SetFocus();
+            return TRUE;
+        }
+    }
     if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_RETURN) {
         HWND hWnd = pMsg->hwnd;
         if (hWnd == m_wndIdEdit.GetSafeHwnd() ||

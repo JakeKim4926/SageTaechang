@@ -94,6 +94,17 @@ BOOL TaechangPasswordChangeDlg::OnInitDialog() {
 }
 
 BOOL TaechangPasswordChangeDlg::PreTranslateMessage(MSG* pMsg) {
+    if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_TAB && GetKeyState(VK_SHIFT) >= 0) {
+        HWND hWnd = pMsg->hwnd;
+        if (hWnd == m_wndCurrentEdit.GetSafeHwnd()) {
+            m_wndNewEdit.SetFocus();
+            return TRUE;
+        }
+        if (hWnd == m_wndNewEdit.GetSafeHwnd()) {
+            m_wndConfirmEdit.SetFocus();
+            return TRUE;
+        }
+    }
     if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_RETURN) {
         HWND hWnd = pMsg->hwnd;
         if (hWnd == m_wndCurrentEdit.GetSafeHwnd() ||

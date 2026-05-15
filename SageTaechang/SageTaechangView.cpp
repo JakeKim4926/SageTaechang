@@ -388,6 +388,40 @@ BOOL CSageTaechangView::PreTranslateMessage(MSG* pMsg) {
 		OnDropFiles(reinterpret_cast<HDROP>(pMsg->wParam));
 		return TRUE;
 	}
+	if (pMsg && pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_RETURN &&
+		pMsg->hwnd == m_wndResultFilter.GetSafeHwnd() && IsDocumentResultFilterVisible()) {
+		OnResultSearch();
+		return TRUE;
+	}
+	if (pMsg && pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_TAB &&
+		GetSelectedWorkflow() == TAECHANG_WORKFLOW_PRICE_CALC && GetKeyState(VK_SHIFT) >= 0) {
+		if (pMsg->hwnd == m_wndCalcCopiesEdit.GetSafeHwnd()) {
+			m_wndCalcPagesEdit.SetFocus();
+			return TRUE;
+		}
+		if (pMsg->hwnd == m_wndCalcPagesEdit.GetSafeHwnd()) {
+			m_wndCalcFreightEdit.SetFocus();
+			return TRUE;
+		}
+	}
+	if (pMsg && pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_TAB &&
+		GetSelectedWorkflow() == TAECHANG_WORKFLOW_PRICE_MANAGE && GetKeyState(VK_SHIFT) >= 0) {
+		if (pMsg->hwnd == m_wndPriceMinCopiesEdit.GetSafeHwnd()) {
+			if (m_wndPriceMaxCopiesEdit.IsWindowEnabled())
+				m_wndPriceMaxCopiesEdit.SetFocus();
+			else
+				m_wndPricePrintEdit.SetFocus();
+			return TRUE;
+		}
+		if (pMsg->hwnd == m_wndPriceMaxCopiesEdit.GetSafeHwnd()) {
+			m_wndPricePrintEdit.SetFocus();
+			return TRUE;
+		}
+		if (pMsg->hwnd == m_wndPricePrintEdit.GetSafeHwnd()) {
+			m_wndPriceCoverEdit.SetFocus();
+			return TRUE;
+		}
+	}
 	return CView::PreTranslateMessage(pMsg);
 }
 
