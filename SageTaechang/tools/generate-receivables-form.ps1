@@ -250,10 +250,10 @@ function Build-OutputRows($rows) {
             itemName = $row.itemName
             issueType = $row.issueType
             totalAmount = $row.totalAmount
-            depositAmount = ''
-            receivableAmount = ''
+            depositAmount = $row.depositAmount
+            receivableAmount = $row.receivableAmount
             bankName = $row.bankName
-            note = ''
+            note = $row.note
         })
 
         $previousCompanyName = $row.companyName
@@ -289,7 +289,22 @@ function Build-OutputRowValueArray($row) {
                 $values[1, 6] = ConvertTo-TextValue $row.totalAmount
             }
         }
+        if ($null -ne $row.depositAmount) {
+            try {
+                $values[1, 7] = [double]$row.depositAmount
+            } catch {
+                $values[1, 7] = ConvertTo-TextValue $row.depositAmount
+            }
+        }
+        if ($null -ne $row.receivableAmount) {
+            try {
+                $values[1, 8] = [double]$row.receivableAmount
+            } catch {
+                $values[1, 8] = ConvertTo-TextValue $row.receivableAmount
+            }
+        }
         $values[1, 9] = [string](ConvertTo-TextValue $row.bankName)
+        $values[1, 10] = [string](ConvertTo-TextValue $row.note)
     }
 
     return $values
@@ -360,7 +375,10 @@ try {
         $issueType = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowNum 6)
         $totalAmount = Get-MatrixValue $inputValues $rowNum 7
         $totalAmountText = ConvertTo-TextValue $totalAmount
+        $depositAmount = Get-MatrixValue $inputValues $rowNum 8
+        $receivableAmount = Get-MatrixValue $inputValues $rowNum 9
         $bankName = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowNum 10)
+        $note = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowNum 11)
 
         if ($companyName.Trim().Length -eq 0 -and $itemName.Trim().Length -eq 0) { continue }
 
@@ -392,9 +410,12 @@ try {
             companyName = $displayCompanyName
             totalAmount = $totalAmount
             totalAmountText = $totalAmountText
+            depositAmount = $depositAmount
+            receivableAmount = $receivableAmount
             issueType = $issueType
             itemName = $itemName
             bankName = $bankName
+            note = $note
         })
     }
 
