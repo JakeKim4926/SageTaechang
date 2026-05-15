@@ -28,6 +28,7 @@ struct TaechangWorkflowUiState {
 
 struct CalcHistoryEntry {
     CString strCompanyName;
+    CString strItemName;
     int nCopies;
     int nPages;
     LONGLONG nPrintPrice;
@@ -208,6 +209,7 @@ protected:
     // ── 가격 관리 내부 상태 ─────────────────────────────────────────────────
     LONGLONG m_nCalcPrintPrice;
     int  m_nCalcCoverPrice;
+    int  m_nCalcUnitPrice;
     int  m_nPricePanelState;
     BOOL m_bFormattingCalcFreight;
     BOOL m_bFormattingPricePrint;
@@ -291,7 +293,7 @@ protected:
     void ClearCalcResult();
     BOOL UpdateCalcPreview(BOOL bShowMessage);
     void UpdateCalcTotal();
-    void AddCalcHistory(const CString& strCompany, int nCopies, int nPages, LONGLONG nPrintPrice, int nCoverPrice, int nFreight, LONGLONG nTotal);
+    void AddCalcHistory(const CString& strCompany, int nCopies, int nPages, const CString& strItemName, LONGLONG nPrintPrice, int nCoverPrice, int nFreight, LONGLONG nTotal);
     void RefreshCalcHistoryList();
     int  GetCalcHistoryVisibleCapacity() const;
     void TrimCalcHistoryToVisibleCapacity();

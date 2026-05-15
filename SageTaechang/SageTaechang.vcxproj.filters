@@ -225,6 +225,9 @@
     <ClInclude Include="TaechangCalcCompanyPickerDlg.h">
       <Filter>헤더 파일\presentation</Filter>
     </ClInclude>
+    <ClInclude Include="TaechangCalcEstimateDlg.h">
+      <Filter>헤더 파일\presentation</Filter>
+    </ClInclude>
     <ClInclude Include="SQLInitializer.h">
       <Filter>헤더 파일\SQLite\Database</Filter>
     </ClInclude>
@@ -327,6 +330,9 @@
       <Filter>소스 파일\presentation</Filter>
     </ClCompile>
     <ClCompile Include="TaechangCalcCompanyPickerDlg.cpp">
+      <Filter>소스 파일\presentation</Filter>
+    </ClCompile>
+    <ClCompile Include="TaechangCalcEstimateDlg.cpp">
       <Filter>소스 파일\presentation</Filter>
     </ClCompile>
     <ClCompile Include="SQLInitializer.cpp">

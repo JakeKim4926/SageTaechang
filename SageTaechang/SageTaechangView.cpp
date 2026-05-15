@@ -25,6 +25,8 @@
 #include "TaechangPriceRangeDlg.h"
 #include "TaechangPriceSimpleDlg.h"
 #include "TaechangCalcCompanyPickerDlg.h"
+#include "TaechangCalcEstimateDlg.h"
+#include "app/common/TaechangFileUtils.h"
 #include "SageDBMgr.h"
 #include <climits>
 #include <uxtheme.h>
@@ -373,6 +375,7 @@ CSageTaechangView::CSageTaechangView() noexcept
 	, m_bLastTaskSuccess(FALSE)
 	, m_nCalcPrintPrice(0)
 	, m_nCalcCoverPrice(0)
+	, m_nCalcUnitPrice(0)
 	, m_nPricePanelState(TAECHANG_PRICE_PANEL_SUMMARY)
 	, m_bFormattingCalcFreight(FALSE)
 	, m_bFormattingPricePrint(FALSE)
@@ -2569,13 +2572,14 @@ void CSageTaechangView::CreatePriceCalcPanel() {
 		}
 	}
 	m_wndCalcHistoryList.InsertColumn(0, TAECHANG_UI_CALC_HIST_COL_COMPANY, LVCFMT_CENTER, TAECHANG_CALC_HIST_COL_COMPANY_W);
-	m_wndCalcHistoryList.InsertColumn(1, TAECHANG_UI_CALC_HIST_COL_COPIES, LVCFMT_CENTER, TAECHANG_CALC_HIST_COL_COPIES_W);
-	m_wndCalcHistoryList.InsertColumn(2, TAECHANG_UI_CALC_HIST_COL_PAGES, LVCFMT_CENTER, TAECHANG_CALC_HIST_COL_PAGES_W);
-	m_wndCalcHistoryList.InsertColumn(3, TAECHANG_UI_CALC_HIST_COL_PRINT, LVCFMT_CENTER, TAECHANG_CALC_HIST_COL_PRINT_W);
-	m_wndCalcHistoryList.InsertColumn(4, TAECHANG_UI_CALC_HIST_COL_COVER, LVCFMT_CENTER, TAECHANG_CALC_HIST_COL_COVER_W);
-	m_wndCalcHistoryList.InsertColumn(5, TAECHANG_UI_CALC_HIST_COL_FREIGHT, LVCFMT_CENTER, TAECHANG_CALC_HIST_COL_FREIGHT_W);
-	m_wndCalcHistoryList.InsertColumn(6, TAECHANG_UI_CALC_HIST_COL_TOTAL, LVCFMT_CENTER, TAECHANG_CALC_HIST_COL_TOTAL_W);
-	m_wndCalcHistoryList.InsertColumn(7, TAECHANG_UI_CALC_HIST_COL_TIME, LVCFMT_CENTER, TAECHANG_CALC_HIST_COL_TIME_W);
+	m_wndCalcHistoryList.InsertColumn(1, TAECHANG_UI_CALC_HIST_COL_ITEM, LVCFMT_CENTER, TAECHANG_CALC_HIST_COL_ITEM_W);
+	m_wndCalcHistoryList.InsertColumn(2, TAECHANG_UI_CALC_HIST_COL_COPIES, LVCFMT_CENTER, TAECHANG_CALC_HIST_COL_COPIES_W);
+	m_wndCalcHistoryList.InsertColumn(3, TAECHANG_UI_CALC_HIST_COL_PAGES, LVCFMT_CENTER, TAECHANG_CALC_HIST_COL_PAGES_W);
+	m_wndCalcHistoryList.InsertColumn(4, TAECHANG_UI_CALC_HIST_COL_PRINT, LVCFMT_CENTER, TAECHANG_CALC_HIST_COL_PRINT_W);
+	m_wndCalcHistoryList.InsertColumn(5, TAECHANG_UI_CALC_HIST_COL_COVER, LVCFMT_CENTER, TAECHANG_CALC_HIST_COL_COVER_W);
+	m_wndCalcHistoryList.InsertColumn(6, TAECHANG_UI_CALC_HIST_COL_FREIGHT, LVCFMT_CENTER, TAECHANG_CALC_HIST_COL_FREIGHT_W);
+	m_wndCalcHistoryList.InsertColumn(7, TAECHANG_UI_CALC_HIST_COL_TOTAL, LVCFMT_CENTER, TAECHANG_CALC_HIST_COL_TOTAL_W);
+	m_wndCalcHistoryList.InsertColumn(8, TAECHANG_UI_CALC_HIST_COL_TIME, LVCFMT_CENTER, TAECHANG_CALC_HIST_COL_TIME_W);
 
 	m_wndCalcCopiesEdit.SetLimitText(7);
 	m_wndCalcPagesEdit.SetLimitText(7);
@@ -2773,10 +2777,11 @@ void CSageTaechangView::LayoutPriceCalcPanel(int nLeft, int nTop, int nWidth, in
 	int nPagesEditX = nPagesLabelX + nInputLabelW + TAECHANG_LABEL_EDIT_GAP;
 	m_wndCalcPagesEdit.MoveWindow(nPagesEditX, nCY, nInputEditW, TAECHANG_EDIT_HEIGHT);
 	ApplyCalcEditTextRect(m_wndCalcPagesEdit);
+	int nBtnSize = nInputPanelH;
 	int nBtnX = m_rectCalcInputPanel.right + TAECHANG_ROW_GAP;
-	if (nBtnX + TAECHANG_BUTTON_WIDTH > nX + nW)
-		nBtnX = nX + nW - TAECHANG_BUTTON_WIDTH;
-	m_wndCalcBtn.MoveWindow(nBtnX, nCY - TAECHANG_BUTTON_VERT_ADJUST, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
+	if (nBtnX + nBtnSize > nX + nW)
+		nBtnX = nX + nW - nBtnSize;
+	m_wndCalcBtn.MoveWindow(nBtnX, nY, nBtnSize, nBtnSize);
 
 	nY += nInputPanelH + TAECHANG_CALC_SECTION_GAP;
 
@@ -2835,8 +2840,9 @@ void CSageTaechangView::LayoutPriceCalcPanel(int nLeft, int nTop, int nWidth, in
 	nY += nResultPanelH + TAECHANG_CALC_SECTION_GAP;
 
 	// ── 이력 섹션 ────────────────────────────────────────────────────────────
-	int nHistoryW = TAECHANG_CALC_HIST_COL_COMPANY_W + TAECHANG_CALC_HIST_COL_COPIES_W
-		+ TAECHANG_CALC_HIST_COL_PAGES_W + TAECHANG_CALC_HIST_COL_PRINT_W + TAECHANG_CALC_HIST_COL_COVER_W
+	int nHistoryW = TAECHANG_CALC_HIST_COL_COMPANY_W + TAECHANG_CALC_HIST_COL_ITEM_W
+		+ TAECHANG_CALC_HIST_COL_COPIES_W + TAECHANG_CALC_HIST_COL_PAGES_W
+		+ TAECHANG_CALC_HIST_COL_PRINT_W + TAECHANG_CALC_HIST_COL_COVER_W
 		+ TAECHANG_CALC_HIST_COL_FREIGHT_W + TAECHANG_CALC_HIST_COL_TOTAL_W
 		+ TAECHANG_CALC_HIST_COL_TIME_W + ::GetSystemMetrics(SM_CXVSCROLL) + 2;
 	if (nHistoryW > nW)
@@ -2849,13 +2855,14 @@ void CSageTaechangView::LayoutPriceCalcPanel(int nLeft, int nTop, int nWidth, in
 		nListH = TAECHANG_RESULT_MIN_HEIGHT;
 	m_wndCalcHistoryList.MoveWindow(nX, nY, nHistoryW, nListH);
 	m_wndCalcHistoryList.SetColumnWidth(0, TAECHANG_CALC_HIST_COL_COMPANY_W);
-	m_wndCalcHistoryList.SetColumnWidth(1, TAECHANG_CALC_HIST_COL_COPIES_W);
-	m_wndCalcHistoryList.SetColumnWidth(2, TAECHANG_CALC_HIST_COL_PAGES_W);
-	m_wndCalcHistoryList.SetColumnWidth(3, TAECHANG_CALC_HIST_COL_PRINT_W);
-	m_wndCalcHistoryList.SetColumnWidth(4, TAECHANG_CALC_HIST_COL_COVER_W);
-	m_wndCalcHistoryList.SetColumnWidth(5, TAECHANG_CALC_HIST_COL_FREIGHT_W);
-	m_wndCalcHistoryList.SetColumnWidth(6, TAECHANG_CALC_HIST_COL_TOTAL_W);
-	m_wndCalcHistoryList.SetColumnWidth(7, TAECHANG_CALC_HIST_COL_TIME_W);
+	m_wndCalcHistoryList.SetColumnWidth(1, TAECHANG_CALC_HIST_COL_ITEM_W);
+	m_wndCalcHistoryList.SetColumnWidth(2, TAECHANG_CALC_HIST_COL_COPIES_W);
+	m_wndCalcHistoryList.SetColumnWidth(3, TAECHANG_CALC_HIST_COL_PAGES_W);
+	m_wndCalcHistoryList.SetColumnWidth(4, TAECHANG_CALC_HIST_COL_PRINT_W);
+	m_wndCalcHistoryList.SetColumnWidth(5, TAECHANG_CALC_HIST_COL_COVER_W);
+	m_wndCalcHistoryList.SetColumnWidth(6, TAECHANG_CALC_HIST_COL_FREIGHT_W);
+	m_wndCalcHistoryList.SetColumnWidth(7, TAECHANG_CALC_HIST_COL_TOTAL_W);
+	m_wndCalcHistoryList.SetColumnWidth(8, TAECHANG_CALC_HIST_COL_TIME_W);
 	int nHistoryCount = static_cast<int>(m_arrCalcHistory.GetSize());
 	TrimCalcHistoryToVisibleCapacity();
 	if (m_arrCalcHistory.GetSize() != nHistoryCount)
@@ -3458,6 +3465,7 @@ void CSageTaechangView::ClearCalcInputAndResult() {
 void CSageTaechangView::ClearCalcResult() {
 	m_nCalcPrintPrice = 0;
 	m_nCalcCoverPrice = 0;
+	m_nCalcUnitPrice = 0;
 	m_wndCalcPrintValue.SetWindowTextW(TAECHANG_UI_PRICE_SUMMARY_EMPTY);
 	m_wndCalcCoverValue.SetWindowTextW(TAECHANG_UI_PRICE_SUMMARY_EMPTY);
 	m_wndCalcSubtotalValue.SetWindowTextW(TAECHANG_UI_PRICE_SUMMARY_EMPTY);
@@ -3537,6 +3545,7 @@ BOOL CSageTaechangView::UpdateCalcPreview(BOOL bShowMessage) {
 	LONGLONG nPrintPrice = static_cast<LONGLONG>(dto.nPrintPrice) * nPages;
 	m_nCalcPrintPrice = nPrintPrice;
 	m_nCalcCoverPrice = dto.nCoverPrice;
+	m_nCalcUnitPrice = dto.nPrintPrice;
 
 	CString strPrint, strCover, strSub;
 	strPrint.Format(TAECHANG_UI_CALC_WON_FORMAT, FormatPrice(nPrintPrice).GetString());
@@ -3587,8 +3596,32 @@ void CSageTaechangView::OnCalc() {
 	strFreight.Trim();
 	int nFreight = PriceTextToInt(strFreight);
 	if (nFreight < 0) nFreight = 0;
-	AddCalcHistory(strCompany, nCopies, nPages, m_nCalcPrintPrice, m_nCalcCoverPrice, nFreight,
-				   m_nCalcPrintPrice + m_nCalcCoverPrice + nFreight);
+
+	CString strPluginDir;
+	if (!GetExecutableDirectory(strPluginDir)) {
+		AfxMessageBox(TAECHANG_UI_CALC_ESTIMATE_SCRIPT_MISSING, MB_ICONERROR);
+		return;
+	}
+	CString strTemplatePath = CombinePath(strPluginDir, TAECHANG_ESTIMATE_TEMPLATE_REL_PATH);
+	CString strScriptPath   = CombinePath(strPluginDir, TAECHANG_CALC_ESTIMATE_SCRIPT_REL_PATH);
+
+	if (!FileExists(strTemplatePath)) {
+		AfxMessageBox(TAECHANG_UI_CALC_ESTIMATE_TEMPLATE_MISSING, MB_ICONERROR);
+		return;
+	}
+	if (!FileExists(strScriptPath)) {
+		AfxMessageBox(TAECHANG_UI_CALC_ESTIMATE_SCRIPT_MISSING, MB_ICONERROR);
+		return;
+	}
+
+	TaechangCalcEstimateDlg dlg(strCompany, nCopies, nPages,
+		m_nCalcUnitPrice, m_nCalcCoverPrice, nFreight,
+		strTemplatePath, strScriptPath, this);
+	if (dlg.DoModal() == IDOK) {
+		AddCalcHistory(strCompany, nCopies, nPages, dlg.GetItemName(),
+			m_nCalcPrintPrice, m_nCalcCoverPrice, nFreight,
+			m_nCalcPrintPrice + m_nCalcCoverPrice + nFreight);
+	}
 }
 
 void CSageTaechangView::OnCalcCompanyChanged() {
@@ -3629,9 +3662,10 @@ void CSageTaechangView::OnCalcCompanyPick() {
 	}
 }
 
-void CSageTaechangView::AddCalcHistory(const CString& strCompany, int nCopies, int nPages, LONGLONG nPrintPrice, int nCoverPrice, int nFreight, LONGLONG nTotal) {
+void CSageTaechangView::AddCalcHistory(const CString& strCompany, int nCopies, int nPages, const CString& strItemName, LONGLONG nPrintPrice, int nCoverPrice, int nFreight, LONGLONG nTotal) {
 	CalcHistoryEntry entry;
 	entry.strCompanyName = strCompany;
+	entry.strItemName = strItemName;
 	entry.nCopies = nCopies;
 	entry.nPages = nPages;
 	entry.nPrintPrice = nPrintPrice;
@@ -3669,27 +3703,28 @@ void CSageTaechangView::RefreshCalcHistoryList() {
 	for (int i = 0; i < m_arrCalcHistory.GetSize(); ++i) {
 		const CalcHistoryEntry& e = m_arrCalcHistory[i];
 		m_wndCalcHistoryList.InsertItem(i, e.strCompanyName);
+		m_wndCalcHistoryList.SetItemText(i, 1, e.strItemName);
 
 		CString strCopies;
 		strCopies.Format(TAECHANG_UI_CALC_HIST_COPIES_FMT, e.nCopies);
-		m_wndCalcHistoryList.SetItemText(i, 1, strCopies);
+		m_wndCalcHistoryList.SetItemText(i, 2, strCopies);
 
 		CString strPages;
 		strPages.Format(TAECHANG_UI_CALC_HIST_PAGES_FMT, e.nPages);
-		m_wndCalcHistoryList.SetItemText(i, 2, strPages);
+		m_wndCalcHistoryList.SetItemText(i, 3, strPages);
 
 		CString strPrint, strCover, strFreight, strTotal;
 		strPrint.Format(TAECHANG_UI_CALC_WON_FORMAT, FormatPrice(e.nPrintPrice).GetString());
 		strCover.Format(TAECHANG_UI_CALC_WON_FORMAT, FormatPrice(e.nCoverPrice).GetString());
 		strFreight.Format(TAECHANG_UI_CALC_WON_FORMAT, FormatPrice(e.nFreight).GetString());
 		strTotal.Format(TAECHANG_UI_CALC_WON_FORMAT, FormatPrice(e.nTotal).GetString());
-		m_wndCalcHistoryList.SetItemText(i, 3, strPrint);
-		m_wndCalcHistoryList.SetItemText(i, 4, strCover);
-		m_wndCalcHistoryList.SetItemText(i, 5, strFreight);
-		m_wndCalcHistoryList.SetItemText(i, 6, strTotal);
+		m_wndCalcHistoryList.SetItemText(i, 4, strPrint);
+		m_wndCalcHistoryList.SetItemText(i, 5, strCover);
+		m_wndCalcHistoryList.SetItemText(i, 6, strFreight);
+		m_wndCalcHistoryList.SetItemText(i, 7, strTotal);
 
 		CString strTime = e.timeCalc.Format(TAECHANG_UI_CALC_HIST_TIME_FMT);
-		m_wndCalcHistoryList.SetItemText(i, 7, strTime);
+		m_wndCalcHistoryList.SetItemText(i, 8, strTime);
 	}
 }
 
