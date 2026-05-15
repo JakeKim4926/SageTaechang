@@ -268,3 +268,10 @@
 - **검증**: PowerShell Parser 파싱 통과, git diff --check 통과
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/72
 - **결과**: merged
+
+## [2026-05-15] fix/receivables-result-tab-columns
+- **목적**: 미수금 내역서 생성 결과 탭에서 숫자 JSON 값이 표시되지 않는 문제 수정
+- **변경 내용**: 결과 행 파서가 합계금액, 입금금액(H), 미수금(I)을 문자열 또는 숫자 JSON 값 모두에서 텍스트로 추출하도록 보정
+- **검증**: git diff --check 통과, Debug x64 빌드 성공
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/74
+- **결과**: pending

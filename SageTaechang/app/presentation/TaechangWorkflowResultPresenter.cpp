@@ -66,6 +66,43 @@ namespace
 		return Utf8ToWide(json.substr(nStart, nEnd - nStart));
 	}
 
+	CString JsonExtractValueText(const CString& strJson, const CString& strKey) {
+		CString strValue = JsonExtractString(strJson, strKey);
+		if (!strValue.IsEmpty())
+			return strValue;
+
+		std::string json = WideToUtf8(strJson);
+		std::string key = WideToUtf8(strKey);
+		std::string token = "\"" + key + "\"";
+		size_t nKeyPos = json.find(token);
+		if (nKeyPos == std::string::npos)
+			return L"";
+
+		size_t nColon = json.find(':', nKeyPos + token.size());
+		if (nColon == std::string::npos)
+			return L"";
+
+		size_t nStart = nColon + 1;
+		while (nStart < json.size() &&
+			(json[nStart] == ' ' || json[nStart] == '\t' || json[nStart] == '\r' || json[nStart] == '\n'))
+			++nStart;
+
+		if (nStart >= json.size() || json[nStart] == '"' || json.compare(nStart, 4, "null") == 0)
+			return L"";
+
+		size_t nEnd = nStart;
+		while (nEnd < json.size() && json[nEnd] != ',' && json[nEnd] != '}')
+			++nEnd;
+
+		while (nEnd > nStart &&
+			(json[nEnd - 1] == ' ' || json[nEnd - 1] == '\t' || json[nEnd - 1] == '\r' || json[nEnd - 1] == '\n'))
+			--nEnd;
+
+		if (nEnd <= nStart)
+			return L"";
+		return Utf8ToWide(json.substr(nStart, nEnd - nStart));
+	}
+
 	CString ComposeReason(const CString& strReason, const CString& strRightValue) {
 		CString strResult = strReason;
 		if (!strRightValue.IsEmpty()) {
@@ -185,7 +222,7 @@ void TaechangWorkflowResultPresenter::AddReceivablesResultRows(
 	for (int i = 0; i < static_cast<int>(arrObjects.size()); ++i) {
 		CString strCompanyName = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_COMPANY_NAME);
 		CString strManager = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_MANAGER);
-		CString strTotalAmount = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_TOTAL_AMOUNT);
+		CString strTotalAmount = JsonExtractValueText(arrObjects[i], TAECHANG_JSON_KEY_TOTAL_AMOUNT);
 		CString strIssueDate = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_ISSUE_DATE);
 		if (strIssueDate.IsEmpty())
 			strIssueDate = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_ISSUE_DATE_TEXT);
@@ -198,8 +235,8 @@ void TaechangWorkflowResultPresenter::AddReceivablesResultRows(
 		row.m_strItemName = strItemName;
 		row.m_strIssueType = strIssueType;
 		row.m_strTotalAmount = strTotalAmount;
-		row.m_strDepositAmount = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_DEPOSIT_AMOUNT);
-		row.m_strReceivableAmount = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_RECEIVABLE_AMOUNT);
+		row.m_strDepositAmount = JsonExtractValueText(arrObjects[i], TAECHANG_JSON_KEY_DEPOSIT_AMOUNT);
+		row.m_strReceivableAmount = JsonExtractValueText(arrObjects[i], TAECHANG_JSON_KEY_RECEIVABLE_AMOUNT);
 		row.m_strBankName = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_BANK_NAME);
 		row.m_strNote = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_NOTE);
 		outRows.push_back(row);
