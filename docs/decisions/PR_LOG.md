@@ -261,3 +261,10 @@
 - **변경 내용**: DB 정렬 기준을 임시 JSON으로 PowerShell에 전달하고, PriorityPath가 있으면 엑셀 번호 시트보다 DB 기준을 우선 사용하도록 변경
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/69
 - **결과**: merged
+
+## [2026-05-15] fix/receivables-payment-note-columns
+- **목적**: 미수금 내역서 로드/생성 시 원본 H/I/K 열 값이 결과에 반영되지 않는 문제 수정
+- **변경 내용**: 입금금액(H), 미수금(I), 비고(K)를 미리보기 JSON과 생성 출력 행의 동일 열 위치에 전달하도록 변경
+- **검증**: PowerShell Parser 파싱 통과, git diff --check 통과
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/72
+- **결과**: pending
