@@ -63,7 +63,7 @@ SageTaechang/
     infrastructure/bridge/      응답 생성 및 브릿지 보조 코드
     presentation/               결과 표시 변환 계층
   external/sqlite/              SQLite 소스
-  templates/                    문서 생성용 템플릿 파일
+  templates/                    문서 생성용 템플릿 파일 로컬 배치 위치
   tools/                        엑셀 로드 및 문서 생성 PowerShell 스크립트
   SageTaechangView.*            메인 업무 화면
   SageDBMgr.*                   DB 서비스 구성
@@ -91,7 +91,8 @@ SageTaechang/
   문서 생성과 엑셀 데이터 로드를 수행하는 PowerShell 스크립트가 들어 있습니다.
 
 - `SageTaechang/templates/`
-  미수금 내역서, 납품서, 견적서 생성에 사용하는 템플릿 파일이 들어 있습니다.
+  미수금 내역서, 납품서, 견적서 생성에 사용하는 템플릿 파일을 로컬에 배치하는 위치입니다.
+  실제 템플릿 파일은 회사 보안 자료이므로 저장소에 포함하지 않고 별도로 관리합니다.
 
 ## 빌드 환경
 
@@ -129,11 +130,13 @@ MSBuild.exe SageTaechang\SageTaechang.vcxproj /p:Configuration=Debug /p:Platform
 - `Debug_x64/`
 - `Release_x64/`
 
-빌드 후 `tools/`와 `templates/` 폴더는 실행 폴더로 복사됩니다.
+빌드 후 `tools/` 폴더는 실행 폴더로 복사됩니다.
+`templates/` 폴더는 로컬에 존재하는 경우에만 실행 폴더로 복사됩니다.
 
 ## 실행 전 확인 사항
 
-- 문서 생성 기능은 `SageTaechang/templates/`의 템플릿 파일을 사용합니다.
+- 문서 생성 기능은 로컬 `SageTaechang/templates/`의 템플릿 파일을 사용합니다.
+- 템플릿 파일은 회사 보안 자료이므로 저장소에 포함하지 않습니다. 문서 생성 기능을 실행하려면 로컬 환경에 필요한 템플릿 파일을 별도로 배치해야 합니다.
 - 엑셀 로드와 문서 생성은 `SageTaechang/tools/`의 PowerShell 스크립트를 통해 처리됩니다.
 - 단가, 사용자, 미수금 정렬 기준 데이터는 SQLite DB에 저장됩니다.
 - 관리자 기능을 사용하려면 로그인해야 합니다.
@@ -147,4 +150,4 @@ MSBuild.exe SageTaechang\SageTaechang.vcxproj /p:Configuration=Debug /p:Platform
 
 ## 참고
 
-이 저장소에는 실제 업무 자동화를 위한 템플릿과 스크립트가 포함되어 있습니다. 외부 공유 전에는 템플릿, 샘플 데이터, 경로, 회사명, 거래처명, 금액 정보 등 민감한 업무 정보가 포함되어 있지 않은지 반드시 확인해야 합니다.
+이 저장소에는 실제 업무 자동화를 위한 스크립트가 포함되어 있습니다. 외부 공유 전에는 샘플 데이터, 경로, 회사명, 거래처명, 금액 정보 등 민감한 업무 정보가 포함되어 있지 않은지 반드시 확인해야 합니다.
