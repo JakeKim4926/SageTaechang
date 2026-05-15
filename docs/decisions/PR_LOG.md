@@ -1,3 +1,9 @@
+## [2026-05-15] feature/result-filter-enter-search
+- **목적**: 문서 결과 검색과 주요 입력 폼의 키보드 이동 흐름 개선
+- **변경 내용**: 미수금/납품서/견적서 검색 edit Enter 처리, 로그인/비밀번호 변경/단가 관리/단가 계산 입력칸 Tab 포커스 이동 추가
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/70
+- **결과**: merged
+
 ## [2026-05-12] fix/auth-header-ui
 - **목적**: 헤더 우측 로그인 사용자 표시(텍스트+로그아웃 버튼) UI 통일성 개선
 - **변경 내용**: 사용자 라벨 색상 SECONDARY_TEXT 적용, Y축 버튼 텍스트 오프셋 맞춤, SS_RIGHT→SS_NOPREFIX 교체, 구분선 추가
