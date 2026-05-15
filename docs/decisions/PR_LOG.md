@@ -2,7 +2,7 @@
 - **목적**: 단가 계산 탭에서 계산 결과를 바탕으로 견적서를 바로 생성
 - **변경 내용**: 견적서 생성 미니 다이얼로그 추가, 단일 견적서 생성 PowerShell 스크립트 추가, 계산 이력 품목명 열 추가, 계산 버튼 → 견적서 생성 버튼 변경
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/79
-- **결과**: pending
+- **결과**: merged
 
 ## [2026-05-15] fix/price-calc-auto-refresh
 - **목적**: 단가 계산 탭의 입력 초기화와 계산 결과 자동 갱신 개선
