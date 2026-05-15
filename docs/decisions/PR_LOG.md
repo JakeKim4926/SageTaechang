@@ -267,4 +267,4 @@
 - **변경 내용**: 입금금액(H), 미수금(I), 비고(K)를 미리보기 JSON과 생성 출력 행의 동일 열 위치에 전달하도록 변경
 - **검증**: PowerShell Parser 파싱 통과, git diff --check 통과
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/72
-- **결과**: pending
+- **결과**: merged
