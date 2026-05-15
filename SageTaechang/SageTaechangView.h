@@ -287,6 +287,9 @@ protected:
     void LayoutPriceCalcPanel(int nLeft, int nTop, int nWidth, int nHeight);
     void ShowPriceCalcPanel(BOOL bShow);
     void RefreshCalcCompanyCombo();
+    void ClearCalcInputAndResult();
+    void ClearCalcResult();
+    BOOL UpdateCalcPreview(BOOL bShowMessage);
     void UpdateCalcTotal();
     void AddCalcHistory(const CString& strCompany, int nCopies, int nPages, LONGLONG nPrintPrice, int nCoverPrice, int nFreight, LONGLONG nTotal);
     void RefreshCalcHistoryList();
@@ -336,6 +339,8 @@ protected:
 
     // ── 부수 계산 이벤트 ────────────────────────────────────────────────────
     afx_msg void OnCalc();
+    afx_msg void OnCalcCompanyChanged();
+    afx_msg void OnCalcInputChanged();
     afx_msg void OnCalcFreightChanged();
     afx_msg void OnCalcCompanyPick();
     afx_msg void OnResultSearch();

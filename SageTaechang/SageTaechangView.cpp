@@ -342,7 +342,11 @@ BEGIN_MESSAGE_MAP(CSageTaechangView, CView)
 	ON_BN_CLICKED(ID_PRICE_MODIFY_BTN, &CSageTaechangView::OnPriceModify)
 	ON_BN_CLICKED(ID_PRICE_DELETE_BTN, &CSageTaechangView::OnPriceDelete)
 	ON_BN_CLICKED(ID_PRICE_CANCEL_BTN, &CSageTaechangView::OnPriceCancel)
+	ON_CBN_SELCHANGE(ID_CALC_COMPANY_COMBO, &CSageTaechangView::OnCalcCompanyChanged)
+	ON_CBN_EDITCHANGE(ID_CALC_COMPANY_COMBO, &CSageTaechangView::OnCalcCompanyChanged)
 	ON_BN_CLICKED(ID_CALC_BTN, &CSageTaechangView::OnCalc)
+	ON_EN_CHANGE(ID_CALC_COPIES_EDIT, &CSageTaechangView::OnCalcInputChanged)
+	ON_EN_CHANGE(ID_CALC_PAGES_EDIT, &CSageTaechangView::OnCalcInputChanged)
 	ON_EN_CHANGE(ID_CALC_FREIGHT_EDIT, &CSageTaechangView::OnCalcFreightChanged)
 	ON_BN_CLICKED(ID_CALC_COMPANY_PICK_BTN, &CSageTaechangView::OnCalcCompanyPick)
 	ON_BN_CLICKED(ID_TAECHANG_RESULT_SEARCH_BTN, &CSageTaechangView::OnResultSearch)
@@ -400,6 +404,13 @@ BOOL CSageTaechangView::PreTranslateMessage(MSG* pMsg) {
 	}
 	if (pMsg && pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_TAB &&
 		GetSelectedWorkflow() == TAECHANG_WORKFLOW_PRICE_CALC && GetKeyState(VK_SHIFT) >= 0) {
+		COMBOBOXINFO cbiCalcCompany = {};
+		cbiCalcCompany.cbSize = sizeof(COMBOBOXINFO);
+		m_wndCalcCompanyCombo.GetComboBoxInfo(&cbiCalcCompany);
+		if (pMsg->hwnd == m_wndCalcCompanyCombo.GetSafeHwnd() || pMsg->hwnd == cbiCalcCompany.hwndItem) {
+			m_wndCalcCopiesEdit.SetFocus();
+			return TRUE;
+		}
 		if (pMsg->hwnd == m_wndCalcCopiesEdit.GetSafeHwnd()) {
 			m_wndCalcPagesEdit.SetFocus();
 			return TRUE;
@@ -3437,6 +3448,107 @@ void CSageTaechangView::RefreshCalcCompanyCombo() {
 		m_wndCalcCompanyCombo.AddString(arrNames[i]);
 }
 
+void CSageTaechangView::ClearCalcInputAndResult() {
+	m_wndCalcCopiesEdit.SetWindowTextW(L"");
+	m_wndCalcPagesEdit.SetWindowTextW(L"");
+	m_wndCalcFreightEdit.SetWindowTextW(L"");
+	ClearCalcResult();
+}
+
+void CSageTaechangView::ClearCalcResult() {
+	m_nCalcPrintPrice = 0;
+	m_nCalcCoverPrice = 0;
+	m_wndCalcPrintValue.SetWindowTextW(TAECHANG_UI_PRICE_SUMMARY_EMPTY);
+	m_wndCalcCoverValue.SetWindowTextW(TAECHANG_UI_PRICE_SUMMARY_EMPTY);
+	m_wndCalcSubtotalValue.SetWindowTextW(TAECHANG_UI_PRICE_SUMMARY_EMPTY);
+	m_wndCalcTotalValue.SetWindowTextW(TAECHANG_UI_PRICE_SUMMARY_EMPTY);
+}
+
+BOOL CSageTaechangView::UpdateCalcPreview(BOOL bShowMessage) {
+	int nSel = m_wndCalcCompanyCombo.GetCurSel();
+	if (nSel == CB_ERR) {
+		ClearCalcResult();
+		if (bShowMessage)
+			AfxMessageBox(TAECHANG_UI_CALC_SELECT_COMPANY, MB_ICONWARNING);
+		return FALSE;
+	}
+
+	CString strCompany;
+	m_wndCalcCompanyCombo.GetLBText(nSel, strCompany);
+
+	CString strCopies;
+	m_wndCalcCopiesEdit.GetWindowTextW(strCopies);
+	strCopies.Trim();
+	if (strCopies.IsEmpty()) {
+		ClearCalcResult();
+		if (bShowMessage)
+			AfxMessageBox(TAECHANG_UI_CALC_COPIES_REQUIRED, MB_ICONWARNING);
+		return FALSE;
+	}
+
+	int nCopies = _wtoi(strCopies);
+	if (nCopies < 1) {
+		ClearCalcResult();
+		if (bShowMessage)
+			AfxMessageBox(TAECHANG_UI_CALC_COPIES_INVALID, MB_ICONWARNING);
+		return FALSE;
+	}
+	if (nCopies > TAECHANG_PRICE_COPIES_MAX) {
+		ClearCalcResult();
+		if (bShowMessage)
+			AfxMessageBox(TAECHANG_UI_PRICE_COPIES_OUT_OF_RANGE, MB_ICONWARNING);
+		return FALSE;
+	}
+
+	CString strPages;
+	m_wndCalcPagesEdit.GetWindowTextW(strPages);
+	strPages.Trim();
+	if (strPages.IsEmpty()) {
+		ClearCalcResult();
+		if (bShowMessage)
+			AfxMessageBox(TAECHANG_UI_CALC_PAGES_REQUIRED, MB_ICONWARNING);
+		return FALSE;
+	}
+
+	int nPages = _wtoi(strPages);
+	if (nPages < 1 || nPages > TAECHANG_PRICE_COPIES_MAX) {
+		ClearCalcResult();
+		if (bShowMessage)
+			AfxMessageBox(TAECHANG_UI_CALC_PAGES_INVALID, MB_ICONWARNING);
+		return FALSE;
+	}
+
+	TaechangPriceDto dto;
+	BOOL bFound;
+	CString strError;
+	if (sageDBMgr.GetTaechangPriceService()->LoadByCompanyAndCopies(strCompany, nCopies, dto, bFound, strError) == FALSE) {
+		ClearCalcResult();
+		if (bShowMessage)
+			AfxMessageBox(strError, MB_ICONERROR);
+		return FALSE;
+	}
+	if (!bFound) {
+		ClearCalcResult();
+		if (bShowMessage)
+			AfxMessageBox(TAECHANG_UI_CALC_NO_DATA, MB_ICONWARNING);
+		return FALSE;
+	}
+
+	LONGLONG nPrintPrice = static_cast<LONGLONG>(dto.nPrintPrice) * nPages;
+	m_nCalcPrintPrice = nPrintPrice;
+	m_nCalcCoverPrice = dto.nCoverPrice;
+
+	CString strPrint, strCover, strSub;
+	strPrint.Format(TAECHANG_UI_CALC_WON_FORMAT, FormatPrice(nPrintPrice).GetString());
+	strCover.Format(TAECHANG_UI_CALC_WON_FORMAT, FormatPrice(dto.nCoverPrice).GetString());
+	strSub.Format(TAECHANG_UI_CALC_WON_FORMAT, FormatPrice(nPrintPrice + dto.nCoverPrice).GetString());
+	m_wndCalcPrintValue.SetWindowTextW(strPrint);
+	m_wndCalcCoverValue.SetWindowTextW(strCover);
+	m_wndCalcSubtotalValue.SetWindowTextW(strSub);
+	UpdateCalcTotal();
+	return TRUE;
+}
+
 void CSageTaechangView::UpdateCalcTotal() {
 	CString strFreight;
 	m_wndCalcFreightEdit.GetWindowTextW(strFreight);
@@ -3453,76 +3565,38 @@ void CSageTaechangView::UpdateCalcTotal() {
 // ── 부수 계산 이벤트 ─────────────────────────────────────────────────────────
 
 void CSageTaechangView::OnCalc() {
-	int nSel = m_wndCalcCompanyCombo.GetCurSel();
-	if (nSel == CB_ERR) {
-		AfxMessageBox(TAECHANG_UI_CALC_SELECT_COMPANY, MB_ICONWARNING);
+	if (UpdateCalcPreview(TRUE) == FALSE)
 		return;
-	}
+
+	int nSel = m_wndCalcCompanyCombo.GetCurSel();
 	CString strCompany;
 	m_wndCalcCompanyCombo.GetLBText(nSel, strCompany);
 
 	CString strCopies;
 	m_wndCalcCopiesEdit.GetWindowTextW(strCopies);
 	strCopies.Trim();
-	if (strCopies.IsEmpty()) {
-		AfxMessageBox(TAECHANG_UI_CALC_COPIES_REQUIRED, MB_ICONWARNING);
-		return;
-	}
 	int nCopies = _wtoi(strCopies);
-	if (nCopies < 1) {
-		AfxMessageBox(TAECHANG_UI_CALC_COPIES_INVALID, MB_ICONWARNING);
-		return;
-	}
-	if (nCopies > TAECHANG_PRICE_COPIES_MAX) {
-		AfxMessageBox(TAECHANG_UI_PRICE_COPIES_OUT_OF_RANGE, MB_ICONWARNING);
-		return;
-	}
 
 	CString strPages;
 	m_wndCalcPagesEdit.GetWindowTextW(strPages);
 	strPages.Trim();
-	if (strPages.IsEmpty()) {
-		AfxMessageBox(TAECHANG_UI_CALC_PAGES_REQUIRED, MB_ICONWARNING);
-		return;
-	}
 	int nPages = _wtoi(strPages);
-	if (nPages < 1 || nPages > TAECHANG_PRICE_COPIES_MAX) {
-		AfxMessageBox(TAECHANG_UI_CALC_PAGES_INVALID, MB_ICONWARNING);
-		return;
-	}
-
-	TaechangPriceDto dto;
-	BOOL bFound;
-	CString strError;
-	if (sageDBMgr.GetTaechangPriceService()->LoadByCompanyAndCopies(strCompany, nCopies, dto, bFound, strError) == FALSE) {
-		AfxMessageBox(strError, MB_ICONERROR);
-		return;
-	}
-	if (!bFound) {
-		AfxMessageBox(TAECHANG_UI_CALC_NO_DATA, MB_ICONWARNING);
-		return;
-	}
-
-	LONGLONG nPrintPrice = static_cast<LONGLONG>(dto.nPrintPrice) * nPages;
-	m_nCalcPrintPrice = nPrintPrice;
-	m_nCalcCoverPrice = dto.nCoverPrice;
-
-	CString strPrint, strCover, strSub;
-	strPrint.Format(TAECHANG_UI_CALC_WON_FORMAT, FormatPrice(nPrintPrice).GetString());
-	strCover.Format(TAECHANG_UI_CALC_WON_FORMAT, FormatPrice(dto.nCoverPrice).GetString());
-	strSub.Format(TAECHANG_UI_CALC_WON_FORMAT, FormatPrice(nPrintPrice + dto.nCoverPrice).GetString());
-	m_wndCalcPrintValue.SetWindowTextW(strPrint);
-	m_wndCalcCoverValue.SetWindowTextW(strCover);
-	m_wndCalcSubtotalValue.SetWindowTextW(strSub);
-	UpdateCalcTotal();
 
 	CString strFreight;
 	m_wndCalcFreightEdit.GetWindowTextW(strFreight);
 	strFreight.Trim();
 	int nFreight = PriceTextToInt(strFreight);
 	if (nFreight < 0) nFreight = 0;
-	AddCalcHistory(strCompany, nCopies, nPages, nPrintPrice, dto.nCoverPrice, nFreight,
-				   nPrintPrice + dto.nCoverPrice + nFreight);
+	AddCalcHistory(strCompany, nCopies, nPages, m_nCalcPrintPrice, m_nCalcCoverPrice, nFreight,
+				   m_nCalcPrintPrice + m_nCalcCoverPrice + nFreight);
+}
+
+void CSageTaechangView::OnCalcCompanyChanged() {
+	ClearCalcInputAndResult();
+}
+
+void CSageTaechangView::OnCalcInputChanged() {
+	UpdateCalcPreview(FALSE);
 }
 
 void CSageTaechangView::OnCalcFreightChanged() {
@@ -3548,8 +3622,10 @@ void CSageTaechangView::OnCalcCompanyPick() {
 	if (dlg.DoModal() == IDOK) {
 		CString strSelected = dlg.GetSelectedName();
 		int nIdx = m_wndCalcCompanyCombo.FindStringExact(-1, strSelected);
-		if (nIdx != CB_ERR)
+		if (nIdx != CB_ERR) {
 			m_wndCalcCompanyCombo.SetCurSel(nIdx);
+			ClearCalcInputAndResult();
+		}
 	}
 }
 
