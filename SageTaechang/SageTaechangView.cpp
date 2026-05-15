@@ -336,6 +336,8 @@ BEGIN_MESSAGE_MAP(CSageTaechangView, CView)
 	ON_BN_CLICKED(ID_PRICE_DELETE_COMPANY_BTN, &CSageTaechangView::OnPriceDeleteCompany)
 	ON_NOTIFY(LVN_ITEMCHANGED, ID_PRICE_COPIES_LIST, &CSageTaechangView::OnPriceCopiesSelChanged)
 	ON_BN_CLICKED(ID_PRICE_NO_MAX_CHECK, &CSageTaechangView::OnPriceNoMaxCheck)
+	ON_EN_CHANGE(ID_PRICE_PRINT_EDIT, &CSageTaechangView::OnPricePrintChanged)
+	ON_EN_CHANGE(ID_PRICE_COVER_EDIT, &CSageTaechangView::OnPriceCoverChanged)
 	ON_BN_CLICKED(ID_PRICE_ADD_BTN, &CSageTaechangView::OnPriceAdd)
 	ON_BN_CLICKED(ID_PRICE_MODIFY_BTN, &CSageTaechangView::OnPriceModify)
 	ON_BN_CLICKED(ID_PRICE_DELETE_BTN, &CSageTaechangView::OnPriceDelete)
@@ -368,6 +370,9 @@ CSageTaechangView::CSageTaechangView() noexcept
 	, m_nCalcPrintPrice(0)
 	, m_nCalcCoverPrice(0)
 	, m_nPricePanelState(TAECHANG_PRICE_PANEL_SUMMARY)
+	, m_bFormattingCalcFreight(FALSE)
+	, m_bFormattingPricePrint(FALSE)
+	, m_bFormattingPriceCover(FALSE)
 	, m_rectPriceSummaryCard(0, 0, 0, 0)
 	, m_nAuthDividerX(0) {
 	m_brushAppBackground.CreateSolidBrush(TAECHANG_COLOR_APP_BACKGROUND);
@@ -2447,6 +2452,18 @@ static CString FormatPrice(LONGLONG nPrice) {
 	return str;
 }
 
+static CString RemovePriceSeparators(const CString& strText) {
+	CString strResult = strText;
+	strResult.Remove(L',');
+	strResult.Trim();
+	return strResult;
+}
+
+static int PriceTextToInt(const CString& strText) {
+	CString strValue = RemovePriceSeparators(strText);
+	return strValue.IsEmpty() ? 0 : _wtoi(strValue);
+}
+
 // ── 가격 데이터 관리 패널 생성 ────────────────────────────────────────────────
 
 void CSageTaechangView::CreatePriceManagePanel() {
@@ -2480,9 +2497,9 @@ void CSageTaechangView::CreatePriceManagePanel() {
 	m_wndPriceNoMaxCheck.Create(TAECHANG_UI_PRICE_NO_MAX_LABEL, WS_CHILD | BS_AUTOCHECKBOX, r, this, ID_PRICE_NO_MAX_CHECK);
 
 	m_wndPricePrintLabel.Create(TAECHANG_UI_PRICE_PRINT_LABEL, WS_CHILD | SS_LEFT | SS_CENTERIMAGE, r, this);
-	m_wndPricePrintEdit.Create(WS_CHILD | ES_MULTILINE | ES_NUMBER | ES_AUTOHSCROLL, r, this, ID_PRICE_PRINT_EDIT);
+	m_wndPricePrintEdit.Create(WS_CHILD | ES_MULTILINE | ES_AUTOHSCROLL, r, this, ID_PRICE_PRINT_EDIT);
 	m_wndPriceCoverLabel.Create(TAECHANG_UI_PRICE_COVER_LABEL, WS_CHILD | SS_LEFT | SS_CENTERIMAGE, r, this);
-	m_wndPriceCoverEdit.Create(WS_CHILD | ES_MULTILINE | ES_NUMBER | ES_AUTOHSCROLL, r, this, ID_PRICE_COVER_EDIT);
+	m_wndPriceCoverEdit.Create(WS_CHILD | ES_MULTILINE | ES_AUTOHSCROLL, r, this, ID_PRICE_COVER_EDIT);
 
 	m_wndPriceAddBtn.Create(TAECHANG_UI_PRICE_ADD_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_PRICE_ADD_BTN);
 	m_wndPriceModifyBtn.Create(TAECHANG_UI_PRICE_SAVE_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_PRICE_MODIFY_BTN);
@@ -2499,8 +2516,8 @@ void CSageTaechangView::CreatePriceManagePanel() {
 	m_wndPriceCompanyCombo.LimitText(TAECHANG_PRICE_COMPANY_MAX_LEN_EN);
 	m_wndPriceMinCopiesEdit.SetLimitText(7);
 	m_wndPriceMaxCopiesEdit.SetLimitText(7);
-	m_wndPricePrintEdit.SetLimitText(8);
-	m_wndPriceCoverEdit.SetLimitText(8);
+	m_wndPricePrintEdit.SetLimitText(10);
+	m_wndPriceCoverEdit.SetLimitText(10);
 }
 
 // ── 부수 계산 패널 생성 ───────────────────────────────────────────────────────
@@ -2523,7 +2540,7 @@ void CSageTaechangView::CreatePriceCalcPanel() {
 	m_wndCalcSubtotalLabel.Create(TAECHANG_UI_CALC_SUBTOTAL_LABEL, WS_CHILD | SS_RIGHT | SS_CENTERIMAGE, r, this);
 	m_wndCalcSubtotalValue.Create(TAECHANG_UI_PRICE_SUMMARY_EMPTY, WS_CHILD | SS_RIGHT | SS_CENTERIMAGE, r, this);
 	m_wndCalcFreightLabel.Create(TAECHANG_UI_CALC_FREIGHT_LABEL, WS_CHILD | SS_RIGHT | SS_CENTERIMAGE, r, this);
-	m_wndCalcFreightEdit.Create(WS_CHILD | ES_MULTILINE | ES_NUMBER | ES_RIGHT | ES_AUTOHSCROLL, r, this, ID_CALC_FREIGHT_EDIT);
+	m_wndCalcFreightEdit.Create(WS_CHILD | ES_MULTILINE | ES_RIGHT | ES_AUTOHSCROLL, r, this, ID_CALC_FREIGHT_EDIT);
 	m_wndCalcFreightUnitLabel.Create(L"원", WS_CHILD | SS_RIGHT | SS_CENTERIMAGE, r, this);
 	m_wndCalcDivider.Create(L"", WS_CHILD | SS_ETCHEDHORZ, r, this);
 	m_wndCalcTotalDivider.Create(L"", WS_CHILD | SS_ETCHEDHORZ, r, this);
@@ -2551,7 +2568,7 @@ void CSageTaechangView::CreatePriceCalcPanel() {
 
 	m_wndCalcCopiesEdit.SetLimitText(7);
 	m_wndCalcPagesEdit.SetLimitText(7);
-	m_wndCalcFreightEdit.SetLimitText(8);
+	m_wndCalcFreightEdit.SetLimitText(10);
 	m_wndCalcCompanyCombo.LimitText(TAECHANG_PRICE_COMPANY_MAX_LEN_EN);
 	if (CHeaderCtrl* pHeader = m_wndCalcHistoryList.GetHeaderCtrl()) {
 		for (int i = 0; i < pHeader->GetItemCount(); ++i) {
@@ -2993,8 +3010,8 @@ void CSageTaechangView::RefreshPriceCopiesList(const CString& strCompanyName) {
 		m_wndPriceCopiesList.SetItemText(nIndex, 1, strMax);
 
 		CString strPrint, strCover;
-		strPrint.Format(L"%d", dto.nPrintPrice);
-		strCover.Format(L"%d", dto.nCoverPrice);
+		strPrint = FormatPrice(dto.nPrintPrice);
+		strCover = FormatPrice(dto.nCoverPrice);
 		m_wndPriceCopiesList.SetItemText(nIndex, 2, strPrint);
 		m_wndPriceCopiesList.SetItemText(nIndex, 3, strCover);
 	}
@@ -3045,6 +3062,32 @@ void CSageTaechangView::ClearPriceForm() {
 	m_wndPriceCoverEdit.SetWindowTextW(L"");
 }
 
+void CSageTaechangView::FormatPriceEditText(CEdit& edit, BOOL& bFormatting) {
+	if (bFormatting)
+		return;
+
+	CString strText;
+	edit.GetWindowTextW(strText);
+	CString strDigits = RemovePriceSeparators(strText);
+	if (strDigits.IsEmpty())
+		return;
+
+	for (int i = 0; i < strDigits.GetLength(); ++i) {
+		wchar_t ch = strDigits[i];
+		if (ch < L'0' || ch > L'9')
+			return;
+	}
+
+	CString strFormatted = FormatPrice(_wtoi(strDigits));
+	if (strFormatted == strText)
+		return;
+
+	bFormatting = TRUE;
+	edit.SetWindowTextW(strFormatted);
+	edit.SetSel(strFormatted.GetLength(), strFormatted.GetLength());
+	bFormatting = FALSE;
+}
+
 BOOL CSageTaechangView::ReadPriceFormToDto(TaechangPriceDto& dto, CString& strError) {
 	CString strMin, strMax, strPrint, strCover;
 	m_wndPriceMinCopiesEdit.GetWindowTextW(strMin);
@@ -3073,13 +3116,13 @@ BOOL CSageTaechangView::ReadPriceFormToDto(TaechangPriceDto& dto, CString& strEr
 		}
 	}
 
-	dto.nPrintPrice = strPrint.IsEmpty() ? 0 : _wtoi(strPrint);
+	dto.nPrintPrice = PriceTextToInt(strPrint);
 	if (dto.nPrintPrice < 0 || dto.nPrintPrice > TAECHANG_PRICE_AMOUNT_MAX) {
 		strError = TAECHANG_UI_PRICE_AMOUNT_OUT_OF_RANGE;
 		return FALSE;
 	}
 
-	dto.nCoverPrice = strCover.IsEmpty() ? 0 : _wtoi(strCover);
+	dto.nCoverPrice = PriceTextToInt(strCover);
 	if (dto.nCoverPrice < 0 || dto.nCoverPrice > TAECHANG_PRICE_AMOUNT_MAX) {
 		strError = TAECHANG_UI_PRICE_AMOUNT_OUT_OF_RANGE;
 		return FALSE;
@@ -3252,6 +3295,14 @@ void CSageTaechangView::OnPriceNoMaxCheck() {
 		m_wndPriceMaxCopiesEdit.SetWindowTextW(L"");
 }
 
+void CSageTaechangView::OnPricePrintChanged() {
+	FormatPriceEditText(m_wndPricePrintEdit, m_bFormattingPricePrint);
+}
+
+void CSageTaechangView::OnPriceCoverChanged() {
+	FormatPriceEditText(m_wndPriceCoverEdit, m_bFormattingPriceCover);
+}
+
 void CSageTaechangView::OnPriceAdd() {
 	int nSel = m_wndPriceCompanyCombo.GetCurSel();
 	if (nSel == CB_ERR) {
@@ -3390,7 +3441,7 @@ void CSageTaechangView::UpdateCalcTotal() {
 	CString strFreight;
 	m_wndCalcFreightEdit.GetWindowTextW(strFreight);
 	strFreight.Trim();
-	int nFreight = strFreight.IsEmpty() ? 0 : _wtoi(strFreight);
+	int nFreight = PriceTextToInt(strFreight);
 	if (nFreight < 0) nFreight = 0;
 	if (nFreight > TAECHANG_PRICE_AMOUNT_MAX) nFreight = TAECHANG_PRICE_AMOUNT_MAX;
 	LONGLONG nTotal = m_nCalcPrintPrice + m_nCalcCoverPrice + nFreight;
@@ -3468,13 +3519,14 @@ void CSageTaechangView::OnCalc() {
 	CString strFreight;
 	m_wndCalcFreightEdit.GetWindowTextW(strFreight);
 	strFreight.Trim();
-	int nFreight = strFreight.IsEmpty() ? 0 : _wtoi(strFreight);
+	int nFreight = PriceTextToInt(strFreight);
 	if (nFreight < 0) nFreight = 0;
 	AddCalcHistory(strCompany, nCopies, nPages, nPrintPrice, dto.nCoverPrice, nFreight,
 				   nPrintPrice + dto.nCoverPrice + nFreight);
 }
 
 void CSageTaechangView::OnCalcFreightChanged() {
+	FormatPriceEditText(m_wndCalcFreightEdit, m_bFormattingCalcFreight);
 	UpdateCalcTotal();
 }
 
