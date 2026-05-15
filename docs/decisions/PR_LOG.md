@@ -274,4 +274,4 @@
 - **변경 내용**: 결과 행 파서가 합계금액, 입금금액(H), 미수금(I)을 문자열 또는 숫자 JSON 값 모두에서 텍스트로 추출하도록 보정
 - **검증**: git diff --check 통과, Debug x64 빌드 성공
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/74
-- **결과**: pending
+- **결과**: merged
