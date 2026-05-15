@@ -1,15 +1,11 @@
 #pragma once
 
-#include "pch.h"
-
-class TaechangCompanyDlg : public CDialog {
+class TaechangPasswordChangeDlg : public CDialog {
 public:
-    TaechangCompanyDlg(CWnd* pParent = NULL);
-    ~TaechangCompanyDlg();
+    TaechangPasswordChangeDlg(CWnd* pParent = NULL);
+    ~TaechangPasswordChangeDlg();
 
-public:
     virtual INT_PTR DoModal();
-    CString GetCompanyName() const;
 
 protected:
     virtual BOOL OnInitDialog();
@@ -23,20 +19,22 @@ protected:
     DECLARE_MESSAGE_MAP()
 
 private:
+    BYTE* BuildDialogTemplate();
     void CreateControls();
     void LayoutControls();
     void ApplyFont();
-    BYTE* BuildDialogTemplate();
+    void ApplyEditTextRect(CEdit& edit);
 
 private:
     CWnd* m_pDlgParent;
-    CString m_strCompanyName;
-
-    CStatic m_wndLabel;
-    CEdit m_wndCompanyEdit;
+    CStatic m_wndCurrentLabel;
+    CStatic m_wndNewLabel;
+    CStatic m_wndConfirmLabel;
+    CEdit m_wndCurrentEdit;
+    CEdit m_wndNewEdit;
+    CEdit m_wndConfirmEdit;
     CButton m_wndOkBtn;
     CButton m_wndCancelBtn;
-
     CFont m_font;
     CBrush m_brushBackground;
     CBrush m_brushPanel;

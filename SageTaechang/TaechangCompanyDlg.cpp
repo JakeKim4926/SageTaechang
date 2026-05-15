@@ -8,7 +8,7 @@ BEGIN_MESSAGE_MAP(TaechangCompanyDlg, CDialog)
 END_MESSAGE_MAP()
 
 TaechangCompanyDlg::TaechangCompanyDlg(CWnd* pParent)
-    : CDialog((UINT)0, pParent), m_pDlgParent(pParent), m_nCoverPrice(0) {
+    : CDialog((UINT)0, pParent), m_pDlgParent(pParent) {
 }
 
 TaechangCompanyDlg::~TaechangCompanyDlg() {}
@@ -66,10 +66,6 @@ CString TaechangCompanyDlg::GetCompanyName() const {
     return m_strCompanyName;
 }
 
-int TaechangCompanyDlg::GetCoverPrice() const {
-    return m_nCoverPrice;
-}
-
 BOOL TaechangCompanyDlg::OnInitDialog() {
     CDialog::OnInitDialog();
 
@@ -101,8 +97,7 @@ BOOL TaechangCompanyDlg::OnInitDialog() {
 
 BOOL TaechangCompanyDlg::PreTranslateMessage(MSG* pMsg) {
     if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_RETURN &&
-        (pMsg->hwnd == m_wndCompanyEdit.GetSafeHwnd() ||
-         pMsg->hwnd == m_wndCoverEdit.GetSafeHwnd())) {
+        pMsg->hwnd == m_wndCompanyEdit.GetSafeHwnd()) {
         OnOK();
         return TRUE;
     }
@@ -117,17 +112,12 @@ void TaechangCompanyDlg::CreateControls() {
         WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, rectEmpty, this);
     m_wndCompanyEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOHSCROLL,
         rectEmpty, this, ID_PRICE_COMPANY_DLG_EDIT);
-    m_wndCoverLabel.Create(TAECHANG_UI_PRICE_COMPANY_DLG_COVER_LABEL,
-        WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, rectEmpty, this);
-    m_wndCoverEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_NUMBER | ES_AUTOHSCROLL,
-        rectEmpty, this, ID_PRICE_COMPANY_DLG_COVER_EDIT);
     m_wndOkBtn.Create(TAECHANG_UI_PRICE_COMPANY_DLG_OK,
         WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, IDOK);
     m_wndCancelBtn.Create(TAECHANG_UI_PRICE_COMPANY_DLG_CANCEL,
         WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, IDCANCEL);
 
     m_wndCompanyEdit.SetLimitText(TAECHANG_PRICE_COMPANY_MAX_LEN);
-    m_wndCoverEdit.SetLimitText(8);
 }
 
 void TaechangCompanyDlg::LayoutControls() {
@@ -141,9 +131,7 @@ void TaechangCompanyDlg::LayoutControls() {
 
     int nLabelTop = nM;
     int nEditTop = nLabelTop + nEditH;
-    int nCoverLabelTop = nEditTop + nEditH + nGap;
-    int nCoverEditTop = nCoverLabelTop + nEditH;
-    int nBtnTop = nCoverEditTop + nEditH + nM;
+    int nBtnTop = nEditTop + nEditH + nM;
 
     m_wndLabel.MoveWindow(nM, nLabelTop, nEditW, nEditH);
     m_wndCompanyEdit.MoveWindow(nM, nEditTop, nEditW, nEditH);
@@ -155,15 +143,6 @@ void TaechangCompanyDlg::LayoutControls() {
     rectEdit.bottom -= 2;
     m_wndCompanyEdit.SendMessage(EM_SETRECTNP, 0, reinterpret_cast<LPARAM>(&rectEdit));
 
-    m_wndCoverLabel.MoveWindow(nM, nCoverLabelTop, nEditW, nEditH);
-    m_wndCoverEdit.MoveWindow(nM, nCoverEditTop, nEditW, nEditH);
-    m_wndCoverEdit.GetClientRect(&rectEdit);
-    rectEdit.left += 2;
-    rectEdit.top += 4;
-    rectEdit.right -= 2;
-    rectEdit.bottom -= 2;
-    m_wndCoverEdit.SendMessage(EM_SETRECTNP, 0, reinterpret_cast<LPARAM>(&rectEdit));
-
     int nBtnRight = nClientW - nM;
     m_wndCancelBtn.MoveWindow(nBtnRight - nBtnW, nBtnTop, nBtnW, nBtnH);
     m_wndOkBtn.MoveWindow(nBtnRight - nBtnW * 2 - nGap, nBtnTop, nBtnW, nBtnH);
@@ -174,19 +153,14 @@ void TaechangCompanyDlg::ApplyFont() {
 
     m_wndLabel.SetFont(&m_font);
     m_wndCompanyEdit.SetFont(&m_font);
-    m_wndCoverLabel.SetFont(&m_font);
-    m_wndCoverEdit.SetFont(&m_font);
     m_wndOkBtn.SetFont(&m_font);
     m_wndCancelBtn.SetFont(&m_font);
 }
 
 void TaechangCompanyDlg::OnOK() {
     CString strName;
-    CString strCover;
     m_wndCompanyEdit.GetWindowText(strName);
-    m_wndCoverEdit.GetWindowText(strCover);
     strName.Trim();
-    strCover.Trim();
 
     if (strName.IsEmpty()) {
         AfxMessageBox(TAECHANG_UI_PRICE_COMPANY_REQUIRED, MB_ICONWARNING);
@@ -201,22 +175,7 @@ void TaechangCompanyDlg::OnOK() {
         return;
     }
 
-    if (strCover.IsEmpty()) {
-        AfxMessageBox(TAECHANG_UI_PRICE_COMPANY_COVER_REQUIRED, MB_ICONWARNING);
-        m_wndCoverEdit.SetFocus();
-        return;
-    }
-
-    int nCoverPrice = _wtoi(strCover);
-    if (nCoverPrice < 0 || nCoverPrice > TAECHANG_PRICE_AMOUNT_MAX) {
-        AfxMessageBox(TAECHANG_UI_PRICE_AMOUNT_OUT_OF_RANGE, MB_ICONWARNING);
-        m_wndCoverEdit.SetSel(0, -1);
-        m_wndCoverEdit.SetFocus();
-        return;
-    }
-
     m_strCompanyName = strName;
-    m_nCoverPrice = nCoverPrice;
     CDialog::OnOK();
 }
 

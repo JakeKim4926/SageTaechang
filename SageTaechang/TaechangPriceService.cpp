@@ -305,6 +305,39 @@ BOOL TaechangPriceService::RemovePrice(int nPriceId, CString& strError) {
     return m_pRepository->DeleteByPriceId(nPriceId, strError);
 }
 
+BOOL TaechangPriceService::RemoveCompany(
+    const CString& strCompanyName,
+    int& nAffectedCount,
+    CString& strError
+) {
+    nAffectedCount = 0;
+
+    if (m_pRepository == NULL) {
+        strError = _T("TaechangPriceRepository媛 NULL?낅땲??");
+        return FALSE;
+    }
+
+    if (ValidateCompanyName(strCompanyName, strError) == FALSE) {
+        return FALSE;
+    }
+
+    if (m_pRepository->DeleteByCompany(
+        strCompanyName,
+        REPORT_TYPE_AUDIT_REPORT,
+        nAffectedCount,
+        strError
+    ) == FALSE) {
+        return FALSE;
+    }
+
+    if (nAffectedCount <= 0) {
+        strError = TAECHANG_UI_PRICE_DELETE_COMPANY_EMPTY;
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
 BOOL TaechangPriceService::LoadAllCompanyNames(CStringArray& arrNames, CString& strError) {
     arrNames.RemoveAll();
 
@@ -416,12 +449,12 @@ BOOL TaechangPriceService::ValidateCopies(int nCopies, CString& strError) {
 
 BOOL TaechangPriceService::ValidatePriceValue(int nPrintPrice, int nCoverPrice, CString& strError) {
     if (nPrintPrice < 0) {
-        strError = _T("인쇄 가격은 0원 이상이어야 합니다.");
+        strError = _T("부수 단가는 0원 이상이어야 합니다.");
         return FALSE;
     }
 
     if (nCoverPrice < 0) {
-        strError = _T("표지 가격은 0원 이상이어야 합니다.");
+        strError = _T("표지 단가는 0원 이상이어야 합니다.");
         return FALSE;
     }
 

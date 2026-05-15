@@ -1,3 +1,57 @@
+## [2026-05-15] feature/result-filter-enter-search
+- **목적**: 문서 결과 검색과 주요 입력 폼의 키보드 이동 흐름 개선
+- **변경 내용**: 미수금/납품서/견적서 검색 edit Enter 처리, 로그인/비밀번호 변경/단가 관리/단가 계산 입력칸 Tab 포커스 이동 추가
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/70
+- **결과**: merged
+
+## [2026-05-12] fix/auth-header-ui
+- **목적**: 헤더 우측 로그인 사용자 표시(텍스트+로그아웃 버튼) UI 통일성 개선
+- **변경 내용**: 사용자 라벨 색상 SECONDARY_TEXT 적용, Y축 버튼 텍스트 오프셋 맞춤, SS_RIGHT→SS_NOPREFIX 교체, 구분선 추가
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/64
+- **결과**: merged
+
+## [2026-05-11] feature/price-detail-inline-form
+- **목적**: 단가 데이터 관리 우측 상세 패널 UI 전반 개선
+- **변경 내용**: 인라인 폼 레이아웃 전환, 헤더/구분선 추가, 레이블 배경 정리, 체크박스 위치·폭·배경 수정, 초기 자동 선택 제거, 선택 전·후 패널 헤더 일관화
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/61
+- **결과**: pending
+
+## [2026-05-11] codex/fix-login-edit-align
+- **목적**: 로그인 다이얼로그 ID/PW 입력 박스의 텍스트가 위로 치우쳐 보이는 문제 수정
+- **변경 내용**: 로그인 edit 컨트롤에 내부 텍스트 영역 보정 적용, Enter 키 로그인 동작 유지
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/62
+- **결과**: merged
+
+## [2026-05-11] codex/estimate-one-page-mode
+- **목적**: 견적서 생성에서 선택한 여러 행을 하나의 견적서 파일에 작성하는 한 페이지 작성 모드 추가
+- **변경 내용**: 견적서 입력 화면에 한 페이지 작성 체크박스 추가, 선택 행 6개 제한, 생성 payload 플래그 전달, PowerShell 견적서 스크립트 한 파일 작성 분기 추가
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/58
+- **결과**: merged
+
+## [2026-05-14] fix/keep-price-dialog-on-validation
+- **목적**: 단가 추가 검증 실패 시 다이얼로그 유지 및 부수 계산 라벨 문구 보정
+- **변경 내용**: 기존 부수 범위 중복 검증을 단가 추가 다이얼로그 내부로 이동, 검증 실패 시 경고 후 입력 창 유지, 부수 계산/최근 계산 내역 라벨을 내용 금액·표지 금액으로 변경
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/66
+- **결과**: merged
+
+## [2026-05-14] fix/preserve-generated-input-table
+- **목적**: 납품서/견적서 생성 후 탭 전환 시 입력 표 유지 및 단가 데이터 관리 화면의 문서 필터 컨트롤 겹침 제거
+- **변경 내용**: 생성 완료 응답이 로드 결과 JSON을 덮어쓰지 않도록 보정, 가격 관리 계열 화면 진입 시 결과 필터 에디트/검색/초기화 버튼 숨김 처리
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/65
+- **결과**: merged
+
+## [2026-05-07] fix/price-login-guard
+- **목적**: 단가 데이터 관리, 단가 계산 사이드바 메뉴를 로그인 미인증 시 접근 차단
+- **변경 내용**: `OnSidebarSelChanged`에 `TAECHANG_WORKFLOW_PRICE_MANAGE` / `TAECHANG_WORKFLOW_PRICE_CALC` 로그인 체크 추가
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/52
+- **결과**: merged
+
+## [2026-05-07] develop → main
+- **목적**: 비밀번호 변경 기능, 단가 관리 UI 개선, 문서 생성 및 미수금 결과 UI 개선을 main에 반영
+- **변경 내용**: 비밀번호 변경 다이얼로그/메뉴 추가, 비밀번호 정책 제한, 단가 관리 신규 다이얼로그(TaechangPriceRangeDlg/TaechangPriceSimpleDlg), 법인 추가 다이얼로그, 부수 계산 패널 이력 UI, 문서 생성 스크립트 개선
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/51
+- **결과**: merged
+
 ## [2026-05-06] feature/price-manage-summary-card
 - **목적**: 단가 관리 UI의 탭 기반 구조를 제거하고 우측 패널 편집 폼 구조로 전환하여 직관성 개선
 - **변경 내용**: 조회/추가/수정/삭제 탭 제거, 우측 패널 상태 전환(요약↔편집폼), [+ 단가추가] 버튼 법인명 행 배치, 하단 좌측 버튼 완전 제거
@@ -183,4 +237,27 @@
 - **목적**: 가이드의 사이드바 3그룹(문서 생성/검수/관리) 구조 적용 + 설정을 사이드바로 이전
 - **변경 내용**: m_wndWorkflowMenu(CListBox) → m_wndSidebarTree(CTreeCtrl) 교체, 트리 노드를 세 그룹으로 구성(항상 펼침), 본문 m_wndSettings 버튼 제거 후 "관리 > 설정"으로 이전, OnSidebarSelectionChanged에서 ItemData 기반 라우팅(워크플로우 변경/설정 호출/그룹 헤더 무시), m_nCurrentWorkflow 멤버 도입, 미사용 ID/UI 상수 정리
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/17
+- **결과**: merged
+## [2026-05-10] fix/preserve-document-tab-data
+- **목적**: 문서 생성 업무 탭 전환 시 미수금/납품서/견적서 표 데이터 유지 및 납품서/견적서 입력 파일 초기화 지원
+- **변경 내용**: 업무별 UI 상태 저장/복원, 입력 표 체크·필터 상태 보존, 납품서/견적서 입력 초기화 버튼 추가, 로드 완료 직후 초기화 버튼 레이아웃 갱신 보정
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/57
+- **결과**: merged
+
+## [2026-05-14] fix/receivables-etc-company-name
+- **목적**: 미수금 내역서에서 미등록 법인이 기타 정렬 그룹으로 처리될 때 법인명까지 기타로 저장되는 문제 수정
+- **변경 내용**: 미수금 미리보기/생성 스크립트에서 정렬용 법인명과 표시/저장 법인명을 분리하고, 정렬 전용 필드를 결과에서 제거
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/67
+- **결과**: merged
+
+## [2026-05-14] feature/receivables-company-sort-order-crud
+- **목적**: 미수금 내역서 법인명 정렬 기준을 사용자가 직접 관리할 수 있도록 DB CRUD 기반 추가
+- **변경 내용**: 법인명/정렬 순서 테이블 생성, DTO/Repository/Service CRUD 추가, SageDBMgr 접근자와 생성/삭제 흐름 연결
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/68
+- **결과**: merged
+
+## [2026-05-14] feature/use-db-receivables-company-order
+- **목적**: 미수금 내역서 로드/생성 정렬 기준을 DB에 관리되는 법인 정렬 순서로 적용
+- **변경 내용**: DB 정렬 기준을 임시 JSON으로 PowerShell에 전달하고, PriorityPath가 있으면 엑셀 번호 시트보다 DB 기준을 우선 사용하도록 변경
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/69
 - **결과**: merged

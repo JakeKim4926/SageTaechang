@@ -12,6 +12,7 @@ public:
 
 protected:
     virtual BOOL OnInitDialog();
+    virtual BOOL PreTranslateMessage(MSG* pMsg);
     virtual void OnOK();
     virtual void OnCancel();
 
@@ -24,6 +25,7 @@ private:
     void CreateControls();
     void LayoutControls();
     void ApplyFont();
+    void ApplyEditTextRect(CEdit& edit);
     BYTE* BuildDialogTemplate();
 
 private:

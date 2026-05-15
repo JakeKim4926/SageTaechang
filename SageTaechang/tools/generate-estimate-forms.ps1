@@ -3,16 +3,17 @@
     [Parameter(Mandatory=$true)][string]$TemplatePath,
     [Parameter(Mandatory=$false)][string]$RowNums = '',
     [Parameter(Mandatory=$true)][string]$OutputFolder,
-    [Parameter(Mandatory=$true)][string]$ResultPath
+    [Parameter(Mandatory=$true)][string]$ResultPath,
+    [Parameter(Mandatory=$false)][switch]$OnePageMode
 )
 
 $ErrorActionPreference = 'Stop'
 
 $rowNumList = @()
 if ($RowNums.Trim().Length -gt 0) {
-    $rowNumList = $RowNums -split ',' |
+    $rowNumList = @($RowNums -split ',' |
         Where-Object { $_.Trim() -match '^\d+$' } |
-        ForEach-Object { [int]$_.Trim() }
+        ForEach-Object { [int]$_.Trim() })
 }
 
 function ConvertTo-TextValue($value) {
@@ -62,6 +63,111 @@ function Set-CellNumber($sheet, $address, $value) {
     }
 }
 
+function New-EstimateItem($values, $rowNum) {
+    $companyName = ConvertTo-TextValue (Get-MatrixValue $values $rowNum 2)
+    $dateSerial  = Get-DateSerial (Get-MatrixValue $values $rowNum 3)
+    $itemName    = ConvertTo-TextValue (Get-MatrixValue $values $rowNum 4)
+    $copies      = Get-MatrixValue $values $rowNum 5
+    $pages       = Get-MatrixValue $values $rowNum 6
+    $unitPrice   = Get-MatrixValue $values $rowNum 7
+    $reportCost  = Get-MatrixValue $values $rowNum 8
+    $coverCost   = Get-MatrixValue $values $rowNum 9
+    $freight     = Get-MatrixValue $values $rowNum 10
+
+    return [ordered]@{
+        rowNum      = $rowNum
+        companyName = $companyName
+        dateSerial  = $dateSerial
+        itemName    = $itemName
+        copies      = $copies
+        pages       = $pages
+        unitPrice   = $unitPrice
+        reportCost  = $reportCost
+        coverCost   = $coverCost
+        freight     = $freight
+    }
+}
+
+function New-EstimateOutputPath($outputFolder, $item) {
+    $dateStr = ''
+    if ($item.dateSerial -gt 0) {
+        $dateStr = [datetime]::FromOADate($item.dateSerial).ToString("yyyyMMdd")
+    }
+    $timeStr = (Get-Date).ToString("HHmmssfff")
+    if ($dateStr.Length -gt 0) {
+        $baseName = (Safe-FileName $item.companyName) + '_견적서_' + $dateStr + '_' + $timeStr
+    } else {
+        $baseName = (Safe-FileName $item.companyName) + '_견적서_' + $timeStr
+    }
+    $outputPath = [System.IO.Path]::Combine($outputFolder, $baseName + '.xlsx')
+    $suffix = 1
+    while ([System.IO.File]::Exists($outputPath)) {
+        $outputPath = [System.IO.Path]::Combine($outputFolder, $baseName + '_' + $suffix + '.xlsx')
+        $suffix++
+    }
+    return $outputPath
+}
+
+function Set-PrimaryEstimateRow($sheet, $item) {
+    $kika = [char]0x8CB4 + [char]0x4E0B
+    Set-CellText $sheet 'A4' ($item.companyName + $kika)
+
+    if ($item.dateSerial -gt 0) {
+        $sheet.Range('A2').Value2 = $item.dateSerial
+    } else {
+        $sheet.Range('A2').Value2 = ''
+    }
+
+    Set-CellText   $sheet 'A9'  $item.itemName
+    Set-CellNumber $sheet 'B9'  $item.pages
+    Set-CellNumber $sheet 'C9'  $item.copies
+    Set-CellNumber $sheet 'E9'  $item.unitPrice
+    Set-CellNumber $sheet 'F10' $item.coverCost
+    $freightText = ConvertTo-TextValue $item.freight
+    if ($freightText.Trim().Length -gt 0) {
+        Set-CellNumber $sheet 'F11' $item.freight
+    } else {
+        Set-CellText   $sheet 'F11' ''
+    }
+
+    Set-CellText $sheet 'G9'  ([char]0xB0B4+[char]0xC6A9+' '+[char]0xC778+[char]0xC1C4+' '+[char]0xBC0F+' '+[char]0xC7AC+[char]0xB2E8)
+    Set-CellText $sheet 'G10' ([char]0xD45C+[char]0xC9C0+' '+[char]0xC778+[char]0xC1C4+' '+[char]0xBC0F+' '+[char]0xC81C+[char]0xBCF8)
+    if ($freightText.Trim().Length -gt 0) {
+        Set-CellText $sheet 'G11' ([char]0xC6B4+[char]0xC784)
+    } else {
+        Set-CellText $sheet 'G11' ''
+    }
+}
+
+function Set-AdditionalEstimateRow($sheet, $item, $startRow) {
+    $endRow = $startRow + 2
+    $mergeRange = $sheet.Range(('A{0}:A{1}' -f $startRow, $endRow))
+    $mergeRange.Merge() | Out-Null
+    $mergeRange.HorizontalAlignment = -4108
+    $mergeRange.VerticalAlignment = -4108
+
+    Set-CellText   $sheet ('A{0}' -f $startRow) $item.itemName
+    Set-CellNumber $sheet ('B{0}' -f $startRow) $item.pages
+    Set-CellNumber $sheet ('C{0}' -f $startRow) $item.copies
+    Set-CellNumber $sheet ('E{0}' -f $startRow) $item.unitPrice
+    Set-CellNumber $sheet ('F{0}' -f $startRow) $item.reportCost
+    Set-CellNumber $sheet ('F{0}' -f ($startRow + 1)) $item.coverCost
+    $freightText = ConvertTo-TextValue $item.freight
+    if ($freightText.Trim().Length -gt 0) {
+        Set-CellNumber $sheet ('F{0}' -f ($startRow + 2)) $item.freight
+    } else {
+        Set-CellText $sheet ('F{0}' -f ($startRow + 2)) ''
+    }
+
+    Set-CellText $sheet ('G{0}' -f $startRow) ([char]0xB0B4+[char]0xC6A9+' '+[char]0xC778+[char]0xC1C4+' '+[char]0xBC0F+' '+[char]0xC7AC+[char]0xB2E8)
+    Set-CellText $sheet ('G{0}' -f ($startRow + 1)) ([char]0xD45C+[char]0xC9C0+' '+[char]0xC778+[char]0xC1C4+' '+[char]0xBC0F+' '+[char]0xC81C+[char]0xBCF8)
+    if ($freightText.Trim().Length -gt 0) {
+        Set-CellText $sheet ('G{0}' -f ($startRow + 2)) ([char]0xC6B4+[char]0xC784)
+    } else {
+        Set-CellText $sheet ('G{0}' -f ($startRow + 2)) ''
+    }
+}
+
 $excel            = $null
 $inputWorkbook    = $null
 $templateWorkbook = $null
@@ -98,72 +204,50 @@ try {
     $templateWorkbook = $excel.Workbooks.Open($TemplatePath)
     $sheet = $templateWorkbook.Worksheets.Item(1)
 
-    foreach ($rowNum in $rowNumList) {
-        $companyName = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowNum 2)
-        $dateSerial  = Get-DateSerial (Get-MatrixValue $inputValues $rowNum 3)
-        $itemName    = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowNum 4)
-        $copies      = Get-MatrixValue $inputValues $rowNum 5
-        $pages       = Get-MatrixValue $inputValues $rowNum 6
-        $unitPrice   = Get-MatrixValue $inputValues $rowNum 7
-        $coverCost   = Get-MatrixValue $inputValues $rowNum 9
-        $freight     = Get-MatrixValue $inputValues $rowNum 10
+    if ($OnePageMode -and $rowNumList.Count -gt 6) {
+        throw 'One page mode supports up to 6 rows.'
+    }
 
-        $dateStr = ''
-        if ($dateSerial -gt 0) {
-            $dateStr = [datetime]::FromOADate($dateSerial).ToString("yyyyMMdd")
+    if ($OnePageMode) {
+        if ($rowNumList.Count -gt 0) {
+            $sheet.Range('A13:G27').ClearContents() | Out-Null
+
+            $firstItem = New-EstimateItem $inputValues ($rowNumList[0])
+            Set-PrimaryEstimateRow $sheet $firstItem
+            for ($i = 1; $i -lt $rowNumList.Count; $i++) {
+                $item = New-EstimateItem $inputValues ($rowNumList[$i])
+                $startRow = 13 + (($i - 1) * 3)
+                Set-AdditionalEstimateRow $sheet $item $startRow
+            }
+
+            $outputPath = New-EstimateOutputPath $OutputFolder $firstItem
+            $templateWorkbook.SaveCopyAs($outputPath)
+            [void]$items.Add([ordered]@{
+                rowNum      = $RowNums
+                filePath    = $outputPath
+                fileName    = [System.IO.Path]::GetFileName($outputPath)
+                companyName = $firstItem.companyName
+                itemName    = $firstItem.itemName
+                status      = 'success'
+            })
         }
-        $timeStr = (Get-Date).ToString("HHmmssfff")
-        if ($dateStr.Length -gt 0) {
-            $baseName = (Safe-FileName $companyName) + '_견적서_' + $dateStr + '_' + $timeStr
-        } else {
-            $baseName = (Safe-FileName $companyName) + '_견적서_' + $timeStr
+    } else {
+        foreach ($rowNum in $rowNumList) {
+            $item = New-EstimateItem $inputValues $rowNum
+            $outputPath = New-EstimateOutputPath $OutputFolder $item
+
+            Set-PrimaryEstimateRow $sheet $item
+            $templateWorkbook.SaveCopyAs($outputPath)
+
+            [void]$items.Add([ordered]@{
+                rowNum      = $rowNum
+                filePath    = $outputPath
+                fileName    = [System.IO.Path]::GetFileName($outputPath)
+                companyName = $item.companyName
+                itemName    = $item.itemName
+                status      = 'success'
+            })
         }
-        $outputPath = [System.IO.Path]::Combine($OutputFolder, $baseName + '.xlsx')
-        $suffix = 1
-        while ([System.IO.File]::Exists($outputPath)) {
-            $outputPath = [System.IO.Path]::Combine($OutputFolder, $baseName + '_' + $suffix + '.xlsx')
-            $suffix++
-        }
-
-        $kika = [char]0x8CB4 + [char]0x4E0B
-        Set-CellText $sheet 'A4' ($companyName + $kika)
-
-        if ($dateSerial -gt 0) {
-            $sheet.Range('A2').Value2 = $dateSerial
-        } else {
-            $sheet.Range('A2').Value2 = ''
-        }
-
-        Set-CellText   $sheet 'A9'  $itemName
-        Set-CellNumber $sheet 'B9'  $pages
-        Set-CellNumber $sheet 'C9'  $copies
-        Set-CellNumber $sheet 'E9'  $unitPrice
-        Set-CellNumber $sheet 'F10' $coverCost
-        $freightText = ConvertTo-TextValue $freight
-        if ($freightText.Trim().Length -gt 0) {
-            Set-CellNumber $sheet 'F11' $freight
-        } else {
-            Set-CellText   $sheet 'F11' ''
-        }
-
-        Set-CellText $sheet 'G9'  ([char]0xB0B4+[char]0xC6A9+' '+[char]0xC778+[char]0xC1C4+' '+[char]0xBC0F+' '+[char]0xC7AC+[char]0xB2E8)
-        Set-CellText $sheet 'G10' ([char]0xD45C+[char]0xC9C0+' '+[char]0xC778+[char]0xC1C4+' '+[char]0xBC0F+' '+[char]0xC81C+[char]0xBCF8)
-        if ($freightText.Trim().Length -gt 0) {
-            Set-CellText $sheet 'G11' ([char]0xC6B4+[char]0xC784)
-        } else {
-            Set-CellText $sheet 'G11' ''
-        }
-
-        $templateWorkbook.SaveCopyAs($outputPath)
-
-        [void]$items.Add([ordered]@{
-            rowNum      = $rowNum
-            filePath    = $outputPath
-            fileName    = [System.IO.Path]::GetFileName($outputPath)
-            companyName = $companyName
-            itemName    = $itemName
-            status      = 'success'
-        })
     }
 
     $templateWorkbook.Close($false)

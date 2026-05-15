@@ -161,8 +161,23 @@ BOOL TaechangUserService::ValidatePassword(const CString& strPassword, CString& 
     }
 
     if (strPassword.GetLength() < TAECHANG_USER_PW_MIN_LEN) {
-        strError.Format(_T("비밀번호는 %d자 이상이어야 합니다."), TAECHANG_USER_PW_MIN_LEN);
+        strError = TAECHANG_UI_CHANGE_PW_TOO_SHORT;
         return FALSE;
+    }
+
+    if (strPassword.GetLength() > TAECHANG_USER_PW_MAX_LEN) {
+        strError = TAECHANG_UI_CHANGE_PW_TOO_LONG;
+        return FALSE;
+    }
+
+    for (int i = 0; i < strPassword.GetLength(); ++i) {
+        TCHAR ch = strPassword[i];
+        BOOL bAlpha = (ch >= _T('A') && ch <= _T('Z')) || (ch >= _T('a') && ch <= _T('z'));
+        BOOL bDigit = (ch >= _T('0') && ch <= _T('9'));
+        if (!bAlpha && !bDigit) {
+            strError = TAECHANG_UI_CHANGE_PW_INVALID_CHAR;
+            return FALSE;
+        }
     }
 
     return TRUE;

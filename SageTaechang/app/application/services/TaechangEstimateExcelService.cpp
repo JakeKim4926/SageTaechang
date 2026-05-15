@@ -148,6 +148,7 @@ namespace
 		CString strInputPath = JsonExtractString(strPayloadJson, L"inputPath");
 		CString strRowNums = JsonExtractString(strPayloadJson, L"rowNums");
 		CString strOutputFolder = JsonExtractString(strPayloadJson, L"outputFolder");
+		BOOL bEstimateOnePage = JsonExtractBool(strPayloadJson, TAECHANG_JSON_KEY_ESTIMATE_ONE_PAGE);
 
 		if (strInputPath.IsEmpty() || !FileExists(strInputPath))
 			return BuildErrorResponse(strRequestId, TAECHANG_ESTIMATE_ERR_INPUT_REQUIRED, L"?뚯씪???좏깮?댁＜?몄슂.");
@@ -176,6 +177,8 @@ namespace
 			L" -RowNums " + QuoteArgument(strRowNums) +
 			L" -OutputFolder " + QuoteArgument(strOutputFolder) +
 			L" -ResultPath " + QuoteArgument(strResultPath);
+		if (bEstimateOnePage)
+			strCommandLine += L" -OnePageMode";
 
 		DWORD dwExitCode = 0;
 		CString strError;

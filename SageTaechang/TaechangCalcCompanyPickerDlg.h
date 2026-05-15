@@ -2,14 +2,14 @@
 
 #include "pch.h"
 
-class TaechangCompanyDlg : public CDialog {
+class TaechangCalcCompanyPickerDlg : public CDialog {
 public:
-    TaechangCompanyDlg(CWnd* pParent = NULL);
-    ~TaechangCompanyDlg();
+    TaechangCalcCompanyPickerDlg(const CStringArray& arrNames, const CString& strInitialName, CWnd* pParent = NULL);
+    ~TaechangCalcCompanyPickerDlg();
 
 public:
     virtual INT_PTR DoModal();
-    CString GetCompanyName() const;
+    CString GetSelectedName() const;
 
 protected:
     virtual BOOL OnInitDialog();
@@ -19,6 +19,8 @@ protected:
 
     afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
     afx_msg void OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct);
+    afx_msg void OnSearchChanged();
+    afx_msg void OnListDblClick();
 
     DECLARE_MESSAGE_MAP()
 
@@ -26,14 +28,18 @@ private:
     void CreateControls();
     void LayoutControls();
     void ApplyFont();
+    void ApplySearchEditTextRect();
     BYTE* BuildDialogTemplate();
+    void FilterList(const CString& strKeyword);
 
 private:
     CWnd* m_pDlgParent;
-    CString m_strCompanyName;
+    CStringArray m_arrAllNames;
+    CString m_strInitialName;
+    CString m_strSelectedName;
 
-    CStatic m_wndLabel;
-    CEdit m_wndCompanyEdit;
+    CEdit m_wndSearchEdit;
+    CListBox m_wndNameList;
     CButton m_wndOkBtn;
     CButton m_wndCancelBtn;
 

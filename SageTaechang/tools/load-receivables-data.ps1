@@ -1,6 +1,7 @@
 ﻿param(
     [Parameter(Mandatory=$true)][string]$InputPath,
-    [Parameter(Mandatory=$true)][string]$ResultPath
+    [Parameter(Mandatory=$true)][string]$ResultPath,
+    [string]$PriorityPath = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -89,6 +90,22 @@ function Build-DefaultPriorityMap() {
     return $map
 }
 
+function Build-PriorityMapFromJson($priorityPath) {
+    $map = @{}
+    if ([string]::IsNullOrWhiteSpace($priorityPath)) { return $map }
+    if (-not [System.IO.File]::Exists($priorityPath)) { return $map }
+
+    $items = Get-Content -LiteralPath $priorityPath -Encoding UTF8 -Raw | ConvertFrom-Json
+    foreach ($item in $items) {
+        $priority = [int]$item.p
+        $companyName = ConvertTo-TextValue $item.n
+        if ($priority -gt 0 -and $companyName.Trim().Length -gt 0) {
+            Add-PriorityItem $map $priority $companyName
+        }
+    }
+    return $map
+}
+
 function Find-Worksheet($workbook, $name) {
     foreach ($sheet in $workbook.Worksheets) {
         if ($sheet.Name -eq $name) { return $sheet }
@@ -96,7 +113,10 @@ function Find-Worksheet($workbook, $name) {
     return $null
 }
 
-function Build-PriorityMap($sheet) {
+function Build-PriorityMap($sheet, $priorityPath) {
+    $dbMap = Build-PriorityMapFromJson $priorityPath
+    if ($dbMap.Count -gt 0) { return $dbMap }
+
     $map = Build-DefaultPriorityMap
     if ($null -eq $sheet) { return $map }
 
@@ -170,7 +190,7 @@ try {
         $inputSheet = $inputWorkbook.Worksheets.Item(1)
     }
     $prioritySheet = Find-Worksheet $inputWorkbook $prioritySheetName
-    $priorityMap = Build-PriorityMap $prioritySheet
+    $priorityMap = Build-PriorityMap $prioritySheet $PriorityPath
 
     $xlUp = -4162
     $lastRow = $inputSheet.Cells($inputSheet.Rows.Count, 2).End($xlUp).Row
@@ -195,11 +215,14 @@ try {
         $priority = [int]$priorityMap[$etcKey].priority
         $priorityName = $etcName
         $displayCompanyName = $etcName
+        $sortCompanyName = $etcName
         if ($priorityMap.ContainsKey($companyKey)) {
             $priority = [int]$priorityMap[$companyKey].priority
             $priorityName = $priorityMap[$companyKey].companyName
             $displayCompanyName = $priorityName
+            $sortCompanyName = $priorityName
         } elseif ($companyName.Length -gt 0) {
+            $displayCompanyName = $companyName
             $missingCompanies[$companyName] = $true
         }
 
@@ -210,6 +233,7 @@ try {
             issueDate = $issueDate
             manager = $manager
             managerSortKey = Get-ManagerSortKey $manager
+            companySortName = $sortCompanyName
             companyName = $displayCompanyName
             totalAmount = $totalAmount
             issueType = $issueType
@@ -218,10 +242,13 @@ try {
         })
     }
 
-    $rows = @($rows | Sort-Object @{ Expression = { $_.priority }; Ascending = $true }, @{ Expression = { $_.managerSortKey }; Ascending = $true }, @{ Expression = { $_.companyName }; Ascending = $true })
+    $rows = @($rows | Sort-Object @{ Expression = { $_.priority }; Ascending = $true }, @{ Expression = { $_.managerSortKey }; Ascending = $true }, @{ Expression = { $_.companySortName }; Ascending = $true }, @{ Expression = { $_.companyName }; Ascending = $true })
     foreach ($row in $rows) {
         if ($row.Contains('managerSortKey')) {
             $row.Remove('managerSortKey')
+        }
+        if ($row.Contains('companySortName')) {
+            $row.Remove('companySortName')
         }
     }
 

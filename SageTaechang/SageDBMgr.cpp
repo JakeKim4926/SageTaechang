@@ -12,6 +12,9 @@ SageDBMgr::SageDBMgr() {
     m_pTaechangPriceRepository = NULL;
     m_pTaechangPriceService = NULL;
 
+    m_pReceivableCompanyOrderRepository = NULL;
+    m_pReceivableCompanyOrderService = NULL;
+
     m_pUserRepository = NULL;
     m_pUserService = NULL;
 }
@@ -79,6 +82,14 @@ TaechangPriceService* SageDBMgr::GetTaechangPriceService() {
     return m_pTaechangPriceService;
 }
 
+TaechangReceivableCompanyOrderRepository* SageDBMgr::GetReceivableCompanyOrderRepository() {
+    return m_pReceivableCompanyOrderRepository;
+}
+
+TaechangReceivableCompanyOrderService* SageDBMgr::GetReceivableCompanyOrderService() {
+    return m_pReceivableCompanyOrderService;
+}
+
 TaechangUserRepository* SageDBMgr::GetUserRepository() {
     return m_pUserRepository;
 }
@@ -102,6 +113,13 @@ BOOL SageDBMgr::CreateRepositories(CString& strError) {
         return FALSE;
     }
 
+    m_pReceivableCompanyOrderRepository = new TaechangReceivableCompanyOrderRepository(&m_sqlContext);
+
+    if (m_pReceivableCompanyOrderRepository == NULL) {
+        strError = _T("TaechangReceivableCompanyOrderRepository 생성 실패");
+        return FALSE;
+    }
+
     m_pUserRepository = new TaechangUserRepository(&m_sqlContext);
 
     if (m_pUserRepository == NULL) {
@@ -118,12 +136,24 @@ BOOL SageDBMgr::CreateServices(CString& strError) {
         return FALSE;
     }
 
+    if (m_pReceivableCompanyOrderRepository == NULL) {
+        strError = _T("TaechangReceivableCompanyOrderRepository가 생성되지 않았습니다.");
+        return FALSE;
+    }
+
     DeleteServices();
 
     m_pTaechangPriceService = new TaechangPriceService(m_pTaechangPriceRepository);
 
     if (m_pTaechangPriceService == NULL) {
         strError = _T("TaechangPriceService 생성 실패");
+        return FALSE;
+    }
+
+    m_pReceivableCompanyOrderService = new TaechangReceivableCompanyOrderService(m_pReceivableCompanyOrderRepository);
+
+    if (m_pReceivableCompanyOrderService == NULL) {
+        strError = _T("TaechangReceivableCompanyOrderService 생성 실패");
         return FALSE;
     }
 
@@ -143,6 +173,11 @@ void SageDBMgr::DeleteServices() {
         m_pTaechangPriceService = NULL;
     }
 
+    if (m_pReceivableCompanyOrderService != NULL) {
+        delete m_pReceivableCompanyOrderService;
+        m_pReceivableCompanyOrderService = NULL;
+    }
+
     if (m_pUserService != NULL) {
         delete m_pUserService;
         m_pUserService = NULL;
@@ -153,6 +188,11 @@ void SageDBMgr::DeleteRepositories() {
     if (m_pTaechangPriceRepository != NULL) {
         delete m_pTaechangPriceRepository;
         m_pTaechangPriceRepository = NULL;
+    }
+
+    if (m_pReceivableCompanyOrderRepository != NULL) {
+        delete m_pReceivableCompanyOrderRepository;
+        m_pReceivableCompanyOrderRepository = NULL;
     }
 
     if (m_pUserRepository != NULL) {
