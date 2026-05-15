@@ -2,8 +2,33 @@
 #include "TaechangPriceRangeDlg.h"
 #include "TaechangDefine.h"
 
+namespace
+{
+    CString FormatPriceText(int nPrice) {
+        CString strText;
+        strText.Format(L"%d", nPrice);
+        for (int i = strText.GetLength() - 3; i > 0; i -= 3)
+            strText.Insert(i, L',');
+        return strText;
+    }
+
+    CString RemovePriceSeparators(const CString& strText) {
+        CString strResult = strText;
+        strResult.Remove(L',');
+        strResult.Trim();
+        return strResult;
+    }
+
+    int PriceTextToInt(const CString& strText) {
+        CString strValue = RemovePriceSeparators(strText);
+        return strValue.IsEmpty() ? 0 : _wtoi(strValue);
+    }
+}
+
 BEGIN_MESSAGE_MAP(TaechangPriceRangeDlg, CDialog)
     ON_BN_CLICKED(ID_PRICE_RANGE_DLG_NO_MAX_CHECK, &TaechangPriceRangeDlg::OnNoMaxCheck)
+    ON_EN_CHANGE(ID_PRICE_RANGE_DLG_PRINT_EDIT, &TaechangPriceRangeDlg::OnPrintPriceChanged)
+    ON_EN_CHANGE(ID_PRICE_RANGE_DLG_COVER_EDIT, &TaechangPriceRangeDlg::OnCoverPriceChanged)
     ON_WM_CTLCOLOR()
     ON_WM_DRAWITEM()
 END_MESSAGE_MAP()
@@ -15,7 +40,9 @@ TaechangPriceRangeDlg::TaechangPriceRangeDlg(CWnd* pParent)
       m_bHasMaxCopies(TRUE),
       m_nMaxCopies(0),
       m_nPrintPrice(0),
-      m_nCoverPrice(0) {
+      m_nCoverPrice(0),
+      m_bFormattingPrintPrice(FALSE),
+      m_bFormattingCoverPrice(FALSE) {
 }
 
 TaechangPriceRangeDlg::~TaechangPriceRangeDlg() {}
@@ -149,11 +176,11 @@ void TaechangPriceRangeDlg::CreateControls() {
         WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, rectEmpty, this, ID_PRICE_RANGE_DLG_NO_MAX_CHECK);
     m_wndPrintLabel.Create(TAECHANG_UI_PRICE_PRINT_LABEL,
         WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, rectEmpty, this);
-    m_wndPrintEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_NUMBER | ES_AUTOHSCROLL,
+    m_wndPrintEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOHSCROLL,
         rectEmpty, this, ID_PRICE_RANGE_DLG_PRINT_EDIT);
     m_wndCoverLabel.Create(TAECHANG_UI_PRICE_COVER_LABEL,
         WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, rectEmpty, this);
-    m_wndCoverEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_NUMBER | ES_AUTOHSCROLL,
+    m_wndCoverEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOHSCROLL,
         rectEmpty, this, ID_PRICE_RANGE_DLG_COVER_EDIT);
     m_wndOkBtn.Create(TAECHANG_UI_PRICE_RANGE_DLG_OK,
         WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, IDOK);
@@ -162,8 +189,8 @@ void TaechangPriceRangeDlg::CreateControls() {
 
     m_wndMinEdit.SetLimitText(7);
     m_wndMaxEdit.SetLimitText(7);
-    m_wndPrintEdit.SetLimitText(8);
-    m_wndCoverEdit.SetLimitText(8);
+    m_wndPrintEdit.SetLimitText(10);
+    m_wndCoverEdit.SetLimitText(10);
 }
 
 void TaechangPriceRangeDlg::LayoutControls() {
@@ -240,6 +267,40 @@ void TaechangPriceRangeDlg::OnNoMaxCheck() {
         m_wndMaxEdit.SetWindowTextW(L"");
 }
 
+void TaechangPriceRangeDlg::FormatPriceEditText(CEdit& edit, BOOL& bFormatting) {
+    if (bFormatting)
+        return;
+
+    CString strText;
+    edit.GetWindowTextW(strText);
+    CString strDigits = RemovePriceSeparators(strText);
+    if (strDigits.IsEmpty())
+        return;
+
+    for (int i = 0; i < strDigits.GetLength(); ++i) {
+        wchar_t ch = strDigits[i];
+        if (ch < L'0' || ch > L'9')
+            return;
+    }
+
+    CString strFormatted = FormatPriceText(_wtoi(strDigits));
+    if (strFormatted == strText)
+        return;
+
+    bFormatting = TRUE;
+    edit.SetWindowTextW(strFormatted);
+    edit.SetSel(strFormatted.GetLength(), strFormatted.GetLength());
+    bFormatting = FALSE;
+}
+
+void TaechangPriceRangeDlg::OnPrintPriceChanged() {
+    FormatPriceEditText(m_wndPrintEdit, m_bFormattingPrintPrice);
+}
+
+void TaechangPriceRangeDlg::OnCoverPriceChanged() {
+    FormatPriceEditText(m_wndCoverEdit, m_bFormattingCoverPrice);
+}
+
 BOOL TaechangPriceRangeDlg::IsCopiesRangeOverlap(int nMinA, BOOL bHasMaxA, int nMaxA, int nMinB, BOOL bHasMaxB, int nMaxB) const {
     int nEndA = bHasMaxA ? nMaxA : INT_MAX;
     int nEndB = bHasMaxB ? nMaxB : INT_MAX;
@@ -297,7 +358,7 @@ void TaechangPriceRangeDlg::OnOK() {
         }
     }
 
-    int nPrint = strPrint.IsEmpty() ? -1 : _wtoi(strPrint);
+    int nPrint = strPrint.IsEmpty() ? -1 : PriceTextToInt(strPrint);
     if (nPrint < 0 || nPrint > TAECHANG_PRICE_AMOUNT_MAX) {
         AfxMessageBox(TAECHANG_UI_PRICE_AMOUNT_OUT_OF_RANGE, MB_ICONWARNING);
         m_wndPrintEdit.SetSel(0, -1);
@@ -305,7 +366,7 @@ void TaechangPriceRangeDlg::OnOK() {
         return;
     }
 
-    int nCover = strCover.IsEmpty() ? -1 : _wtoi(strCover);
+    int nCover = strCover.IsEmpty() ? -1 : PriceTextToInt(strCover);
     if (nCover < 0 || nCover > TAECHANG_PRICE_AMOUNT_MAX) {
         AfxMessageBox(TAECHANG_UI_PRICE_AMOUNT_OUT_OF_RANGE, MB_ICONWARNING);
         m_wndCoverEdit.SetSel(0, -1);

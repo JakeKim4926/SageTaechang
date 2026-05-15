@@ -209,6 +209,9 @@ protected:
     LONGLONG m_nCalcPrintPrice;
     int  m_nCalcCoverPrice;
     int  m_nPricePanelState;
+    BOOL m_bFormattingCalcFreight;
+    BOOL m_bFormattingPricePrint;
+    BOOL m_bFormattingPriceCover;
 
 protected:
     void CreateChildControls();
@@ -277,6 +280,7 @@ protected:
     void ClearPriceForm();
     BOOL ReadPriceFormToDto(TaechangPriceDto& dto, CString& strError);
     CString GetSelectedCompanyName() const;
+    void FormatPriceEditText(CEdit& edit, BOOL& bFormatting);
 
     // ── 부수 계산 패널 ───────────────────────────────────────────────────────
     void CreatePriceCalcPanel();
@@ -323,6 +327,8 @@ protected:
     afx_msg void OnPriceDeleteCompany();
     afx_msg void OnPriceCopiesSelChanged(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnPriceNoMaxCheck();
+    afx_msg void OnPricePrintChanged();
+    afx_msg void OnPriceCoverChanged();
     afx_msg void OnPriceAdd();
     afx_msg void OnPriceModify();
     afx_msg void OnPriceDelete();
