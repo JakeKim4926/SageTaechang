@@ -3964,6 +3964,7 @@ void CSageTaechangView::ShowCompanyOrderPanel(BOOL bShow) {
 	int nCmdShow = bShow ? SW_SHOW : SW_HIDE;
 	m_wndCoAddBtn.ShowWindow(nCmdShow);
 	m_wndCoModifyBtn.ShowWindow(nCmdShow);
+	m_wndCoCancelBtn.ShowWindow(nCmdShow);
 	m_wndCoDeleteBtn.ShowWindow(nCmdShow);
 	m_wndCoSearchLabel.ShowWindow(nCmdShow);
 	m_wndCoSearchEdit.ShowWindow(nCmdShow);
@@ -3973,19 +3974,22 @@ void CSageTaechangView::ShowCompanyOrderPanel(BOOL bShow) {
 	m_wndCoNameLabel.ShowWindow(nCmdShow);
 	m_wndCoCompanyEdit.ShowWindow(nCmdShow);
 	m_wndCoList.ShowWindow(nCmdShow);
-	if (!bShow) {
-		m_wndCoCancelBtn.ShowWindow(SW_HIDE);
+	if (!bShow)
 		m_nCoPanelState = TAECHANG_CO_PANEL_IDLE;
-	} else {
+	else
 		UpdateCoPanelState();
-	}
 }
 
 void CSageTaechangView::UpdateCoListColumns() {
 	if (!::IsWindow(m_wndCoList.GetSafeHwnd()))
 		return;
+	CRect rcList;
+	m_wndCoList.GetClientRect(&rcList);
+	int nCompanyWidth = rcList.Width() - TAECHANG_CO_ORDER_COL_WIDTH;
+	if (nCompanyWidth < 100)
+		nCompanyWidth = 100;
 	m_wndCoList.SetColumnWidth(0, TAECHANG_CO_ORDER_COL_WIDTH);
-	m_wndCoList.SetColumnWidth(1, TAECHANG_CO_COMPANY_NAME_WIDTH);
+	m_wndCoList.SetColumnWidth(1, nCompanyWidth);
 }
 
 void CSageTaechangView::UpdateCoPanelState() {
@@ -3996,7 +4000,7 @@ void CSageTaechangView::UpdateCoPanelState() {
 	m_wndCoModifyBtn.EnableWindow((bEditing || bHasSelection) ? TRUE : FALSE);
 	m_wndCoModifyBtn.SetWindowTextW(bEditing ? TAECHANG_UI_CO_SAVE_BTN : TAECHANG_UI_CO_MODIFY_BTN);
 	m_wndCoDeleteBtn.EnableWindow((!bEditing && bHasSelection) ? TRUE : FALSE);
-	m_wndCoCancelBtn.ShowWindow(bEditing ? SW_SHOW : SW_HIDE);
+	m_wndCoCancelBtn.EnableWindow(bEditing ? TRUE : FALSE);
 	m_wndCoSearchEdit.EnableWindow(!bEditing ? TRUE : FALSE);
 	m_wndCoSearchBtn.EnableWindow(!bEditing ? TRUE : FALSE);
 }
