@@ -3895,38 +3895,12 @@ void CSageTaechangView::LayoutCompanyOrderPanel(int nLeft, int nTop, int nWidth,
 	if (!::IsWindow(m_wndCoList.GetSafeHwnd()))
 		return;
 
-	// Row 1: 버튼 행 (좌: 추가/수정/취소/삭제, 우: 검색)
+	// Row 1: 입력 필드 (순서 + 법인명)
 	int nRow1Top = nTop;
 	int nX = nLeft;
-	m_wndCoAddBtn.MoveWindow(nX, nRow1Top, TAECHANG_CO_SMALL_BTN_WIDTH, TAECHANG_BUTTON_HEIGHT);
-	nX += TAECHANG_CO_SMALL_BTN_WIDTH + TAECHANG_ACTION_GAP;
-	m_wndCoModifyBtn.MoveWindow(nX, nRow1Top, TAECHANG_CO_SMALL_BTN_WIDTH, TAECHANG_BUTTON_HEIGHT);
-	nX += TAECHANG_CO_SMALL_BTN_WIDTH + TAECHANG_ACTION_GAP;
-	m_wndCoCancelBtn.MoveWindow(nX, nRow1Top, TAECHANG_CO_SMALL_BTN_WIDTH, TAECHANG_BUTTON_HEIGHT);
-	nX += TAECHANG_CO_SMALL_BTN_WIDTH + TAECHANG_ACTION_GAP;
-	m_wndCoDeleteBtn.MoveWindow(nX, nRow1Top, TAECHANG_CO_SMALL_BTN_WIDTH, TAECHANG_BUTTON_HEIGHT);
-
-	int nSearchBtnLeft = nLeft + nWidth - TAECHANG_RESULT_SEARCH_WIDTH;
-	int nSearchEditLeft = nSearchBtnLeft - TAECHANG_ACTION_GAP - TAECHANG_RESULT_FILTER_WIDTH;
-	int nSearchLabelLeft = nSearchEditLeft - TAECHANG_LABEL_EDIT_GAP - TAECHANG_CO_SEARCH_LABEL_W;
-	m_wndCoSearchLabel.MoveWindow(nSearchLabelLeft, nRow1Top + TAECHANG_LABEL_VERT_OFFSET, TAECHANG_CO_SEARCH_LABEL_W, TAECHANG_EDIT_HEIGHT);
-	m_wndCoSearchEdit.MoveWindow(nSearchEditLeft, nRow1Top, TAECHANG_RESULT_FILTER_WIDTH, TAECHANG_EDIT_HEIGHT);
-	{
-		CRect rcFmt;
-		m_wndCoSearchEdit.GetClientRect(&rcFmt);
-		rcFmt.top += TAECHANG_EDIT_TEXT_TOP_PAD;
-		rcFmt.left += 6;
-		rcFmt.right = TAECHANG_EDIT_FORMAT_MAX_WIDTH;
-		m_wndCoSearchEdit.SendMessage(EM_SETRECT, 0, reinterpret_cast<LPARAM>(&rcFmt));
-	}
-	m_wndCoSearchBtn.MoveWindow(nSearchBtnLeft, nRow1Top, TAECHANG_RESULT_SEARCH_WIDTH, TAECHANG_BUTTON_HEIGHT);
-
-	// Row 2: 입력 필드 행 (순서 + 법인명)
-	int nRow2Top = nRow1Top + TAECHANG_BUTTON_HEIGHT + TAECHANG_ROW_GAP;
-	int nFieldX = nLeft;
-	m_wndCoOrderLabel.MoveWindow(nFieldX, nRow2Top + TAECHANG_LABEL_VERT_OFFSET, TAECHANG_CO_ORDER_LABEL_W, TAECHANG_EDIT_HEIGHT);
-	nFieldX += TAECHANG_CO_ORDER_LABEL_W + TAECHANG_LABEL_EDIT_GAP;
-	m_wndCoOrderEdit.MoveWindow(nFieldX, nRow2Top, TAECHANG_CO_ORDER_EDIT_WIDTH, TAECHANG_EDIT_HEIGHT);
+	m_wndCoOrderLabel.MoveWindow(nX, nRow1Top + TAECHANG_LABEL_VERT_OFFSET, TAECHANG_CO_ORDER_LABEL_W, TAECHANG_EDIT_HEIGHT);
+	nX += TAECHANG_CO_ORDER_LABEL_W + TAECHANG_LABEL_EDIT_GAP;
+	m_wndCoOrderEdit.MoveWindow(nX, nRow1Top, TAECHANG_CO_ORDER_EDIT_WIDTH, TAECHANG_EDIT_HEIGHT);
 	{
 		CRect rcFmt;
 		m_wndCoOrderEdit.GetClientRect(&rcFmt);
@@ -3935,13 +3909,13 @@ void CSageTaechangView::LayoutCompanyOrderPanel(int nLeft, int nTop, int nWidth,
 		rcFmt.right = TAECHANG_EDIT_FORMAT_MAX_WIDTH;
 		m_wndCoOrderEdit.SendMessage(EM_SETRECT, 0, reinterpret_cast<LPARAM>(&rcFmt));
 	}
-	nFieldX += TAECHANG_CO_ORDER_EDIT_WIDTH + TAECHANG_ACTION_GAP;
-	m_wndCoNameLabel.MoveWindow(nFieldX, nRow2Top + TAECHANG_LABEL_VERT_OFFSET, TAECHANG_CO_NAME_LABEL_W, TAECHANG_EDIT_HEIGHT);
-	nFieldX += TAECHANG_CO_NAME_LABEL_W + TAECHANG_LABEL_EDIT_GAP;
-	int nCompanyEditWidth = nLeft + nWidth - nFieldX;
+	nX += TAECHANG_CO_ORDER_EDIT_WIDTH + TAECHANG_ACTION_GAP;
+	m_wndCoNameLabel.MoveWindow(nX, nRow1Top + TAECHANG_LABEL_VERT_OFFSET, TAECHANG_CO_NAME_LABEL_W, TAECHANG_EDIT_HEIGHT);
+	nX += TAECHANG_CO_NAME_LABEL_W + TAECHANG_LABEL_EDIT_GAP;
+	int nCompanyEditWidth = nLeft + nWidth - nX;
 	if (nCompanyEditWidth < 80)
 		nCompanyEditWidth = 80;
-	m_wndCoCompanyEdit.MoveWindow(nFieldX, nRow2Top, nCompanyEditWidth, TAECHANG_EDIT_HEIGHT);
+	m_wndCoCompanyEdit.MoveWindow(nX, nRow1Top, nCompanyEditWidth, TAECHANG_EDIT_HEIGHT);
 	{
 		CRect rcFmt;
 		m_wndCoCompanyEdit.GetClientRect(&rcFmt);
@@ -3951,8 +3925,34 @@ void CSageTaechangView::LayoutCompanyOrderPanel(int nLeft, int nTop, int nWidth,
 		m_wndCoCompanyEdit.SendMessage(EM_SETRECT, 0, reinterpret_cast<LPARAM>(&rcFmt));
 	}
 
+	// Row 2: 버튼 + 검색
+	int nRow2Top = nRow1Top + TAECHANG_EDIT_HEIGHT + TAECHANG_ROW_GAP;
+	nX = nLeft;
+	m_wndCoAddBtn.MoveWindow(nX, nRow2Top, TAECHANG_CO_SMALL_BTN_WIDTH, TAECHANG_BUTTON_HEIGHT);
+	nX += TAECHANG_CO_SMALL_BTN_WIDTH + TAECHANG_ACTION_GAP;
+	m_wndCoModifyBtn.MoveWindow(nX, nRow2Top, TAECHANG_CO_SMALL_BTN_WIDTH, TAECHANG_BUTTON_HEIGHT);
+	nX += TAECHANG_CO_SMALL_BTN_WIDTH + TAECHANG_ACTION_GAP;
+	m_wndCoCancelBtn.MoveWindow(nX, nRow2Top, TAECHANG_CO_SMALL_BTN_WIDTH, TAECHANG_BUTTON_HEIGHT);
+	nX += TAECHANG_CO_SMALL_BTN_WIDTH + TAECHANG_ACTION_GAP;
+	m_wndCoDeleteBtn.MoveWindow(nX, nRow2Top, TAECHANG_CO_SMALL_BTN_WIDTH, TAECHANG_BUTTON_HEIGHT);
+
+	int nSearchBtnLeft = nLeft + nWidth - TAECHANG_RESULT_SEARCH_WIDTH;
+	int nSearchEditLeft = nSearchBtnLeft - TAECHANG_ACTION_GAP - TAECHANG_RESULT_FILTER_WIDTH;
+	int nSearchLabelLeft = nSearchEditLeft - TAECHANG_LABEL_EDIT_GAP - TAECHANG_CO_SEARCH_LABEL_W;
+	m_wndCoSearchLabel.MoveWindow(nSearchLabelLeft, nRow2Top + TAECHANG_LABEL_VERT_OFFSET, TAECHANG_CO_SEARCH_LABEL_W, TAECHANG_EDIT_HEIGHT);
+	m_wndCoSearchEdit.MoveWindow(nSearchEditLeft, nRow2Top, TAECHANG_RESULT_FILTER_WIDTH, TAECHANG_EDIT_HEIGHT);
+	{
+		CRect rcFmt;
+		m_wndCoSearchEdit.GetClientRect(&rcFmt);
+		rcFmt.top += TAECHANG_EDIT_TEXT_TOP_PAD;
+		rcFmt.left += 6;
+		rcFmt.right = TAECHANG_EDIT_FORMAT_MAX_WIDTH;
+		m_wndCoSearchEdit.SendMessage(EM_SETRECT, 0, reinterpret_cast<LPARAM>(&rcFmt));
+	}
+	m_wndCoSearchBtn.MoveWindow(nSearchBtnLeft, nRow2Top, TAECHANG_RESULT_SEARCH_WIDTH, TAECHANG_BUTTON_HEIGHT);
+
 	// 리스트
-	int nListTop = nRow2Top + TAECHANG_EDIT_HEIGHT + TAECHANG_PANEL_GAP;
+	int nListTop = nRow2Top + TAECHANG_BUTTON_HEIGHT + TAECHANG_PANEL_GAP;
 	int nListHeight = nHeight - (nListTop - nTop) - TAECHANG_MARGIN;
 	if (nListHeight < TAECHANG_RESULT_MIN_HEIGHT)
 		nListHeight = TAECHANG_RESULT_MIN_HEIGHT;
