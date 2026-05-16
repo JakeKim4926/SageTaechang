@@ -695,7 +695,11 @@ constexpr int TAECHANG_CO_PANEL_IDLE         = 0;
 constexpr int TAECHANG_CO_PANEL_MODIFY       = 2;
 
 constexpr UINT ID_COORDER_ORDER_EDIT    = 41082;
+constexpr UINT ID_COORDER_CRUD_SECTION  = 41083;
+constexpr UINT ID_COORDER_LIST_SECTION  = 41084;
 
+constexpr LPCWSTR TAECHANG_UI_CO_CRUD_SECTION       = L"법인 출력 순서 관리";
+constexpr LPCWSTR TAECHANG_UI_CO_LIST_SECTION       = L"법인 목록";
 constexpr LPCWSTR TAECHANG_UI_CO_ADD_BTN            = L"추가";
 constexpr LPCWSTR TAECHANG_UI_CO_MODIFY_BTN         = L"수정";
 constexpr LPCWSTR TAECHANG_UI_CO_DELETE_BTN         = L"삭제";

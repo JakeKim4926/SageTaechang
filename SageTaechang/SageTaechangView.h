@@ -229,6 +229,8 @@ protected:
     CEdit               m_wndCoOrderEdit;
     CStatic             m_wndCoNameLabel;
     CEdit               m_wndCoCompanyEdit;
+    CStatic             m_wndCoCrudSection;
+    CStatic             m_wndCoListSection;
     CTaechangHeaderCtrl m_wndCoListHeader;
     CListCtrl           m_wndCoList;
     int                 m_nCoPanelState;
