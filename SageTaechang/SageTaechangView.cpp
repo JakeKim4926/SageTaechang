@@ -2324,7 +2324,7 @@ void CSageTaechangView::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct
 	if (lpDrawItemStruct->CtlType == ODT_STATIC &&
 		(nIDCtl == ID_TAECHANG_INPUT_SECTION || nIDCtl == ID_TAECHANG_OUTPUT_SECTION ||
 		 nIDCtl == ID_TAECHANG_RESULT_SECTION || nIDCtl == ID_TAECHANG_DETAIL_SECTION ||
-		 nIDCtl == ID_CALC_HISTORY_SECTION || nIDCtl == ID_COORDER_FORM_SECTION)) {
+		 nIDCtl == ID_CALC_HISTORY_SECTION)) {
 		DrawSectionLabel(lpDrawItemStruct);
 		return;
 	}
