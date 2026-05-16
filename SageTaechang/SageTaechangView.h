@@ -2,6 +2,7 @@
 #pragma once
 
 #include "TaechangDefine.h"
+#include "TaechangReceivableCompanyOrderDto.h"
 
 struct TaechangResultRow;
 
@@ -216,6 +217,26 @@ protected:
     BOOL m_bFormattingPricePrint;
     BOOL m_bFormattingPriceCover;
 
+    // ── 법인 순서 데이터 관리 패널 ───────────────────────────────────────────
+    CButton             m_wndCoAddBtn;
+    CButton             m_wndCoModifyBtn;
+    CButton             m_wndCoDeleteBtn;
+    CButton             m_wndCoMoveUpBtn;
+    CButton             m_wndCoMoveDownBtn;
+    CStatic             m_wndCoSearchLabel;
+    CEdit               m_wndCoSearchEdit;
+    CButton             m_wndCoSearchBtn;
+    CTaechangHeaderCtrl m_wndCoListHeader;
+    CListCtrl           m_wndCoList;
+    CStatic             m_wndCoFormSection;
+    CEdit               m_wndCoCompanyEdit;
+    CButton             m_wndCoSaveBtn;
+    CButton             m_wndCoCancelBtn;
+    int                 m_nCoPanelState;
+    CString             m_strCoSearchKeyword;
+    int                 m_nCoSelectedOrderId;
+    CArray<TaechangReceivableCompanyOrderDto, TaechangReceivableCompanyOrderDto&> m_arrCoOrders;
+
 protected:
     void CreateChildControls();
     void BuildSidebarTree();
@@ -285,6 +306,15 @@ protected:
     CString GetSelectedCompanyName() const;
     void FormatPriceEditText(CEdit& edit, BOOL& bFormatting);
 
+    // ── 법인 순서 데이터 관리 패널 ───────────────────────────────────────────
+    void CreateCompanyOrderPanel();
+    void LayoutCompanyOrderPanel(int nLeft, int nTop, int nWidth, int nHeight);
+    void ShowCompanyOrderPanel(BOOL bShow);
+    BOOL IsDataManageTab() const;
+    void RefreshCompanyOrderList();
+    void UpdateCoListColumns(int nWidth);
+    void UpdateCoPanelState();
+
     // ── 부수 계산 패널 ───────────────────────────────────────────────────────
     void CreatePriceCalcPanel();
     void LayoutPriceCalcPanel(int nLeft, int nTop, int nWidth, int nHeight);
@@ -339,6 +369,17 @@ protected:
     afx_msg void OnPriceModify();
     afx_msg void OnPriceDelete();
     afx_msg void OnPriceCancel();
+
+    // ── 법인 순서 데이터 관리 이벤트 ─────────────────────────────────────────
+    afx_msg void OnCoAdd();
+    afx_msg void OnCoModify();
+    afx_msg void OnCoDelete();
+    afx_msg void OnCoMoveUp();
+    afx_msg void OnCoMoveDown();
+    afx_msg void OnCoSave();
+    afx_msg void OnCoCancel();
+    afx_msg void OnCoSearch();
+    afx_msg void OnCoListSelChanged(NMHDR* pNMHDR, LRESULT* pResult);
 
     // ── 부수 계산 이벤트 ────────────────────────────────────────────────────
     afx_msg void OnCalc();
