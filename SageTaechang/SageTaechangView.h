@@ -221,17 +221,16 @@ protected:
     CButton             m_wndCoAddBtn;
     CButton             m_wndCoModifyBtn;
     CButton             m_wndCoDeleteBtn;
-    CButton             m_wndCoMoveUpBtn;
-    CButton             m_wndCoMoveDownBtn;
+    CButton             m_wndCoCancelBtn;
     CStatic             m_wndCoSearchLabel;
     CEdit               m_wndCoSearchEdit;
     CButton             m_wndCoSearchBtn;
+    CStatic             m_wndCoOrderLabel;
+    CEdit               m_wndCoOrderEdit;
+    CStatic             m_wndCoNameLabel;
+    CEdit               m_wndCoCompanyEdit;
     CTaechangHeaderCtrl m_wndCoListHeader;
     CListCtrl           m_wndCoList;
-    CStatic             m_wndCoFormSection;
-    CEdit               m_wndCoCompanyEdit;
-    CButton             m_wndCoSaveBtn;
-    CButton             m_wndCoCancelBtn;
     int                 m_nCoPanelState;
     CString             m_strCoSearchKeyword;
     int                 m_nCoSelectedOrderId;
@@ -312,7 +311,7 @@ protected:
     void ShowCompanyOrderPanel(BOOL bShow);
     BOOL IsDataManageTab() const;
     void RefreshCompanyOrderList();
-    void UpdateCoListColumns(int nWidth);
+    void UpdateCoListColumns();
     void UpdateCoPanelState();
 
     // ── 부수 계산 패널 ───────────────────────────────────────────────────────
@@ -374,9 +373,6 @@ protected:
     afx_msg void OnCoAdd();
     afx_msg void OnCoModify();
     afx_msg void OnCoDelete();
-    afx_msg void OnCoMoveUp();
-    afx_msg void OnCoMoveDown();
-    afx_msg void OnCoSave();
     afx_msg void OnCoCancel();
     afx_msg void OnCoSearch();
     afx_msg void OnCoListSelChanged(NMHDR* pNMHDR, LRESULT* pResult);

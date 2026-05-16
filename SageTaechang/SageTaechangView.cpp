@@ -357,9 +357,6 @@ BEGIN_MESSAGE_MAP(CSageTaechangView, CView)
 	ON_BN_CLICKED(ID_COORDER_ADD_BTN, &CSageTaechangView::OnCoAdd)
 	ON_BN_CLICKED(ID_COORDER_MODIFY_BTN, &CSageTaechangView::OnCoModify)
 	ON_BN_CLICKED(ID_COORDER_DELETE_BTN, &CSageTaechangView::OnCoDelete)
-	ON_BN_CLICKED(ID_COORDER_MOVE_UP_BTN, &CSageTaechangView::OnCoMoveUp)
-	ON_BN_CLICKED(ID_COORDER_MOVE_DOWN_BTN, &CSageTaechangView::OnCoMoveDown)
-	ON_BN_CLICKED(ID_COORDER_SAVE_BTN, &CSageTaechangView::OnCoSave)
 	ON_BN_CLICKED(ID_COORDER_CANCEL_BTN, &CSageTaechangView::OnCoCancel)
 	ON_BN_CLICKED(ID_COORDER_SEARCH_BTN, &CSageTaechangView::OnCoSearch)
 	ON_NOTIFY(LVN_ITEMCHANGED, ID_COORDER_LIST, &CSageTaechangView::OnCoListSelChanged)
@@ -686,18 +683,17 @@ void CSageTaechangView::ApplyControlFonts() {
 	m_wndCoAddBtn.SetFont(&m_fontContent);
 	m_wndCoModifyBtn.SetFont(&m_fontContent);
 	m_wndCoDeleteBtn.SetFont(&m_fontContent);
-	m_wndCoMoveUpBtn.SetFont(&m_fontContent);
-	m_wndCoMoveDownBtn.SetFont(&m_fontContent);
+	m_wndCoCancelBtn.SetFont(&m_fontContent);
 	m_wndCoSearchLabel.SetFont(&m_fontContent);
 	m_wndCoSearchEdit.SetFont(&m_fontContent);
 	m_wndCoSearchBtn.SetFont(&m_fontContent);
+	m_wndCoOrderLabel.SetFont(&m_fontContent);
+	m_wndCoOrderEdit.SetFont(&m_fontContent);
+	m_wndCoNameLabel.SetFont(&m_fontContent);
+	m_wndCoCompanyEdit.SetFont(&m_fontContent);
 	m_wndCoList.SetFont(&m_fontContent);
 	if (::IsWindow(m_wndCoListHeader.GetSafeHwnd()))
 		m_wndCoListHeader.SetFont(&m_fontContent);
-	m_wndCoFormSection.SetFont(&m_fontHeader);
-	m_wndCoCompanyEdit.SetFont(&m_fontContent);
-	m_wndCoSaveBtn.SetFont(&m_fontContent);
-	m_wndCoCancelBtn.SetFont(&m_fontContent);
 }
 
 void CSageTaechangView::ApplyWorkflowTabs() {
@@ -1146,6 +1142,7 @@ void CSageTaechangView::OnDraw(CDC* pDC) {
 	DrawEditBorder(pDC, m_wndOutputFolder);
 	DrawEditBorder(pDC, m_wndResultFilter);
 	DrawEditBorder(pDC, m_wndCoSearchEdit);
+	DrawEditBorder(pDC, m_wndCoOrderEdit);
 	DrawEditBorder(pDC, m_wndCoCompanyEdit);
 	DrawEditBorder(pDC, m_wndPriceCompanyCombo);
 	DrawEditBorder(pDC, m_wndPriceMinCopiesEdit);
@@ -1953,7 +1950,9 @@ HBRUSH CSageTaechangView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
 		pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
 		return m_brushAppBackground;
 	}
-	if (pWnd->GetSafeHwnd() == m_wndCoSearchLabel.GetSafeHwnd()) {
+	if (pWnd->GetSafeHwnd() == m_wndCoSearchLabel.GetSafeHwnd() ||
+		pWnd->GetSafeHwnd() == m_wndCoOrderLabel.GetSafeHwnd() ||
+		pWnd->GetSafeHwnd() == m_wndCoNameLabel.GetSafeHwnd()) {
 		pDC->SetTextColor(TAECHANG_COLOR_SECONDARY_TEXT);
 		pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
 		return m_brushAppBackground;
@@ -2345,8 +2344,7 @@ void CSageTaechangView::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct
 					 || nIDCtl == ID_PRICE_ADD_COMPANY_BTN || nIDCtl == ID_PRICE_ADD_BTN || nIDCtl == ID_PRICE_RENAME_COMPANY_BTN
 					 || nIDCtl == ID_PRICE_DELETE_COMPANY_BTN || nIDCtl == ID_PRICE_MODIFY_BTN
 					 || nIDCtl == ID_CALC_BTN
-					 || nIDCtl == ID_COORDER_ADD_BTN || nIDCtl == ID_COORDER_SAVE_BTN
-					 || nIDCtl == ID_COORDER_SEARCH_BTN);
+					 || nIDCtl == ID_COORDER_ADD_BTN || nIDCtl == ID_COORDER_SEARCH_BTN);
 
 	if (bPrimary) {
 		COLORREF clrBg = bDisabled ? TAECHANG_COLOR_BORDER
@@ -3873,47 +3871,46 @@ void CSageTaechangView::CreateCompanyOrderPanel() {
 	m_wndCoAddBtn.Create(TAECHANG_UI_CO_ADD_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_COORDER_ADD_BTN);
 	m_wndCoModifyBtn.Create(TAECHANG_UI_CO_MODIFY_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_COORDER_MODIFY_BTN);
 	m_wndCoDeleteBtn.Create(TAECHANG_UI_CO_DELETE_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_COORDER_DELETE_BTN);
-	m_wndCoMoveUpBtn.Create(TAECHANG_UI_CO_MOVE_UP_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_COORDER_MOVE_UP_BTN);
-	m_wndCoMoveDownBtn.Create(TAECHANG_UI_CO_MOVE_DOWN_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_COORDER_MOVE_DOWN_BTN);
+	m_wndCoCancelBtn.Create(TAECHANG_UI_CO_CANCEL_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_COORDER_CANCEL_BTN);
 	m_wndCoSearchLabel.Create(TAECHANG_UI_CO_SEARCH_LABEL, WS_CHILD | SS_LEFT | SS_CENTERIMAGE, r, this);
 	m_wndCoSearchEdit.Create(WS_CHILD | ES_MULTILINE | ES_AUTOHSCROLL, r, this, ID_COORDER_SEARCH_EDIT);
 	m_wndCoSearchBtn.Create(L"", WS_CHILD | BS_OWNERDRAW, r, this, ID_COORDER_SEARCH_BTN);
+	m_wndCoOrderLabel.Create(TAECHANG_UI_CO_ORDER_LABEL, WS_CHILD | SS_LEFT | SS_CENTERIMAGE, r, this);
+	m_wndCoOrderEdit.Create(WS_CHILD | ES_MULTILINE | ES_NUMBER, r, this, ID_COORDER_ORDER_EDIT);
+	m_wndCoOrderEdit.LimitText(6);
+	m_wndCoNameLabel.Create(TAECHANG_UI_CO_NAME_LABEL, WS_CHILD | SS_LEFT | SS_CENTERIMAGE, r, this);
+	m_wndCoCompanyEdit.Create(WS_CHILD | ES_MULTILINE | ES_AUTOHSCROLL, r, this, ID_COORDER_COMPANY_EDIT);
+	m_wndCoCompanyEdit.LimitText(TAECHANG_CO_COMPANY_NAME_MAX);
 	m_wndCoList.Create(WS_CHILD | LVS_REPORT | LVS_SHOWSELALWAYS | LVS_SINGLESEL, r, this, ID_COORDER_LIST);
 	m_wndCoList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_GRIDLINES);
 	m_wndCoList.InsertColumn(0, TAECHANG_UI_CO_COL_ORDER, LVCFMT_CENTER, TAECHANG_CO_ORDER_COL_WIDTH);
-	m_wndCoList.InsertColumn(1, TAECHANG_UI_CO_COL_COMPANY, LVCFMT_LEFT, 300);
+	m_wndCoList.InsertColumn(1, TAECHANG_UI_CO_COL_COMPANY, LVCFMT_LEFT, TAECHANG_CO_COMPANY_NAME_WIDTH);
 	if (CHeaderCtrl* pHeader = m_wndCoList.GetHeaderCtrl()) {
 		m_wndCoListHeader.SubclassWindow(pHeader->GetSafeHwnd());
 		SetWindowTheme(m_wndCoListHeader.GetSafeHwnd(), L"", L"");
 	}
-	m_wndCoFormSection.Create(TAECHANG_UI_CO_FORM_SECTION, WS_CHILD | SS_OWNERDRAW, r, this, ID_COORDER_FORM_SECTION);
-	m_wndCoCompanyEdit.Create(WS_CHILD | ES_MULTILINE | ES_AUTOHSCROLL, r, this, ID_COORDER_COMPANY_EDIT);
-	m_wndCoCompanyEdit.LimitText(TAECHANG_CO_COMPANY_NAME_MAX);
-	m_wndCoSaveBtn.Create(TAECHANG_UI_CO_SAVE_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_COORDER_SAVE_BTN);
-	m_wndCoCancelBtn.Create(TAECHANG_UI_CO_CANCEL_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_COORDER_CANCEL_BTN);
 }
 
 void CSageTaechangView::LayoutCompanyOrderPanel(int nLeft, int nTop, int nWidth, int nHeight) {
 	if (!::IsWindow(m_wndCoList.GetSafeHwnd()))
 		return;
 
-	int nBtnTop = nTop;
+	// Row 1: 버튼 행 (좌: 추가/수정/취소/삭제, 우: 검색)
+	int nRow1Top = nTop;
 	int nX = nLeft;
-	m_wndCoAddBtn.MoveWindow(nX, nBtnTop, TAECHANG_CO_SMALL_BTN_WIDTH, TAECHANG_BUTTON_HEIGHT);
+	m_wndCoAddBtn.MoveWindow(nX, nRow1Top, TAECHANG_CO_SMALL_BTN_WIDTH, TAECHANG_BUTTON_HEIGHT);
 	nX += TAECHANG_CO_SMALL_BTN_WIDTH + TAECHANG_ACTION_GAP;
-	m_wndCoModifyBtn.MoveWindow(nX, nBtnTop, TAECHANG_CO_SMALL_BTN_WIDTH, TAECHANG_BUTTON_HEIGHT);
+	m_wndCoModifyBtn.MoveWindow(nX, nRow1Top, TAECHANG_CO_SMALL_BTN_WIDTH, TAECHANG_BUTTON_HEIGHT);
 	nX += TAECHANG_CO_SMALL_BTN_WIDTH + TAECHANG_ACTION_GAP;
-	m_wndCoDeleteBtn.MoveWindow(nX, nBtnTop, TAECHANG_CO_SMALL_BTN_WIDTH, TAECHANG_BUTTON_HEIGHT);
+	m_wndCoCancelBtn.MoveWindow(nX, nRow1Top, TAECHANG_CO_SMALL_BTN_WIDTH, TAECHANG_BUTTON_HEIGHT);
 	nX += TAECHANG_CO_SMALL_BTN_WIDTH + TAECHANG_ACTION_GAP;
-	m_wndCoMoveUpBtn.MoveWindow(nX, nBtnTop, TAECHANG_CO_MOVE_BTN_WIDTH, TAECHANG_BUTTON_HEIGHT);
-	nX += TAECHANG_CO_MOVE_BTN_WIDTH + TAECHANG_ACTION_GAP;
-	m_wndCoMoveDownBtn.MoveWindow(nX, nBtnTop, TAECHANG_CO_MOVE_BTN_WIDTH, TAECHANG_BUTTON_HEIGHT);
+	m_wndCoDeleteBtn.MoveWindow(nX, nRow1Top, TAECHANG_CO_SMALL_BTN_WIDTH, TAECHANG_BUTTON_HEIGHT);
 
 	int nSearchBtnLeft = nLeft + nWidth - TAECHANG_RESULT_SEARCH_WIDTH;
 	int nSearchEditLeft = nSearchBtnLeft - TAECHANG_ACTION_GAP - TAECHANG_RESULT_FILTER_WIDTH;
 	int nSearchLabelLeft = nSearchEditLeft - TAECHANG_LABEL_EDIT_GAP - TAECHANG_CO_SEARCH_LABEL_W;
-	m_wndCoSearchLabel.MoveWindow(nSearchLabelLeft, nBtnTop + TAECHANG_LABEL_VERT_OFFSET, TAECHANG_CO_SEARCH_LABEL_W, TAECHANG_EDIT_HEIGHT);
-	m_wndCoSearchEdit.MoveWindow(nSearchEditLeft, nBtnTop, TAECHANG_RESULT_FILTER_WIDTH, TAECHANG_EDIT_HEIGHT);
+	m_wndCoSearchLabel.MoveWindow(nSearchLabelLeft, nRow1Top + TAECHANG_LABEL_VERT_OFFSET, TAECHANG_CO_SEARCH_LABEL_W, TAECHANG_EDIT_HEIGHT);
+	m_wndCoSearchEdit.MoveWindow(nSearchEditLeft, nRow1Top, TAECHANG_RESULT_FILTER_WIDTH, TAECHANG_EDIT_HEIGHT);
 	{
 		CRect rcFmt;
 		m_wndCoSearchEdit.GetClientRect(&rcFmt);
@@ -3922,20 +3919,29 @@ void CSageTaechangView::LayoutCompanyOrderPanel(int nLeft, int nTop, int nWidth,
 		rcFmt.right = TAECHANG_EDIT_FORMAT_MAX_WIDTH;
 		m_wndCoSearchEdit.SendMessage(EM_SETRECT, 0, reinterpret_cast<LPARAM>(&rcFmt));
 	}
-	m_wndCoSearchBtn.MoveWindow(nSearchBtnLeft, nBtnTop, TAECHANG_RESULT_SEARCH_WIDTH, TAECHANG_BUTTON_HEIGHT);
+	m_wndCoSearchBtn.MoveWindow(nSearchBtnLeft, nRow1Top, TAECHANG_RESULT_SEARCH_WIDTH, TAECHANG_BUTTON_HEIGHT);
 
-	int nFormHeight = TAECHANG_SECTION_TITLE_HEIGHT + TAECHANG_ROW_GAP + TAECHANG_EDIT_HEIGHT + TAECHANG_ROW_GAP + TAECHANG_BUTTON_HEIGHT;
-	int nFormTop = nTop + nHeight - nFormHeight - TAECHANG_MARGIN;
-	int nListTop = nTop + TAECHANG_BUTTON_HEIGHT + TAECHANG_PANEL_GAP;
-	int nListHeight = nFormTop - nListTop - TAECHANG_PANEL_GAP;
-	if (nListHeight < TAECHANG_RESULT_MIN_HEIGHT)
-		nListHeight = TAECHANG_RESULT_MIN_HEIGHT;
-	m_wndCoList.MoveWindow(nLeft, nListTop, nWidth, nListHeight);
-	UpdateCoListColumns(nWidth);
-
-	m_wndCoFormSection.MoveWindow(nLeft, nFormTop, nWidth, TAECHANG_SECTION_TITLE_HEIGHT);
-	nFormTop += TAECHANG_SECTION_TITLE_HEIGHT + TAECHANG_ROW_GAP;
-	m_wndCoCompanyEdit.MoveWindow(nLeft, nFormTop, nWidth, TAECHANG_EDIT_HEIGHT);
+	// Row 2: 입력 필드 행 (순서 + 법인명)
+	int nRow2Top = nRow1Top + TAECHANG_BUTTON_HEIGHT + TAECHANG_ROW_GAP;
+	int nFieldX = nLeft;
+	m_wndCoOrderLabel.MoveWindow(nFieldX, nRow2Top + TAECHANG_LABEL_VERT_OFFSET, TAECHANG_CO_ORDER_LABEL_W, TAECHANG_EDIT_HEIGHT);
+	nFieldX += TAECHANG_CO_ORDER_LABEL_W + TAECHANG_LABEL_EDIT_GAP;
+	m_wndCoOrderEdit.MoveWindow(nFieldX, nRow2Top, TAECHANG_CO_ORDER_EDIT_WIDTH, TAECHANG_EDIT_HEIGHT);
+	{
+		CRect rcFmt;
+		m_wndCoOrderEdit.GetClientRect(&rcFmt);
+		rcFmt.top += TAECHANG_EDIT_TEXT_TOP_PAD;
+		rcFmt.left += 4;
+		rcFmt.right = TAECHANG_EDIT_FORMAT_MAX_WIDTH;
+		m_wndCoOrderEdit.SendMessage(EM_SETRECT, 0, reinterpret_cast<LPARAM>(&rcFmt));
+	}
+	nFieldX += TAECHANG_CO_ORDER_EDIT_WIDTH + TAECHANG_ACTION_GAP;
+	m_wndCoNameLabel.MoveWindow(nFieldX, nRow2Top + TAECHANG_LABEL_VERT_OFFSET, TAECHANG_CO_NAME_LABEL_W, TAECHANG_EDIT_HEIGHT);
+	nFieldX += TAECHANG_CO_NAME_LABEL_W + TAECHANG_LABEL_EDIT_GAP;
+	int nCompanyEditWidth = nLeft + nWidth - nFieldX;
+	if (nCompanyEditWidth < 80)
+		nCompanyEditWidth = 80;
+	m_wndCoCompanyEdit.MoveWindow(nFieldX, nRow2Top, nCompanyEditWidth, TAECHANG_EDIT_HEIGHT);
 	{
 		CRect rcFmt;
 		m_wndCoCompanyEdit.GetClientRect(&rcFmt);
@@ -3944,10 +3950,14 @@ void CSageTaechangView::LayoutCompanyOrderPanel(int nLeft, int nTop, int nWidth,
 		rcFmt.right = TAECHANG_EDIT_FORMAT_MAX_WIDTH;
 		m_wndCoCompanyEdit.SendMessage(EM_SETRECT, 0, reinterpret_cast<LPARAM>(&rcFmt));
 	}
-	nFormTop += TAECHANG_EDIT_HEIGHT + TAECHANG_ROW_GAP;
-	int nSaveBtnLeft = nLeft + nWidth - TAECHANG_BUTTON_WIDTH - TAECHANG_ACTION_GAP - TAECHANG_BUTTON_WIDTH;
-	m_wndCoSaveBtn.MoveWindow(nSaveBtnLeft, nFormTop, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
-	m_wndCoCancelBtn.MoveWindow(nSaveBtnLeft + TAECHANG_BUTTON_WIDTH + TAECHANG_ACTION_GAP, nFormTop, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
+
+	// 리스트
+	int nListTop = nRow2Top + TAECHANG_EDIT_HEIGHT + TAECHANG_PANEL_GAP;
+	int nListHeight = nHeight - (nListTop - nTop) - TAECHANG_MARGIN;
+	if (nListHeight < TAECHANG_RESULT_MIN_HEIGHT)
+		nListHeight = TAECHANG_RESULT_MIN_HEIGHT;
+	m_wndCoList.MoveWindow(nLeft, nListTop, nWidth, nListHeight);
+	UpdateCoListColumns();
 }
 
 void CSageTaechangView::ShowCompanyOrderPanel(BOOL bShow) {
@@ -3955,16 +3965,15 @@ void CSageTaechangView::ShowCompanyOrderPanel(BOOL bShow) {
 	m_wndCoAddBtn.ShowWindow(nCmdShow);
 	m_wndCoModifyBtn.ShowWindow(nCmdShow);
 	m_wndCoDeleteBtn.ShowWindow(nCmdShow);
-	m_wndCoMoveUpBtn.ShowWindow(nCmdShow);
-	m_wndCoMoveDownBtn.ShowWindow(nCmdShow);
 	m_wndCoSearchLabel.ShowWindow(nCmdShow);
 	m_wndCoSearchEdit.ShowWindow(nCmdShow);
 	m_wndCoSearchBtn.ShowWindow(nCmdShow);
-	m_wndCoList.ShowWindow(nCmdShow);
-	m_wndCoFormSection.ShowWindow(nCmdShow);
+	m_wndCoOrderLabel.ShowWindow(nCmdShow);
+	m_wndCoOrderEdit.ShowWindow(nCmdShow);
+	m_wndCoNameLabel.ShowWindow(nCmdShow);
 	m_wndCoCompanyEdit.ShowWindow(nCmdShow);
+	m_wndCoList.ShowWindow(nCmdShow);
 	if (!bShow) {
-		m_wndCoSaveBtn.ShowWindow(SW_HIDE);
 		m_wndCoCancelBtn.ShowWindow(SW_HIDE);
 		m_nCoPanelState = TAECHANG_CO_PANEL_IDLE;
 	} else {
@@ -3972,34 +3981,24 @@ void CSageTaechangView::ShowCompanyOrderPanel(BOOL bShow) {
 	}
 }
 
-void CSageTaechangView::UpdateCoListColumns(int nWidth) {
+void CSageTaechangView::UpdateCoListColumns() {
 	if (!::IsWindow(m_wndCoList.GetSafeHwnd()))
 		return;
-	int nCompanyWidth = nWidth - TAECHANG_CO_ORDER_COL_WIDTH;
-	if (nCompanyWidth < 100)
-		nCompanyWidth = 100;
 	m_wndCoList.SetColumnWidth(0, TAECHANG_CO_ORDER_COL_WIDTH);
-	m_wndCoList.SetColumnWidth(1, nCompanyWidth);
+	m_wndCoList.SetColumnWidth(1, TAECHANG_CO_COMPANY_NAME_WIDTH);
 }
 
 void CSageTaechangView::UpdateCoPanelState() {
-	BOOL bEditing = (m_nCoPanelState != TAECHANG_CO_PANEL_IDLE) ? TRUE : FALSE;
+	BOOL bEditing = (m_nCoPanelState == TAECHANG_CO_PANEL_MODIFY) ? TRUE : FALSE;
 	BOOL bHasSelection = (m_nCoSelectedOrderId > 0) ? TRUE : FALSE;
-	BOOL bHasFilter = !m_strCoSearchKeyword.IsEmpty();
-	int nSel = m_wndCoList.GetNextItem(-1, LVNI_SELECTED);
-	BOOL bCanMoveUp = (!bEditing && bHasSelection && !bHasFilter && nSel > 0) ? TRUE : FALSE;
-	BOOL bCanMoveDown = (!bEditing && bHasSelection && !bHasFilter && nSel >= 0 && nSel < m_wndCoList.GetItemCount() - 1) ? TRUE : FALSE;
 
 	m_wndCoAddBtn.EnableWindow(!bEditing ? TRUE : FALSE);
-	m_wndCoModifyBtn.EnableWindow((!bEditing && bHasSelection) ? TRUE : FALSE);
+	m_wndCoModifyBtn.EnableWindow((bEditing || bHasSelection) ? TRUE : FALSE);
+	m_wndCoModifyBtn.SetWindowTextW(bEditing ? TAECHANG_UI_CO_SAVE_BTN : TAECHANG_UI_CO_MODIFY_BTN);
 	m_wndCoDeleteBtn.EnableWindow((!bEditing && bHasSelection) ? TRUE : FALSE);
-	m_wndCoMoveUpBtn.EnableWindow(bCanMoveUp);
-	m_wndCoMoveDownBtn.EnableWindow(bCanMoveDown);
+	m_wndCoCancelBtn.ShowWindow(bEditing ? SW_SHOW : SW_HIDE);
 	m_wndCoSearchEdit.EnableWindow(!bEditing ? TRUE : FALSE);
 	m_wndCoSearchBtn.EnableWindow(!bEditing ? TRUE : FALSE);
-	m_wndCoCompanyEdit.EnableWindow(bEditing ? TRUE : FALSE);
-	m_wndCoSaveBtn.ShowWindow(bEditing ? SW_SHOW : SW_HIDE);
-	m_wndCoCancelBtn.ShowWindow(bEditing ? SW_SHOW : SW_HIDE);
 }
 
 void CSageTaechangView::RefreshCompanyOrderList() {
@@ -4042,30 +4041,87 @@ void CSageTaechangView::RefreshCompanyOrderList() {
 }
 
 void CSageTaechangView::OnCoAdd() {
-	m_nCoPanelState = TAECHANG_CO_PANEL_ADD;
-	m_nCoSelectedOrderId = 0;
-	m_wndCoList.SetItemState(-1, 0, LVIS_SELECTED);
+	CString strCompanyName;
+	CString strOrderStr;
+	m_wndCoCompanyEdit.GetWindowTextW(strCompanyName);
+	m_wndCoOrderEdit.GetWindowTextW(strOrderStr);
+	strCompanyName.Trim();
+	if (strCompanyName.IsEmpty()) {
+		AfxMessageBox(TAECHANG_UI_CO_COMPANY_REQUIRED);
+		m_wndCoCompanyEdit.SetFocus();
+		return;
+	}
+	int nSortOrder;
+	strOrderStr.Trim();
+	if (strOrderStr.IsEmpty()) {
+		nSortOrder = 1;
+		for (int i = 0; i < m_arrCoOrders.GetSize(); ++i) {
+			if (m_arrCoOrders[i].nSortOrder >= nSortOrder)
+				nSortOrder = m_arrCoOrders[i].nSortOrder + 1;
+		}
+	} else {
+		nSortOrder = _wtoi(strOrderStr);
+	}
+	TaechangReceivableCompanyOrderDto dto;
+	dto.strCompanyName = strCompanyName;
+	dto.nSortOrder = nSortOrder;
+	int nNewOrderId = 0;
+	CString strError;
+	if (sageDBMgr.GetReceivableCompanyOrderService()->AddCompanyOrder(dto, nNewOrderId, strError) == FALSE) {
+		AfxMessageBox(strError);
+		return;
+	}
+	m_wndCoOrderEdit.SetWindowTextW(L"");
 	m_wndCoCompanyEdit.SetWindowTextW(L"");
-	UpdateCoPanelState();
-	m_wndCoCompanyEdit.SetFocus();
-	Invalidate(FALSE);
+	m_nCoSelectedOrderId = nNewOrderId;
+	m_wndCoList.SetItemState(-1, 0, LVIS_SELECTED);
+	RefreshCompanyOrderList();
 }
 
 void CSageTaechangView::OnCoModify() {
-	if (m_nCoSelectedOrderId <= 0) {
-		AfxMessageBox(TAECHANG_UI_CO_SELECT_REQUIRED);
-		return;
-	}
-	m_nCoPanelState = TAECHANG_CO_PANEL_MODIFY;
-	for (int i = 0; i < m_arrCoOrders.GetSize(); ++i) {
-		if (m_arrCoOrders[i].nOrderId == m_nCoSelectedOrderId) {
-			m_wndCoCompanyEdit.SetWindowTextW(m_arrCoOrders[i].strCompanyName);
-			break;
+	if (m_nCoPanelState == TAECHANG_CO_PANEL_IDLE) {
+		if (m_nCoSelectedOrderId <= 0) {
+			AfxMessageBox(TAECHANG_UI_CO_SELECT_REQUIRED);
+			return;
 		}
+		m_nCoPanelState = TAECHANG_CO_PANEL_MODIFY;
+		UpdateCoPanelState();
+		m_wndCoCompanyEdit.SetFocus();
+		Invalidate(FALSE);
+	} else {
+		CString strCompanyName;
+		CString strOrderStr;
+		m_wndCoCompanyEdit.GetWindowTextW(strCompanyName);
+		m_wndCoOrderEdit.GetWindowTextW(strOrderStr);
+		strCompanyName.Trim();
+		if (strCompanyName.IsEmpty()) {
+			AfxMessageBox(TAECHANG_UI_CO_COMPANY_REQUIRED);
+			m_wndCoCompanyEdit.SetFocus();
+			return;
+		}
+		TaechangReceivableCompanyOrderDto dto;
+		BOOL bFound = FALSE;
+		for (int i = 0; i < m_arrCoOrders.GetSize(); ++i) {
+			if (m_arrCoOrders[i].nOrderId == m_nCoSelectedOrderId) {
+				dto = m_arrCoOrders[i];
+				bFound = TRUE;
+				break;
+			}
+		}
+		if (!bFound)
+			return;
+		dto.strCompanyName = strCompanyName;
+		strOrderStr.Trim();
+		if (!strOrderStr.IsEmpty())
+			dto.nSortOrder = _wtoi(strOrderStr);
+		CString strError;
+		if (sageDBMgr.GetReceivableCompanyOrderService()->ChangeCompanyOrder(dto, strError) == FALSE) {
+			AfxMessageBox(strError);
+			return;
+		}
+		m_nCoPanelState = TAECHANG_CO_PANEL_IDLE;
+		RefreshCompanyOrderList();
 	}
-	UpdateCoPanelState();
-	m_wndCoCompanyEdit.SetFocus();
-	Invalidate(FALSE);
 }
 
 void CSageTaechangView::OnCoDelete() {
@@ -4090,118 +4146,16 @@ void CSageTaechangView::OnCoDelete() {
 		return;
 	}
 	m_nCoSelectedOrderId = 0;
-	RefreshCompanyOrderList();
-}
-
-void CSageTaechangView::OnCoMoveUp() {
-	int nSel = m_wndCoList.GetNextItem(-1, LVNI_SELECTED);
-	if (nSel <= 0)
-		return;
-	int nCurOrderId = static_cast<int>(m_wndCoList.GetItemData(nSel));
-	int nPrevOrderId = static_cast<int>(m_wndCoList.GetItemData(nSel - 1));
-	TaechangReceivableCompanyOrderDto dtoA, dtoB;
-	BOOL bFoundA = FALSE, bFoundB = FALSE;
-	for (int i = 0; i < m_arrCoOrders.GetSize(); ++i) {
-		if (m_arrCoOrders[i].nOrderId == nCurOrderId)  { dtoA = m_arrCoOrders[i]; bFoundA = TRUE; }
-		if (m_arrCoOrders[i].nOrderId == nPrevOrderId) { dtoB = m_arrCoOrders[i]; bFoundB = TRUE; }
-	}
-	if (!bFoundA || !bFoundB)
-		return;
-	int nTemp = dtoA.nSortOrder;
-	dtoA.nSortOrder = dtoB.nSortOrder;
-	dtoB.nSortOrder = nTemp;
-	CString strError;
-	if (sageDBMgr.GetReceivableCompanyOrderService()->ChangeCompanyOrder(dtoA, strError) == FALSE) {
-		AfxMessageBox(strError);
-		return;
-	}
-	if (sageDBMgr.GetReceivableCompanyOrderService()->ChangeCompanyOrder(dtoB, strError) == FALSE) {
-		AfxMessageBox(strError);
-		return;
-	}
-	m_nCoSelectedOrderId = nCurOrderId;
-	RefreshCompanyOrderList();
-}
-
-void CSageTaechangView::OnCoMoveDown() {
-	int nSel = m_wndCoList.GetNextItem(-1, LVNI_SELECTED);
-	if (nSel < 0 || nSel >= m_wndCoList.GetItemCount() - 1)
-		return;
-	int nCurOrderId = static_cast<int>(m_wndCoList.GetItemData(nSel));
-	int nNextOrderId = static_cast<int>(m_wndCoList.GetItemData(nSel + 1));
-	TaechangReceivableCompanyOrderDto dtoA, dtoB;
-	BOOL bFoundA = FALSE, bFoundB = FALSE;
-	for (int i = 0; i < m_arrCoOrders.GetSize(); ++i) {
-		if (m_arrCoOrders[i].nOrderId == nCurOrderId)  { dtoA = m_arrCoOrders[i]; bFoundA = TRUE; }
-		if (m_arrCoOrders[i].nOrderId == nNextOrderId) { dtoB = m_arrCoOrders[i]; bFoundB = TRUE; }
-	}
-	if (!bFoundA || !bFoundB)
-		return;
-	int nTemp = dtoA.nSortOrder;
-	dtoA.nSortOrder = dtoB.nSortOrder;
-	dtoB.nSortOrder = nTemp;
-	CString strError;
-	if (sageDBMgr.GetReceivableCompanyOrderService()->ChangeCompanyOrder(dtoA, strError) == FALSE) {
-		AfxMessageBox(strError);
-		return;
-	}
-	if (sageDBMgr.GetReceivableCompanyOrderService()->ChangeCompanyOrder(dtoB, strError) == FALSE) {
-		AfxMessageBox(strError);
-		return;
-	}
-	m_nCoSelectedOrderId = nCurOrderId;
-	RefreshCompanyOrderList();
-}
-
-void CSageTaechangView::OnCoSave() {
-	CString strCompanyName;
-	m_wndCoCompanyEdit.GetWindowTextW(strCompanyName);
-	strCompanyName.Trim();
-	if (strCompanyName.IsEmpty()) {
-		AfxMessageBox(TAECHANG_UI_CO_COMPANY_REQUIRED);
-		m_wndCoCompanyEdit.SetFocus();
-		return;
-	}
-	CString strError;
-	if (m_nCoPanelState == TAECHANG_CO_PANEL_ADD) {
-		int nNewSortOrder = 1;
-		for (int i = 0; i < m_arrCoOrders.GetSize(); ++i) {
-			if (m_arrCoOrders[i].nSortOrder >= nNewSortOrder)
-				nNewSortOrder = m_arrCoOrders[i].nSortOrder + 1;
-		}
-		TaechangReceivableCompanyOrderDto dto;
-		dto.strCompanyName = strCompanyName;
-		dto.nSortOrder = nNewSortOrder;
-		int nNewOrderId = 0;
-		if (sageDBMgr.GetReceivableCompanyOrderService()->AddCompanyOrder(dto, nNewOrderId, strError) == FALSE) {
-			AfxMessageBox(strError);
-			return;
-		}
-		m_nCoSelectedOrderId = nNewOrderId;
-	} else if (m_nCoPanelState == TAECHANG_CO_PANEL_MODIFY) {
-		TaechangReceivableCompanyOrderDto dto;
-		BOOL bFound = FALSE;
-		for (int i = 0; i < m_arrCoOrders.GetSize(); ++i) {
-			if (m_arrCoOrders[i].nOrderId == m_nCoSelectedOrderId) {
-				dto = m_arrCoOrders[i];
-				bFound = TRUE;
-				break;
-			}
-		}
-		if (!bFound)
-			return;
-		dto.strCompanyName = strCompanyName;
-		if (sageDBMgr.GetReceivableCompanyOrderService()->ChangeCompanyOrder(dto, strError) == FALSE) {
-			AfxMessageBox(strError);
-			return;
-		}
-	}
-	m_nCoPanelState = TAECHANG_CO_PANEL_IDLE;
+	m_wndCoOrderEdit.SetWindowTextW(L"");
+	m_wndCoCompanyEdit.SetWindowTextW(L"");
 	RefreshCompanyOrderList();
 }
 
 void CSageTaechangView::OnCoCancel() {
 	m_nCoPanelState = TAECHANG_CO_PANEL_IDLE;
+	m_nCoSelectedOrderId = 0;
+	m_wndCoList.SetItemState(-1, 0, LVIS_SELECTED);
+	m_wndCoOrderEdit.SetWindowTextW(L"");
 	m_wndCoCompanyEdit.SetWindowTextW(L"");
 	UpdateCoPanelState();
 	Invalidate(FALSE);
@@ -4211,6 +4165,8 @@ void CSageTaechangView::OnCoSearch() {
 	m_wndCoSearchEdit.GetWindowTextW(m_strCoSearchKeyword);
 	m_strCoSearchKeyword.Trim();
 	m_nCoSelectedOrderId = 0;
+	m_wndCoOrderEdit.SetWindowTextW(L"");
+	m_wndCoCompanyEdit.SetWindowTextW(L"");
 	RefreshCompanyOrderList();
 }
 
@@ -4218,6 +4174,24 @@ void CSageTaechangView::OnCoListSelChanged(NMHDR* pNMHDR, LRESULT* pResult) {
 	UNREFERENCED_PARAMETER(pNMHDR);
 	int nSel = m_wndCoList.GetNextItem(-1, LVNI_SELECTED);
 	m_nCoSelectedOrderId = (nSel >= 0) ? static_cast<int>(m_wndCoList.GetItemData(nSel)) : 0;
+	if (m_nCoPanelState == TAECHANG_CO_PANEL_IDLE) {
+		if (m_nCoSelectedOrderId > 0) {
+			for (int i = 0; i < m_arrCoOrders.GetSize(); ++i) {
+				if (m_arrCoOrders[i].nOrderId == m_nCoSelectedOrderId) {
+					CString strOrder;
+					strOrder.Format(L"%d", m_arrCoOrders[i].nSortOrder);
+					m_wndCoOrderEdit.SetWindowTextW(strOrder);
+					m_wndCoCompanyEdit.SetWindowTextW(m_arrCoOrders[i].strCompanyName);
+					Invalidate(FALSE);
+					break;
+				}
+			}
+		} else {
+			m_wndCoOrderEdit.SetWindowTextW(L"");
+			m_wndCoCompanyEdit.SetWindowTextW(L"");
+			Invalidate(FALSE);
+		}
+	}
 	UpdateCoPanelState();
 	*pResult = 0;
 }
