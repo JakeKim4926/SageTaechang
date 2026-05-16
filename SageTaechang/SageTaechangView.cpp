@@ -2330,7 +2330,7 @@ void CSageTaechangView::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct
 		CBrush* pOldBrush = (CBrush*)pDC->SelectStockObject(NULL_BRUSH);
 		int cx = rect.CenterPoint().x;
 		int cy = rect.CenterPoint().y;
-		int dw = 7, dh = 9, fc = 3;
+		int dw = 6, dh = 7, fc = 3;
 		POINT pts[] = {
 			{cx - dw,      cy - dh},
 			{cx + dw - fc, cy - dh},
@@ -2343,9 +2343,9 @@ void CSageTaechangView::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct
 		pDC->MoveTo(cx + dw - fc, cy - dh);
 		pDC->LineTo(cx + dw - fc, cy - dh + fc);
 		pDC->LineTo(cx + dw,      cy - dh + fc);
-		pDC->MoveTo(cx - dw + 2, cy - 3); pDC->LineTo(cx + dw - 2, cy - 3);
+		pDC->MoveTo(cx - dw + 2, cy - 2); pDC->LineTo(cx + dw - 2, cy - 2);
 		pDC->MoveTo(cx - dw + 2, cy + 1); pDC->LineTo(cx + dw - 2, cy + 1);
-		pDC->MoveTo(cx - dw + 2, cy + 5); pDC->LineTo(cx + dw - 4, cy + 5);
+		pDC->MoveTo(cx - dw + 2, cy + 4); pDC->LineTo(cx + dw - 4, cy + 4);
 		if (pOldBrush) pDC->SelectObject(pOldBrush);
 		if (pOldPen)   pDC->SelectObject(pOldPen);
 		return;
@@ -2359,23 +2359,23 @@ void CSageTaechangView::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct
 		int cx = rect.CenterPoint().x;
 		int cy = rect.CenterPoint().y;
 		POINT arcPts[] = {
-			{cx + 7, cy + 2},
-			{cx + 6, cy + 4},
-			{cx + 4, cy + 6},
-			{cx,     cy + 7},
-			{cx - 4, cy + 6},
-			{cx - 6, cy + 4},
-			{cx - 7, cy},
-			{cx - 6, cy - 4},
-			{cx - 4, cy - 6},
-			{cx,     cy - 7},
-			{cx + 4, cy - 6},
+			{cx + 6, cy + 2},
+			{cx + 5, cy + 3},
+			{cx + 3, cy + 5},
+			{cx,     cy + 6},
+			{cx - 3, cy + 5},
+			{cx - 5, cy + 3},
+			{cx - 6, cy},
+			{cx - 5, cy - 3},
+			{cx - 3, cy - 5},
+			{cx,     cy - 6},
+			{cx + 3, cy - 5},
 		};
 		pDC->Polyline(arcPts, 11);
 		POINT arrow[] = {
-			{cx + 4 - 3, cy - 6 - 3},
-			{cx + 4,     cy - 6},
-			{cx + 4 + 4, cy - 6 + 2},
+			{cx + 3 - 2, cy - 5 - 3},
+			{cx + 3,     cy - 5},
+			{cx + 3 + 3, cy - 5 + 2},
 		};
 		pDC->Polyline(arrow, 3);
 		if (pOldBrush) pDC->SelectObject(pOldBrush);
