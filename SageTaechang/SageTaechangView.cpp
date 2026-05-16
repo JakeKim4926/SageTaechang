@@ -3956,7 +3956,7 @@ void CSageTaechangView::LayoutCompanyOrderPanel(int nLeft, int nTop, int nWidth,
 	int nListHeight = nHeight - (nListTop - nTop) - TAECHANG_MARGIN;
 	if (nListHeight < TAECHANG_RESULT_MIN_HEIGHT)
 		nListHeight = TAECHANG_RESULT_MIN_HEIGHT;
-	m_wndCoList.MoveWindow(nLeft, nListTop, nWidth, nListHeight);
+	m_wndCoList.MoveWindow(nLeft, nListTop, TAECHANG_CO_LIST_WIDTH, nListHeight);
 	UpdateCoListColumns();
 }
 
@@ -3983,13 +3983,8 @@ void CSageTaechangView::ShowCompanyOrderPanel(BOOL bShow) {
 void CSageTaechangView::UpdateCoListColumns() {
 	if (!::IsWindow(m_wndCoList.GetSafeHwnd()))
 		return;
-	CRect rcList;
-	m_wndCoList.GetClientRect(&rcList);
-	int nCompanyWidth = rcList.Width() - TAECHANG_CO_ORDER_COL_WIDTH;
-	if (nCompanyWidth < 100)
-		nCompanyWidth = 100;
 	m_wndCoList.SetColumnWidth(0, TAECHANG_CO_ORDER_COL_WIDTH);
-	m_wndCoList.SetColumnWidth(1, nCompanyWidth);
+	m_wndCoList.SetColumnWidth(1, TAECHANG_CO_COMPANY_NAME_WIDTH);
 }
 
 void CSageTaechangView::UpdateCoPanelState() {
