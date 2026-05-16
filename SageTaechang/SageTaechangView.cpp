@@ -3896,7 +3896,7 @@ void CSageTaechangView::LayoutCompanyOrderPanel(int nLeft, int nTop, int nWidth,
 		return;
 
 	int nRightLeft = nLeft + TAECHANG_CO_LIST_WIDTH + TAECHANG_PANEL_GAP;
-	int nRightWidth = nLeft + nWidth - nRightLeft;
+	int nRightWidth = TAECHANG_CO_RIGHT_PANEL_WIDTH;
 
 	// 좌측 상단: 검색바 (리스트 너비 안, 우정렬)
 	int nSearchBtnLeft = nLeft + TAECHANG_CO_LIST_WIDTH - TAECHANG_RESULT_SEARCH_WIDTH;
