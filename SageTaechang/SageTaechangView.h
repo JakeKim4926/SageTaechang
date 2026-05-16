@@ -186,6 +186,7 @@ protected:
     CStatic              m_wndCalcPagesLabel;
     CEdit                m_wndCalcPagesEdit;
     CButton              m_wndCalcBtn;
+    CButton              m_wndCalcResetBtn;
     CStatic              m_wndCalcPrintLabel;
     CStatic              m_wndCalcPrintValue;
     CStatic              m_wndCalcCoverLabel;
@@ -341,6 +342,7 @@ protected:
 
     // ── 부수 계산 이벤트 ────────────────────────────────────────────────────
     afx_msg void OnCalc();
+    afx_msg void OnCalcReset();
     afx_msg void OnCalcCompanyChanged();
     afx_msg void OnCalcInputChanged();
     afx_msg void OnCalcFreightChanged();

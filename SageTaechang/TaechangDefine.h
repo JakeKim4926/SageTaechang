@@ -443,6 +443,7 @@ constexpr UINT ID_CALC_BTN                = 41052;
 constexpr UINT ID_CALC_FREIGHT_EDIT       = 41053;
 constexpr UINT ID_CALC_PAGES_EDIT         = 41060;
 constexpr UINT ID_CALC_COMPANY_PICK_BTN   = 41061;
+constexpr UINT ID_CALC_RESET_BTN          = 41064;
 constexpr UINT ID_PICKER_DLG_SEARCH_EDIT  = 41062;
 constexpr UINT ID_PICKER_DLG_LIST         = 41063;
 
