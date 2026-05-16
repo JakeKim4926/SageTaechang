@@ -347,6 +347,7 @@ BEGIN_MESSAGE_MAP(CSageTaechangView, CView)
 	ON_CBN_SELCHANGE(ID_CALC_COMPANY_COMBO, &CSageTaechangView::OnCalcCompanyChanged)
 	ON_CBN_EDITCHANGE(ID_CALC_COMPANY_COMBO, &CSageTaechangView::OnCalcCompanyChanged)
 	ON_BN_CLICKED(ID_CALC_BTN, &CSageTaechangView::OnCalc)
+	ON_BN_CLICKED(ID_CALC_RESET_BTN, &CSageTaechangView::OnCalcReset)
 	ON_EN_CHANGE(ID_CALC_COPIES_EDIT, &CSageTaechangView::OnCalcInputChanged)
 	ON_EN_CHANGE(ID_CALC_PAGES_EDIT, &CSageTaechangView::OnCalcInputChanged)
 	ON_EN_CHANGE(ID_CALC_FREIGHT_EDIT, &CSageTaechangView::OnCalcFreightChanged)
@@ -648,6 +649,7 @@ void CSageTaechangView::ApplyControlFonts() {
 	m_wndCalcPagesLabel.SetFont(&m_fontContent);
 	m_wndCalcPagesEdit.SetFont(&m_fontContent);
 	m_wndCalcBtn.SetFont(&m_fontContent);
+	m_wndCalcResetBtn.SetFont(&m_fontContent);
 	m_wndCalcPrintLabel.SetFont(&m_fontContent);
 	m_wndCalcPrintValue.SetFont(&m_fontContent);
 	m_wndCalcCoverLabel.SetFont(&m_fontContent);
@@ -2321,6 +2323,66 @@ void CSageTaechangView::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct
 		return;
 	}
 
+	if (nIDCtl == ID_CALC_BTN) {
+		COLORREF clrIcon = bDisabled ? TAECHANG_COLOR_SECONDARY_TEXT : TAECHANG_COLOR_BUTTON_TEXT;
+		CPen pen(PS_SOLID, 1, clrIcon);
+		CPen* pOldPen = pDC->SelectObject(&pen);
+		CBrush* pOldBrush = (CBrush*)pDC->SelectStockObject(NULL_BRUSH);
+		int cx = rect.CenterPoint().x;
+		int cy = rect.CenterPoint().y;
+		int dw = 7, dh = 9, fc = 3;
+		POINT pts[] = {
+			{cx - dw,      cy - dh},
+			{cx + dw - fc, cy - dh},
+			{cx + dw,      cy - dh + fc},
+			{cx + dw,      cy + dh},
+			{cx - dw,      cy + dh},
+			{cx - dw,      cy - dh},
+		};
+		pDC->Polyline(pts, 6);
+		pDC->MoveTo(cx + dw - fc, cy - dh);
+		pDC->LineTo(cx + dw - fc, cy - dh + fc);
+		pDC->LineTo(cx + dw,      cy - dh + fc);
+		pDC->MoveTo(cx - dw + 2, cy - 3); pDC->LineTo(cx + dw - 2, cy - 3);
+		pDC->MoveTo(cx - dw + 2, cy + 1); pDC->LineTo(cx + dw - 2, cy + 1);
+		pDC->MoveTo(cx - dw + 2, cy + 5); pDC->LineTo(cx + dw - 4, cy + 5);
+		if (pOldBrush) pDC->SelectObject(pOldBrush);
+		if (pOldPen)   pDC->SelectObject(pOldPen);
+		return;
+	}
+
+	if (nIDCtl == ID_CALC_RESET_BTN) {
+		COLORREF clrIcon = bDisabled ? TAECHANG_COLOR_SECONDARY_TEXT : TAECHANG_COLOR_PRIMARY;
+		CPen pen(PS_SOLID, 2, clrIcon);
+		CPen* pOldPen = pDC->SelectObject(&pen);
+		CBrush* pOldBrush = (CBrush*)pDC->SelectStockObject(NULL_BRUSH);
+		int cx = rect.CenterPoint().x;
+		int cy = rect.CenterPoint().y;
+		POINT arcPts[] = {
+			{cx + 7, cy + 2},
+			{cx + 6, cy + 4},
+			{cx + 4, cy + 6},
+			{cx,     cy + 7},
+			{cx - 4, cy + 6},
+			{cx - 6, cy + 4},
+			{cx - 7, cy},
+			{cx - 6, cy - 4},
+			{cx - 4, cy - 6},
+			{cx,     cy - 7},
+			{cx + 4, cy - 6},
+		};
+		pDC->Polyline(arcPts, 11);
+		POINT arrow[] = {
+			{cx + 4 - 3, cy - 6 - 3},
+			{cx + 4,     cy - 6},
+			{cx + 4 + 4, cy - 6 + 2},
+		};
+		pDC->Polyline(arrow, 3);
+		if (pOldBrush) pDC->SelectObject(pOldBrush);
+		if (pOldPen)   pDC->SelectObject(pOldPen);
+		return;
+	}
+
 	CFont* pOldFont = pDC->SelectObject((nIDCtl == ID_TAECHANG_RESULT_RESET_BTN || nIDCtl == ID_TAECHANG_INPUT_RESET_BTN) ? &m_fontHeader : &m_fontContent);
 	rect.OffsetRect(0, TAECHANG_BUTTON_TEXT_TOP_OFFSET);
 	pDC->DrawText(strText, rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
@@ -2545,7 +2607,8 @@ void CSageTaechangView::CreatePriceCalcPanel() {
 	m_wndCalcCopiesEdit.Create(WS_CHILD | ES_MULTILINE | ES_NUMBER | ES_RIGHT | ES_AUTOHSCROLL, r, this, ID_CALC_COPIES_EDIT);
 	m_wndCalcPagesLabel.Create(TAECHANG_UI_CALC_PAGES_LABEL, WS_CHILD | SS_RIGHT | SS_CENTERIMAGE, r, this);
 	m_wndCalcPagesEdit.Create(WS_CHILD | ES_MULTILINE | ES_NUMBER | ES_RIGHT | ES_AUTOHSCROLL, r, this, ID_CALC_PAGES_EDIT);
-	m_wndCalcBtn.Create(TAECHANG_UI_CALC_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_CALC_BTN);
+	m_wndCalcBtn.Create(L"", WS_CHILD | BS_OWNERDRAW, r, this, ID_CALC_BTN);
+	m_wndCalcResetBtn.Create(L"", WS_CHILD | BS_OWNERDRAW, r, this, ID_CALC_RESET_BTN);
 
 	m_wndCalcPrintLabel.Create(TAECHANG_UI_CALC_PRINT_LABEL, WS_CHILD | SS_RIGHT | SS_CENTERIMAGE, r, this);
 	m_wndCalcPrintValue.Create(TAECHANG_UI_PRICE_SUMMARY_EMPTY, WS_CHILD | SS_RIGHT | SS_CENTERIMAGE, r, this);
@@ -2777,11 +2840,14 @@ void CSageTaechangView::LayoutPriceCalcPanel(int nLeft, int nTop, int nWidth, in
 	int nPagesEditX = nPagesLabelX + nInputLabelW + TAECHANG_LABEL_EDIT_GAP;
 	m_wndCalcPagesEdit.MoveWindow(nPagesEditX, nCY, nInputEditW, TAECHANG_EDIT_HEIGHT);
 	ApplyCalcEditTextRect(m_wndCalcPagesEdit);
-	int nBtnSize = nInputPanelH;
+	int nIconBtnW = TAECHANG_CALC_COMPANY_PICK_BTN_W;
+	int nIconBtnGap = 6;
+	int nIconBtnH = (nInputPanelH - nIconBtnGap) / 2;
 	int nBtnX = m_rectCalcInputPanel.right + TAECHANG_ROW_GAP;
-	if (nBtnX + nBtnSize > nX + nW)
-		nBtnX = nX + nW - nBtnSize;
-	m_wndCalcBtn.MoveWindow(nBtnX, nY, nBtnSize, nBtnSize);
+	if (nBtnX + nIconBtnW > nX + nW)
+		nBtnX = nX + nW - nIconBtnW;
+	m_wndCalcBtn.MoveWindow(nBtnX, nY, nIconBtnW, nIconBtnH);
+	m_wndCalcResetBtn.MoveWindow(nBtnX, nY + nIconBtnH + nIconBtnGap, nIconBtnW, nIconBtnH);
 
 	nY += nInputPanelH + TAECHANG_CALC_SECTION_GAP;
 
@@ -2942,6 +3008,7 @@ void CSageTaechangView::ShowPriceCalcPanel(BOOL bShow) {
 	m_wndCalcPagesLabel.ShowWindow(nCmd);
 	m_wndCalcPagesEdit.ShowWindow(nCmd);
 	m_wndCalcBtn.ShowWindow(nCmd);
+	m_wndCalcResetBtn.ShowWindow(nCmd);
 	m_wndCalcPrintLabel.ShowWindow(nCmd);
 	m_wndCalcPrintValue.ShowWindow(nCmd);
 	m_wndCalcCoverLabel.ShowWindow(nCmd);
@@ -3622,6 +3689,14 @@ void CSageTaechangView::OnCalc() {
 			m_nCalcPrintPrice, m_nCalcCoverPrice, nFreight,
 			m_nCalcPrintPrice + m_nCalcCoverPrice + nFreight);
 	}
+}
+
+void CSageTaechangView::OnCalcReset() {
+	m_wndCalcCopiesEdit.SetWindowTextW(L"");
+	m_wndCalcPagesEdit.SetWindowTextW(L"");
+	m_wndCalcFreightEdit.SetWindowTextW(L"");
+	ClearCalcResult();
+	m_wndCalcCopiesEdit.SetFocus();
 }
 
 void CSageTaechangView::OnCalcCompanyChanged() {
