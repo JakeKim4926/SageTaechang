@@ -391,7 +391,8 @@ CSageTaechangView::CSageTaechangView() noexcept
 	, m_rectPriceSummaryCard(0, 0, 0, 0)
 	, m_nAuthDividerX(0)
 	, m_nCoPanelState(TAECHANG_CO_PANEL_IDLE)
-	, m_nCoSelectedOrderId(0) {
+	, m_nCoSelectedOrderId(0)
+	, m_rectCoCard(0, 0, 0, 0) {
 	m_brushAppBackground.CreateSolidBrush(TAECHANG_COLOR_APP_BACKGROUND);
 	m_brushPanel.CreateSolidBrush(TAECHANG_COLOR_PANEL);
 	m_brushSidebar.CreateSolidBrush(TAECHANG_COLOR_SIDEBAR);
@@ -1153,6 +1154,11 @@ void CSageTaechangView::OnDraw(CDC* pDC) {
 	DrawEditBorder(pDC, m_wndInputPath);
 	DrawEditBorder(pDC, m_wndOutputFolder);
 	DrawEditBorder(pDC, m_wndResultFilter);
+	if (!m_rectCoCard.IsRectEmpty()) {
+		pDC->FillSolidRect(m_rectCoCard, TAECHANG_COLOR_PANEL);
+		CBrush brCoCard(TAECHANG_COLOR_BORDER);
+		pDC->FrameRect(m_rectCoCard, &brCoCard);
+	}
 	DrawEditBorder(pDC, m_wndCoSearchEdit);
 	DrawEditBorder(pDC, m_wndCoOrderEdit);
 	DrawEditBorder(pDC, m_wndCoCompanyEdit);
@@ -3920,13 +3926,20 @@ void CSageTaechangView::LayoutCompanyOrderPanel(int nLeft, int nTop, int nWidth,
 	if (!::IsWindow(m_wndCoList.GetSafeHwnd()))
 		return;
 
-	int nListRight = nLeft + TAECHANG_CO_LIST_WIDTH;
+	// ── 섹션 1: CRUD 카드 ──────────────────────────────────────────────
+	// 카드 내부 컨트롤 기준점 (padding 적용)
+	int nPad = TAECHANG_MARGIN;
+	int nCardContentLeft  = nLeft + nPad;
+	int nCardContentRight = nLeft + TAECHANG_CO_LIST_WIDTH - nPad;
+	int nCardContentWidth = nCardContentRight - nCardContentLeft;
 
-	// ── 섹션 1: CRUD ─────────────────────────────────────────────────
-	m_wndCoCrudSection.MoveWindow(nLeft, nTop, TAECHANG_CO_LIST_WIDTH, TAECHANG_SECTION_TITLE_HEIGHT);
+	// 섹션 레이블
+	int nSectionTop = nTop + nPad;
+	m_wndCoCrudSection.MoveWindow(nCardContentLeft, nSectionTop, nCardContentWidth, TAECHANG_SECTION_TITLE_HEIGHT);
 
-	int nInputTop = nTop + TAECHANG_SECTION_TITLE_HEIGHT + TAECHANG_ROW_GAP;
-	int nX = nLeft;
+	// 입력 행
+	int nInputTop = nSectionTop + TAECHANG_SECTION_TITLE_HEIGHT + TAECHANG_ROW_GAP;
+	int nX = nCardContentLeft;
 	m_wndCoOrderLabel.MoveWindow(nX, nInputTop + TAECHANG_LABEL_VERT_OFFSET, TAECHANG_CO_ORDER_LABEL_W, TAECHANG_EDIT_HEIGHT);
 	nX += TAECHANG_CO_ORDER_LABEL_W + TAECHANG_LABEL_EDIT_GAP;
 	m_wndCoOrderEdit.MoveWindow(nX, nInputTop, TAECHANG_CO_ORDER_EDIT_WIDTH, TAECHANG_EDIT_HEIGHT);
@@ -3941,7 +3954,7 @@ void CSageTaechangView::LayoutCompanyOrderPanel(int nLeft, int nTop, int nWidth,
 	nX += TAECHANG_CO_ORDER_EDIT_WIDTH + TAECHANG_ACTION_GAP;
 	m_wndCoNameLabel.MoveWindow(nX, nInputTop + TAECHANG_LABEL_VERT_OFFSET, TAECHANG_CO_NAME_LABEL_W, TAECHANG_EDIT_HEIGHT);
 	nX += TAECHANG_CO_NAME_LABEL_W + TAECHANG_LABEL_EDIT_GAP;
-	int nCompanyEditWidth = nListRight - nX;
+	int nCompanyEditWidth = nCardContentRight - nX;
 	if (nCompanyEditWidth < 80)
 		nCompanyEditWidth = 80;
 	m_wndCoCompanyEdit.MoveWindow(nX, nInputTop, nCompanyEditWidth, TAECHANG_EDIT_HEIGHT);
@@ -3954,8 +3967,9 @@ void CSageTaechangView::LayoutCompanyOrderPanel(int nLeft, int nTop, int nWidth,
 		m_wndCoCompanyEdit.SendMessage(EM_SETRECT, 0, reinterpret_cast<LPARAM>(&rcFmt));
 	}
 
+	// 버튼 행
 	int nBtnTop = nInputTop + TAECHANG_EDIT_HEIGHT + TAECHANG_ROW_GAP;
-	nX = nLeft;
+	nX = nCardContentLeft;
 	m_wndCoAddBtn.MoveWindow(nX, nBtnTop, TAECHANG_CO_SMALL_BTN_WIDTH, TAECHANG_BUTTON_HEIGHT);
 	nX += TAECHANG_CO_SMALL_BTN_WIDTH + TAECHANG_ACTION_GAP;
 	m_wndCoModifyBtn.MoveWindow(nX, nBtnTop, TAECHANG_CO_SMALL_BTN_WIDTH, TAECHANG_BUTTON_HEIGHT);
@@ -3964,11 +3978,17 @@ void CSageTaechangView::LayoutCompanyOrderPanel(int nLeft, int nTop, int nWidth,
 	nX += TAECHANG_CO_SMALL_BTN_WIDTH + TAECHANG_ACTION_GAP;
 	m_wndCoDeleteBtn.MoveWindow(nX, nBtnTop, TAECHANG_CO_SMALL_BTN_WIDTH, TAECHANG_BUTTON_HEIGHT);
 
-	// ── 섹션 2: 리스트 ───────────────────────────────────────────────
-	int nListSectionTop = nBtnTop + TAECHANG_BUTTON_HEIGHT + TAECHANG_PANEL_GAP;
+	// 카드 rect 저장 (OnDraw에서 배경+테두리 그림)
+	int nCardHeight = nPad + TAECHANG_SECTION_TITLE_HEIGHT + TAECHANG_ROW_GAP
+		+ TAECHANG_EDIT_HEIGHT + TAECHANG_ROW_GAP + TAECHANG_BUTTON_HEIGHT + nPad;
+	m_rectCoCard = CRect(nLeft, nTop, nLeft + TAECHANG_CO_LIST_WIDTH, nTop + nCardHeight);
 
-	int nSearchBtnLeft  = nListRight - TAECHANG_RESULT_SEARCH_WIDTH;
-	int nSearchEditLeft = nSearchBtnLeft - TAECHANG_ACTION_GAP - TAECHANG_RESULT_FILTER_WIDTH;
+	// ── 섹션 2: 법인 목록 ────────────────────────────────────────────
+	int nListSectionTop = nTop + nCardHeight + TAECHANG_PANEL_GAP;
+	int nListRight = nLeft + TAECHANG_CO_LIST_WIDTH;
+
+	int nSearchBtnLeft   = nListRight - TAECHANG_RESULT_SEARCH_WIDTH;
+	int nSearchEditLeft  = nSearchBtnLeft - TAECHANG_ACTION_GAP - TAECHANG_RESULT_FILTER_WIDTH;
 	int nSearchLabelLeft = nSearchEditLeft - TAECHANG_LABEL_EDIT_GAP - TAECHANG_CO_SEARCH_LABEL_W;
 	int nSectionLabelWidth = nSearchLabelLeft - TAECHANG_ACTION_GAP - nLeft;
 	if (nSectionLabelWidth < 0) nSectionLabelWidth = 0;
@@ -4010,8 +4030,10 @@ void CSageTaechangView::ShowCompanyOrderPanel(BOOL bShow) {
 	m_wndCoNameLabel.ShowWindow(nCmdShow);
 	m_wndCoCompanyEdit.ShowWindow(nCmdShow);
 	m_wndCoList.ShowWindow(nCmdShow);
-	if (!bShow)
+	if (!bShow) {
 		m_nCoPanelState = TAECHANG_CO_PANEL_IDLE;
+		m_rectCoCard.SetRectEmpty();
+	}
 	else
 		UpdateCoPanelState();
 }

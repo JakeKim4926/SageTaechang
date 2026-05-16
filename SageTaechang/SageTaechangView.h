@@ -231,6 +231,7 @@ protected:
     CEdit               m_wndCoCompanyEdit;
     CStatic             m_wndCoCrudSection;
     CStatic             m_wndCoListSection;
+    CRect               m_rectCoCard;
     CTaechangHeaderCtrl m_wndCoListHeader;
     CListCtrl           m_wndCoList;
     int                 m_nCoPanelState;
