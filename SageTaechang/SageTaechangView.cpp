@@ -420,6 +420,16 @@ BOOL CSageTaechangView::PreTranslateMessage(MSG* pMsg) {
 		OnCoSearch();
 		return TRUE;
 	}
+	if (pMsg && pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_TAB && IsDataManageTab()) {
+		if (pMsg->hwnd == m_wndCoOrderEdit.GetSafeHwnd()) {
+			m_wndCoCompanyEdit.SetFocus();
+			return TRUE;
+		}
+		if (pMsg->hwnd == m_wndCoCompanyEdit.GetSafeHwnd()) {
+			m_wndCoOrderEdit.SetFocus();
+			return TRUE;
+		}
+	}
 	if (pMsg && pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_TAB &&
 		GetSelectedWorkflow() == TAECHANG_WORKFLOW_PRICE_CALC && GetKeyState(VK_SHIFT) >= 0) {
 		COMBOBOXINFO cbiCalcCompany = {};
@@ -2505,6 +2515,8 @@ void CSageTaechangView::OnListCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
 					pCD->nmcd.hdr.idFrom == ID_CALC_HISTORY_LIST ||
 					pCD->nmcd.hdr.idFrom == ID_COORDER_LIST)
 					*pResult |= CDRF_NOTIFYSUBITEMDRAW;
+			} else if (pCD->nmcd.hdr.idFrom == ID_COORDER_LIST) {
+				*pResult = CDRF_NOTIFYSUBITEMDRAW;
 			}
 			break;
 		}
@@ -2525,8 +2537,11 @@ void CSageTaechangView::OnListCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
 				if ((pCD->nmcd.hdr.idFrom == ID_PRICE_COPIES_LIST ||
 					 pCD->nmcd.hdr.idFrom == ID_CALC_HISTORY_LIST ||
 					 pCD->nmcd.hdr.idFrom == ID_COORDER_LIST) && nSubItem == 0) {
+					BOOL bSelected = (uState & LVIS_SELECTED) != 0;
 					CDC* pDC = CDC::FromHandle(pCD->nmcd.hdc);
-					COLORREF clrBk = (nItem % 2 == 1) ? TAECHANG_COLOR_LIST_ROW_ALT : TAECHANG_COLOR_PANEL;
+					COLORREF clrBk = bSelected
+						? ::GetSysColor(COLOR_HIGHLIGHT)
+						: ((nItem % 2 == 1) ? TAECHANG_COLOR_LIST_ROW_ALT : TAECHANG_COLOR_PANEL);
 					RECT rcItem;
 					ListView_GetSubItemRect(pCD->nmcd.hdr.hwndFrom, nItem, 0, LVIR_LABEL, &rcItem);
 					pDC->FillSolidRect(&rcItem, clrBk);
@@ -2538,7 +2553,7 @@ void CSageTaechangView::OnListCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
 					lvi.pszText = szText;
 					lvi.cchTextMax = 63;
 					ListView_GetItem(pCD->nmcd.hdr.hwndFrom, &lvi);
-					pDC->SetTextColor(TAECHANG_COLOR_TEXT);
+					pDC->SetTextColor(bSelected ? ::GetSysColor(COLOR_HIGHLIGHTTEXT) : TAECHANG_COLOR_TEXT);
 					pDC->SetBkMode(TRANSPARENT);
 					pDC->DrawText(szText, -1, &rcItem, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
 					*pResult = CDRF_SKIPDEFAULT;
@@ -3888,6 +3903,11 @@ void CSageTaechangView::CreateCompanyOrderPanel() {
 	if (CHeaderCtrl* pHeader = m_wndCoList.GetHeaderCtrl()) {
 		m_wndCoListHeader.SubclassWindow(pHeader->GetSafeHwnd());
 		SetWindowTheme(m_wndCoListHeader.GetSafeHwnd(), L"", L"");
+		HDITEM hdi = {};
+		hdi.mask = HDI_FORMAT;
+		m_wndCoListHeader.GetItem(1, &hdi);
+		hdi.fmt = (hdi.fmt & ~HDF_JUSTIFYMASK) | HDF_CENTER;
+		m_wndCoListHeader.SetItem(1, &hdi);
 	}
 }
 
