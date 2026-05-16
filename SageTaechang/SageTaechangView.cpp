@@ -2840,14 +2840,15 @@ void CSageTaechangView::LayoutPriceCalcPanel(int nLeft, int nTop, int nWidth, in
 	int nPagesEditX = nPagesLabelX + nInputLabelW + TAECHANG_LABEL_EDIT_GAP;
 	m_wndCalcPagesEdit.MoveWindow(nPagesEditX, nCY, nInputEditW, TAECHANG_EDIT_HEIGHT);
 	ApplyCalcEditTextRect(m_wndCalcPagesEdit);
-	int nIconBtnW = TAECHANG_CALC_COMPANY_PICK_BTN_W;
+	int nIconBtnW = 30;
+	int nIconBtnH = 38;
 	int nIconBtnGap = 6;
-	int nIconBtnH = (nInputPanelH - nIconBtnGap) / 2;
+	int nIconBtnTopPad = (nInputPanelH - nIconBtnH * 2 - nIconBtnGap) / 2;
 	int nBtnX = m_rectCalcInputPanel.right + TAECHANG_ROW_GAP;
 	if (nBtnX + nIconBtnW > nX + nW)
 		nBtnX = nX + nW - nIconBtnW;
-	m_wndCalcBtn.MoveWindow(nBtnX, nY, nIconBtnW, nIconBtnH);
-	m_wndCalcResetBtn.MoveWindow(nBtnX, nY + nIconBtnH + nIconBtnGap, nIconBtnW, nIconBtnH);
+	m_wndCalcBtn.MoveWindow(nBtnX, nY + nIconBtnTopPad, nIconBtnW, nIconBtnH);
+	m_wndCalcResetBtn.MoveWindow(nBtnX, nY + nIconBtnTopPad + nIconBtnH + nIconBtnGap, nIconBtnW, nIconBtnH);
 
 	nY += nInputPanelH + TAECHANG_CALC_SECTION_GAP;
 
