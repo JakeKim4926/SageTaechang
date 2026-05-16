@@ -666,3 +666,51 @@ constexpr LPCWSTR TAECHANG_UI_CALC_ESTIMATE_TEMPLATE_MISSING = L"견적서 템�
 constexpr LPCWSTR TAECHANG_UI_CALC_ESTIMATE_SCRIPT_MISSING  = L"견적서 생성 스크립트 파일이 없습니다.";
 constexpr LPCWSTR TAECHANG_CALC_ESTIMATE_SCRIPT_REL_PATH    = L"tools\\generate-estimate-single.ps1";
 constexpr LPCWSTR TAECHANG_ESTIMATE_TEMPLATE_REL_PATH       = L"templates\\estimate-template.xlsx";
+
+// ── 법인 순서 데이터 관리 ──────────────────────────────────────────────────────
+constexpr int TAECHANG_TAB_INDEX_DOCUMENT_DATA_MANAGE = 3;
+constexpr LPCWSTR TAECHANG_UI_TAB_DATA_MANAGE = L"데이터 관리";
+
+constexpr UINT ID_COORDER_ADD_BTN       = 41070;
+constexpr UINT ID_COORDER_MODIFY_BTN    = 41071;
+constexpr UINT ID_COORDER_DELETE_BTN    = 41072;
+constexpr UINT ID_COORDER_MOVE_UP_BTN   = 41073;
+constexpr UINT ID_COORDER_MOVE_DOWN_BTN = 41074;
+constexpr UINT ID_COORDER_SEARCH_EDIT   = 41075;
+constexpr UINT ID_COORDER_SEARCH_BTN    = 41076;
+constexpr UINT ID_COORDER_LIST          = 41077;
+constexpr UINT ID_COORDER_COMPANY_EDIT  = 41078;
+constexpr UINT ID_COORDER_SAVE_BTN      = 41079;
+constexpr UINT ID_COORDER_CANCEL_BTN    = 41080;
+constexpr int TAECHANG_CO_SMALL_BTN_WIDTH    = 68;
+constexpr int TAECHANG_CO_SEARCH_LABEL_W     = 42;
+constexpr int TAECHANG_CO_ORDER_COL_WIDTH    = 50;
+constexpr int TAECHANG_CO_COMPANY_NAME_WIDTH = 350;
+constexpr int TAECHANG_CO_LIST_WIDTH         = TAECHANG_CO_ORDER_COL_WIDTH + TAECHANG_CO_COMPANY_NAME_WIDTH;
+constexpr int TAECHANG_CO_COMPANY_NAME_MAX   = 50;
+constexpr int TAECHANG_CO_ORDER_EDIT_WIDTH   = 50;
+constexpr int TAECHANG_CO_ORDER_LABEL_W      = 30;
+constexpr int TAECHANG_CO_NAME_LABEL_W       = 42;
+constexpr int TAECHANG_CO_PANEL_IDLE         = 0;
+constexpr int TAECHANG_CO_PANEL_MODIFY       = 2;
+
+constexpr UINT ID_COORDER_ORDER_EDIT    = 41082;
+constexpr UINT ID_COORDER_CRUD_SECTION  = 41083;
+constexpr UINT ID_COORDER_LIST_SECTION  = 41084;
+
+constexpr LPCWSTR TAECHANG_UI_CO_CRUD_SECTION       = L"법인 출력 순서 관리";
+constexpr LPCWSTR TAECHANG_UI_CO_LIST_SECTION       = L"법인 목록";
+constexpr LPCWSTR TAECHANG_UI_CO_ADD_BTN            = L"추가";
+constexpr LPCWSTR TAECHANG_UI_CO_MODIFY_BTN         = L"수정";
+constexpr LPCWSTR TAECHANG_UI_CO_DELETE_BTN         = L"삭제";
+constexpr LPCWSTR TAECHANG_UI_CO_SEARCH_LABEL       = L"법인명";
+constexpr LPCWSTR TAECHANG_UI_CO_SAVE_BTN           = L"저장";
+constexpr LPCWSTR TAECHANG_UI_CO_CANCEL_BTN         = L"취소";
+constexpr LPCWSTR TAECHANG_UI_CO_ORDER_LABEL        = L"순서";
+constexpr LPCWSTR TAECHANG_UI_CO_NAME_LABEL         = L"법인명";
+constexpr LPCWSTR TAECHANG_UI_CO_COL_ORDER          = L"순서";
+constexpr LPCWSTR TAECHANG_UI_CO_COL_COMPANY        = L"법인명";
+constexpr LPCWSTR TAECHANG_UI_CO_EMPTY_HINT         = L"등록된 법인이 없습니다.";
+constexpr LPCWSTR TAECHANG_UI_CO_COMPANY_REQUIRED   = L"법인명을 입력하세요.";
+constexpr LPCWSTR TAECHANG_UI_CO_SELECT_REQUIRED    = L"처리할 법인을 선택하세요.";
+constexpr LPCWSTR TAECHANG_UI_CO_DELETE_CONFIRM_FMT = L"'%s' 법인을 삭제하시겠습니까?";
