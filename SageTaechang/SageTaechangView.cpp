@@ -1968,12 +1968,16 @@ HBRUSH CSageTaechangView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
 		pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
 		return m_brushAppBackground;
 	}
-	if (pWnd->GetSafeHwnd() == m_wndCoSearchLabel.GetSafeHwnd() ||
-		pWnd->GetSafeHwnd() == m_wndCoOrderLabel.GetSafeHwnd() ||
-		pWnd->GetSafeHwnd() == m_wndCoNameLabel.GetSafeHwnd()) {
+	if (pWnd->GetSafeHwnd() == m_wndCoSearchLabel.GetSafeHwnd()) {
 		pDC->SetTextColor(TAECHANG_COLOR_SECONDARY_TEXT);
 		pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
 		return m_brushAppBackground;
+	}
+	if (pWnd->GetSafeHwnd() == m_wndCoOrderLabel.GetSafeHwnd() ||
+		pWnd->GetSafeHwnd() == m_wndCoNameLabel.GetSafeHwnd()) {
+		pDC->SetTextColor(TAECHANG_COLOR_SECONDARY_TEXT);
+		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
+		return m_brushPanel;
 	}
 	if (pWnd->GetSafeHwnd() == m_wndActionStatus.GetSafeHwnd()) {
 		pDC->SetTextColor(m_bLastTaskSuccess ? TAECHANG_COLOR_SUCCESS : TAECHANG_COLOR_ERROR);
@@ -2322,7 +2326,9 @@ CString CSageTaechangView::BuildExecutionHistoryLine(int nWorkflowType, int nTas
 void CSageTaechangView::DrawSectionLabel(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 	CDC* pDC = CDC::FromHandle(lpDrawItemStruct->hDC);
 	CRect rect = lpDrawItemStruct->rcItem;
-	pDC->FillSolidRect(rect, TAECHANG_COLOR_APP_BACKGROUND);
+	COLORREF clrBg = (lpDrawItemStruct->CtlID == ID_COORDER_CRUD_SECTION)
+		? TAECHANG_COLOR_PANEL : TAECHANG_COLOR_APP_BACKGROUND;
+	pDC->FillSolidRect(rect, clrBg);
 	constexpr int nAccentWidth = 3;
 	pDC->FillSolidRect(rect.left, rect.top + 2, nAccentWidth, rect.Height() - 4, TAECHANG_COLOR_PRIMARY);
 	CWnd* pWnd = CWnd::FromHandle(lpDrawItemStruct->hwndItem);
