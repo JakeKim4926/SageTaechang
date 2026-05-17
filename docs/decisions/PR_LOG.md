@@ -16,6 +16,12 @@
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/79
 - **결과**: merged
 
+## [2026-05-17] fix/receivables-order-title-layout
+- **목적**: 미수금 내역서 데이터 관리 탭의 법인 출력 순서 관리 영역 가독성 개선
+- **변경 내용**: 법인 출력 순서 관리 제목을 카드 밖으로 이동, 제목 배경색을 탭 배경과 일치, 카드 높이 축소, 법인 목록 검색 컨트롤 위치 조정
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/82
+- **결과**: merged
+
 ## [2026-05-15] fix/price-calc-auto-refresh
 - **목적**: 단가 계산 탭의 입력 초기화와 계산 결과 자동 갱신 개선
 - **변경 내용**: 법인명 변경 시 입력/결과 초기화, 부수·페이지 입력 시 금액 자동 계산, 법인명 콤보 Tab 포커스 이동 추가
