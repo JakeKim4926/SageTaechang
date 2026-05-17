@@ -311,3 +311,10 @@
 - **검증**: git diff --check 통과, Debug x64 빌드 성공
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/74
 - **결과**: merged
+
+## [2026-05-17] fix/receivables-order-duplicate-validation
+- **목적**: 미수금 내역서 데이터 관리에서 법인명 또는 출력 순서가 중복 저장되는 문제 방지
+- **변경 내용**: 법인 출력 순서 저장 전 법인명/출력 순서 중복 검사 추가, 중복 오류 메시지 상수 정리
+- **검증**: git diff --check 통과, Debug x64 빌드 성공
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/83
+- **결과**: merged

@@ -714,3 +714,5 @@ constexpr LPCWSTR TAECHANG_UI_CO_EMPTY_HINT         = L"등록된 법인이 없�
 constexpr LPCWSTR TAECHANG_UI_CO_COMPANY_REQUIRED   = L"법인명을 입력하세요.";
 constexpr LPCWSTR TAECHANG_UI_CO_SELECT_REQUIRED    = L"처리할 법인을 선택하세요.";
 constexpr LPCWSTR TAECHANG_UI_CO_DELETE_CONFIRM_FMT = L"'%s' 법인을 삭제하시겠습니까?";
+constexpr LPCWSTR TAECHANG_UI_CO_COMPANY_DUPLICATE  = L"이미 등록된 법인명입니다.";
+constexpr LPCWSTR TAECHANG_UI_CO_ORDER_DUPLICATE    = L"이미 등록된 출력 순서입니다.";

@@ -375,6 +375,61 @@ BOOL TaechangReceivableCompanyOrderRepository::ExistsByCompanyName(
     return TRUE;
 }
 
+BOOL TaechangReceivableCompanyOrderRepository::ExistsBySortOrder(
+    int nSortOrder,
+    int nExceptOrderId,
+    BOOL& bExists,
+    CString& strError
+) {
+    sqlite3* pDb;
+    sqlite3_stmt* pStatement;
+    CStringA strSqlA;
+    int nResult;
+
+    bExists = FALSE;
+
+    if (m_pSqlContext == NULL || m_pSqlContext->IsOpened() == FALSE) {
+        strError = _T("SQLite DB媛 ?대젮 ?덉? ?딆뒿?덈떎.");
+        return FALSE;
+    }
+
+    pDb = m_pSqlContext->GetDb();
+    pStatement = NULL;
+
+    strSqlA =
+        "SELECT COUNT(*) "
+        "FROM TaechangReceivableCompanyOrder "
+        "WHERE sort_order = ? "
+        "  AND order_id <> ?;";
+
+    nResult = sqlite3_prepare_v2(pDb, strSqlA.GetString(), -1, &pStatement, NULL);
+
+    if (nResult != SQLITE_OK) {
+        strError = RepositoryHelper::GetLastError(pDb);
+        return FALSE;
+    }
+
+    if (RepositoryHelper::BindInt(pStatement, 1, nSortOrder, strError) == FALSE ||
+        RepositoryHelper::BindInt(pStatement, 2, nExceptOrderId, strError) == FALSE) {
+        sqlite3_finalize(pStatement);
+        return FALSE;
+    }
+
+    nResult = sqlite3_step(pStatement);
+
+    if (nResult == SQLITE_ROW) {
+        bExists = sqlite3_column_int(pStatement, 0) > 0;
+    } else {
+        strError = RepositoryHelper::GetLastError(pDb);
+        sqlite3_finalize(pStatement);
+        return FALSE;
+    }
+
+    sqlite3_finalize(pStatement);
+
+    return TRUE;
+}
+
 BOOL TaechangReceivableCompanyOrderRepository::FillDto(sqlite3_stmt* pStatement, TaechangReceivableCompanyOrderDto& dto) {
     dto.nOrderId = sqlite3_column_int(pStatement, 0);
     dto.strCompanyName = RepositoryHelper::GetColumnText(pStatement, 1);
