@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "TaechangReceivableCompanyOrderService.h"
+#include "TaechangDefine.h"
 
 TaechangReceivableCompanyOrderService::TaechangReceivableCompanyOrderService(TaechangReceivableCompanyOrderRepository* pRepository) {
     m_pRepository = pRepository;
@@ -13,9 +14,11 @@ BOOL TaechangReceivableCompanyOrderService::AddCompanyOrder(
     CString& strError
 ) {
     BOOL bExists;
+    BOOL bSortOrderExists;
 
     nNewOrderId = 0;
     bExists = FALSE;
+    bSortOrderExists = FALSE;
 
     if (m_pRepository == NULL) {
         strError = _T("TaechangReceivableCompanyOrderRepository가 NULL입니다.");
@@ -31,7 +34,16 @@ BOOL TaechangReceivableCompanyOrderService::AddCompanyOrder(
     }
 
     if (bExists == TRUE) {
-        strError = _T("이미 등록된 법인명입니다.");
+        strError = TAECHANG_UI_CO_COMPANY_DUPLICATE;
+        return FALSE;
+    }
+
+    if (m_pRepository->ExistsBySortOrder(dto.nSortOrder, 0, bSortOrderExists, strError) == FALSE) {
+        return FALSE;
+    }
+
+    if (bSortOrderExists == TRUE) {
+        strError = TAECHANG_UI_CO_ORDER_DUPLICATE;
         return FALSE;
     }
 
@@ -78,9 +90,11 @@ BOOL TaechangReceivableCompanyOrderService::ChangeCompanyOrder(
     CString& strError
 ) {
     BOOL bExists;
+    BOOL bSortOrderExists;
     int nAffectedCount;
 
     bExists = FALSE;
+    bSortOrderExists = FALSE;
     nAffectedCount = 0;
 
     if (m_pRepository == NULL) {
@@ -102,7 +116,16 @@ BOOL TaechangReceivableCompanyOrderService::ChangeCompanyOrder(
     }
 
     if (bExists == TRUE) {
-        strError = _T("이미 등록된 법인명입니다.");
+        strError = TAECHANG_UI_CO_COMPANY_DUPLICATE;
+        return FALSE;
+    }
+
+    if (m_pRepository->ExistsBySortOrder(dto.nSortOrder, dto.nOrderId, bSortOrderExists, strError) == FALSE) {
+        return FALSE;
+    }
+
+    if (bSortOrderExists == TRUE) {
+        strError = TAECHANG_UI_CO_ORDER_DUPLICATE;
         return FALSE;
     }
 
