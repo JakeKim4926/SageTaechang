@@ -317,4 +317,4 @@
 - **변경 내용**: 법인 출력 순서 저장 전 법인명/출력 순서 중복 검사 추가, 중복 오류 메시지 상수 정리
 - **검증**: git diff --check 통과, Debug x64 빌드 성공
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/83
-- **결과**: pending
+- **결과**: merged
