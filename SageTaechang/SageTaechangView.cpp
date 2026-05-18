@@ -376,7 +376,7 @@ CSageTaechangView::CSageTaechangView() noexcept
 	, m_nSelectedTaskTab(TAECHANG_TAB_INDEX_INPUT)
 	, m_nLastWorkflowType(0)
 	, m_nLastTaskType(0)
-	, m_nCurrentWorkflow(TAECHANG_WORKFLOW_RECEIVABLES)
+	, m_nCurrentWorkflow(TAECHANG_WORKFLOW_DELIVERY)
 	, m_hLastWorkflowItem(NULL)
 	, m_colorHeaderStatus(TAECHANG_COLOR_SECONDARY_TEXT)
 	, m_colorHeaderStatusBg(TAECHANG_COLOR_APP_BACKGROUND)
@@ -584,8 +584,8 @@ void CSageTaechangView::BuildSidebarTree() {
 	m_wndSidebarTree.Expand(hPrice, TVE_EXPAND);
 	m_wndSidebarTree.Expand(hEtc, TVE_EXPAND);
 
-	m_hLastWorkflowItem = hReceivables;
-	m_wndSidebarTree.SelectItem(hReceivables);
+	m_hLastWorkflowItem = hDelivery;
+	m_wndSidebarTree.SelectItem(hDelivery);
 }
 
 void CSageTaechangView::ApplyControlFonts() {
@@ -1523,7 +1523,7 @@ void CSageTaechangView::OnSidebarSelectionChanged(NMHDR* pNMHDR, LRESULT* pResul
 			m_wndSidebarTree.SelectItem(m_hLastWorkflowItem);
 		return;
 	}
-	if (nItemData == TAECHANG_WORKFLOW_PRICE_MANAGE) {
+	if (nItemData == TAECHANG_WORKFLOW_RECEIVABLES || nItemData == TAECHANG_WORKFLOW_PRICE_MANAGE) {
 		if (!taechangAuth.IsLoggedIn()) {
 			AfxMessageBox(TAECHANG_UI_LOGIN_REQUIRED, MB_ICONWARNING);
 			if (m_hLastWorkflowItem != NULL)
