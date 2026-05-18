@@ -2,7 +2,7 @@
 - **목적**: 미수금 내역서 로그인 게이트 추가 및 앱 최초 화면을 납품서 생성으로 변경
 - **변경 내용**: 미수금 내역서 클릭 시 로그인 필요, 앱 시작 시 납품서 생성 화면으로 초기화
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/84
-- **결과**: pending
+- **결과**: merged
 
 ## [2026-05-16] feature/receivables-company-order-data-tab
 - **목적**: 미수금 내역서에서 법인 출력 순서 데이터를 직접 관리할 수 있는 데이터 관리 탭 추가
