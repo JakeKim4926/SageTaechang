@@ -3520,7 +3520,7 @@ void CSageTaechangView::OnPriceAdd() {
 	}
 
 	m_nPricePanelState = TAECHANG_PRICE_PANEL_SUMMARY;
-	RefreshPriceCopiesList(strCompany);
+	RefreshPriceCompanyList(strCompany);
 	ClearPriceForm();
 	ApplyPriceRightPanel();
 }
