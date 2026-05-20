@@ -204,7 +204,7 @@ void TaechangPriceRangeDlg::LayoutControls() {
     int nGap = TAECHANG_ROW_GAP;
     int nClientW = TAECHANG_PRICE_RANGE_DLG_WIDTH;
     int nEditW = nClientW - nM * 2;
-    int nCheckW = 170;
+    int nCheckW = 105;
 
     int nY = nM;
     m_wndMinLabel.MoveWindow(nM, nY, nEditW - nCheckW - nGap, nEditH);
