@@ -160,6 +160,7 @@ protected:
     CListCtrl           m_wndPriceCopiesList;
     CStatic             m_wndPriceMinCopiesLabel;
     CEdit               m_wndPriceMinCopiesEdit;
+    CButton             m_wndPriceSingleCheck;
     CStatic             m_wndPriceMaxCopiesLabel;
     CEdit               m_wndPriceMaxCopiesEdit;
     CButton             m_wndPriceNoMaxCheck;
@@ -365,6 +366,7 @@ protected:
     afx_msg void OnPriceDeleteCompany();
     afx_msg void OnPriceCopiesSelChanged(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnPriceNoMaxCheck();
+    afx_msg void OnPriceSingleCheck();
     afx_msg void OnPricePrintChanged();
     afx_msg void OnPriceCoverChanged();
     afx_msg void OnPriceAdd();

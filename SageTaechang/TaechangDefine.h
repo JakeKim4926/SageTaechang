@@ -435,6 +435,8 @@ constexpr UINT ID_PRICE_RANGE_DLG_NO_MAX_CHECK = 41049;
 constexpr UINT ID_PRICE_RANGE_DLG_COVER_EDIT = 41059;
 constexpr UINT ID_PRICE_COVER_DLG_EDIT    = 41056;
 constexpr UINT ID_PRICE_DELETE_COMPANY_BTN = 41058;
+constexpr UINT ID_PRICE_SINGLE_CHECK             = 41065;
+constexpr UINT ID_PRICE_RANGE_DLG_SINGLE_CHECK   = 41066;
 
 // ── 부수 계산 컨트롤 ID ──────────────────────────────────────────────────────
 constexpr UINT ID_CALC_COMPANY_COMBO      = 41050;
@@ -511,6 +513,8 @@ constexpr LPCWSTR TAECHANG_UI_PRICE_RANGE_DLG_OK         = L"추가";
 constexpr LPCWSTR TAECHANG_UI_PRICE_RANGE_OVERLAP        = L"이미 등록된 부수 범위와 겹칩니다.";
 constexpr LPCWSTR TAECHANG_UI_PRICE_MIN_LESS_THAN_MAX    = L"최소부수는 최대부수보다 작아야 합니다.";
 constexpr LPCWSTR TAECHANG_UI_PRICE_RANGE_NO_MAX_LABEL   = L"최대부수 없음";
+constexpr LPCWSTR TAECHANG_UI_PRICE_SINGLE_LABEL         = L"단일 부수";
+constexpr LPCWSTR TAECHANG_UI_PRICE_SINGLE_AND_NO_MAX_CONFLICT = L"단일 부수와 최대없음은 동시에 선택할 수 없습니다.";
 
 // ── 법인 선택 다이얼로그 ─────────────────────────────────────────────────────
 constexpr int TAECHANG_PICKER_DLG_TEMPLATE_CX      = 230;
