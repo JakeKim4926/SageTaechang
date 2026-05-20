@@ -23,6 +23,7 @@ protected:
     virtual void OnCancel();
 
     afx_msg void OnNoMaxCheck();
+    afx_msg void OnSingleCheck();
     afx_msg void OnPrintPriceChanged();
     afx_msg void OnCoverPriceChanged();
     afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
@@ -55,6 +56,7 @@ private:
 
     CStatic m_wndMinLabel;
     CEdit m_wndMinEdit;
+    CButton m_wndSingleCheck;
     CStatic m_wndMaxLabel;
     CEdit m_wndMaxEdit;
     CButton m_wndNoMaxCheck;
