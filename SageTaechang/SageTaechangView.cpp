@@ -4073,15 +4073,19 @@ void CSageTaechangView::ShowCompanyOrderPanel(BOOL bShow) {
 		m_nCoPanelState = TAECHANG_CO_PANEL_IDLE;
 		m_rectCoCard.SetRectEmpty();
 	}
-	else
+	else {
 		UpdateCoPanelState();
+		UpdateCoListColumns();
+	}
 }
 
 void CSageTaechangView::UpdateCoListColumns() {
 	if (!::IsWindow(m_wndCoList.GetSafeHwnd()))
 		return;
-	if (::IsWindow(m_wndCoListHeader.GetSafeHwnd())) {
-		for (int i = m_wndCoListHeader.GetItemCount() - 1; i >= 2; --i)
+	HWND hHeader = (HWND)m_wndCoList.SendMessage(LVM_GETHEADER);
+	if (::IsWindow(hHeader)) {
+		int nColCount = (int)::SendMessage(hHeader, HDM_GETITEMCOUNT, 0, 0);
+		for (int i = nColCount - 1; i >= 2; --i)
 			m_wndCoList.DeleteColumn(i);
 	}
 	CRect rectList;
