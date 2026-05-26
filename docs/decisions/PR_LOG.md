@@ -1,3 +1,9 @@
+## [2026-05-26] fix/co-crud-buttons-center
+- **목적**: 데이터 관리 탭 법인출력 순서 관리의 CRUD 버튼 가운데 정렬
+- **변경 내용**: LayoutCompanyOrderPanel()에서 버튼 시작 X를 카드 콘텐츠 영역 중앙 기준으로 계산, 관련 상수 추가
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/89
+- **결과**: pending
+
 ## [2026-05-18] fix/receivables-login-gate-and-initial-screen
 - **목적**: 미수금 내역서 로그인 게이트 추가 및 앱 최초 화면을 납품서 생성으로 변경
 - **변경 내용**: 미수금 내역서 클릭 시 로그인 필요, 앱 시작 시 납품서 생성 화면으로 초기화
