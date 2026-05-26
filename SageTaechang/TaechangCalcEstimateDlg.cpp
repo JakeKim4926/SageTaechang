@@ -77,6 +77,10 @@ CString TaechangCalcEstimateDlg::GetItemName() const {
     return m_strItemName;
 }
 
+CString TaechangCalcEstimateDlg::GetDate() const {
+    return m_strDate;
+}
+
 BOOL TaechangCalcEstimateDlg::OnInitDialog() {
     CDialog::OnInitDialog();
     SetWindowText(TAECHANG_UI_CALC_ESTIMATE_DLG_TITLE);

@@ -16,6 +16,7 @@ public:
 public:
     virtual INT_PTR DoModal();
     CString GetItemName() const;
+    CString GetDate() const;
 
 protected:
     virtual BOOL OnInitDialog();
