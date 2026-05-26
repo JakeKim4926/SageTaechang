@@ -206,7 +206,10 @@ try {
         $itemName = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowNum 5)
         $issueType = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowNum 6)
         $totalAmount = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowNum 7)
+        $depositAmount = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowNum 8)
+        $receivableAmount = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowNum 9)
         $bankName = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowNum 10)
+        $note = ConvertTo-TextValue (Get-MatrixValue $inputValues $rowNum 11)
 
         if ($companyName.Trim().Length -eq 0 -and $itemName.Trim().Length -eq 0) { continue }
 
@@ -236,13 +239,16 @@ try {
             companySortName = $sortCompanyName
             companyName = $displayCompanyName
             totalAmount = $totalAmount
+            depositAmount = $depositAmount
+            receivableAmount = $receivableAmount
             issueType = $issueType
             itemName = $itemName
             bankName = $bankName
+            note = $note
         })
     }
 
-    $rows = @($rows | Sort-Object @{ Expression = { $_.priority }; Ascending = $true }, @{ Expression = { $_.managerSortKey }; Ascending = $true }, @{ Expression = { $_.companySortName }; Ascending = $true }, @{ Expression = { $_.companyName }; Ascending = $true })
+    $rows = @($rows | Sort-Object @{ Expression = { $_.priority }; Ascending = $true }, @{ Expression = { $_.managerSortKey }; Ascending = $true }, @{ Expression = { $_.issueDate }; Ascending = $true })
     foreach ($row in $rows) {
         if ($row.Contains('managerSortKey')) {
             $row.Remove('managerSortKey')

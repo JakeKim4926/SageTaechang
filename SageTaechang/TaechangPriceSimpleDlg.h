@@ -56,6 +56,7 @@ protected:
     virtual void OnOK();
     virtual void OnCancel();
 
+    afx_msg void OnCoverPriceChanged();
     afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
     afx_msg void OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct);
 
@@ -66,11 +67,13 @@ private:
     void LayoutControls();
     void ApplyFont();
     void ApplyEditTextRect();
+    void FormatPriceEditText();
     BYTE* BuildDialogTemplate();
 
 private:
     CWnd* m_pDlgParent;
     int m_nCoverPrice;
+    BOOL m_bFormattingCoverPrice;
     CStatic m_wndLabel;
     CEdit m_wndEdit;
     CButton m_wndOkBtn;

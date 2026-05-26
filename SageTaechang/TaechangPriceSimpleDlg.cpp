@@ -42,6 +42,26 @@ static BYTE* BuildSimpleDialogTemplate(LPCWSTR pszTitle) {
     return pBuf;
 }
 
+static CString FormatPriceText(int nPrice) {
+    CString strText;
+    strText.Format(L"%d", nPrice);
+    for (int i = strText.GetLength() - 3; i > 0; i -= 3)
+        strText.Insert(i, L',');
+    return strText;
+}
+
+static CString RemovePriceSeparators(const CString& strText) {
+    CString strResult = strText;
+    strResult.Remove(L',');
+    strResult.Trim();
+    return strResult;
+}
+
+static int PriceTextToInt(const CString& strText) {
+    CString strValue = RemovePriceSeparators(strText);
+    return strValue.IsEmpty() ? 0 : _wtoi(strValue);
+}
+
 static BOOL ContainsNonAsciiSimple(const CString& str) {
     for (int i = 0; i < str.GetLength(); ++i) {
         if (str[i] > 127)
@@ -237,12 +257,13 @@ void TaechangCompanyRenameDlg::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawIte
 }
 
 BEGIN_MESSAGE_MAP(TaechangCoverPriceDlg, CDialog)
+    ON_EN_CHANGE(ID_PRICE_COVER_DLG_EDIT, &TaechangCoverPriceDlg::OnCoverPriceChanged)
     ON_WM_CTLCOLOR()
     ON_WM_DRAWITEM()
 END_MESSAGE_MAP()
 
 TaechangCoverPriceDlg::TaechangCoverPriceDlg(CWnd* pParent)
-    : CDialog((UINT)0, pParent), m_pDlgParent(pParent), m_nCoverPrice(0) {}
+    : CDialog((UINT)0, pParent), m_pDlgParent(pParent), m_nCoverPrice(0), m_bFormattingCoverPrice(FALSE) {}
 
 TaechangCoverPriceDlg::~TaechangCoverPriceDlg() {}
 
@@ -296,10 +317,10 @@ BOOL TaechangCoverPriceDlg::PreTranslateMessage(MSG* pMsg) {
 void TaechangCoverPriceDlg::CreateControls() {
     CRect r(0, 0, 0, 0);
     m_wndLabel.Create(TAECHANG_UI_PRICE_COVER_DLG_LABEL, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, r, this);
-    m_wndEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_NUMBER | ES_AUTOHSCROLL, r, this, ID_PRICE_COVER_DLG_EDIT);
+    m_wndEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOHSCROLL, r, this, ID_PRICE_COVER_DLG_EDIT);
     m_wndOkBtn.Create(TAECHANG_UI_PRICE_COVER_DLG_OK, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, IDOK);
     m_wndCancelBtn.Create(TAECHANG_UI_PRICE_COMPANY_DLG_CANCEL, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, IDCANCEL);
-    m_wndEdit.SetLimitText(8);
+    m_wndEdit.SetLimitText(10);
 }
 
 void TaechangCoverPriceDlg::LayoutControls() {
@@ -336,6 +357,36 @@ void TaechangCoverPriceDlg::ApplyEditTextRect() {
     m_wndEdit.SendMessage(EM_SETRECTNP, 0, reinterpret_cast<LPARAM>(&rc));
 }
 
+void TaechangCoverPriceDlg::FormatPriceEditText() {
+    if (m_bFormattingCoverPrice)
+        return;
+
+    CString strText;
+    m_wndEdit.GetWindowTextW(strText);
+    CString strDigits = RemovePriceSeparators(strText);
+    if (strDigits.IsEmpty())
+        return;
+
+    for (int i = 0; i < strDigits.GetLength(); ++i) {
+        wchar_t ch = strDigits[i];
+        if (ch < L'0' || ch > L'9')
+            return;
+    }
+
+    CString strFormatted = FormatPriceText(_wtoi(strDigits));
+    if (strFormatted == strText)
+        return;
+
+    m_bFormattingCoverPrice = TRUE;
+    m_wndEdit.SetWindowTextW(strFormatted);
+    m_wndEdit.SetSel(strFormatted.GetLength(), strFormatted.GetLength());
+    m_bFormattingCoverPrice = FALSE;
+}
+
+void TaechangCoverPriceDlg::OnCoverPriceChanged() {
+    FormatPriceEditText();
+}
+
 void TaechangCoverPriceDlg::OnOK() {
     CString strCover;
     m_wndEdit.GetWindowText(strCover);
@@ -345,7 +396,7 @@ void TaechangCoverPriceDlg::OnOK() {
         m_wndEdit.SetFocus();
         return;
     }
-    int nCoverPrice = _wtoi(strCover);
+    int nCoverPrice = PriceTextToInt(strCover);
     if (nCoverPrice < 0 || nCoverPrice > TAECHANG_PRICE_AMOUNT_MAX) {
         AfxMessageBox(TAECHANG_UI_PRICE_AMOUNT_OUT_OF_RANGE, MB_ICONWARNING);
         m_wndEdit.SetSel(0, -1);

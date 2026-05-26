@@ -2,6 +2,7 @@
 #pragma once
 
 #include "TaechangDefine.h"
+#include "TaechangReceivableCompanyOrderDto.h"
 
 struct TaechangResultRow;
 
@@ -28,6 +29,8 @@ struct TaechangWorkflowUiState {
 
 struct CalcHistoryEntry {
     CString strCompanyName;
+    CString strItemName;
+    CString strDate;
     int nCopies;
     int nPages;
     LONGLONG nPrintPrice;
@@ -158,6 +161,7 @@ protected:
     CListCtrl           m_wndPriceCopiesList;
     CStatic             m_wndPriceMinCopiesLabel;
     CEdit               m_wndPriceMinCopiesEdit;
+    CButton             m_wndPriceSingleCheck;
     CStatic             m_wndPriceMaxCopiesLabel;
     CEdit               m_wndPriceMaxCopiesEdit;
     CButton             m_wndPriceNoMaxCheck;
@@ -185,6 +189,7 @@ protected:
     CStatic              m_wndCalcPagesLabel;
     CEdit                m_wndCalcPagesEdit;
     CButton              m_wndCalcBtn;
+    CButton              m_wndCalcResetBtn;
     CStatic              m_wndCalcPrintLabel;
     CStatic              m_wndCalcPrintValue;
     CStatic              m_wndCalcCoverLabel;
@@ -208,7 +213,33 @@ protected:
     // ── 가격 관리 내부 상태 ─────────────────────────────────────────────────
     LONGLONG m_nCalcPrintPrice;
     int  m_nCalcCoverPrice;
+    int  m_nCalcUnitPrice;
     int  m_nPricePanelState;
+    BOOL m_bFormattingCalcFreight;
+    BOOL m_bFormattingPricePrint;
+    BOOL m_bFormattingPriceCover;
+
+    // ── 법인 순서 데이터 관리 패널 ───────────────────────────────────────────
+    CButton             m_wndCoAddBtn;
+    CButton             m_wndCoModifyBtn;
+    CButton             m_wndCoDeleteBtn;
+    CButton             m_wndCoCancelBtn;
+    CStatic             m_wndCoSearchLabel;
+    CEdit               m_wndCoSearchEdit;
+    CButton             m_wndCoSearchBtn;
+    CStatic             m_wndCoOrderLabel;
+    CEdit               m_wndCoOrderEdit;
+    CStatic             m_wndCoNameLabel;
+    CEdit               m_wndCoCompanyEdit;
+    CStatic             m_wndCoCrudSection;
+    CStatic             m_wndCoListSection;
+    CRect               m_rectCoCard;
+    CTaechangHeaderCtrl m_wndCoListHeader;
+    CListCtrl           m_wndCoList;
+    int                 m_nCoPanelState;
+    CString             m_strCoSearchKeyword;
+    int                 m_nCoSelectedOrderId;
+    CArray<TaechangReceivableCompanyOrderDto, TaechangReceivableCompanyOrderDto&> m_arrCoOrders;
 
 protected:
     void CreateChildControls();
@@ -277,14 +308,27 @@ protected:
     void ClearPriceForm();
     BOOL ReadPriceFormToDto(TaechangPriceDto& dto, CString& strError);
     CString GetSelectedCompanyName() const;
+    void FormatPriceEditText(CEdit& edit, BOOL& bFormatting);
+
+    // ── 법인 순서 데이터 관리 패널 ───────────────────────────────────────────
+    void CreateCompanyOrderPanel();
+    void LayoutCompanyOrderPanel(int nLeft, int nTop, int nWidth, int nHeight);
+    void ShowCompanyOrderPanel(BOOL bShow);
+    BOOL IsDataManageTab() const;
+    void RefreshCompanyOrderList();
+    void UpdateCoListColumns();
+    void UpdateCoPanelState();
 
     // ── 부수 계산 패널 ───────────────────────────────────────────────────────
     void CreatePriceCalcPanel();
     void LayoutPriceCalcPanel(int nLeft, int nTop, int nWidth, int nHeight);
     void ShowPriceCalcPanel(BOOL bShow);
     void RefreshCalcCompanyCombo();
+    void ClearCalcInputAndResult();
+    void ClearCalcResult();
+    BOOL UpdateCalcPreview(BOOL bShowMessage);
     void UpdateCalcTotal();
-    void AddCalcHistory(const CString& strCompany, int nCopies, int nPages, LONGLONG nPrintPrice, int nCoverPrice, int nFreight, LONGLONG nTotal);
+    void AddCalcHistory(const CString& strCompany, int nCopies, int nPages, const CString& strItemName, const CString& strDate, LONGLONG nPrintPrice, int nCoverPrice, int nFreight, LONGLONG nTotal);
     void RefreshCalcHistoryList();
     int  GetCalcHistoryVisibleCapacity() const;
     void TrimCalcHistoryToVisibleCapacity();
@@ -323,13 +367,27 @@ protected:
     afx_msg void OnPriceDeleteCompany();
     afx_msg void OnPriceCopiesSelChanged(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnPriceNoMaxCheck();
+    afx_msg void OnPriceSingleCheck();
+    afx_msg void OnPricePrintChanged();
+    afx_msg void OnPriceCoverChanged();
     afx_msg void OnPriceAdd();
     afx_msg void OnPriceModify();
     afx_msg void OnPriceDelete();
     afx_msg void OnPriceCancel();
 
+    // ── 법인 순서 데이터 관리 이벤트 ─────────────────────────────────────────
+    afx_msg void OnCoAdd();
+    afx_msg void OnCoModify();
+    afx_msg void OnCoDelete();
+    afx_msg void OnCoCancel();
+    afx_msg void OnCoSearch();
+    afx_msg void OnCoListSelChanged(NMHDR* pNMHDR, LRESULT* pResult);
+
     // ── 부수 계산 이벤트 ────────────────────────────────────────────────────
     afx_msg void OnCalc();
+    afx_msg void OnCalcReset();
+    afx_msg void OnCalcCompanyChanged();
+    afx_msg void OnCalcInputChanged();
     afx_msg void OnCalcFreightChanged();
     afx_msg void OnCalcCompanyPick();
     afx_msg void OnResultSearch();

@@ -17,6 +17,7 @@ public:
     BOOL DeleteByOrderId(int nOrderId, int& nAffectedCount, CString& strError);
     BOOL DeleteByCompanyName(const CString& strCompanyName, int& nAffectedCount, CString& strError);
     BOOL ExistsByCompanyName(const CString& strCompanyName, int nExceptOrderId, BOOL& bExists, CString& strError);
+    BOOL ExistsBySortOrder(int nSortOrder, int nExceptOrderId, BOOL& bExists, CString& strError);
 
 private:
     BOOL FillDto(sqlite3_stmt* pStatement, TaechangReceivableCompanyOrderDto& dto);

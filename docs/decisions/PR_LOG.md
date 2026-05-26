@@ -1,3 +1,51 @@
+## [2026-05-26] fix/co-crud-buttons-center
+- **목적**: 데이터 관리 탭 법인목록 UI 수정 4건 (버튼 정렬, 검색 행 겹침, 헤더 빈 열 시각 처리, phantom 3열 제거)
+- **변경 내용**: CRUD 버튼 가운데 정렬 / 검색 행 겹침 수정 / 헤더 OnPaint 역순 채색으로 blank 영역 흰색 처리 / Win32 직접 API + ShowWindow 후 재정리로 phantom 열 완전 제거
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/89
+- **결과**: pending
+
+## [2026-05-18] fix/receivables-login-gate-and-initial-screen
+- **목적**: 미수금 내역서 로그인 게이트 추가 및 앱 최초 화면을 납품서 생성으로 변경
+- **변경 내용**: 미수금 내역서 클릭 시 로그인 필요, 앱 시작 시 납품서 생성 화면으로 초기화
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/84
+- **결과**: merged
+
+## [2026-05-16] feature/receivables-company-order-data-tab
+- **목적**: 미수금 내역서에서 법인 출력 순서 데이터를 직접 관리할 수 있는 데이터 관리 탭 추가
+- **변경 내용**: 데이터 관리 탭 UI(CRUD 카드 + 법인 목록 2층 구조), 법인 순서 추가/수정/삭제, 법인명 검색, 선택 시 필드 자동 로드, 수정 모드 전환
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/81
+- **결과**: merged
+
+## [2026-05-16] feature/calc-icon-buttons
+- **목적**: 견적서 생성 버튼 아이콘화 및 초기화 버튼 추가로 단가 계산 탭 UI 개선
+- **변경 내용**: 견적서 생성 버튼을 문서 아이콘(30×38)으로 교체, 부수·페이지·운임 초기화 버튼(원형 화살표 아이콘) 추가
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/80
+- **결과**: merged
+
+## [2026-05-15] feature/calc-tab-estimate-generate
+- **목적**: 단가 계산 탭에서 계산 결과를 바탕으로 견적서를 바로 생성
+- **변경 내용**: 견적서 생성 미니 다이얼로그 추가, 단일 견적서 생성 PowerShell 스크립트 추가, 계산 이력 품목명 열 추가, 계산 버튼 → 견적서 생성 버튼 변경
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/79
+- **결과**: merged
+
+## [2026-05-17] fix/receivables-order-title-layout
+- **목적**: 미수금 내역서 데이터 관리 탭의 법인 출력 순서 관리 영역 가독성 개선
+- **변경 내용**: 법인 출력 순서 관리 제목을 카드 밖으로 이동, 제목 배경색을 탭 배경과 일치, 카드 높이 축소, 법인 목록 검색 컨트롤 위치 조정
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/82
+- **결과**: merged
+
+## [2026-05-15] fix/price-calc-auto-refresh
+- **목적**: 단가 계산 탭의 입력 초기화와 계산 결과 자동 갱신 개선
+- **변경 내용**: 법인명 변경 시 입력/결과 초기화, 부수·페이지 입력 시 금액 자동 계산, 법인명 콤보 Tab 포커스 이동 추가
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/78
+- **결과**: merged
+
+## [2026-05-15] fix/amount-comma-format
+- **목적**: 주요 금액 표시와 금액 입력칸에 천 단위 콤마 적용
+- **변경 내용**: 미수금 내역서 합계/입금/미수금, 견적서 보고서/표지/운임, 단가 데이터 관리 부수 단가/표지 단가, 단가 계산 운임 입력 포맷 보정
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/77
+- **결과**: merged
+
 ## [2026-05-15] feature/result-filter-enter-search
 - **목적**: 문서 결과 검색과 주요 입력 폼의 키보드 이동 흐름 개선
 - **변경 내용**: 미수금/납품서/견적서 검색 edit Enter 처리, 로그인/비밀번호 변경/단가 관리/단가 계산 입력칸 Tab 포커스 이동 추가
@@ -260,4 +308,25 @@
 - **목적**: 미수금 내역서 로드/생성 정렬 기준을 DB에 관리되는 법인 정렬 순서로 적용
 - **변경 내용**: DB 정렬 기준을 임시 JSON으로 PowerShell에 전달하고, PriorityPath가 있으면 엑셀 번호 시트보다 DB 기준을 우선 사용하도록 변경
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/69
+- **결과**: merged
+
+## [2026-05-15] fix/receivables-payment-note-columns
+- **목적**: 미수금 내역서 로드/생성 시 원본 H/I/K 열 값이 결과에 반영되지 않는 문제 수정
+- **변경 내용**: 입금금액(H), 미수금(I), 비고(K)를 미리보기 JSON과 생성 출력 행의 동일 열 위치에 전달하도록 변경
+- **검증**: PowerShell Parser 파싱 통과, git diff --check 통과
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/72
+- **결과**: merged
+
+## [2026-05-15] fix/receivables-result-tab-columns
+- **목적**: 미수금 내역서 생성 결과 탭에서 숫자 JSON 값이 표시되지 않는 문제 수정
+- **변경 내용**: 결과 행 파서가 합계금액, 입금금액(H), 미수금(I)을 문자열 또는 숫자 JSON 값 모두에서 텍스트로 추출하도록 보정
+- **검증**: git diff --check 통과, Debug x64 빌드 성공
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/74
+- **결과**: merged
+
+## [2026-05-17] fix/receivables-order-duplicate-validation
+- **목적**: 미수금 내역서 데이터 관리에서 법인명 또는 출력 순서가 중복 저장되는 문제 방지
+- **변경 내용**: 법인 출력 순서 저장 전 법인명/출력 순서 중복 검사 추가, 중복 오류 메시지 상수 정리
+- **검증**: git diff --check 통과, Debug x64 빌드 성공
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/83
 - **결과**: merged

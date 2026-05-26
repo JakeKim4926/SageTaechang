@@ -23,6 +23,9 @@ protected:
     virtual void OnCancel();
 
     afx_msg void OnNoMaxCheck();
+    afx_msg void OnSingleCheck();
+    afx_msg void OnPrintPriceChanged();
+    afx_msg void OnCoverPriceChanged();
     afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
     afx_msg void OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct);
 
@@ -33,6 +36,7 @@ private:
     void LayoutControls();
     void ApplyFont();
     void ApplyEditTextRect(CEdit& edit);
+    void FormatPriceEditText(CEdit& edit, BOOL& bFormatting);
     BOOL IsCopiesRangeOverlap(int nMinA, BOOL bHasMaxA, int nMaxA, int nMinB, BOOL bHasMaxB, int nMaxB) const;
     BOOL IsOverlappingExistingRange(int nMinCopies, BOOL bHasMaxCopies, int nMaxCopies) const;
     BYTE* BuildDialogTemplate();
@@ -44,12 +48,15 @@ private:
     int m_nMaxCopies;
     int m_nPrintPrice;
     int m_nCoverPrice;
+    BOOL m_bFormattingPrintPrice;
+    BOOL m_bFormattingCoverPrice;
     CArray<int, int> m_arrExistingMinCopies;
     CArray<int, int> m_arrExistingHasMaxCopies;
     CArray<int, int> m_arrExistingMaxCopies;
 
     CStatic m_wndMinLabel;
     CEdit m_wndMinEdit;
+    CButton m_wndSingleCheck;
     CStatic m_wndMaxLabel;
     CEdit m_wndMaxEdit;
     CButton m_wndNoMaxCheck;

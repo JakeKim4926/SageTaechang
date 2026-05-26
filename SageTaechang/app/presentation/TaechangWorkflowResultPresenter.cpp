@@ -66,6 +66,72 @@ namespace
 		return Utf8ToWide(json.substr(nStart, nEnd - nStart));
 	}
 
+	CString JsonExtractValueText(const CString& strJson, const CString& strKey) {
+		CString strValue = JsonExtractString(strJson, strKey);
+		if (!strValue.IsEmpty())
+			return strValue;
+
+		std::string json = WideToUtf8(strJson);
+		std::string key = WideToUtf8(strKey);
+		std::string token = "\"" + key + "\"";
+		size_t nKeyPos = json.find(token);
+		if (nKeyPos == std::string::npos)
+			return L"";
+
+		size_t nColon = json.find(':', nKeyPos + token.size());
+		if (nColon == std::string::npos)
+			return L"";
+
+		size_t nStart = nColon + 1;
+		while (nStart < json.size() &&
+			(json[nStart] == ' ' || json[nStart] == '\t' || json[nStart] == '\r' || json[nStart] == '\n'))
+			++nStart;
+
+		if (nStart >= json.size() || json[nStart] == '"' || json.compare(nStart, 4, "null") == 0)
+			return L"";
+
+		size_t nEnd = nStart;
+		while (nEnd < json.size() && json[nEnd] != ',' && json[nEnd] != '}')
+			++nEnd;
+
+		while (nEnd > nStart &&
+			(json[nEnd - 1] == ' ' || json[nEnd - 1] == '\t' || json[nEnd - 1] == '\r' || json[nEnd - 1] == '\n'))
+			--nEnd;
+
+		if (nEnd <= nStart)
+			return L"";
+		return Utf8ToWide(json.substr(nStart, nEnd - nStart));
+	}
+
+	CString FormatAmountText(const CString& strText) {
+		CString strValue = strText;
+		strValue.Trim();
+		if (strValue.IsEmpty())
+			return strValue;
+
+		BOOL bNegative = FALSE;
+		if (strValue[0] == L'-') {
+			bNegative = TRUE;
+			strValue = strValue.Mid(1);
+		}
+
+		CString strDigits;
+		for (int i = 0; i < strValue.GetLength(); ++i) {
+			wchar_t ch = strValue[i];
+			if (ch >= L'0' && ch <= L'9')
+				strDigits += ch;
+			else if (ch != L',')
+				return strText;
+		}
+
+		if (strDigits.IsEmpty())
+			return strText;
+
+		for (int i = strDigits.GetLength() - 3; i > 0; i -= 3)
+			strDigits.Insert(i, L',');
+		return bNegative ? CString(L"-") + strDigits : strDigits;
+	}
+
 	CString ComposeReason(const CString& strReason, const CString& strRightValue) {
 		CString strResult = strReason;
 		if (!strRightValue.IsEmpty()) {
@@ -185,7 +251,7 @@ void TaechangWorkflowResultPresenter::AddReceivablesResultRows(
 	for (int i = 0; i < static_cast<int>(arrObjects.size()); ++i) {
 		CString strCompanyName = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_COMPANY_NAME);
 		CString strManager = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_MANAGER);
-		CString strTotalAmount = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_TOTAL_AMOUNT);
+		CString strTotalAmount = JsonExtractValueText(arrObjects[i], TAECHANG_JSON_KEY_TOTAL_AMOUNT);
 		CString strIssueDate = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_ISSUE_DATE);
 		if (strIssueDate.IsEmpty())
 			strIssueDate = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_ISSUE_DATE_TEXT);
@@ -197,9 +263,9 @@ void TaechangWorkflowResultPresenter::AddReceivablesResultRows(
 		row.m_strIssueDate = strIssueDate;
 		row.m_strItemName = strItemName;
 		row.m_strIssueType = strIssueType;
-		row.m_strTotalAmount = strTotalAmount;
-		row.m_strDepositAmount = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_DEPOSIT_AMOUNT);
-		row.m_strReceivableAmount = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_RECEIVABLE_AMOUNT);
+		row.m_strTotalAmount = FormatAmountText(strTotalAmount);
+		row.m_strDepositAmount = FormatAmountText(JsonExtractValueText(arrObjects[i], TAECHANG_JSON_KEY_DEPOSIT_AMOUNT));
+		row.m_strReceivableAmount = FormatAmountText(JsonExtractValueText(arrObjects[i], TAECHANG_JSON_KEY_RECEIVABLE_AMOUNT));
 		row.m_strBankName = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_BANK_NAME);
 		row.m_strNote = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_NOTE);
 		outRows.push_back(row);
@@ -269,9 +335,9 @@ void TaechangWorkflowResultPresenter::AddEstimateInputRows(
 		row.m_strItemName = strItemName;
 		row.m_strCompanyCopies = strCopies;
 		row.m_strCorporationCopies = strPages;
-		row.m_strTotalCopies = strUnitPrice;
-		row.m_strValue = strCoverCost;
-		row.m_strReason = strFreight;
+		row.m_strTotalCopies = FormatAmountText(strUnitPrice);
+		row.m_strValue = FormatAmountText(strCoverCost);
+		row.m_strReason = FormatAmountText(strFreight);
 		outRows.push_back(row);
 	}
 }
