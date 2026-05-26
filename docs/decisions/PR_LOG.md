@@ -1,6 +1,6 @@
 ## [2026-05-26] fix/co-crud-buttons-center
-- **목적**: 데이터 관리 탭 법인목록 UI 수정 3건 (버튼 정렬, 검색 행 겹침, 헤더 빈 열)
-- **변경 내용**: CRUD 버튼 가운데 정렬 / 검색 행 겹침 수정(RESULT_HEADER_HEIGHT 누락) / 헤더 OnPaint 개선으로 2열 우측 빈 열 제거
+- **목적**: 데이터 관리 탭 법인목록 UI 수정 4건 (버튼 정렬, 검색 행 겹침, 헤더 빈 열 시각 처리, phantom 3열 제거)
+- **변경 내용**: CRUD 버튼 가운데 정렬 / 검색 행 겹침 수정 / 헤더 OnPaint 역순 채색으로 blank 영역 흰색 처리 / Win32 직접 API + ShowWindow 후 재정리로 phantom 열 완전 제거
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/89
 - **결과**: pending
 
