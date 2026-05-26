@@ -199,14 +199,22 @@ void CTaechangHeaderCtrl::OnPaint() {
 	CPaintDC dc(this);
 	CRect rectClient;
 	GetClientRect(&rectClient);
-	dc.FillSolidRect(rectClient, TAECHANG_COLOR_LIST_HEADER);
+	int nCount = GetItemCount();
+	if (nCount > 0) {
+		CRect rcLast;
+		GetItemRect(nCount - 1, &rcLast);
+		dc.FillSolidRect(CRect(rectClient.left, rectClient.top, rcLast.right, rectClient.bottom), TAECHANG_COLOR_LIST_HEADER);
+		if (rcLast.right < rectClient.right)
+			dc.FillSolidRect(CRect(rcLast.right, rectClient.top, rectClient.right, rectClient.bottom), TAECHANG_COLOR_PANEL);
+	} else {
+		dc.FillSolidRect(rectClient, TAECHANG_COLOR_PANEL);
+	}
 
 	CFont* pFont = GetFont();
 	CFont* pOldFont = pFont ? dc.SelectObject(pFont) : NULL;
 	dc.SetBkMode(TRANSPARENT);
 	dc.SetTextColor(TAECHANG_COLOR_BUTTON_TEXT);
 
-	int nCount = GetItemCount();
 	for (int i = 0; i < nCount; ++i) {
 		CRect rcItem;
 		GetItemRect(i, &rcItem);
@@ -4021,7 +4029,7 @@ void CSageTaechangView::LayoutCompanyOrderPanel(int nLeft, int nTop, int nWidth,
 	int nListSectionTop = nCardTop + nCardHeight + TAECHANG_PANEL_GAP;
 	int nListWidth = TAECHANG_CO_LIST_WIDTH - TAECHANG_MARGIN;
 	int nListRight = nLeft + nListWidth;
-	int nSearchTop = nListSectionTop + TAECHANG_ROW_GAP;
+	int nSearchTop = nListSectionTop + TAECHANG_RESULT_HEADER_HEIGHT + TAECHANG_ROW_GAP;
 
 	int nSearchBtnLeft   = nListRight - TAECHANG_RESULT_SEARCH_WIDTH;
 	int nSearchEditLeft  = nSearchBtnLeft - TAECHANG_ACTION_GAP - TAECHANG_RESULT_FILTER_WIDTH;
