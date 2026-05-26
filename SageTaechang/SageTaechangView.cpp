@@ -4006,7 +4006,7 @@ void CSageTaechangView::LayoutCompanyOrderPanel(int nLeft, int nTop, int nWidth,
 	}
 
 	int nBtnTop = nInputTop + TAECHANG_EDIT_HEIGHT + TAECHANG_ROW_GAP;
-	nX = nCardContentLeft;
+	nX = nCardContentLeft + (nCardContentRight - nCardContentLeft - TAECHANG_CO_BTN_GROUP_WIDTH) / 2;
 	m_wndCoAddBtn.MoveWindow(nX, nBtnTop, TAECHANG_CO_SMALL_BTN_WIDTH, TAECHANG_BUTTON_HEIGHT);
 	nX += TAECHANG_CO_SMALL_BTN_WIDTH + TAECHANG_ACTION_GAP;
 	m_wndCoModifyBtn.MoveWindow(nX, nBtnTop, TAECHANG_CO_SMALL_BTN_WIDTH, TAECHANG_BUTTON_HEIGHT);
