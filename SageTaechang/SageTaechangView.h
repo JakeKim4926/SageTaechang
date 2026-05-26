@@ -30,6 +30,7 @@ struct TaechangWorkflowUiState {
 struct CalcHistoryEntry {
     CString strCompanyName;
     CString strItemName;
+    CString strDate;
     int nCopies;
     int nPages;
     LONGLONG nPrintPrice;
@@ -327,7 +328,7 @@ protected:
     void ClearCalcResult();
     BOOL UpdateCalcPreview(BOOL bShowMessage);
     void UpdateCalcTotal();
-    void AddCalcHistory(const CString& strCompany, int nCopies, int nPages, const CString& strItemName, LONGLONG nPrintPrice, int nCoverPrice, int nFreight, LONGLONG nTotal);
+    void AddCalcHistory(const CString& strCompany, int nCopies, int nPages, const CString& strItemName, const CString& strDate, LONGLONG nPrintPrice, int nCoverPrice, int nFreight, LONGLONG nTotal);
     void RefreshCalcHistoryList();
     int  GetCalcHistoryVisibleCapacity() const;
     void TrimCalcHistoryToVisibleCapacity();
