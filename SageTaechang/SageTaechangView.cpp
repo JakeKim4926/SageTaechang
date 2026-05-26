@@ -199,16 +199,9 @@ void CTaechangHeaderCtrl::OnPaint() {
 	CPaintDC dc(this);
 	CRect rectClient;
 	GetClientRect(&rectClient);
+	dc.FillSolidRect(rectClient, TAECHANG_COLOR_PANEL);
+
 	int nCount = GetItemCount();
-	if (nCount > 0) {
-		CRect rcLast;
-		GetItemRect(nCount - 1, &rcLast);
-		dc.FillSolidRect(CRect(rectClient.left, rectClient.top, rcLast.right, rectClient.bottom), TAECHANG_COLOR_LIST_HEADER);
-		if (rcLast.right < rectClient.right)
-			dc.FillSolidRect(CRect(rcLast.right, rectClient.top, rectClient.right, rectClient.bottom), TAECHANG_COLOR_PANEL);
-	} else {
-		dc.FillSolidRect(rectClient, TAECHANG_COLOR_PANEL);
-	}
 
 	CFont* pFont = GetFont();
 	CFont* pOldFont = pFont ? dc.SelectObject(pFont) : NULL;
@@ -218,6 +211,8 @@ void CTaechangHeaderCtrl::OnPaint() {
 	for (int i = 0; i < nCount; ++i) {
 		CRect rcItem;
 		GetItemRect(i, &rcItem);
+
+		dc.FillSolidRect(rcItem, TAECHANG_COLOR_LIST_HEADER);
 
 		HDITEM hdItem = {};
 		wchar_t szText[256] = {};
@@ -4085,8 +4080,8 @@ void CSageTaechangView::ShowCompanyOrderPanel(BOOL bShow) {
 void CSageTaechangView::UpdateCoListColumns() {
 	if (!::IsWindow(m_wndCoList.GetSafeHwnd()))
 		return;
-	if (CHeaderCtrl* pHeader = m_wndCoList.GetHeaderCtrl()) {
-		for (int i = pHeader->GetItemCount() - 1; i >= 2; --i)
+	if (::IsWindow(m_wndCoListHeader.GetSafeHwnd())) {
+		for (int i = m_wndCoListHeader.GetItemCount() - 1; i >= 2; --i)
 			m_wndCoList.DeleteColumn(i);
 	}
 	CRect rectList;
