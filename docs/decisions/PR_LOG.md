@@ -1,3 +1,9 @@
+## [2026-05-26] fix/co-crud-buttons-center
+- **목적**: 데이터 관리 탭 법인목록 UI 수정 4건 (버튼 정렬, 검색 행 겹침, 헤더 빈 열 시각 처리, phantom 3열 제거)
+- **변경 내용**: CRUD 버튼 가운데 정렬 / 검색 행 겹침 수정 / 헤더 OnPaint 역순 채색으로 blank 영역 흰색 처리 / Win32 직접 API + ShowWindow 후 재정리로 phantom 열 완전 제거
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/89
+- **결과**: pending
+
 ## [2026-05-18] fix/receivables-login-gate-and-initial-screen
 - **목적**: 미수금 내역서 로그인 게이트 추가 및 앱 최초 화면을 납품서 생성으로 변경
 - **변경 내용**: 미수금 내역서 클릭 시 로그인 필요, 앱 시작 시 납품서 생성 화면으로 초기화

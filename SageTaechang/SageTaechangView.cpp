@@ -199,17 +199,20 @@ void CTaechangHeaderCtrl::OnPaint() {
 	CPaintDC dc(this);
 	CRect rectClient;
 	GetClientRect(&rectClient);
-	dc.FillSolidRect(rectClient, TAECHANG_COLOR_LIST_HEADER);
+	dc.FillSolidRect(rectClient, TAECHANG_COLOR_PANEL);
+
+	int nCount = GetItemCount();
 
 	CFont* pFont = GetFont();
 	CFont* pOldFont = pFont ? dc.SelectObject(pFont) : NULL;
 	dc.SetBkMode(TRANSPARENT);
 	dc.SetTextColor(TAECHANG_COLOR_BUTTON_TEXT);
 
-	int nCount = GetItemCount();
 	for (int i = 0; i < nCount; ++i) {
 		CRect rcItem;
 		GetItemRect(i, &rcItem);
+
+		dc.FillSolidRect(rcItem, TAECHANG_COLOR_LIST_HEADER);
 
 		HDITEM hdItem = {};
 		wchar_t szText[256] = {};
@@ -4006,7 +4009,7 @@ void CSageTaechangView::LayoutCompanyOrderPanel(int nLeft, int nTop, int nWidth,
 	}
 
 	int nBtnTop = nInputTop + TAECHANG_EDIT_HEIGHT + TAECHANG_ROW_GAP;
-	nX = nCardContentLeft;
+	nX = nCardContentLeft + (nCardContentRight - nCardContentLeft - TAECHANG_CO_BTN_GROUP_WIDTH) / 2;
 	m_wndCoAddBtn.MoveWindow(nX, nBtnTop, TAECHANG_CO_SMALL_BTN_WIDTH, TAECHANG_BUTTON_HEIGHT);
 	nX += TAECHANG_CO_SMALL_BTN_WIDTH + TAECHANG_ACTION_GAP;
 	m_wndCoModifyBtn.MoveWindow(nX, nBtnTop, TAECHANG_CO_SMALL_BTN_WIDTH, TAECHANG_BUTTON_HEIGHT);
@@ -4021,7 +4024,7 @@ void CSageTaechangView::LayoutCompanyOrderPanel(int nLeft, int nTop, int nWidth,
 	int nListSectionTop = nCardTop + nCardHeight + TAECHANG_PANEL_GAP;
 	int nListWidth = TAECHANG_CO_LIST_WIDTH - TAECHANG_MARGIN;
 	int nListRight = nLeft + nListWidth;
-	int nSearchTop = nListSectionTop + TAECHANG_ROW_GAP;
+	int nSearchTop = nListSectionTop + TAECHANG_RESULT_HEADER_HEIGHT + TAECHANG_ROW_GAP;
 
 	int nSearchBtnLeft   = nListRight - TAECHANG_RESULT_SEARCH_WIDTH;
 	int nSearchEditLeft  = nSearchBtnLeft - TAECHANG_ACTION_GAP - TAECHANG_RESULT_FILTER_WIDTH;
@@ -4070,13 +4073,21 @@ void CSageTaechangView::ShowCompanyOrderPanel(BOOL bShow) {
 		m_nCoPanelState = TAECHANG_CO_PANEL_IDLE;
 		m_rectCoCard.SetRectEmpty();
 	}
-	else
+	else {
 		UpdateCoPanelState();
+		UpdateCoListColumns();
+	}
 }
 
 void CSageTaechangView::UpdateCoListColumns() {
 	if (!::IsWindow(m_wndCoList.GetSafeHwnd()))
 		return;
+	HWND hHeader = (HWND)m_wndCoList.SendMessage(LVM_GETHEADER);
+	if (::IsWindow(hHeader)) {
+		int nColCount = (int)::SendMessage(hHeader, HDM_GETITEMCOUNT, 0, 0);
+		for (int i = nColCount - 1; i >= 2; --i)
+			m_wndCoList.DeleteColumn(i);
+	}
 	CRect rectList;
 	m_wndCoList.GetClientRect(&rectList);
 	m_wndCoList.SetColumnWidth(0, TAECHANG_CO_ORDER_COL_WIDTH);
