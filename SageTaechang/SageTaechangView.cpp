@@ -4085,6 +4085,10 @@ void CSageTaechangView::ShowCompanyOrderPanel(BOOL bShow) {
 void CSageTaechangView::UpdateCoListColumns() {
 	if (!::IsWindow(m_wndCoList.GetSafeHwnd()))
 		return;
+	if (CHeaderCtrl* pHeader = m_wndCoList.GetHeaderCtrl()) {
+		for (int i = pHeader->GetItemCount() - 1; i >= 2; --i)
+			m_wndCoList.DeleteColumn(i);
+	}
 	CRect rectList;
 	m_wndCoList.GetClientRect(&rectList);
 	m_wndCoList.SetColumnWidth(0, TAECHANG_CO_ORDER_COL_WIDTH);
