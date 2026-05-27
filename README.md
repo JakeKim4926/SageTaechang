@@ -157,3 +157,7 @@ MSBuild.exe SageTaechang\SageTaechang.vcxproj /p:Configuration=Debug /p:Platform
 ## 참고
 
 이 저장소에는 실제 업무 자동화를 위한 스크립트가 포함되어 있습니다. 외부 공유 전에는 샘플 데이터, 경로, 회사명, 거래처명, 금액 정보 등 민감한 업무 정보가 포함되어 있지 않은지 반드시 확인해야 합니다.
+
+## License
+
+Copyright (c) 2026 Jake_Kim. All rights reserved.
