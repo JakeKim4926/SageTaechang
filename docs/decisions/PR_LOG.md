@@ -1,3 +1,9 @@
+## [2026-06-23] fix/receivables-etc-company-grouping
+- **목적**: 미수금 내역서에서 같은 법인(미등록 법인)이 흩어져 정렬되는 문제 수정
+- **변경 내용**: 미매칭 법인의 정렬용 법인명 실제값 보존, 정렬키에 companySortName을 담당자보다 앞에 복원, 미매칭 priority를 기타 위치로 계산(미등록 시 맨 뒤)
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/91
+- **결과**: pending
+
 ## [2026-05-26] fix/co-crud-buttons-center
 - **목적**: 데이터 관리 탭 법인목록 UI 수정 4건 (버튼 정렬, 검색 행 겹침, 헤더 빈 열 시각 처리, phantom 3열 제거)
 - **변경 내용**: CRUD 버튼 가운데 정렬 / 검색 행 겹침 수정 / 헤더 OnPaint 역순 채색으로 blank 영역 흰색 처리 / Win32 직접 API + ShowWindow 후 재정리로 phantom 열 완전 제거
