@@ -192,6 +192,17 @@ try {
     $prioritySheet = Find-Worksheet $inputWorkbook $prioritySheetName
     $priorityMap = Build-PriorityMap $prioritySheet $PriorityPath
 
+    $etcKey = Get-CompanyKey $etcName
+    if ($priorityMap.ContainsKey($etcKey)) {
+        $etcPriority = [int]$priorityMap[$etcKey].priority
+    } else {
+        $maxPriority = 0
+        foreach ($priorityItem in $priorityMap.Values) {
+            if ([int]$priorityItem.priority -gt $maxPriority) { $maxPriority = [int]$priorityItem.priority }
+        }
+        $etcPriority = $maxPriority + 1
+    }
+
     $xlUp = -4162
     $lastRow = $inputSheet.Cells($inputSheet.Rows.Count, 2).End($xlUp).Row
     if ($lastRow -lt 3) {
@@ -214,8 +225,7 @@ try {
         if ($companyName.Trim().Length -eq 0 -and $itemName.Trim().Length -eq 0) { continue }
 
         $companyKey = Get-CompanyKey $companyName
-        $etcKey = Get-CompanyKey $etcName
-        $priority = [int]$priorityMap[$etcKey].priority
+        $priority = $etcPriority
         $priorityName = $etcName
         $displayCompanyName = $etcName
         $sortCompanyName = $etcName
@@ -226,6 +236,7 @@ try {
             $sortCompanyName = $priorityName
         } elseif ($companyName.Length -gt 0) {
             $displayCompanyName = $companyName
+            $sortCompanyName = $companyName
             $missingCompanies[$companyName] = $true
         }
 
@@ -248,7 +259,7 @@ try {
         })
     }
 
-    $rows = @($rows | Sort-Object @{ Expression = { $_.priority }; Ascending = $true }, @{ Expression = { $_.managerSortKey }; Ascending = $true }, @{ Expression = { $_.issueDate }; Ascending = $true })
+    $rows = @($rows | Sort-Object @{ Expression = { $_.priority }; Ascending = $true }, @{ Expression = { $_.companySortName }; Ascending = $true }, @{ Expression = { $_.managerSortKey }; Ascending = $true }, @{ Expression = { $_.issueDate }; Ascending = $true })
     foreach ($row in $rows) {
         if ($row.Contains('managerSortKey')) {
             $row.Remove('managerSortKey')

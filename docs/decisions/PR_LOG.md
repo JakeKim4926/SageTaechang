@@ -1,3 +1,27 @@
+## [2026-06-23] fix/enable-clipboard-shortcuts
+- **목적**: 입력창에서 막혀 있던 Ctrl+C/V/X/Z 클립보드 단축키 복구
+- **변경 내용**: IDR_MAINFRAME 액셀러레이터 테이블에서 Ctrl+C/V/X/Z(ID_EDIT_COPY/PASTE/CUT/UNDO) 4줄 제거 → Edit 컨트롤 기본 처리로 전달. 원인은 마법사 기본 테이블이 키를 가로채 핸들러 없는 명령으로 버린 것
+- **PR 링크**: 없음 (develop 직접 머지)
+- **결과**: merged
+
+## [2026-06-23] feature/result-filter-criteria-select
+- **목적**: 미수금/납품서/견적서 결과 검색에 기준 셀렉박스 추가
+- **변경 내용**: 검색 기준 콤보(미수금: 법인명/담당자/품목명, 납품서·견적서: 품목명/법인명) 추가, 기준별 필드 매칭, 워크플로우별 상태 저장, 검색 영역 흰 띠 배경, 전용 오너드로우 콤보(CTaechangFilterComboBox)로 글자 상하좌우 가운데 정렬
+- **PR 링크**: 없음 (develop 직접 머지)
+- **결과**: merged
+
+## [2026-06-23] fix/receivables-form-etc-grouping
+- **목적**: 미수금 엑셀 폼 생성기에 기타 법인 그룹핑 적용 + 기타 섹션 내부 구분선 제거
+- **변경 내용**: generate-receivables-form.ps1에 #91과 동일한 그룹핑 수정(정렬키 companySortName 복원, 미매칭 sortCompanyName 보존, 기타 priority 계산) 적용 + Build-OutputRows에서 기타-기타 사이 '-' 구분선 생략(매칭/경계는 유지)
+- **PR 링크**: 없음 (develop 직접 머지)
+- **결과**: merged
+
+## [2026-06-23] fix/receivables-etc-company-grouping
+- **목적**: 미수금 내역서에서 같은 법인(미등록 법인)이 흩어져 정렬되는 문제 수정
+- **변경 내용**: 미매칭 법인의 정렬용 법인명 실제값 보존, 정렬키에 companySortName을 담당자보다 앞에 복원, 미매칭 priority를 기타 위치로 계산(미등록 시 맨 뒤)
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/91
+- **결과**: pending
+
 ## [2026-05-26] fix/co-crud-buttons-center
 - **목적**: 데이터 관리 탭 법인목록 UI 수정 4건 (버튼 정렬, 검색 행 겹침, 헤더 빈 열 시각 처리, phantom 3열 제거)
 - **변경 내용**: CRUD 버튼 가운데 정렬 / 검색 행 겹침 수정 / 헤더 OnPaint 역순 채색으로 blank 영역 흰색 처리 / Win32 직접 API + ShowWindow 후 재정리로 phantom 열 완전 제거

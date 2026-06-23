@@ -221,12 +221,14 @@ function Clear-OutputRow($sheet, $row) {
     $sheet.Range(('A{0}:K{0}' -f $row)).ClearContents() | Out-Null
 }
 
-function Build-OutputRows($rows) {
+function Build-OutputRows($rows, $etcName) {
     $outputRows = New-Object System.Collections.ArrayList
     $previousCompanyName = $null
+    $previousIsEtc = $false
 
     foreach ($row in $rows) {
-        if ($null -ne $previousCompanyName -and $row.companyName -ne $previousCompanyName) {
+        $currentIsEtc = ($row.priorityName -eq $etcName)
+        if ($null -ne $previousCompanyName -and $row.companyName -ne $previousCompanyName -and -not ($currentIsEtc -and $previousIsEtc)) {
             [void]$outputRows.Add([ordered]@{
                 isSeparator = $true
                 companyName = '-'
@@ -257,6 +259,7 @@ function Build-OutputRows($rows) {
         })
 
         $previousCompanyName = $row.companyName
+        $previousIsEtc = $currentIsEtc
     }
 
     return $outputRows
@@ -359,6 +362,17 @@ try {
     $prioritySheet = Find-Worksheet $inputWorkbook $prioritySheetName
     $priorityMap = Build-PriorityMap $prioritySheet $PriorityPath
 
+    $etcKey = Get-CompanyKey $etcName
+    if ($priorityMap.ContainsKey($etcKey)) {
+        $etcPriority = [int]$priorityMap[$etcKey].priority
+    } else {
+        $maxPriority = 0
+        foreach ($priorityItem in $priorityMap.Values) {
+            if ([int]$priorityItem.priority -gt $maxPriority) { $maxPriority = [int]$priorityItem.priority }
+        }
+        $etcPriority = $maxPriority + 1
+    }
+
     $xlUp = -4162
     $lastRow = $inputSheet.Cells($inputSheet.Rows.Count, 2).End($xlUp).Row
     if ($lastRow -lt 3) { $lastRow = 2 }
@@ -383,8 +397,7 @@ try {
         if ($companyName.Trim().Length -eq 0 -and $itemName.Trim().Length -eq 0) { continue }
 
         $companyKey = Get-CompanyKey $companyName
-        $etcKey = Get-CompanyKey $etcName
-        $priority = [int]$priorityMap[$etcKey].priority
+        $priority = $etcPriority
         $priorityName = $etcName
         $displayCompanyName = $etcName
         $sortCompanyName = $etcName
@@ -395,6 +408,7 @@ try {
             $sortCompanyName = $priorityName
         } elseif ($companyName.Length -gt 0) {
             $displayCompanyName = $companyName
+            $sortCompanyName = $companyName
             $missingCompanies[$companyName] = $true
         }
 
@@ -419,7 +433,7 @@ try {
         })
     }
 
-    $rows = @($rows | Sort-Object @{ Expression = { $_.priority }; Ascending = $true }, @{ Expression = { $_.managerSortKey }; Ascending = $true }, @{ Expression = { $_.issueDateValue }; Ascending = $true })
+    $rows = @($rows | Sort-Object @{ Expression = { $_.priority }; Ascending = $true }, @{ Expression = { $_.companySortName }; Ascending = $true }, @{ Expression = { $_.managerSortKey }; Ascending = $true }, @{ Expression = { $_.issueDateValue }; Ascending = $true })
     if ($rows.Count -eq 0) {
         throw 'Input file has no data rows.'
     }
@@ -450,7 +464,7 @@ try {
     Set-CellText $sheet 'A1' ($titleDate.ToString('yyyy') + $yearMarker + ' ' + $titleDate.Month + $monthMarker + ' ' + $titleSuffix)
 
     $targetRow = 5
-    $outputRows = Build-OutputRows $rows
+    $outputRows = Build-OutputRows $rows $etcName
     foreach ($row in $rows) {
         if ($row.Contains('managerSortKey')) {
             $row.Remove('managerSortKey')

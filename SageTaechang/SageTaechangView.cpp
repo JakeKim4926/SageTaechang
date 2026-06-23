@@ -274,6 +274,76 @@ void CTaechangComboBox::OnPaint() {
 	dc.SelectObject(pOldPen);
 }
 
+BEGIN_MESSAGE_MAP(CTaechangFilterComboBox, CComboBox)
+	ON_WM_PAINT()
+END_MESSAGE_MAP()
+
+void CTaechangFilterComboBox::MeasureItem(LPMEASUREITEMSTRUCT lpMeasureItemStruct) {
+	lpMeasureItemStruct->itemHeight = TAECHANG_RESULT_CRITERIA_ITEM_HEIGHT;
+}
+
+void CTaechangFilterComboBox::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
+	if (static_cast<int>(lpDrawItemStruct->itemID) < 0)
+		return;
+	CDC* pDC = CDC::FromHandle(lpDrawItemStruct->hDC);
+	CRect rcItem = lpDrawItemStruct->rcItem;
+	BOOL bSelected = (lpDrawItemStruct->itemState & ODS_SELECTED) ? TRUE : FALSE;
+	pDC->FillSolidRect(rcItem, bSelected ? TAECHANG_COLOR_PRIMARY : TAECHANG_COLOR_PANEL);
+	CString strText;
+	GetLBText(lpDrawItemStruct->itemID, strText);
+	CFont* pFont = GetFont();
+	CFont* pOldFont = pFont ? pDC->SelectObject(pFont) : NULL;
+	pDC->SetBkMode(TRANSPARENT);
+	pDC->SetTextColor(bSelected ? TAECHANG_COLOR_PANEL : TAECHANG_COLOR_TEXT);
+	pDC->DrawText(strText, rcItem, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+	if (pOldFont)
+		pDC->SelectObject(pOldFont);
+}
+
+void CTaechangFilterComboBox::OnPaint() {
+	CPaintDC dc(this);
+	CRect rcClient;
+	GetClientRect(&rcClient);
+	dc.FillSolidRect(rcClient, TAECHANG_COLOR_PANEL);
+
+	COMBOBOXINFO cbi = {};
+	cbi.cbSize = sizeof(COMBOBOXINFO);
+	GetComboBoxInfo(&cbi);
+	CRect rcButton = cbi.rcButton;
+	if (!rcButton.IsRectEmpty()) {
+		int cx = (rcButton.left + rcButton.right) / 2;
+		int cy = (rcButton.top + rcButton.bottom) / 2;
+		POINT pts[3] = {
+			{ cx - 4, cy - 2 },
+			{ cx + 4, cy - 2 },
+			{ cx,     cy + 3 }
+		};
+		CBrush br(TAECHANG_COLOR_PRIMARY);
+		CPen pen(PS_NULL, 0, RGB(0, 0, 0));
+		CBrush* pOldBr = dc.SelectObject(&br);
+		CPen* pOldPen = dc.SelectObject(&pen);
+		dc.Polygon(pts, 3);
+		dc.SelectObject(pOldBr);
+		dc.SelectObject(pOldPen);
+	}
+
+	int nSel = GetCurSel();
+	if (nSel != CB_ERR) {
+		CString strText;
+		GetLBText(nSel, strText);
+		CRect rcText = rcClient;
+		if (!rcButton.IsRectEmpty())
+			rcText.right = rcButton.left;
+		CFont* pFont = GetFont();
+		CFont* pOldFont = pFont ? dc.SelectObject(pFont) : NULL;
+		dc.SetBkMode(TRANSPARENT);
+		dc.SetTextColor(TAECHANG_COLOR_TEXT);
+		dc.DrawText(strText, rcText, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+		if (pOldFont)
+			dc.SelectObject(pOldFont);
+	}
+}
+
 void CTaechangTabCtrl::OnPaint() {
 	CPaintDC dc(this);
 	CRect rect;
@@ -358,6 +428,7 @@ BEGIN_MESSAGE_MAP(CSageTaechangView, CView)
 	ON_BN_CLICKED(ID_CALC_COMPANY_PICK_BTN, &CSageTaechangView::OnCalcCompanyPick)
 	ON_BN_CLICKED(ID_TAECHANG_RESULT_SEARCH_BTN, &CSageTaechangView::OnResultSearch)
 	ON_BN_CLICKED(ID_TAECHANG_RESULT_RESET_BTN, &CSageTaechangView::OnResultFilterReset)
+	ON_CBN_SELCHANGE(ID_TAECHANG_RESULT_FILTER_CRITERIA, &CSageTaechangView::OnResultFilterCriteriaChanged)
 	ON_BN_CLICKED(ID_COORDER_ADD_BTN, &CSageTaechangView::OnCoAdd)
 	ON_BN_CLICKED(ID_COORDER_MODIFY_BTN, &CSageTaechangView::OnCoModify)
 	ON_BN_CLICKED(ID_COORDER_DELETE_BTN, &CSageTaechangView::OnCoDelete)
@@ -380,6 +451,7 @@ CSageTaechangView::CSageTaechangView() noexcept
 	, m_nSelectedTaskTab(TAECHANG_TAB_INDEX_INPUT)
 	, m_nLastWorkflowType(0)
 	, m_nLastTaskType(0)
+	, m_nResultFilterCriteria(TAECHANG_FILTER_CRITERIA_NONE)
 	, m_nCurrentWorkflow(TAECHANG_WORKFLOW_DELIVERY)
 	, m_hLastWorkflowItem(NULL)
 	, m_colorHeaderStatus(TAECHANG_COLOR_SECONDARY_TEXT)
@@ -396,7 +468,8 @@ CSageTaechangView::CSageTaechangView() noexcept
 	, m_nAuthDividerX(0)
 	, m_nCoPanelState(TAECHANG_CO_PANEL_IDLE)
 	, m_nCoSelectedOrderId(0)
-	, m_rectCoCard(0, 0, 0, 0) {
+	, m_rectCoCard(0, 0, 0, 0)
+	, m_rectResultFilterBox(0, 0, 0, 0) {
 	m_brushAppBackground.CreateSolidBrush(TAECHANG_COLOR_APP_BACKGROUND);
 	m_brushPanel.CreateSolidBrush(TAECHANG_COLOR_PANEL);
 	m_brushSidebar.CreateSolidBrush(TAECHANG_COLOR_SIDEBAR);
@@ -526,6 +599,7 @@ void CSageTaechangView::CreateChildControls() {
 			SetWindowTheme(m_wndResultHeader.GetSafeHwnd(), L"", L"");
 		}
 	}
+	m_wndResultFilterCriteria.Create(WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | CBS_OWNERDRAWFIXED | CBS_HASSTRINGS | WS_VSCROLL, rectEmpty, this, ID_TAECHANG_RESULT_FILTER_CRITERIA);
 	m_wndResultFilter.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOHSCROLL, rectEmpty, this, ID_TAECHANG_RESULT_FILTER_EDIT);
 	m_wndResultSearchBtn.Create(TAECHANG_UI_RESULT_SEARCH_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_RESULT_SEARCH_BTN);
 	m_wndResultResetBtn.Create(TAECHANG_UI_RESULT_RESET_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_RESULT_RESET_BTN);
@@ -633,6 +707,9 @@ void CSageTaechangView::ApplyControlFonts() {
 	m_wndResultList.SetFont(&m_fontContent);
 	if (::IsWindow(m_wndResultHeader.GetSafeHwnd()))
 		m_wndResultHeader.SetFont(&m_fontContent);
+	m_wndResultFilterCriteria.SetFont(&m_fontContent);
+	m_wndResultFilterCriteria.SetItemHeight(-1, TAECHANG_RESULT_CRITERIA_ITEM_HEIGHT);
+	m_wndResultFilterCriteria.SetItemHeight(0, TAECHANG_RESULT_CRITERIA_ITEM_HEIGHT);
 	m_wndResultFilter.SetFont(&m_fontContent);
 	m_wndResultSearchBtn.SetFont(&m_fontContent);
 	m_wndResultResetBtn.SetFont(&m_fontContent);
@@ -842,6 +919,11 @@ void CSageTaechangView::UpdateTaskTabVisibility() {
 	m_wndResultSection.ShowWindow(bShowResult ? SW_SHOW : SW_HIDE);
 	m_wndResultList.ShowWindow(bShowResult ? SW_SHOW : SW_HIDE);
 	BOOL bShowResultFilter = (bShowResult && IsDocumentResultFilterVisible()) ? TRUE : FALSE;
+	m_wndResultFilterCriteria.ShowWindow(bShowResultFilter ? SW_SHOW : SW_HIDE);
+	if (bShowResultFilter)
+		PopulateResultFilterCriteria();
+	else
+		m_rectResultFilterBox.SetRectEmpty();
 	m_wndResultFilter.ShowWindow(bShowResultFilter ? SW_SHOW : SW_HIDE);
 	m_wndResultSearchBtn.ShowWindow(bShowResultFilter ? SW_SHOW : SW_HIDE);
 	m_wndResultResetBtn.ShowWindow(bShowResultFilter ? SW_SHOW : SW_HIDE);
@@ -981,9 +1063,11 @@ void CSageTaechangView::LayoutChildControls() {
 		m_wndActionStatus.ShowWindow(SW_HIDE);
 		m_wndResultSection.ShowWindow(SW_HIDE);
 		m_wndResultList.ShowWindow(SW_HIDE);
+		m_wndResultFilterCriteria.ShowWindow(SW_HIDE);
 		m_wndResultFilter.ShowWindow(SW_HIDE);
 		m_wndResultSearchBtn.ShowWindow(SW_HIDE);
 		m_wndResultResetBtn.ShowWindow(SW_HIDE);
+		m_rectResultFilterBox.SetRectEmpty();
 		m_wndDetailSection.ShowWindow(SW_HIDE);
 		m_wndDetail.ShowWindow(SW_HIDE);
 		m_wndEmptyStateHint.ShowWindow(SW_HIDE);
@@ -1103,7 +1187,8 @@ void CSageTaechangView::LayoutResultSection(int nLeft, int nTop, int nWidth, int
 	if (IsResultTab() || (IsInputTabSelected() && (IsDeliveryInputTable() || IsEstimateInputTable()))) {
 		BOOL bShowSelectAll = IsInputTabSelected() && (IsDeliveryInputTable() || IsEstimateInputTable());
 		BOOL bShowResultFilter = IsDocumentResultFilterVisible();
-		int nFilterTotalW = TAECHANG_RESULT_FILTER_WIDTH + TAECHANG_ACTION_GAP
+		int nFilterTotalW = TAECHANG_RESULT_CRITERIA_WIDTH + TAECHANG_ACTION_GAP
+			+ TAECHANG_RESULT_FILTER_WIDTH + TAECHANG_ACTION_GAP
 			+ TAECHANG_RESULT_SEARCH_WIDTH + TAECHANG_ACTION_GAP + TAECHANG_RESULT_RESET_WIDTH;
 		int nRight = nLeft + nWidth;
 		int nFilterLeft = nRight - nFilterTotalW;
@@ -1124,17 +1209,26 @@ void CSageTaechangView::LayoutResultSection(int nLeft, int nTop, int nWidth, int
 		}
 		if (bShowResultFilter) {
 			int nFilterTop = nTop - 8;
-			m_wndResultFilter.MoveWindow(nFilterLeft, nFilterTop, TAECHANG_RESULT_FILTER_WIDTH, TAECHANG_EDIT_HEIGHT);
+			m_wndResultFilterCriteria.MoveWindow(nFilterLeft, nFilterTop, TAECHANG_RESULT_CRITERIA_WIDTH, TAECHANG_EDIT_HEIGHT * 8);
+			int nFilterEditLeft = nFilterLeft + TAECHANG_RESULT_CRITERIA_WIDTH + TAECHANG_ACTION_GAP;
+			m_wndResultFilter.MoveWindow(nFilterEditLeft, nFilterTop, TAECHANG_RESULT_FILTER_WIDTH, TAECHANG_EDIT_HEIGHT);
 			CRect rcFmt;
 			m_wndResultFilter.GetClientRect(&rcFmt);
 			rcFmt.top += TAECHANG_EDIT_TEXT_TOP_PAD;
 			rcFmt.left += 6;
 			rcFmt.right = TAECHANG_EDIT_FORMAT_MAX_WIDTH;
 			m_wndResultFilter.SendMessage(EM_SETRECT, 0, reinterpret_cast<LPARAM>(&rcFmt));
-			int nSearchLeft = nFilterLeft + TAECHANG_RESULT_FILTER_WIDTH + TAECHANG_ACTION_GAP;
+			int nSearchLeft = nFilterEditLeft + TAECHANG_RESULT_FILTER_WIDTH + TAECHANG_ACTION_GAP;
 			m_wndResultSearchBtn.MoveWindow(nSearchLeft, nFilterTop, TAECHANG_RESULT_SEARCH_WIDTH, TAECHANG_BUTTON_HEIGHT);
 			int nResetLeft = nSearchLeft + TAECHANG_RESULT_SEARCH_WIDTH + TAECHANG_ACTION_GAP;
 			m_wndResultResetBtn.MoveWindow(nResetLeft, nFilterTop, TAECHANG_RESULT_RESET_WIDTH, TAECHANG_BUTTON_HEIGHT);
+			m_rectResultFilterBox.SetRect(
+				nFilterLeft - TAECHANG_RESULT_FILTER_BOX_PAD,
+				nFilterTop - TAECHANG_RESULT_FILTER_BOX_PAD,
+				nResetLeft + TAECHANG_RESULT_RESET_WIDTH + TAECHANG_RESULT_FILTER_BOX_PAD,
+				nFilterTop + TAECHANG_EDIT_HEIGHT + TAECHANG_RESULT_FILTER_BOX_PAD);
+		} else {
+			m_rectResultFilterBox.SetRectEmpty();
 		}
 		m_wndResultList.MoveWindow(nLeft, nTop + TAECHANG_RESULT_HEADER_HEIGHT, nWidth, nBodyHeight);
 		UpdateResultColumns();
@@ -1158,6 +1252,12 @@ void CSageTaechangView::OnDraw(CDC* pDC) {
 	pDC->FillSolidRect(TAECHANG_SIDEBAR_WIDTH + 1, TAECHANG_MARGIN + TAECHANG_HEADER_HEIGHT, rectClient.Width() - TAECHANG_SIDEBAR_WIDTH - 1, 1, TAECHANG_COLOR_BORDER);
 	DrawEditBorder(pDC, m_wndInputPath);
 	DrawEditBorder(pDC, m_wndOutputFolder);
+	if (!m_rectResultFilterBox.IsRectEmpty()) {
+		pDC->FillSolidRect(m_rectResultFilterBox, TAECHANG_COLOR_PANEL);
+		CBrush brFilterBox(TAECHANG_COLOR_BORDER);
+		pDC->FrameRect(m_rectResultFilterBox, &brFilterBox);
+	}
+	DrawEditBorder(pDC, m_wndResultFilterCriteria);
 	DrawEditBorder(pDC, m_wndResultFilter);
 	if (!m_rectCoCard.IsRectEmpty()) {
 		pDC->FillSolidRect(m_rectCoCard, TAECHANG_COLOR_PANEL);
@@ -1373,6 +1473,7 @@ void CSageTaechangView::SaveWorkflowUiState(int nWorkflowType) {
 	state.strLastResponseJson = m_strLastResponseJson;
 	state.strRunningInputPath = m_strRunningInputPath;
 	state.strResultFilterKeyword = m_strResultFilterKeyword;
+	state.nResultFilterCriteria = m_nResultFilterCriteria;
 	if (::IsWindow(m_wndInputPath.GetSafeHwnd()))
 		m_wndInputPath.GetWindowTextW(state.strInputPath);
 	if (::IsWindow(m_wndOutputFolder.GetSafeHwnd()))
@@ -1391,6 +1492,7 @@ void CSageTaechangView::RestoreWorkflowUiState(int nWorkflowType) {
 		m_strLastResponseJson.Empty();
 		m_strRunningInputPath.Empty();
 		m_strResultFilterKeyword.Empty();
+		m_nResultFilterCriteria = TAECHANG_FILTER_CRITERIA_NONE;
 		return;
 	}
 
@@ -1402,6 +1504,7 @@ void CSageTaechangView::RestoreWorkflowUiState(int nWorkflowType) {
 	m_strLastResponseJson = state.strLastResponseJson;
 	m_strRunningInputPath = state.strRunningInputPath;
 	m_strResultFilterKeyword = state.strResultFilterKeyword;
+	m_nResultFilterCriteria = state.nResultFilterCriteria;
 	if (::IsWindow(m_wndInputPath.GetSafeHwnd()))
 		m_wndInputPath.SetWindowTextW(state.strInputPath);
 	if (::IsWindow(m_wndOutputFolder.GetSafeHwnd()))
@@ -2237,10 +2340,14 @@ void CSageTaechangView::RefreshDocumentResultFilter() {
 	if (!::IsWindow(m_wndResultList.GetSafeHwnd()) || !IsDocumentResultFilterVisible())
 		return;
 
+	PopulateResultFilterCriteria();
+
 	CString strFilter = m_strResultFilterKeyword;
 	strFilter.Trim();
 	CString strFilterLower = strFilter;
 	strFilterLower.MakeLower();
+
+	int nCriteria = GetEffectiveFilterCriteria();
 
 	m_wndResultList.DeleteAllItems();
 
@@ -2250,13 +2357,70 @@ void CSageTaechangView::RefreshDocumentResultFilter() {
 	presenter.BuildRows(m_nLastWorkflowType, m_nLastTaskType, m_strLastResponseJson, arrRows, strDetailText);
 	for (int i = 0; i < static_cast<int>(arrRows.size()); ++i) {
 		if (!strFilterLower.IsEmpty()) {
-			CString strTargetLower = IsReceivablesResultTable() ? arrRows[i].m_strCompanyName : arrRows[i].m_strItemName;
+			CString strTargetLower;
+			if (nCriteria == TAECHANG_FILTER_CRITERIA_MANAGER)
+				strTargetLower = arrRows[i].m_strManager;
+			else if (nCriteria == TAECHANG_FILTER_CRITERIA_ITEM)
+				strTargetLower = arrRows[i].m_strItemName;
+			else
+				strTargetLower = arrRows[i].m_strCompanyName;
 			strTargetLower.MakeLower();
 			if (strTargetLower.Find(strFilterLower) < 0)
 				continue;
 		}
 		InsertResultRow(arrRows[i]);
 	}
+}
+
+int CSageTaechangView::GetDefaultFilterCriteria() const {
+	if (GetSelectedWorkflow() == TAECHANG_WORKFLOW_RECEIVABLES)
+		return TAECHANG_FILTER_CRITERIA_COMPANY;
+	return TAECHANG_FILTER_CRITERIA_ITEM;
+}
+
+int CSageTaechangView::GetEffectiveFilterCriteria() const {
+	if (GetSelectedWorkflow() == TAECHANG_WORKFLOW_RECEIVABLES) {
+		if (m_nResultFilterCriteria == TAECHANG_FILTER_CRITERIA_COMPANY ||
+			m_nResultFilterCriteria == TAECHANG_FILTER_CRITERIA_MANAGER ||
+			m_nResultFilterCriteria == TAECHANG_FILTER_CRITERIA_ITEM)
+			return m_nResultFilterCriteria;
+	} else {
+		if (m_nResultFilterCriteria == TAECHANG_FILTER_CRITERIA_ITEM ||
+			m_nResultFilterCriteria == TAECHANG_FILTER_CRITERIA_COMPANY)
+			return m_nResultFilterCriteria;
+	}
+	return GetDefaultFilterCriteria();
+}
+
+void CSageTaechangView::PopulateResultFilterCriteria() {
+	if (!::IsWindow(m_wndResultFilterCriteria.GetSafeHwnd()))
+		return;
+
+	int nEffective = GetEffectiveFilterCriteria();
+	m_wndResultFilterCriteria.ResetContent();
+	if (GetSelectedWorkflow() == TAECHANG_WORKFLOW_RECEIVABLES) {
+		int nIndexCompany = m_wndResultFilterCriteria.AddString(TAECHANG_UI_FILTER_CRITERIA_COMPANY);
+		m_wndResultFilterCriteria.SetItemData(nIndexCompany, TAECHANG_FILTER_CRITERIA_COMPANY);
+		int nIndexManager = m_wndResultFilterCriteria.AddString(TAECHANG_UI_FILTER_CRITERIA_MANAGER);
+		m_wndResultFilterCriteria.SetItemData(nIndexManager, TAECHANG_FILTER_CRITERIA_MANAGER);
+		int nIndexItem = m_wndResultFilterCriteria.AddString(TAECHANG_UI_FILTER_CRITERIA_ITEM);
+		m_wndResultFilterCriteria.SetItemData(nIndexItem, TAECHANG_FILTER_CRITERIA_ITEM);
+	} else {
+		int nIndexItem = m_wndResultFilterCriteria.AddString(TAECHANG_UI_FILTER_CRITERIA_ITEM);
+		m_wndResultFilterCriteria.SetItemData(nIndexItem, TAECHANG_FILTER_CRITERIA_ITEM);
+		int nIndexCompany = m_wndResultFilterCriteria.AddString(TAECHANG_UI_FILTER_CRITERIA_COMPANY);
+		m_wndResultFilterCriteria.SetItemData(nIndexCompany, TAECHANG_FILTER_CRITERIA_COMPANY);
+	}
+
+	int nCount = m_wndResultFilterCriteria.GetCount();
+	for (int i = 0; i < nCount; ++i) {
+		if (static_cast<int>(m_wndResultFilterCriteria.GetItemData(i)) == nEffective) {
+			m_wndResultFilterCriteria.SetCurSel(i);
+			return;
+		}
+	}
+	if (nCount > 0)
+		m_wndResultFilterCriteria.SetCurSel(0);
 }
 
 void CSageTaechangView::OnResultSearch() {
@@ -2275,6 +2439,19 @@ void CSageTaechangView::OnResultFilterReset() {
 
 	m_strResultFilterKeyword.Empty();
 	m_wndResultFilter.SetWindowTextW(L"");
+	RefreshDocumentResultFilter();
+	SaveWorkflowUiState(GetSelectedWorkflow());
+}
+
+void CSageTaechangView::OnResultFilterCriteriaChanged() {
+	if (!IsDocumentResultFilterVisible())
+		return;
+
+	int nSel = m_wndResultFilterCriteria.GetCurSel();
+	if (nSel == CB_ERR)
+		return;
+
+	m_nResultFilterCriteria = static_cast<int>(m_wndResultFilterCriteria.GetItemData(nSel));
 	RefreshDocumentResultFilter();
 	SaveWorkflowUiState(GetSelectedWorkflow());
 }
