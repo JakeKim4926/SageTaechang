@@ -4,6 +4,12 @@
 - **PR 링크**: 없음 (develop 직접 머지)
 - **결과**: merged
 
+## [2026-06-23] feature/result-filter-criteria-select
+- **목적**: 미수금/납품서/견적서 결과 검색에 기준 셀렉박스 추가
+- **변경 내용**: 검색 기준 콤보(미수금: 법인명/담당자/품목명, 납품서·견적서: 품목명/법인명) 추가, 기준별 필드 매칭, 워크플로우별 상태 저장, 검색 영역 흰 띠 배경, 전용 오너드로우 콤보(CTaechangFilterComboBox)로 글자 상하좌우 가운데 정렬
+- **PR 링크**: 없음 (develop 직접 머지)
+- **결과**: merged
+
 ## [2026-06-23] fix/receivables-form-etc-grouping
 - **목적**: 미수금 엑셀 폼 생성기에 기타 법인 그룹핑 적용 + 기타 섹션 내부 구분선 제거
 - **변경 내용**: generate-receivables-form.ps1에 #91과 동일한 그룹핑 수정(정렬키 companySortName 복원, 미매칭 sortCompanyName 보존, 기타 priority 계산) 적용 + Build-OutputRows에서 기타-기타 사이 '-' 구분선 생략(매칭/경계는 유지)
