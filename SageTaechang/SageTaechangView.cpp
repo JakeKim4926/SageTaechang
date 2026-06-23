@@ -645,6 +645,7 @@ void CSageTaechangView::ApplyControlFonts() {
 	if (::IsWindow(m_wndResultHeader.GetSafeHwnd()))
 		m_wndResultHeader.SetFont(&m_fontContent);
 	m_wndResultFilterCriteria.SetFont(&m_fontContent);
+	m_wndResultFilterCriteria.SetItemHeight(-1, TAECHANG_RESULT_CRITERIA_SEL_HEIGHT);
 	m_wndResultFilter.SetFont(&m_fontContent);
 	m_wndResultSearchBtn.SetFont(&m_fontContent);
 	m_wndResultResetBtn.SetFont(&m_fontContent);
