@@ -14,6 +14,7 @@ struct TaechangWorkflowUiState {
     CString strLastResponseJson;
     CString strRunningInputPath;
     CString strResultFilterKeyword;
+    int nResultFilterCriteria;
     CString strInputPath;
     CString strOutputFolder;
     CString strCheckedRowNums;
@@ -24,6 +25,7 @@ struct TaechangWorkflowUiState {
         , nLastWorkflowType(0)
         , nLastTaskType(0)
         , bLastTaskSuccess(FALSE)
+        , nResultFilterCriteria(TAECHANG_FILTER_CRITERIA_NONE)
         , bEstimateOnePage(FALSE) {}
 };
 
@@ -113,6 +115,7 @@ protected:
     CStatic m_wndProgressText;
     CTaechangHeaderCtrl m_wndResultHeader;
     CListCtrl m_wndResultList;
+    CComboBox m_wndResultFilterCriteria;
     CEdit m_wndResultFilter;
     CButton m_wndResultSearchBtn;
     CButton m_wndResultResetBtn;
@@ -142,6 +145,7 @@ protected:
     CString m_strExecutionHistory;
     CString m_strRunningInputPath;
     CString m_strResultFilterKeyword;
+    int m_nResultFilterCriteria;
     TaechangWorkflowUiState m_stateReceivables;
     TaechangWorkflowUiState m_stateDelivery;
     TaechangWorkflowUiState m_stateEstimate;
@@ -293,6 +297,9 @@ protected:
     void DisplayResponse(int nWorkflowType, int nTaskType, const CString& strResponseJson);
     void InsertResultRow(const TaechangResultRow& row);
     void RefreshDocumentResultFilter();
+    void PopulateResultFilterCriteria();
+    int GetEffectiveFilterCriteria() const;
+    int GetDefaultFilterCriteria() const;
     void AppendExecutionHistory(int nWorkflowType, int nTaskType, const CString& strResponseJson, BOOL bSuccess);
     CString BuildExecutionHistoryLine(int nWorkflowType, int nTaskType, const CString& strResponseJson, BOOL bSuccess) const;
 
@@ -392,6 +399,7 @@ protected:
     afx_msg void OnCalcCompanyPick();
     afx_msg void OnResultSearch();
     afx_msg void OnResultFilterReset();
+    afx_msg void OnResultFilterCriteriaChanged();
 
     DECLARE_MESSAGE_MAP()
 };
