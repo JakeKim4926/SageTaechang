@@ -1,3 +1,9 @@
+## [2026-06-23] fix/receivables-form-etc-grouping
+- **목적**: 미수금 엑셀 폼 생성기에 기타 법인 그룹핑 적용 + 기타 섹션 내부 구분선 제거
+- **변경 내용**: generate-receivables-form.ps1에 #91과 동일한 그룹핑 수정(정렬키 companySortName 복원, 미매칭 sortCompanyName 보존, 기타 priority 계산) 적용 + Build-OutputRows에서 기타-기타 사이 '-' 구분선 생략(매칭/경계는 유지)
+- **PR 링크**: 없음 (develop 직접 머지)
+- **결과**: merged
+
 ## [2026-06-23] fix/receivables-etc-company-grouping
 - **목적**: 미수금 내역서에서 같은 법인(미등록 법인)이 흩어져 정렬되는 문제 수정
 - **변경 내용**: 미매칭 법인의 정렬용 법인명 실제값 보존, 정렬키에 companySortName을 담당자보다 앞에 복원, 미매칭 priority를 기타 위치로 계산(미등록 시 맨 뒤)
