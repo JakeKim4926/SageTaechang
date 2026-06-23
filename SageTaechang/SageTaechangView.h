@@ -146,6 +146,7 @@ protected:
     CString m_strRunningInputPath;
     CString m_strResultFilterKeyword;
     int m_nResultFilterCriteria;
+    CRect m_rectResultFilterBox;
     TaechangWorkflowUiState m_stateReceivables;
     TaechangWorkflowUiState m_stateDelivery;
     TaechangWorkflowUiState m_stateEstimate;

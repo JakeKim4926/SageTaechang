@@ -398,7 +398,8 @@ CSageTaechangView::CSageTaechangView() noexcept
 	, m_nAuthDividerX(0)
 	, m_nCoPanelState(TAECHANG_CO_PANEL_IDLE)
 	, m_nCoSelectedOrderId(0)
-	, m_rectCoCard(0, 0, 0, 0) {
+	, m_rectCoCard(0, 0, 0, 0)
+	, m_rectResultFilterBox(0, 0, 0, 0) {
 	m_brushAppBackground.CreateSolidBrush(TAECHANG_COLOR_APP_BACKGROUND);
 	m_brushPanel.CreateSolidBrush(TAECHANG_COLOR_PANEL);
 	m_brushSidebar.CreateSolidBrush(TAECHANG_COLOR_SIDEBAR);
@@ -529,6 +530,13 @@ void CSageTaechangView::CreateChildControls() {
 		}
 	}
 	m_wndResultFilterCriteria.Create(WS_CHILD | WS_VISIBLE | CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL, rectEmpty, this, ID_TAECHANG_RESULT_FILTER_CRITERIA);
+	COMBOBOXINFO cbiResultCriteria = {};
+	cbiResultCriteria.cbSize = sizeof(COMBOBOXINFO);
+	m_wndResultFilterCriteria.GetComboBoxInfo(&cbiResultCriteria);
+	if (cbiResultCriteria.hwndItem != NULL) {
+		LONG_PTR nEditStyle = ::GetWindowLongPtr(cbiResultCriteria.hwndItem, GWL_STYLE);
+		::SetWindowLongPtr(cbiResultCriteria.hwndItem, GWL_STYLE, nEditStyle | ES_CENTER);
+	}
 	m_wndResultFilter.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOHSCROLL, rectEmpty, this, ID_TAECHANG_RESULT_FILTER_EDIT);
 	m_wndResultSearchBtn.Create(TAECHANG_UI_RESULT_SEARCH_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_RESULT_SEARCH_BTN);
 	m_wndResultResetBtn.Create(TAECHANG_UI_RESULT_RESET_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_RESULT_RESET_BTN);
@@ -849,6 +857,8 @@ void CSageTaechangView::UpdateTaskTabVisibility() {
 	m_wndResultFilterCriteria.ShowWindow(bShowResultFilter ? SW_SHOW : SW_HIDE);
 	if (bShowResultFilter)
 		PopulateResultFilterCriteria();
+	else
+		m_rectResultFilterBox.SetRectEmpty();
 	m_wndResultFilter.ShowWindow(bShowResultFilter ? SW_SHOW : SW_HIDE);
 	m_wndResultSearchBtn.ShowWindow(bShowResultFilter ? SW_SHOW : SW_HIDE);
 	m_wndResultResetBtn.ShowWindow(bShowResultFilter ? SW_SHOW : SW_HIDE);
@@ -988,9 +998,11 @@ void CSageTaechangView::LayoutChildControls() {
 		m_wndActionStatus.ShowWindow(SW_HIDE);
 		m_wndResultSection.ShowWindow(SW_HIDE);
 		m_wndResultList.ShowWindow(SW_HIDE);
+		m_wndResultFilterCriteria.ShowWindow(SW_HIDE);
 		m_wndResultFilter.ShowWindow(SW_HIDE);
 		m_wndResultSearchBtn.ShowWindow(SW_HIDE);
 		m_wndResultResetBtn.ShowWindow(SW_HIDE);
+		m_rectResultFilterBox.SetRectEmpty();
 		m_wndDetailSection.ShowWindow(SW_HIDE);
 		m_wndDetail.ShowWindow(SW_HIDE);
 		m_wndEmptyStateHint.ShowWindow(SW_HIDE);
@@ -1145,6 +1157,13 @@ void CSageTaechangView::LayoutResultSection(int nLeft, int nTop, int nWidth, int
 			m_wndResultSearchBtn.MoveWindow(nSearchLeft, nFilterTop, TAECHANG_RESULT_SEARCH_WIDTH, TAECHANG_BUTTON_HEIGHT);
 			int nResetLeft = nSearchLeft + TAECHANG_RESULT_SEARCH_WIDTH + TAECHANG_ACTION_GAP;
 			m_wndResultResetBtn.MoveWindow(nResetLeft, nFilterTop, TAECHANG_RESULT_RESET_WIDTH, TAECHANG_BUTTON_HEIGHT);
+			m_rectResultFilterBox.SetRect(
+				nFilterLeft - TAECHANG_RESULT_FILTER_BOX_PAD,
+				nFilterTop - TAECHANG_RESULT_FILTER_BOX_PAD,
+				nResetLeft + TAECHANG_RESULT_RESET_WIDTH + TAECHANG_RESULT_FILTER_BOX_PAD,
+				nFilterTop + TAECHANG_EDIT_HEIGHT + TAECHANG_RESULT_FILTER_BOX_PAD);
+		} else {
+			m_rectResultFilterBox.SetRectEmpty();
 		}
 		m_wndResultList.MoveWindow(nLeft, nTop + TAECHANG_RESULT_HEADER_HEIGHT, nWidth, nBodyHeight);
 		UpdateResultColumns();
@@ -1168,6 +1187,11 @@ void CSageTaechangView::OnDraw(CDC* pDC) {
 	pDC->FillSolidRect(TAECHANG_SIDEBAR_WIDTH + 1, TAECHANG_MARGIN + TAECHANG_HEADER_HEIGHT, rectClient.Width() - TAECHANG_SIDEBAR_WIDTH - 1, 1, TAECHANG_COLOR_BORDER);
 	DrawEditBorder(pDC, m_wndInputPath);
 	DrawEditBorder(pDC, m_wndOutputFolder);
+	if (!m_rectResultFilterBox.IsRectEmpty()) {
+		pDC->FillSolidRect(m_rectResultFilterBox, TAECHANG_COLOR_PANEL);
+		CBrush brFilterBox(TAECHANG_COLOR_BORDER);
+		pDC->FrameRect(m_rectResultFilterBox, &brFilterBox);
+	}
 	DrawEditBorder(pDC, m_wndResultFilter);
 	if (!m_rectCoCard.IsRectEmpty()) {
 		pDC->FillSolidRect(m_rectCoCard, TAECHANG_COLOR_PANEL);
