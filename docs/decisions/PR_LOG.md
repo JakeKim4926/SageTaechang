@@ -1,3 +1,9 @@
+## [2026-06-23] fix/enable-clipboard-shortcuts
+- **목적**: 입력창에서 막혀 있던 Ctrl+C/V/X/Z 클립보드 단축키 복구
+- **변경 내용**: IDR_MAINFRAME 액셀러레이터 테이블에서 Ctrl+C/V/X/Z(ID_EDIT_COPY/PASTE/CUT/UNDO) 4줄 제거 → Edit 컨트롤 기본 처리로 전달. 원인은 마법사 기본 테이블이 키를 가로채 핸들러 없는 명령으로 버린 것
+- **PR 링크**: 없음 (develop 직접 머지)
+- **결과**: merged
+
 ## [2026-06-23] fix/receivables-form-etc-grouping
 - **목적**: 미수금 엑셀 폼 생성기에 기타 법인 그룹핑 적용 + 기타 섹션 내부 구분선 제거
 - **변경 내용**: generate-receivables-form.ps1에 #91과 동일한 그룹핑 수정(정렬키 companySortName 복원, 미매칭 sortCompanyName 보존, 기타 priority 계산) 적용 + Build-OutputRows에서 기타-기타 사이 '-' 구분선 생략(매칭/경계는 유지)
