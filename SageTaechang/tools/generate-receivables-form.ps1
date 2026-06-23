@@ -221,12 +221,14 @@ function Clear-OutputRow($sheet, $row) {
     $sheet.Range(('A{0}:K{0}' -f $row)).ClearContents() | Out-Null
 }
 
-function Build-OutputRows($rows) {
+function Build-OutputRows($rows, $etcName) {
     $outputRows = New-Object System.Collections.ArrayList
     $previousCompanyName = $null
+    $previousIsEtc = $false
 
     foreach ($row in $rows) {
-        if ($null -ne $previousCompanyName -and $row.companyName -ne $previousCompanyName) {
+        $currentIsEtc = ($row.priorityName -eq $etcName)
+        if ($null -ne $previousCompanyName -and $row.companyName -ne $previousCompanyName -and -not ($currentIsEtc -and $previousIsEtc)) {
             [void]$outputRows.Add([ordered]@{
                 isSeparator = $true
                 companyName = '-'
@@ -257,6 +259,7 @@ function Build-OutputRows($rows) {
         })
 
         $previousCompanyName = $row.companyName
+        $previousIsEtc = $currentIsEtc
     }
 
     return $outputRows
@@ -461,7 +464,7 @@ try {
     Set-CellText $sheet 'A1' ($titleDate.ToString('yyyy') + $yearMarker + ' ' + $titleDate.Month + $monthMarker + ' ' + $titleSuffix)
 
     $targetRow = 5
-    $outputRows = Build-OutputRows $rows
+    $outputRows = Build-OutputRows $rows $etcName
     foreach ($row in $rows) {
         if ($row.Contains('managerSortKey')) {
             $row.Remove('managerSortKey')
