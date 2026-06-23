@@ -115,7 +115,7 @@ protected:
     CStatic m_wndProgressText;
     CTaechangHeaderCtrl m_wndResultHeader;
     CListCtrl m_wndResultList;
-    CComboBox m_wndResultFilterCriteria;
+    CTaechangComboBox m_wndResultFilterCriteria;
     CEdit m_wndResultFilter;
     CButton m_wndResultSearchBtn;
     CButton m_wndResultResetBtn;
