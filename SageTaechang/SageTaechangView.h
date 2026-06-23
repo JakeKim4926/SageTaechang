@@ -66,6 +66,17 @@ protected:
 };
 
 
+class CTaechangFilterComboBox : public CComboBox
+{
+    DECLARE_MESSAGE_MAP()
+public:
+    virtual void DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct);
+    virtual void MeasureItem(LPMEASUREITEMSTRUCT lpMeasureItemStruct);
+protected:
+    afx_msg void OnPaint();
+};
+
+
 class CSageTaechangView : public CView
 {
 protected:
@@ -115,7 +126,7 @@ protected:
     CStatic m_wndProgressText;
     CTaechangHeaderCtrl m_wndResultHeader;
     CListCtrl m_wndResultList;
-    CTaechangComboBox m_wndResultFilterCriteria;
+    CTaechangFilterComboBox m_wndResultFilterCriteria;
     CEdit m_wndResultFilter;
     CButton m_wndResultSearchBtn;
     CButton m_wndResultResetBtn;

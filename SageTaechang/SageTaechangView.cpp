@@ -274,6 +274,76 @@ void CTaechangComboBox::OnPaint() {
 	dc.SelectObject(pOldPen);
 }
 
+BEGIN_MESSAGE_MAP(CTaechangFilterComboBox, CComboBox)
+	ON_WM_PAINT()
+END_MESSAGE_MAP()
+
+void CTaechangFilterComboBox::MeasureItem(LPMEASUREITEMSTRUCT lpMeasureItemStruct) {
+	lpMeasureItemStruct->itemHeight = TAECHANG_RESULT_CRITERIA_ITEM_HEIGHT;
+}
+
+void CTaechangFilterComboBox::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
+	if (static_cast<int>(lpDrawItemStruct->itemID) < 0)
+		return;
+	CDC* pDC = CDC::FromHandle(lpDrawItemStruct->hDC);
+	CRect rcItem = lpDrawItemStruct->rcItem;
+	BOOL bSelected = (lpDrawItemStruct->itemState & ODS_SELECTED) ? TRUE : FALSE;
+	pDC->FillSolidRect(rcItem, bSelected ? TAECHANG_COLOR_PRIMARY : TAECHANG_COLOR_PANEL);
+	CString strText;
+	GetLBText(lpDrawItemStruct->itemID, strText);
+	CFont* pFont = GetFont();
+	CFont* pOldFont = pFont ? pDC->SelectObject(pFont) : NULL;
+	pDC->SetBkMode(TRANSPARENT);
+	pDC->SetTextColor(bSelected ? TAECHANG_COLOR_PANEL : TAECHANG_COLOR_TEXT);
+	pDC->DrawText(strText, rcItem, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+	if (pOldFont)
+		pDC->SelectObject(pOldFont);
+}
+
+void CTaechangFilterComboBox::OnPaint() {
+	CPaintDC dc(this);
+	CRect rcClient;
+	GetClientRect(&rcClient);
+	dc.FillSolidRect(rcClient, TAECHANG_COLOR_PANEL);
+
+	COMBOBOXINFO cbi = {};
+	cbi.cbSize = sizeof(COMBOBOXINFO);
+	GetComboBoxInfo(&cbi);
+	CRect rcButton = cbi.rcButton;
+	if (!rcButton.IsRectEmpty()) {
+		int cx = (rcButton.left + rcButton.right) / 2;
+		int cy = (rcButton.top + rcButton.bottom) / 2;
+		POINT pts[3] = {
+			{ cx - 4, cy - 2 },
+			{ cx + 4, cy - 2 },
+			{ cx,     cy + 3 }
+		};
+		CBrush br(TAECHANG_COLOR_PRIMARY);
+		CPen pen(PS_NULL, 0, RGB(0, 0, 0));
+		CBrush* pOldBr = dc.SelectObject(&br);
+		CPen* pOldPen = dc.SelectObject(&pen);
+		dc.Polygon(pts, 3);
+		dc.SelectObject(pOldBr);
+		dc.SelectObject(pOldPen);
+	}
+
+	int nSel = GetCurSel();
+	if (nSel != CB_ERR) {
+		CString strText;
+		GetLBText(nSel, strText);
+		CRect rcText = rcClient;
+		if (!rcButton.IsRectEmpty())
+			rcText.right = rcButton.left;
+		CFont* pFont = GetFont();
+		CFont* pOldFont = pFont ? dc.SelectObject(pFont) : NULL;
+		dc.SetBkMode(TRANSPARENT);
+		dc.SetTextColor(TAECHANG_COLOR_TEXT);
+		dc.DrawText(strText, rcText, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+		if (pOldFont)
+			dc.SelectObject(pOldFont);
+	}
+}
+
 void CTaechangTabCtrl::OnPaint() {
 	CPaintDC dc(this);
 	CRect rect;
@@ -529,14 +599,7 @@ void CSageTaechangView::CreateChildControls() {
 			SetWindowTheme(m_wndResultHeader.GetSafeHwnd(), L"", L"");
 		}
 	}
-	m_wndResultFilterCriteria.Create(WS_CHILD | WS_VISIBLE | CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL, rectEmpty, this, ID_TAECHANG_RESULT_FILTER_CRITERIA);
-	COMBOBOXINFO cbiResultCriteria = {};
-	cbiResultCriteria.cbSize = sizeof(COMBOBOXINFO);
-	m_wndResultFilterCriteria.GetComboBoxInfo(&cbiResultCriteria);
-	if (cbiResultCriteria.hwndItem != NULL) {
-		LONG_PTR nEditStyle = ::GetWindowLongPtr(cbiResultCriteria.hwndItem, GWL_STYLE);
-		::SetWindowLongPtr(cbiResultCriteria.hwndItem, GWL_STYLE, nEditStyle | ES_CENTER);
-	}
+	m_wndResultFilterCriteria.Create(WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | CBS_OWNERDRAWFIXED | CBS_HASSTRINGS | WS_VSCROLL, rectEmpty, this, ID_TAECHANG_RESULT_FILTER_CRITERIA);
 	m_wndResultFilter.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOHSCROLL, rectEmpty, this, ID_TAECHANG_RESULT_FILTER_EDIT);
 	m_wndResultSearchBtn.Create(TAECHANG_UI_RESULT_SEARCH_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_RESULT_SEARCH_BTN);
 	m_wndResultResetBtn.Create(TAECHANG_UI_RESULT_RESET_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_RESULT_RESET_BTN);
@@ -645,7 +708,8 @@ void CSageTaechangView::ApplyControlFonts() {
 	if (::IsWindow(m_wndResultHeader.GetSafeHwnd()))
 		m_wndResultHeader.SetFont(&m_fontContent);
 	m_wndResultFilterCriteria.SetFont(&m_fontContent);
-	m_wndResultFilterCriteria.SetItemHeight(-1, TAECHANG_RESULT_CRITERIA_SEL_HEIGHT);
+	m_wndResultFilterCriteria.SetItemHeight(-1, TAECHANG_RESULT_CRITERIA_ITEM_HEIGHT);
+	m_wndResultFilterCriteria.SetItemHeight(0, TAECHANG_RESULT_CRITERIA_ITEM_HEIGHT);
 	m_wndResultFilter.SetFont(&m_fontContent);
 	m_wndResultSearchBtn.SetFont(&m_fontContent);
 	m_wndResultResetBtn.SetFont(&m_fontContent);
@@ -1193,6 +1257,7 @@ void CSageTaechangView::OnDraw(CDC* pDC) {
 		CBrush brFilterBox(TAECHANG_COLOR_BORDER);
 		pDC->FrameRect(m_rectResultFilterBox, &brFilterBox);
 	}
+	DrawEditBorder(pDC, m_wndResultFilterCriteria);
 	DrawEditBorder(pDC, m_wndResultFilter);
 	if (!m_rectCoCard.IsRectEmpty()) {
 		pDC->FillSolidRect(m_rectCoCard, TAECHANG_COLOR_PANEL);
