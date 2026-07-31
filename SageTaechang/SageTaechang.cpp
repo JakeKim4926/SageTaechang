@@ -7,6 +7,7 @@
 #include "afxwinappex.h"
 #include "afxdialogex.h"
 #include "SageTaechang.h"
+#include "app/infra/db/SageDBMgr.h"
 #include "app/ui/frame/MainFrm.h"
 
 #include "app/ui/frame/SageTaechangDoc.h"
