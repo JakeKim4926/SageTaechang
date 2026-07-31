@@ -144,16 +144,16 @@
     <ClCompile Include="app\ui\view\SageTaechangView.cpp">
       <Filter>소스 파일\app\ui\view</Filter>
     </ClCompile>
-    <ClCompile Include="app\ui\drawing\TaechangHeaderCtrl.cpp">
+    <ClCompile Include="app\ui\drawing\SageHeaderCtrl.cpp">
       <Filter>소스 파일\app\ui\drawing</Filter>
     </ClCompile>
-    <ClCompile Include="app\ui\drawing\TaechangTabCtrl.cpp">
+    <ClCompile Include="app\ui\drawing\SageTabCtrl.cpp">
       <Filter>소스 파일\app\ui\drawing</Filter>
     </ClCompile>
-    <ClCompile Include="app\ui\drawing\TaechangComboBox.cpp">
+    <ClCompile Include="app\ui\drawing\SageComboBox.cpp">
       <Filter>소스 파일\app\ui\drawing</Filter>
     </ClCompile>
-    <ClCompile Include="app\ui\drawing\TaechangFilterComboBox.cpp">
+    <ClCompile Include="app\ui\drawing\SageFilterComboBox.cpp">
       <Filter>소스 파일\app\ui\drawing</Filter>
     </ClCompile>
     <ClCompile Include="app\infra\office\TaechangReceivablesExcelService.cpp">
@@ -272,16 +272,16 @@
     <ClInclude Include="app\ui\view\SageTaechangView.h">
       <Filter>헤더 파일\app\ui\view</Filter>
     </ClInclude>
-    <ClInclude Include="app\ui\drawing\TaechangHeaderCtrl.h">
+    <ClInclude Include="app\ui\drawing\SageHeaderCtrl.h">
       <Filter>헤더 파일\app\ui\drawing</Filter>
     </ClInclude>
-    <ClInclude Include="app\ui\drawing\TaechangTabCtrl.h">
+    <ClInclude Include="app\ui\drawing\SageTabCtrl.h">
       <Filter>헤더 파일\app\ui\drawing</Filter>
     </ClInclude>
-    <ClInclude Include="app\ui\drawing\TaechangComboBox.h">
+    <ClInclude Include="app\ui\drawing\SageComboBox.h">
       <Filter>헤더 파일\app\ui\drawing</Filter>
     </ClInclude>
-    <ClInclude Include="app\ui\drawing\TaechangFilterComboBox.h">
+    <ClInclude Include="app\ui\drawing\SageFilterComboBox.h">
       <Filter>헤더 파일\app\ui\drawing</Filter>
     </ClInclude>
     <ClInclude Include="app\infra\db\SqlContext.h">

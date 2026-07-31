@@ -1,16 +1,16 @@
 #include "pch.h"
-#include "app/ui/drawing/TaechangFilterComboBox.h"
+#include "app/ui/drawing/SageFilterComboBox.h"
 #include "TaechangDefine.h"
 
-BEGIN_MESSAGE_MAP(CTaechangFilterComboBox, CComboBox)
+BEGIN_MESSAGE_MAP(CSageFilterComboBox, CComboBox)
 	ON_WM_PAINT()
 END_MESSAGE_MAP()
 
-void CTaechangFilterComboBox::MeasureItem(LPMEASUREITEMSTRUCT lpMeasureItemStruct) {
+void CSageFilterComboBox::MeasureItem(LPMEASUREITEMSTRUCT lpMeasureItemStruct) {
 	lpMeasureItemStruct->itemHeight = TAECHANG_RESULT_CRITERIA_ITEM_HEIGHT;
 }
 
-void CTaechangFilterComboBox::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
+void CSageFilterComboBox::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 	if (static_cast<int>(lpDrawItemStruct->itemID) < 0)
 		return;
 	CDC* pDC = CDC::FromHandle(lpDrawItemStruct->hDC);
@@ -28,7 +28,7 @@ void CTaechangFilterComboBox::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 		pDC->SelectObject(pOldFont);
 }
 
-void CTaechangFilterComboBox::OnPaint() {
+void CSageFilterComboBox::OnPaint() {
 	CPaintDC dc(this);
 	CRect rcClient;
 	GetClientRect(&rcClient);

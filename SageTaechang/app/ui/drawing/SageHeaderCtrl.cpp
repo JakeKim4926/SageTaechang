@@ -1,12 +1,12 @@
 #include "pch.h"
-#include "app/ui/drawing/TaechangHeaderCtrl.h"
+#include "app/ui/drawing/SageHeaderCtrl.h"
 #include "TaechangDefine.h"
 
-BEGIN_MESSAGE_MAP(CTaechangHeaderCtrl, CHeaderCtrl)
+BEGIN_MESSAGE_MAP(CSageHeaderCtrl, CHeaderCtrl)
 	ON_WM_PAINT()
 END_MESSAGE_MAP()
 
-void CTaechangHeaderCtrl::OnPaint() {
+void CSageHeaderCtrl::OnPaint() {
 	CPaintDC dc(this);
 	CRect rectClient;
 	GetClientRect(&rectClient);

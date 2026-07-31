@@ -1,12 +1,12 @@
 #include "pch.h"
-#include "app/ui/drawing/TaechangComboBox.h"
+#include "app/ui/drawing/SageComboBox.h"
 #include "TaechangDefine.h"
 
-BEGIN_MESSAGE_MAP(CTaechangComboBox, CComboBox)
+BEGIN_MESSAGE_MAP(CSageComboBox, CComboBox)
 	ON_WM_PAINT()
 END_MESSAGE_MAP()
 
-void CTaechangComboBox::OnPaint() {
+void CSageComboBox::OnPaint() {
 	CPaintDC dc(this);
 	COMBOBOXINFO cbi = {};
 	cbi.cbSize = sizeof(COMBOBOXINFO);

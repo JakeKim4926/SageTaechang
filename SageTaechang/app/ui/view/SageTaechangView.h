@@ -3,10 +3,10 @@
 
 #include "TaechangDefine.h"
 #include "app/core/receivable/TaechangReceivableCompanyOrderDto.h"
-#include "app/ui/drawing/TaechangHeaderCtrl.h"
-#include "app/ui/drawing/TaechangTabCtrl.h"
-#include "app/ui/drawing/TaechangComboBox.h"
-#include "app/ui/drawing/TaechangFilterComboBox.h"
+#include "app/ui/drawing/SageHeaderCtrl.h"
+#include "app/ui/drawing/SageTabCtrl.h"
+#include "app/ui/drawing/SageComboBox.h"
+#include "app/ui/drawing/SageFilterComboBox.h"
 
 struct TaechangResultRow;
 struct TaechangPriceDto;
@@ -77,7 +77,7 @@ protected:
     CTreeCtrl m_wndSidebarTree;
     CStatic m_wndHeaderTitle;
     CStatic m_wndHeaderStatus;
-    CTaechangTabCtrl m_wndTaskTabs;
+    CSageTabCtrl m_wndTaskTabs;
     CStatic m_wndInputSection;
     CStatic m_wndOutputSection;
     CStatic m_wndResultSection;
@@ -98,9 +98,9 @@ protected:
     CButton m_wndInputReset;
     CProgressCtrl m_wndProgress;
     CStatic m_wndProgressText;
-    CTaechangHeaderCtrl m_wndResultHeader;
+    CSageHeaderCtrl m_wndResultHeader;
     CListCtrl m_wndResultList;
-    CTaechangFilterComboBox m_wndResultFilterCriteria;
+    CSageFilterComboBox m_wndResultFilterCriteria;
     CEdit m_wndResultFilter;
     CButton m_wndResultSearchBtn;
     CButton m_wndResultResetBtn;
@@ -143,11 +143,11 @@ protected:
 
     // ── 가격 데이터 관리 패널 ────────────────────────────────────────────────
     CStatic             m_wndPriceCompanyLabel;
-    CTaechangComboBox   m_wndPriceCompanyCombo;
+    CSageComboBox   m_wndPriceCompanyCombo;
     CButton             m_wndPriceAddCompanyBtn;
     CButton             m_wndPriceRenameCompanyBtn;
     CButton             m_wndPriceDeleteCompanyBtn;
-    CTaechangHeaderCtrl m_wndPriceCopiesHeader;
+    CSageHeaderCtrl m_wndPriceCopiesHeader;
     CListCtrl           m_wndPriceCopiesList;
     CStatic             m_wndPriceMinCopiesLabel;
     CEdit               m_wndPriceMinCopiesEdit;
@@ -172,7 +172,7 @@ protected:
 
     // ── 부수 계산 패널 ───────────────────────────────────────────────────────
     CStatic              m_wndCalcCompanyLabel;
-    CTaechangComboBox    m_wndCalcCompanyCombo;
+    CSageComboBox    m_wndCalcCompanyCombo;
     CButton              m_wndCalcCompanyPickBtn;
     CStatic              m_wndCalcCopiesLabel;
     CEdit                m_wndCalcCopiesEdit;
@@ -194,7 +194,7 @@ protected:
     CStatic              m_wndCalcTotalLabel;
     CStatic              m_wndCalcTotalValue;
     CStatic              m_wndCalcHistorySection;
-    CTaechangHeaderCtrl  m_wndCalcHistoryHeader;
+    CSageHeaderCtrl  m_wndCalcHistoryHeader;
     CListCtrl            m_wndCalcHistoryList;
     CRect                m_rectCalcInputPanel;
     CRect                m_rectCalcResultPanel;
@@ -224,7 +224,7 @@ protected:
     CStatic             m_wndCoCrudSection;
     CStatic             m_wndCoListSection;
     CRect               m_rectCoCard;
-    CTaechangHeaderCtrl m_wndCoListHeader;
+    CSageHeaderCtrl m_wndCoListHeader;
     CListCtrl           m_wndCoList;
     int                 m_nCoPanelState;
     CString             m_strCoSearchKeyword;

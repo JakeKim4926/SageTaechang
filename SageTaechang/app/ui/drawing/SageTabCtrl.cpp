@@ -1,12 +1,12 @@
 #include "pch.h"
-#include "app/ui/drawing/TaechangTabCtrl.h"
+#include "app/ui/drawing/SageTabCtrl.h"
 #include "TaechangDefine.h"
 
-BEGIN_MESSAGE_MAP(CTaechangTabCtrl, CTabCtrl)
+BEGIN_MESSAGE_MAP(CSageTabCtrl, CTabCtrl)
 	ON_WM_PAINT()
 END_MESSAGE_MAP()
 
-void CTaechangTabCtrl::OnPaint() {
+void CSageTabCtrl::OnPaint() {
 	CPaintDC dc(this);
 	CRect rect;
 	GetClientRect(&rect);

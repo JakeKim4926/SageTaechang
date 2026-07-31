@@ -1,6 +1,6 @@
 #pragma once
 
-class CTaechangHeaderCtrl : public CHeaderCtrl
+class CSageTabCtrl : public CTabCtrl
 {
 	DECLARE_MESSAGE_MAP()
 protected:

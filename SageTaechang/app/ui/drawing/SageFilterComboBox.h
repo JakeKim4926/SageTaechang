@@ -1,6 +1,6 @@
 #pragma once
 
-class CTaechangFilterComboBox : public CComboBox
+class CSageFilterComboBox : public CComboBox
 {
 	DECLARE_MESSAGE_MAP()
 public:
