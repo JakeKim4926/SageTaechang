@@ -17,25 +17,23 @@
 - 위험도: 중
 - 후속: Step 4에서 core에 인터페이스를 두고 infra가 구현하도록 의존 역전
 
-### [2026-07-31] 구조불일치 — 앱 헤더가 DB 계층을 전역 노출
-- 위치: SageTaechang.h:11
-- 설명: CWinApp 헤더가 app/infra/db/SageDBMgr.h를 include해, 이 헤더를 포함하는 모든 곳에 DB 계층이 노출된다.
-- 위험도: 중
-- 후속: Step 2에서 의존 제거
-
 ### [2026-07-31] 구조불일치 — infra/office가 infra/db를 직접 참조
 - 위치: app/infra/office/TaechangReceivablesExcelService.cpp
 - 설명: 문서 생성 모듈이 DB 매니저를 직접 호출한다. 같은 infra 계층 안이지만 관심사가 섞여 있다.
 - 위험도: 낮음
 - 후속: Step 4에서 core Service 경유로 전환
 
-### [2026-07-31] 구조불일치 — SqlInitializer 파일명과 클래스명 불일치
-- 위치: app/infra/db/SqlInitializer.h
-- 설명: 파일명은 coding-rules의 약어 표기(Sql)로 맞췄으나 클래스명은 SQLInitializer로 남아 있다. Step 1을 "파일 이동만"으로 유지하기 위해 의도적으로 미뤘다.
-- 위험도: 낮음
-- 후속: Step 2에서 클래스명 변경
-
 ## 해결됨
+
+### [2026-07-31] 해결 — 앱 헤더가 DB 계층을 전역 노출
+- 위치: SageTaechang.h:11
+- 조치: CWinApp 헤더의 SageDBMgr.h include를 제거하고 실제 사용처인 SageTaechang.cpp에 직접 추가했다. 이 과정에서 SageTaechangView.h가 SageTaechang.h → SageDBMgr.h → TaechangPriceRepository.h 사슬로 TaechangPriceDto를 간접 획득하고 있었음이 드러나, 전방 선언과 직접 include로 정리했다.
+- 커밋: 19d95eb, 21d5679
+
+### [2026-07-31] 해결 — SqlInitializer 파일명과 클래스명 불일치
+- 위치: app/infra/db/SqlInitializer.h
+- 조치: 클래스명 SQLInitializer를 SqlInitializer로 변경 (13곳). coding-rules의 약어 표기 규칙에 맞춤.
+- 커밋: 6dccd52
 
 ### [2026-07-31] 철회 — SageDBMgr Getter 7개가 포인터 반환
 - 위치: app/infra/db/SageDBMgr.h:36~45
