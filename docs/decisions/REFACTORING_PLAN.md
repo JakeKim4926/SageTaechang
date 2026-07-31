@@ -119,12 +119,15 @@ WebView2 기반) 문서였고 존재하지 않는 폴더 구조를 규정했다.
 
 ### 회수 대상 698줄 중 462줄 완료 (66%)
 
+**3-A-8의 회수량을 236줄 → 약 140줄로 정정한다.** `ApplyControlFonts` 124줄 중 라벨은 36곳이고
+나머지 63개(버튼·에디트·리스트)는 이번 범위가 아니다. 3-A 완료 시 총 회수는 약 600줄이 된다.
+
 | 위치 | 줄 | 상태 |
 |---|---|---|
 | View `OnDrawItem` | 128 | **완료** — 함수 자체가 사라짐 (3-A-1, 3-A-3) |
 | 다이얼로그 8개 `OnDrawItem` | 230 | **완료** — `DrawSimpleButton`까지 (3-A-2) |
-| View `ApplyControlFonts` | 124 | 폰트 저장소 필요, 3-A 이후 별도 작업 |
-| View `OnCtlColor` | 112 | 3-A-8 |
+| View `OnCtlColor` | 112 | 3-A-8 — 약 102줄 회수 (체크박스 1블록 + 기본값 2개는 잔류) |
+| View `ApplyControlFonts` | 124 | 3-A-8 — **라벨 몫 약 36줄만.** 나머지 88줄은 비라벨 63개라 별도 |
 | View `OnListCustomDraw` | 68 | **완료** (3-A-5) |
 | View `OnSidebarTreeCustomDraw` | 36 | **완료** (3-A-6) |
 
@@ -168,7 +171,7 @@ View의 오너드로우 컨트롤 34개(버튼 26 + 섹션 라벨 7 + 필터 콤
       **`SageUiStyle`을 색상 파사드로 만드는 안은 기각** — 색은 이미 `TaechangDefine.h`에 모여 있어
       간접 층만 늘어난다. skill의 예시 3개(`FillControlBackground`/`DrawBorder`/`DrawCenteredText`)를
       실제 API와 "왜 아닌지"로 교체했고, 컨트롤 목록 상태·`CSageEdit` 보류 사유도 반영했다
-- [ ] 3-A-8 `OnCtlColor` 잔여 정리 ← 다음 (핸들러는 남을 수 있으나 컨트롤 종류 분기는 제거)
+- [ ] **3-A-8 `CSageLabel` + `SageUiResources`** ← 다음 — 아래 상세 참조
 
 > 3-A-2 이후는 착수 시점에 상세화한다. 앞 단계 결과가 뒤 단계 설계를 바꾼다.
 
@@ -196,6 +199,70 @@ View의 오너드로우 컨트롤 34개(버튼 26 + 섹션 라벨 7 + 필터 콤
   화면에 의존하는 값을 컨트롤로 옮길 때는 **설정값과 실제 사용값이 같은지** 먼저 확인해야 한다
 - CRLF 파일에서 Python 정규식의 행끝 매칭(`$`)은 캐리지 리턴 때문에 실패한다.
   라인 단위로 캐리지 리턴을 떼어낸 뒤 매칭해야 한다 (Step 1의 `sed` 백슬래시 사고와 같은 계열)
+
+---
+
+### 3-A-8 — `CSageLabel` + `SageUiResources` (진행 중)
+
+브랜치: 하위 단계마다 별도
+
+색상(`OnCtlColor`)과 폰트(`ApplyControlFonts`)를 **하나로 묶는다.**
+`OnCtlColor` 대상 36개 중 33개가 폰트도 받으므로, 나누면 같은 라벨을 두 번 건드린다.
+**3-B보다 먼저 한다** — 패널 분리 후에는 View가 패널 내부 라벨의 색·폰트를 아는 더 나쁜 구조가 된다.
+
+#### 조사로 확정된 사실
+
+- `OnCtlColor` 112줄은 **컨트롤 종류 분기가 아니라 인스턴스 비교**다. 종류 분기는 맨 끝 기본값 2개뿐
+- 대상 36개 = `CStatic` 34 + `CButton` 2(체크박스)
+- 동적 색상 2곳(`m_wndHeaderStatus`·`m_wndActionStatus`)의 반환값이 전부 팔레트 상수라
+  **역할 enum으로 깨끗하게 표현된다. 원시 `COLORREF` 탈출구가 필요 없다**
+- 배경이 역할로 고정되면 `m_brushHeaderStatus`의 `DeleteObject`/`CreateSolidBrush` 재생성이 사라진다
+
+#### 범위 조건 (확장 금지)
+
+- [ ] `SageUiResources`는 **폰트 4개 + 배경 브러시 6개만** 소유한다.
+      테마 시스템·런타임 색상 변경·DPI 대응은 만들지 않는다
+- [ ] 체크박스 2개는 `OnCtlColor`에 분기 1개로 남긴다. **`CSageCheckBox`를 만들지 않는다**
+- [ ] `CSageLabel`은 `CStatic` 34개만 처리한다. **원시 `COLORREF` 탈출구 없이 역할 enum만** 쓴다
+- [ ] 기존 `m_fontControl`/`Content`/`Title`/`Header` 역할을 그대로 옮긴다. 새 폰트 체계 없음
+
+```cpp
+enum SageTextRole   { SAGE_TEXT_DEFAULT, SECONDARY, PRIMARY, SUCCESS, ERROR,
+                      SIDEBAR, SIDEBAR_CATEGORY };                          // 7
+enum SageBackgroundRole { SAGE_BG_APP, PANEL, SIDEBAR,
+                          STATUS_SUCCESS, STATUS_WARNING, STATUS_ERROR };   // 6
+enum SageFontRole   { SAGE_FONT_CONTROL, CONTENT, TITLE, HEADER };          // 4
+```
+
+`SageUiResources`는 `SageUiStyle`과 분리한다 — 후자는 상태 없는 그리기 함수인데
+이쪽은 생성·소멸 수명이 있다. GDI 객체라 정적 초기화를 쓸 수 없으므로
+`CWinApp::InitInstance`/`ExitInstance`에서 `Create()`/`Destroy()`한다.
+
+#### 리플렉션 함정 2개 (5단계에서 화면이 깨지는 지점)
+
+```cpp
+1861  HBRUSH hBrush = CView::OnCtlColor(...);      // 여기서 자식에게 리플렉션
+1862  pDC->SetTextColor(TAECHANG_COLOR_TEXT);      // 자식이 정한 색을 즉시 뭉갠다
+```
+
+- **함정 1** — 라벨 조기 반환이 1862번 줄보다 **위**에 와야 한다
+- **함정 2** — 라벨도 static이라 맨 끝 `CTLCOLOR_STATIC` 기본값이 가로챈다.
+  `pWnd->IsKindOf(RUNTIME_CLASS(CSageLabel))`로 조기 반환한다 (`DECLARE_DYNAMIC` 필요)
+
+3-A-1의 "부모가 base를 호출하면 자식에게 리플렉션된다"와 같은 계열이다.
+
+#### 6단계 분할
+
+| # | 내용 | 화면 |
+|---|---|---|
+| 1 | `SageUiResources` 신설 + 폰트 4개 이관 | 무변화 |
+| 2 | 브러시 6개 추가, View 브러시 4개 제거 | 무변화 |
+| 3 | `CSageLabel` 신설 (미사용) | 무변화 |
+| 4 | 라벨 34개 타입 교체 + 역할 지정 | 무변화 (View 분기가 아직 이김) |
+| 5 | `OnCtlColor` 라벨 분기 제거 | **핵심 검증 지점 — 라벨이 스스로 색을 냄** |
+| 6 | `ApplyControlFonts` 라벨 36곳 제거 | 무변화 |
+
+각 단계마다 빌드 가능한 상태를 유지한다. **화면 변화가 생기면 즉시 중단하고 원인을 보고한다.**
 
 ---
 
