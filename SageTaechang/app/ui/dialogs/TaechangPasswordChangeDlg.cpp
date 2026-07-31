@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "app/ui/dialogs/TaechangPasswordChangeDlg.h"
 #include "TaechangDefine.h"
 #include "app/core/auth/TaechangAuthSession.h"
@@ -181,6 +181,7 @@ void TaechangPasswordChangeDlg::ApplyFont() {
     m_wndNewEdit.SetFont(&m_font);
     m_wndConfirmEdit.SetFont(&m_font);
     m_wndOkBtn.SetFont(&m_font);
+    m_wndOkBtn.SetVariant(SAGE_BUTTON_PRIMARY);
     m_wndCancelBtn.SetFont(&m_font);
 }
 

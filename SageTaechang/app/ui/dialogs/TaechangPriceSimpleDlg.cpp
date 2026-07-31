@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "app/ui/dialogs/TaechangPriceSimpleDlg.h"
 #include "TaechangDefine.h"
 
@@ -198,6 +198,7 @@ void TaechangCompanyRenameDlg::ApplyFont() {
     m_wndLabel.SetFont(&m_font);
     m_wndEdit.SetFont(&m_font);
     m_wndOkBtn.SetFont(&m_font);
+    m_wndOkBtn.SetVariant(SAGE_BUTTON_PRIMARY);
     m_wndCancelBtn.SetFont(&m_font);
 }
 
@@ -347,6 +348,7 @@ void TaechangCoverPriceDlg::ApplyFont() {
     m_wndLabel.SetFont(&m_font);
     m_wndEdit.SetFont(&m_font);
     m_wndOkBtn.SetFont(&m_font);
+    m_wndOkBtn.SetVariant(SAGE_BUTTON_PRIMARY);
     m_wndCancelBtn.SetFont(&m_font);
 }
 

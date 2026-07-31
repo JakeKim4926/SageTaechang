@@ -1,4 +1,6 @@
-#pragma once
+﻿#pragma once
+
+#include "app/ui/drawing/SageButton.h"
 
 class TaechangPasswordChangeDlg : public CDialog {
 public:
@@ -33,8 +35,8 @@ private:
     CEdit m_wndCurrentEdit;
     CEdit m_wndNewEdit;
     CEdit m_wndConfirmEdit;
-    CButton m_wndOkBtn;
-    CButton m_wndCancelBtn;
+    CSageButton m_wndOkBtn;
+    CSageButton m_wndCancelBtn;
     CFont m_font;
     CBrush m_brushBackground;
     CBrush m_brushPanel;

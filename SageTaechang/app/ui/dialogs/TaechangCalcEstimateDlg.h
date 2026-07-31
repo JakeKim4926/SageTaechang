@@ -1,4 +1,6 @@
-#pragma once
+﻿#pragma once
+
+#include "app/ui/drawing/SageButton.h"
 
 #include "pch.h"
 
@@ -65,8 +67,8 @@ private:
     CStatic m_wndItemLabel;
     CEdit   m_wndItemEdit;
     CStatic m_wndItemDivider;
-    CButton m_wndOkBtn;
-    CButton m_wndCancelBtn;
+    CSageButton m_wndOkBtn;
+    CSageButton m_wndCancelBtn;
 
     CFont   m_font;
     CBrush  m_brushBackground;

@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "app/ui/dialogs/TaechangCalcEstimateDlg.h"
 #include "TaechangDefine.h"
 #include "app/infra/file/TaechangFileUtils.h"
@@ -163,6 +163,7 @@ void TaechangCalcEstimateDlg::ApplyFont() {
     m_wndItemLabel.SetFont(&m_font);
     m_wndItemEdit.SetFont(&m_font);
     m_wndOkBtn.SetFont(&m_font);
+    m_wndOkBtn.SetVariant(SAGE_BUTTON_PRIMARY);
     m_wndCancelBtn.SetFont(&m_font);
 }
 

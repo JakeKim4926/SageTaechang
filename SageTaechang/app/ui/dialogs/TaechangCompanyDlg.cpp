@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "app/ui/dialogs/TaechangCompanyDlg.h"
 #include "TaechangDefine.h"
 
@@ -154,6 +154,7 @@ void TaechangCompanyDlg::ApplyFont() {
     m_wndLabel.SetFont(&m_font);
     m_wndCompanyEdit.SetFont(&m_font);
     m_wndOkBtn.SetFont(&m_font);
+    m_wndOkBtn.SetVariant(SAGE_BUTTON_PRIMARY);
     m_wndCancelBtn.SetFont(&m_font);
 }
 

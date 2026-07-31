@@ -1,4 +1,6 @@
-#pragma once
+﻿#pragma once
+
+#include "app/ui/drawing/SageButton.h"
 
 #include "pch.h"
 
@@ -34,8 +36,8 @@ private:
     CString m_strCompanyName;
     CStatic m_wndLabel;
     CEdit m_wndEdit;
-    CButton m_wndOkBtn;
-    CButton m_wndCancelBtn;
+    CSageButton m_wndOkBtn;
+    CSageButton m_wndCancelBtn;
     CFont m_font;
     CBrush m_brushBackground;
     CBrush m_brushPanel;
@@ -76,8 +78,8 @@ private:
     BOOL m_bFormattingCoverPrice;
     CStatic m_wndLabel;
     CEdit m_wndEdit;
-    CButton m_wndOkBtn;
-    CButton m_wndCancelBtn;
+    CSageButton m_wndOkBtn;
+    CSageButton m_wndCancelBtn;
     CFont m_font;
     CBrush m_brushBackground;
     CBrush m_brushPanel;

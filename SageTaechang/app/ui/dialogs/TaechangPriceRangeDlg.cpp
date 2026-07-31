@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "app/ui/dialogs/TaechangPriceRangeDlg.h"
 #include "TaechangDefine.h"
 
@@ -252,6 +252,7 @@ void TaechangPriceRangeDlg::ApplyFont() {
     m_wndCoverLabel.SetFont(&m_font);
     m_wndCoverEdit.SetFont(&m_font);
     m_wndOkBtn.SetFont(&m_font);
+    m_wndOkBtn.SetVariant(SAGE_BUTTON_PRIMARY);
     m_wndCancelBtn.SetFont(&m_font);
 }
 
