@@ -1,3 +1,9 @@
+## [2026-08-01] refactor/sage-listctrl
+- **목적**: 리스트 커스텀드로우를 컨트롤로 승격하고, 작업 중 발견한 리페인트 병목을 해소 (3-A-5)
+- **변경 내용**: CSageListCtrl 신설. OnListCustomDraw의 리스트 ID 분기를 렌더링 속성 3종(SetAlternateRowColor / SetCenterFirstColumn / SetHighlightColumns)으로 분해하고 ON_NOTIFY_REFLECT로 컨트롤이 자기 커스텀드로우를 처리하게 함. 컨트롤은 워크플로 타입을 모르고, IsReceivablesResultTable() 판단은 View에 남긴 뒤 ApplyResultColumns에서 금액 컬럼 범위만 전달. 계산 내역 리스트는 메시지맵 미등록으로 원래 커스텀드로우가 걸리지 않았어서 OFF/OFF로 현행 재현(DEBT_LOG 기록). View의 OnListCustomDraw·메시지맵 3개·헤더 선언 제거. **추가로 O(N^2) 리페인트 병목을 발견**: 행 삽입마다 리페인트가 걸려 그때까지의 전체 행에 커스텀드로우가 다시 도는 구조였고(미수금 10컬럼 500행이면 약 125만 회), 리스트 4곳에 SetRedraw 억제를 넣어 O(N)으로 정리. 조기 return이 모두 억제 시작 이전에 있음을 확인
+- **PR 링크**: 없음 (develop 직접 머지)
+- **결과**: merged
+
 ## [2026-07-31] refactor/sage-section-label
 - **목적**: 섹션 라벨을 컨트롤로 승격해 View의 OnDrawItem을 완전히 제거 (3-A-3)
 - **변경 내용**: CSageSectionLabel 신설(카멜 액센트 바 3px + 텍스트, variant 없는 단일 스타일). View의 SS_OWNERDRAW 라벨 7개를 CStatic→CSageSectionLabel로 교체. 이후 OnDrawItem 함수·DrawSectionLabel·메시지맵 ON_WM_DRAWITEM()·헤더 선언 2개를 제거해 **View의 OnDrawItem이 128줄에서 0줄이 됨**(함수 자체 소멸). 제거 전에 View의 오너드로우 컨트롤 34개(버튼 26 + 섹션 라벨 7 + 필터 콤보 1)가 전부 CSage*로 승격됐음을 확인. 7개 라벨 모두 SetFont와 그리기 폰트가 일치해 3-A-1의 R2 같은 함정은 없었음. View.cpp 4,204→4,172줄

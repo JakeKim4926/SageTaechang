@@ -117,7 +117,7 @@ WebView2 기반) 문서였고 존재하지 않는 폴더 구조를 규정했다.
 - **복잡한 사례부터.** 인터페이스 모양은 가장 까다로운 사례가 결정한다.
   다이얼로그(버튼 2~3개, `IDOK`만 Primary)에 맞춰 만들면 View(버튼 27개 + 아이콘 3종)에서 다시 뜯는다
 
-### 회수 대상 698줄 중 358줄 완료 (51%)
+### 회수 대상 698줄 중 426줄 완료 (61%)
 
 | 위치 | 줄 | 상태 |
 |---|---|---|
@@ -125,7 +125,7 @@ WebView2 기반) 문서였고 존재하지 않는 폴더 구조를 규정했다.
 | 다이얼로그 8개 `OnDrawItem` | 230 | **완료** — `DrawSimpleButton`까지 (3-A-2) |
 | View `ApplyControlFonts` | 124 | 폰트 저장소 필요, 3-A 이후 별도 작업 |
 | View `OnCtlColor` | 112 | 3-A-8 |
-| View `OnListCustomDraw` | 68 | 3-A-5 |
+| View `OnListCustomDraw` | 68 | **완료** (3-A-5) |
 | View `OnSidebarTreeCustomDraw` | 36 | 3-A-6 |
 
 **`OnDrawItem` 계열은 전부 제거됐다.** 남은 것은 폰트·색상·커스텀드로우 축이다.
@@ -148,8 +148,13 @@ View의 오너드로우 컨트롤 34개(버튼 26 + 섹션 라벨 7 + 필터 콤
       픽셀 위치가 이동한다. 3-A 완료 기준(화면 무변화)에 걸려 현행 유지.
       대상 16개 중 콤보박스 3개가 섞여 있어 `CSageEdit` 하나로 해결되지도 않는다.
       `DEBT_LOG`에 기록했고, `sagetaechang-ui`의 `WS_BORDER` 금지 문구는 View 입력 컨트롤 한정으로 수정
-- [ ] **3-A-5 `CSageListCtrl`** ← 다음 — `OnListCustomDraw`
-- [ ] 3-A-6 `CSageSidebarTree` — `OnSidebarTreeCustomDraw`
+- [x] **3-A-5 `CSageListCtrl`** (`550df9e`~`7b1ce1b`) — 화면·속도 확인 완료
+      `OnListCustomDraw`를 렌더링 속성 3종으로 분해
+      (`SetAlternateRowColor` / `SetCenterFirstColumn` / `SetHighlightColumns`).
+      컨트롤은 워크플로 타입을 모르고 View가 컬럼 범위만 전달한다.
+      계산 내역 리스트는 메시지맵 미등록으로 원래 커스텀드로우가 걸리지 않았어서 OFF로 재현.
+      **작업 중 O(N²) 리페인트 병목을 발견해 리스트 4곳에 `SetRedraw` 억제를 추가**(`perf:` 커밋 2개)
+- [ ] **3-A-6 `CSageSidebarTree`** ← 다음 — `OnSidebarTreeCustomDraw`
 - [ ] 3-A-7 중복이 드러나면 `SageUiStyle`로 추출
 - [ ] 3-A-8 `OnCtlColor` 잔여 정리 (핸들러는 남을 수 있으나 컨트롤 종류 분기는 제거)
 
