@@ -5,6 +5,7 @@
 #include "app/core/receivable/TaechangReceivableCompanyOrderDto.h"
 
 struct TaechangResultRow;
+struct TaechangPriceDto;
 
 struct TaechangWorkflowUiState {
     int nSelectedTaskTab;

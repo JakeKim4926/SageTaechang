@@ -19,6 +19,7 @@
 #include "app/core/workflow/TaechangWorkflowResponse.h"
 #include "app/core/workflow/TaechangWorkflowResultPresenter.h"
 #include "app/core/auth/TaechangAuthSession.h"
+#include "app/core/price/TaechangPriceDto.h"
 #include "app/ui/dialogs/TaechangLoginDlg.h"
 #include "app/ui/dialogs/TaechangPasswordChangeDlg.h"
 #include "app/ui/dialogs/TaechangCompanyDlg.h"
