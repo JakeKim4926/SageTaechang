@@ -117,16 +117,19 @@ WebView2 기반) 문서였고 존재하지 않는 폴더 구조를 규정했다.
 - **복잡한 사례부터.** 인터페이스 모양은 가장 까다로운 사례가 결정한다.
   다이얼로그(버튼 2~3개, `IDOK`만 Primary)에 맞춰 만들면 View(버튼 27개 + 아이콘 3종)에서 다시 뜯는다
 
-### 회수 대상 698줄 중 406줄 완료
+### 회수 대상 698줄 중 358줄 완료 (51%)
 
 | 위치 | 줄 | 상태 |
 |---|---|---|
-| View `OnDrawItem` | 128 | **117줄 회수** (3-A-1). 섹션 라벨 11줄만 남음 → 3-A-3 |
+| View `OnDrawItem` | 128 | **완료** — 함수 자체가 사라짐 (3-A-1, 3-A-3) |
+| 다이얼로그 8개 `OnDrawItem` | 230 | **완료** — `DrawSimpleButton`까지 (3-A-2) |
 | View `ApplyControlFonts` | 124 | 폰트 저장소 필요, 3-A 이후 별도 작업 |
 | View `OnCtlColor` | 112 | 3-A-8 |
 | View `OnListCustomDraw` | 68 | 3-A-5 |
 | View `OnSidebarTreeCustomDraw` | 36 | 3-A-6 |
-| 다이얼로그 8개 `OnDrawItem` | 230 | **289줄 회수** (3-A-2). `DrawSimpleButton`까지 함께 제거 |
+
+**`OnDrawItem` 계열은 전부 제거됐다.** 남은 것은 폰트·색상·커스텀드로우 축이다.
+View의 오너드로우 컨트롤 34개(버튼 26 + 섹션 라벨 7 + 필터 콤보 1)가 모두 `CSage*`로 승격됐다.
 
 ### 전체 진행
 
@@ -137,8 +140,10 @@ WebView2 기반) 문서였고 존재하지 않는 폴더 구조를 규정했다.
       파일은 7개지만 `TaechangPriceSimpleDlg`에 클래스가 2개 있어 실제 8개.
       전부 `bPrimary = (nIDCtl == IDOK)` 하나뿐이라 단순했다.
       이미 있던 `static DrawSimpleButton`(두 클래스가 공유하던 공통화 시도)도 함께 제거
-- [ ] **3-A-3 `CSageSectionLabel`** ← 다음 — `SS_OWNERDRAW` 7개, `DrawSectionLabel` + ID 7개 OR 제거
-- [ ] 3-A-4 `CSageEdit` — `DrawEditBorder` 35곳 흡수
+- [x] **3-A-3 `CSageSectionLabel`** (`f6450cf`~`4cde74f`) — 화면 확인 완료
+      `SS_OWNERDRAW` 7개 승격. **View의 `OnDrawItem`이 완전히 사라짐** (128 → 0줄).
+      7개 모두 `SetFont(&m_fontContent)`와 그리기 폰트가 일치해 R2 같은 함정이 없었다
+- [ ] **3-A-4 `CSageEdit`** ← 다음 — `DrawEditBorder` 35곳 흡수
 - [ ] 3-A-5 `CSageListCtrl` — `OnListCustomDraw`
 - [ ] 3-A-6 `CSageSidebarTree` — `OnSidebarTreeCustomDraw`
 - [ ] 3-A-7 중복이 드러나면 `SageUiStyle`로 추출

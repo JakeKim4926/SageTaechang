@@ -1,3 +1,9 @@
+## [2026-07-31] refactor/sage-section-label
+- **목적**: 섹션 라벨을 컨트롤로 승격해 View의 OnDrawItem을 완전히 제거 (3-A-3)
+- **변경 내용**: CSageSectionLabel 신설(카멜 액센트 바 3px + 텍스트, variant 없는 단일 스타일). View의 SS_OWNERDRAW 라벨 7개를 CStatic→CSageSectionLabel로 교체. 이후 OnDrawItem 함수·DrawSectionLabel·메시지맵 ON_WM_DRAWITEM()·헤더 선언 2개를 제거해 **View의 OnDrawItem이 128줄에서 0줄이 됨**(함수 자체 소멸). 제거 전에 View의 오너드로우 컨트롤 34개(버튼 26 + 섹션 라벨 7 + 필터 콤보 1)가 전부 CSage*로 승격됐음을 확인. 7개 라벨 모두 SetFont와 그리기 폰트가 일치해 3-A-1의 R2 같은 함정은 없었음. View.cpp 4,204→4,172줄
+- **PR 링크**: 없음 (develop 직접 머지)
+- **결과**: merged
+
 ## [2026-07-31] refactor/sage-button-dialogs
 - **목적**: 다이얼로그의 버튼 그리기 복제를 제거하고 CSageButton으로 통일 (3-A-2)
 - **변경 내용**: 다이얼로그 파일 7개(클래스 8개 — TaechangPriceSimpleDlg에 CompanyRenameDlg/CoverPriceDlg 2개)의 m_wndOkBtn/m_wndCancelBtn을 CSageButton으로 교체하고 확인 버튼에 SetVariant(PRIMARY) 호출. OnDrawItem 함수 8개, 메시지맵 ON_WM_DRAWITEM() 8개, 헤더 선언 8개, static DrawSimpleButton 1개 제거(총 325줄 삭제). 버튼 외 오너드로우 컨트롤이 없어 핸들러를 통째로 제거해도 안전했고, 체크박스는 BS_AUTOCHECKBOX라 영향 없음. 커밋 2개로 나눠 교체 후 화면 무변화, 제거 후 컨트롤 그리기를 각각 확인. 작업 중 발견한 CoverPriceDlg 미호출·파일명 불일치는 DEBT_LOG에 기록
