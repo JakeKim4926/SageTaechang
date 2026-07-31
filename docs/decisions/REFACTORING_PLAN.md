@@ -17,7 +17,8 @@
 WebView2 기반) 문서였고 존재하지 않는 폴더 구조를 규정했다. 흉내내다 만 흔적이 이중구조로
 남았고, 새 파일을 어디 둘지 판단이 서지 않으니 결국 View로 몰렸다.
 
-**목표**: 계층 경계와 확장점을 만들어, 워크플로·UI 요소 추가가 파일 하나 추가로 끝나게 한다.
+**목표**: 계층 경계와 확장점을 만들어, 워크플로·UI 요소를 추가할 때
+**새 파일과 등록부 1곳만 손대고 기존 로직은 고치지 않아도** 되게 한다.
 
 ---
 
@@ -36,12 +37,20 @@ WebView2 기반) 문서였고 존재하지 않는 폴더 구조를 규정했다.
 ### Step 간 의존
 
 ```
-3-A ──→ 3-B      컨트롤이 스스로 그리면 패널 분리가 단순해지고
+3-A ──→ 3-B(법인발주 · 단가계산 · 단가관리)
+                 컨트롤이 스스로 그리면 패널 분리가 단순해지고
                  CWnd 파생 승격 재검토가 가능해진다
-3-B ──→ 4        결과리스트 패널은 4에서 핸들러 책임이 정해진 뒤에
+
+4   ──→ 3-B(결과리스트 + 필터)
+                 핸들러가 "결과 컬럼 정의"와 "응답→행 변환"을 가져간 뒤에야
+                 이 패널의 경계가 정해진다. 순서가 반대다
+
 4   ──→ DEBT_LOG 열린 3건(ui→infra, core→infra, office→db)이 여기서 해소된다
-5   ←── 3·4      3·4에서 새로 쓴 코드도 Step 5 치환 대상이다
+
+5   ←── 3 · 4    3·4에서 새로 쓴 코드도 Step 5 치환 대상이다
 ```
+
+3-B 전체가 Step 4에 막혀 있는 것이 아니다. **결과리스트+필터 하나만** 4 이후다.
 
 `.claude/`는 `.gitignore` 대상이므로 스킬 변경은 브랜치·커밋 단위에서 제외한다.
 
@@ -163,13 +172,32 @@ enum은 `SageButton.h`에 둔다 (모듈 전용 → `SAGE_` 접두사, R4).
 - [ ] 아이콘 4곳에 `SetIcon` 호출
       (`ID_TAECHANG_RESULT_SEARCH_BTN`, `ID_COORDER_SEARCH_BTN`, `ID_CALC_BTN`, `ID_CALC_RESET_BTN`)
 - [ ] **R2 처리** — `m_wndResultResetBtn.SetFont(&m_fontHeader)`로 변경
-- [ ] 검증: 빌드 + 화면 확인 (아직 `OnDrawItem`이 살아 있어 이중 그리기 가능 → 다음 커밋과 함께 확인)
+- [ ] 검증: 빌드 + **화면 변화가 없어야 한다**
+      이 시점에는 부모 `OnDrawItem`이 `ODT_BUTTON`을 가로채므로
+      `CSageButton::DrawItem`은 아직 호출되지 않는다. `SetVariant`/`SetIcon`은 다음 커밋에서 활성화된다
 
 #### 커밋 3 — View `OnDrawItem`에서 버튼 제거
 
+**MFC 리플렉션은 base 호출을 타고 간다.** `CView::OnDrawItem`이 자식에게 리플렉트하므로,
+버튼 블록을 제거하는 것만으로는 부족하고 **미처리 owner-draw를 반드시 base로 넘겨야** 한다.
+(현재 콤보박스가 `CSageFilterComboBox::DrawItem`으로 그려지는 것도 이 경로다.)
+
 - [ ] `OnDrawItem`의 `ODT_BUTTON` 처리 블록 제거 (2345~2462)
 - [ ] 섹션 라벨(`ODT_STATIC`) 처리는 3-A-3까지 유지
+- [ ] 남는 형태 — 미처리 건은 전부 base로
+
+```cpp
+void CSageTaechangView::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct) {
+    if (lpDrawItemStruct->CtlType == ODT_STATIC && <섹션 라벨 ID>) {
+        DrawSectionLabel(lpDrawItemStruct);
+        return;
+    }
+    CView::OnDrawItem(nIDCtl, lpDrawItemStruct);
+}
+```
+
 - [ ] 검증: 빌드 + **워크플로 7개 화면의 버튼 표시가 이전과 동일한지**
+      버튼이 전혀 안 그려지면 base 호출이 빠졌다는 신호다
 
 #### 완료 기준
 
@@ -234,7 +262,16 @@ ISageWorkflowHandler* FindHandler(int nWorkflowType);   // NULL 가능, 호출�
 핸들러가 "결과 컬럼"과 "탭 구성"을 답해야 하는데 `app/core/`는 MFC 헤더를 넣지 않는다.
 컬럼은 이름·너비·정렬을 담은 값 객체로, 탭은 인덱스·라벨로 표현한다. `CString`은 허용된다.
 
-**완료 기준**: 워크플로 추가 시 `app/core/workflow/handlers/`에 파일 하나만 추가하면 된다.
+### 완료 기준 — 등록부 1곳은 허용한다
+
+C++에서 핸들러 자동 등록(정적 초기화 트릭)은 초기화 순서 문제와
+링커가 참조 없는 오브젝트를 제거하는 문제가 있어 함정이 많다. 현실적인 기준으로 잡는다.
+
+> **워크플로 추가 = 핸들러 파일 1쌍 + 중앙 등록부 1곳 수정.**
+> View / 결과 컬럼 / 응답 파싱 / 탭 구성 어디도 고칠 필요가 없다.
+
+"파일 하나만"을 목표로 하려면 자동 등록 구조를 별도로 설계해야 한다. 이번 범위 밖이다.
+
 DEBT_LOG 열린 3건도 여기서 해소한다.
 
 ---
