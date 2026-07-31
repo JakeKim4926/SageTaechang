@@ -8,6 +8,7 @@
 #include "app/ui/drawing/SageComboBox.h"
 #include "app/ui/drawing/SageFilterComboBox.h"
 #include "app/ui/drawing/SageButton.h"
+#include "app/ui/drawing/SageSectionLabel.h"
 
 struct TaechangResultRow;
 struct TaechangPriceDto;
@@ -79,10 +80,10 @@ protected:
     CStatic m_wndHeaderTitle;
     CStatic m_wndHeaderStatus;
     CSageTabCtrl m_wndTaskTabs;
-    CStatic m_wndInputSection;
-    CStatic m_wndOutputSection;
-    CStatic m_wndResultSection;
-    CStatic m_wndDetailSection;
+    CSageSectionLabel m_wndInputSection;
+    CSageSectionLabel m_wndOutputSection;
+    CSageSectionLabel m_wndResultSection;
+    CSageSectionLabel m_wndDetailSection;
     CStatic m_wndTitle;
     CStatic m_wndWorkflowLabel;
     CStatic m_wndInputLabel;
@@ -194,7 +195,7 @@ protected:
     CStatic              m_wndCalcTotalDivider;
     CStatic              m_wndCalcTotalLabel;
     CStatic              m_wndCalcTotalValue;
-    CStatic              m_wndCalcHistorySection;
+    CSageSectionLabel       m_wndCalcHistorySection;
     CSageHeaderCtrl  m_wndCalcHistoryHeader;
     CListCtrl            m_wndCalcHistoryList;
     CRect                m_rectCalcInputPanel;
@@ -222,8 +223,8 @@ protected:
     CEdit               m_wndCoOrderEdit;
     CStatic             m_wndCoNameLabel;
     CEdit               m_wndCoCompanyEdit;
-    CStatic             m_wndCoCrudSection;
-    CStatic             m_wndCoListSection;
+    CSageSectionLabel      m_wndCoCrudSection;
+    CSageSectionLabel      m_wndCoListSection;
     CRect               m_rectCoCard;
     CSageHeaderCtrl m_wndCoListHeader;
     CListCtrl           m_wndCoList;
