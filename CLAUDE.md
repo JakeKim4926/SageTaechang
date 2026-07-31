@@ -4,6 +4,11 @@ Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-s
 
 **Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
 
+## 0. Always Answer in Korean
+
+**Always respond in Korean, even when I write to you in English.** This applies to all explanations, summaries, and discussion. (Code, identifiers, file paths, and commit messages stay as-is.)
+
+
 ## 1. Think Before Coding
 
 **Don't assume. Don't hide confusion. Surface tradeoffs.**
@@ -13,6 +18,7 @@ Before implementing:
 - If multiple interpretations exist, present them - don't pick silently.
 - If a simpler approach exists, say so. Push back when warranted.
 - If something is unclear, stop. Name what's confusing. Ask.
+- Do not write, modify, execute, or create code unless I explicitly approve the coding step first.
 
 ## 2. Simplicity First
 
