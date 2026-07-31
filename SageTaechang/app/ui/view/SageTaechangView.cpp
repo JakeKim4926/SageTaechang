@@ -2051,8 +2051,11 @@ void CSageTaechangView::DisplayResponse(int nWorkflowType, int nTaskType, const 
 			nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE)
 			RefreshDocumentResultFilter();
 		else {
+			m_wndResultList.SetRedraw(FALSE);
 			for (int i = 0; i < static_cast<int>(arrRows.size()); ++i)
 				InsertResultRow(arrRows[i]);
+			m_wndResultList.SetRedraw(TRUE);
+			m_wndResultList.Invalidate();
 		}
 	}
 
@@ -2164,6 +2167,7 @@ void CSageTaechangView::RefreshDocumentResultFilter() {
 
 	int nCriteria = GetEffectiveFilterCriteria();
 
+	m_wndResultList.SetRedraw(FALSE);
 	m_wndResultList.DeleteAllItems();
 
 	TaechangWorkflowResultPresenter presenter;
@@ -2185,6 +2189,9 @@ void CSageTaechangView::RefreshDocumentResultFilter() {
 		}
 		InsertResultRow(arrRows[i]);
 	}
+
+	m_wndResultList.SetRedraw(TRUE);
+	m_wndResultList.Invalidate();
 }
 
 int CSageTaechangView::GetDefaultFilterCriteria() const {
