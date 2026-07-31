@@ -259,7 +259,7 @@ CSageTaechangView::CSageTaechangView() noexcept
 	, m_nCurrentWorkflow(TAECHANG_WORKFLOW_DELIVERY)
 	, m_hLastWorkflowItem(NULL)
 	, m_colorHeaderStatus(TAECHANG_COLOR_SECONDARY_TEXT)
-	, m_colorHeaderStatusBg(TAECHANG_COLOR_APP_BACKGROUND)
+	, m_nHeaderStatusBgRole(SAGE_BG_APP)
 	, m_bLastTaskSuccess(FALSE)
 	, m_nCalcPrintPrice(0)
 	, m_nCalcCoverPrice(0)
@@ -274,11 +274,7 @@ CSageTaechangView::CSageTaechangView() noexcept
 	, m_nCoSelectedOrderId(0)
 	, m_rectCoCard(0, 0, 0, 0)
 	, m_rectResultFilterBox(0, 0, 0, 0) {
-	m_brushAppBackground.CreateSolidBrush(TAECHANG_COLOR_APP_BACKGROUND);
-	m_brushPanel.CreateSolidBrush(TAECHANG_COLOR_PANEL);
-	m_brushSidebar.CreateSolidBrush(TAECHANG_COLOR_SIDEBAR);
 	m_brushListHeader.CreateSolidBrush(TAECHANG_COLOR_LIST_HEADER);
-	m_brushHeaderStatus.CreateSolidBrush(TAECHANG_COLOR_APP_BACKGROUND);
 }
 
 CSageTaechangView::~CSageTaechangView() {}
@@ -1854,70 +1850,70 @@ HBRUSH CSageTaechangView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
 	if (pWnd->GetSafeHwnd() == m_wndTitle.GetSafeHwnd()) {
 		pDC->SetTextColor(TAECHANG_COLOR_SIDEBAR_TEXT);
 		pDC->SetBkColor(TAECHANG_COLOR_SIDEBAR);
-		return m_brushSidebar;
+		return SageUiResources::GetBrush(SAGE_BG_SIDEBAR);
 	}
 	if (pWnd->GetSafeHwnd() == m_wndSidebarTitle.GetSafeHwnd()) {
 		pDC->SetTextColor(TAECHANG_COLOR_SIDEBAR_CATEGORY);
 		pDC->SetBkColor(TAECHANG_COLOR_SIDEBAR);
-		return m_brushSidebar;
+		return SageUiResources::GetBrush(SAGE_BG_SIDEBAR);
 	}
 	if (pWnd->GetSafeHwnd() == m_wndHeaderTitle.GetSafeHwnd()) {
 		pDC->SetTextColor(TAECHANG_COLOR_PRIMARY);
 		pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
-		return m_brushAppBackground;
+		return SageUiResources::GetBrush(SAGE_BG_APP);
 	}
 	if (pWnd->GetSafeHwnd() == m_wndUserLabel.GetSafeHwnd()) {
 		pDC->SetTextColor(TAECHANG_COLOR_SECONDARY_TEXT);
 		pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
-		return m_brushAppBackground;
+		return SageUiResources::GetBrush(SAGE_BG_APP);
 	}
 	if (pWnd->GetSafeHwnd() == m_wndHeaderStatus.GetSafeHwnd()) {
 		pDC->SetTextColor(m_colorHeaderStatus);
-		pDC->SetBkColor(m_colorHeaderStatusBg);
-		return m_brushHeaderStatus;
+		pDC->SetBkColor(SageUiResources::GetBackgroundColor(m_nHeaderStatusBgRole));
+		return SageUiResources::GetBrush(m_nHeaderStatusBgRole);
 	}
 	if (pWnd->GetSafeHwnd() == m_wndEmptyStateHint.GetSafeHwnd()) {
 		pDC->SetTextColor(TAECHANG_COLOR_SECONDARY_TEXT);
 		pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
-		return m_brushAppBackground;
+		return SageUiResources::GetBrush(SAGE_BG_APP);
 	}
 	if (pWnd->GetSafeHwnd() == m_wndCoSearchLabel.GetSafeHwnd()) {
 		pDC->SetTextColor(TAECHANG_COLOR_SECONDARY_TEXT);
 		pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
-		return m_brushAppBackground;
+		return SageUiResources::GetBrush(SAGE_BG_APP);
 	}
 	if (pWnd->GetSafeHwnd() == m_wndCoOrderLabel.GetSafeHwnd() ||
 		pWnd->GetSafeHwnd() == m_wndCoNameLabel.GetSafeHwnd()) {
 		pDC->SetTextColor(TAECHANG_COLOR_SECONDARY_TEXT);
 		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
-		return m_brushPanel;
+		return SageUiResources::GetBrush(SAGE_BG_PANEL);
 	}
 	if (pWnd->GetSafeHwnd() == m_wndActionStatus.GetSafeHwnd()) {
 		pDC->SetTextColor(m_bLastTaskSuccess ? TAECHANG_COLOR_SUCCESS : TAECHANG_COLOR_ERROR);
 		pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
-		return m_brushAppBackground;
+		return SageUiResources::GetBrush(SAGE_BG_APP);
 	}
 	if (pWnd->GetSafeHwnd() == m_wndPriceSummaryTitle.GetSafeHwnd()) {
 		pDC->SetTextColor(TAECHANG_COLOR_SECONDARY_TEXT);
 		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
-		return m_brushPanel;
+		return SageUiResources::GetBrush(SAGE_BG_PANEL);
 	}
 	if (pWnd->GetSafeHwnd() == m_wndPriceSummaryCount.GetSafeHwnd() ||
 		pWnd->GetSafeHwnd() == m_wndPriceSummaryRange.GetSafeHwnd()) {
 		pDC->SetTextColor(TAECHANG_COLOR_SECONDARY_TEXT);
 		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
-		return m_brushPanel;
+		return SageUiResources::GetBrush(SAGE_BG_PANEL);
 	}
 	if (pWnd->GetSafeHwnd() == m_wndPriceNoMaxCheck.GetSafeHwnd() ||
 		pWnd->GetSafeHwnd() == m_wndPriceSingleCheck.GetSafeHwnd()) {
 		pDC->SetTextColor(TAECHANG_COLOR_TEXT);
 		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
-		return m_brushPanel;
+		return SageUiResources::GetBrush(SAGE_BG_PANEL);
 	}
 	if (pWnd->GetSafeHwnd() == m_wndPriceDetailHeader.GetSafeHwnd()) {
 		pDC->SetTextColor(TAECHANG_COLOR_TEXT);
 		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
-		return m_brushPanel;
+		return SageUiResources::GetBrush(SAGE_BG_PANEL);
 	}
 	if (pWnd->GetSafeHwnd() == m_wndPriceMinCopiesLabel.GetSafeHwnd() ||
 		pWnd->GetSafeHwnd() == m_wndPriceMaxCopiesLabel.GetSafeHwnd() ||
@@ -1925,13 +1921,13 @@ HBRUSH CSageTaechangView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
 		pWnd->GetSafeHwnd() == m_wndPriceCoverLabel.GetSafeHwnd()) {
 		pDC->SetTextColor(TAECHANG_COLOR_SECONDARY_TEXT);
 		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
-		return m_brushPanel;
+		return SageUiResources::GetBrush(SAGE_BG_PANEL);
 	}
 	if (pWnd->GetSafeHwnd() == m_wndCalcTotalLabel.GetSafeHwnd() ||
 		pWnd->GetSafeHwnd() == m_wndCalcTotalValue.GetSafeHwnd()) {
 		pDC->SetTextColor(TAECHANG_COLOR_PRIMARY);
 		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
-		return m_brushPanel;
+		return SageUiResources::GetBrush(SAGE_BG_PANEL);
 	}
 	if (pWnd->GetSafeHwnd() == m_wndCalcCompanyLabel.GetSafeHwnd() ||
 		pWnd->GetSafeHwnd() == m_wndCalcCopiesLabel.GetSafeHwnd() ||
@@ -1948,15 +1944,15 @@ HBRUSH CSageTaechangView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
 		pWnd->GetSafeHwnd() == m_wndCalcTotalDivider.GetSafeHwnd() ||
 		pWnd->GetSafeHwnd() == m_wndPriceDetailDivider.GetSafeHwnd()) {
 		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
-		return m_brushPanel;
+		return SageUiResources::GetBrush(SAGE_BG_PANEL);
 	}
 	if (nCtlColor == CTLCOLOR_STATIC) {
 		pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
-		return m_brushAppBackground;
+		return SageUiResources::GetBrush(SAGE_BG_APP);
 	}
 	if (nCtlColor == CTLCOLOR_EDIT || nCtlColor == CTLCOLOR_LISTBOX) {
 		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
-		return m_brushPanel;
+		return SageUiResources::GetBrush(SAGE_BG_PANEL);
 	}
 	return hBrush;
 }
@@ -1968,9 +1964,7 @@ void CSageTaechangView::SetStatusText(const CString& strStatus) {
 
 	if (::IsWindow(m_wndHeaderStatus.GetSafeHwnd())) {
 		m_colorHeaderStatus = ResolveStatusColor(strStatus);
-		m_colorHeaderStatusBg = ResolveStatusBgColor(strStatus);
-		m_brushHeaderStatus.DeleteObject();
-		m_brushHeaderStatus.CreateSolidBrush(m_colorHeaderStatusBg);
+		m_nHeaderStatusBgRole = ResolveStatusBgRole(strStatus);
 		m_wndHeaderStatus.SetWindowTextW(strStatus);
 		m_wndHeaderStatus.Invalidate();
 	}
@@ -1987,14 +1981,14 @@ COLORREF CSageTaechangView::ResolveStatusColor(const CString& strStatus) const {
 	return TAECHANG_COLOR_SECONDARY_TEXT;
 }
 
-COLORREF CSageTaechangView::ResolveStatusBgColor(const CString& strStatus) const {
+SageBackgroundRole CSageTaechangView::ResolveStatusBgRole(const CString& strStatus) const {
 	if (strStatus == TAECHANG_UI_COMPLETED || strStatus == TAECHANG_UI_EXPORT_COMPLETED)
-		return TAECHANG_COLOR_STATUS_BG_SUCCESS;
+		return SAGE_BG_STATUS_SUCCESS;
 	if (strStatus == TAECHANG_UI_RUNNING)
-		return TAECHANG_COLOR_STATUS_BG_WARNING;
+		return SAGE_BG_STATUS_WARNING;
 	if (strStatus == TAECHANG_UI_FAILED)
-		return TAECHANG_COLOR_STATUS_BG_ERROR;
-	return TAECHANG_COLOR_APP_BACKGROUND;
+		return SAGE_BG_STATUS_ERROR;
+	return SAGE_BG_APP;
 }
 
 LRESULT CSageTaechangView::OnWorkflowComplete(WPARAM wParam, LPARAM lParam) {

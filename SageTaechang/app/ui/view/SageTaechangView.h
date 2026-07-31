@@ -10,6 +10,7 @@
 #include "app/ui/drawing/SageButton.h"
 #include "app/ui/drawing/SageSectionLabel.h"
 #include "app/ui/drawing/SageListCtrl.h"
+#include "app/ui/drawing/SageUiResources.h"
 #include "app/ui/drawing/SageSidebarTree.h"
 
 struct TaechangResultRow;
@@ -111,11 +112,7 @@ protected:
     CEdit m_wndDetail;
     CStatic m_wndEmptyStateHint;
     CStatic m_wndActionStatus;
-    CBrush m_brushAppBackground;
-    CBrush m_brushPanel;
-    CBrush m_brushSidebar;
     CBrush m_brushListHeader;
-    CBrush m_brushHeaderStatus;
     BOOL m_bRunning;
     int m_nProgressPercent;
     int m_nSelectedTaskTab;
@@ -124,7 +121,7 @@ protected:
     int m_nCurrentWorkflow;
     HTREEITEM m_hLastWorkflowItem;
     COLORREF m_colorHeaderStatus;
-    COLORREF m_colorHeaderStatusBg;
+    SageBackgroundRole m_nHeaderStatusBgRole;
     BOOL m_bLastTaskSuccess;
     CString m_strLastResponseJson;
     CString m_strExecutionHistory;
@@ -272,7 +269,7 @@ protected:
     void RestoreCheckedRowNums(const TaechangWorkflowUiState& state);
     void RebuildCurrentWorkflowResultList();
     COLORREF ResolveStatusColor(const CString& strStatus) const;
-    COLORREF ResolveStatusBgColor(const CString& strStatus) const;
+    SageBackgroundRole ResolveStatusBgRole(const CString& strStatus) const;
     void DrawEditBorder(CDC* pDC, CWnd& wnd);
     BOOL ValidateInputPath(CString& strInputPath);
     BOOL ValidateOutputFolder(CString& strOutputFolder);
