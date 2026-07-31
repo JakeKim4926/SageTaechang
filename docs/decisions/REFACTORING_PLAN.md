@@ -1,4 +1,4 @@
-# SageTaechang 구조 리팩토링 계획
+﻿# SageTaechang 구조 리팩토링 계획
 
 > 작성·갱신 규칙은 `sagetaechang-plan` skill을 따른다.
 > Step 완료 시 체크박스와 상태 표를 갱신하고, 상세 체크리스트는 지우고 결과·교훈만 남긴다.
@@ -85,24 +85,28 @@ WebView2 기반) 문서였고 존재하지 않는 폴더 구조를 규정했다.
 | # | 내용 | 영향 | 대응 |
 |---|---|---|---|
 | ~~R1~~ | ~~미검증 커밋 2개~~ | — | **해소** — 빌드 통과 확인, develop 머지 예정 |
-| R2 | **폰트 불일치** — `m_wndResultResetBtn`은 `SetFont(m_fontContent)`인데 `OnDrawItem`은 `m_fontHeader`로 그림 | `GetFont()` 사용 시 화면 변경 | 승격 시 `SetFont(&m_fontHeader)`로 일치 |
-| R3 | `coding-rules`에 "상수 접두사는 `TAECHANG_` 유지"가 남아 있는데 3-A에서 `SAGE_BUTTON_*`을 만든다 | 첫 코드부터 규칙 위반 | 아래 **선행 작업**에서 규칙 분리 |
-| R4 | `TaechangDefine.h`에 enum이 0개 — enum 배치 관례가 없다 | `SAGE_BUTTON_VARIANT`를 어디 둘지 불명 | 컨트롤 전용 enum은 컨트롤 헤더에 (규칙에 명시) |
+| ~~R2~~ | ~~폰트 불일치~~ | — | **해소** — `fa65896`에서 `SetFont(&m_fontHeader)`로 일치 |
+| ~~R3~~ | ~~상수 접두사 규칙 충돌~~ | — | **해소** — `coding-rules`에서 공용/모듈 전용 분리 |
+| ~~R4~~ | ~~enum 배치 관례 없음~~ | — | **해소** — `coding-rules`에 *Enum 위치* 규칙 추가 |
 
-### 선행 작업 — `coding-rules` 상수 규칙 분리
+현재 열린 리스크는 없다.
 
-현재 문구는 "상수 접두사만은 `TAECHANG_`을 유지한다"이다. 이유는 *"`TaechangDefine.h` 한 곳에
+### 해소된 선행 작업 — `coding-rules` 상수·enum 규칙
+
+기존 문구는 "상수 접두사만은 `TAECHANG_`을 유지한다"였고, 이유는 *"`TaechangDefine.h` 한 곳에
 600개가 모여 있어 신규만 `SAGE_`로 하면 한 파일에 두 접두사가 섞인다"* 였다.
-`SAGE_BUTTON_*`은 `SageButton.h`에 들어가므로 그 이유가 성립하지 않는다.
+`SAGE_BUTTON_*`은 `SageButton.h`에 들어가므로 그 이유가 성립하지 않아 **위치 기준으로 갈랐다.**
 
-- [ ] **모듈 전용 상수·enum**은 해당 헤더에 두고 `SAGE_` 접두사를 쓴다
-- [ ] **`TaechangDefine.h`의 공용 상수**는 `TAECHANG_`을 유지하고 Step 5에서 일괄 전환한다
+- [x] **모듈 전용 상수·enum**은 해당 헤더에 두고 `SAGE_` 접두사를 쓴다
+- [x] **`TaechangDefine.h`의 공용 상수**는 `TAECHANG_`을 유지하고 Step 5에서 일괄 전환한다
+- [x] **Enum 위치** 규칙 신설 — 한 모듈 전용이면 그 헤더, 공유하면 `TaechangDefine.h`.
+      타입명은 PascalCase, 값은 대문자 + `_`, 값에 타입명을 반복하지 않는다
 
 ---
 
 ## Step 3-A — 공통 컨트롤 승격 (진행 중)
 
-브랜치: `refactor/view-control-extract`
+브랜치: 하위 단계마다 별도 (`refactor/view-control-extract`, `refactor/sage-button`, …)
 규칙: `sagetaechang-ui` > *MFC 공통 컨트롤 규격*, `coding-design` > *화면은 컨트롤을 그리는 방법을 몰라야 한다*
 
 ### 원칙
@@ -113,23 +117,24 @@ WebView2 기반) 문서였고 존재하지 않는 폴더 구조를 규정했다.
 - **복잡한 사례부터.** 인터페이스 모양은 가장 까다로운 사례가 결정한다.
   다이얼로그(버튼 2~3개, `IDOK`만 Primary)에 맞춰 만들면 View(버튼 27개 + 아이콘 3종)에서 다시 뜯는다
 
-### 회수 대상 698줄
+### 회수 대상 698줄 중 117줄 완료
 
-| 위치 | 줄 |
-|---|---|
-| View `OnDrawItem` | 128 |
-| View `ApplyControlFonts` | 124 |
-| View `OnCtlColor` | 112 |
-| View `OnListCustomDraw` | 68 |
-| View `OnSidebarTreeCustomDraw` | 36 |
-| 다이얼로그 7개 `OnDrawItem` | 230 |
+| 위치 | 줄 | 상태 |
+|---|---|---|
+| View `OnDrawItem` | 128 | **117줄 회수** (3-A-1). 섹션 라벨 11줄만 남음 → 3-A-3 |
+| View `ApplyControlFonts` | 124 | 폰트 저장소 필요, 3-A 이후 별도 작업 |
+| View `OnCtlColor` | 112 | 3-A-8 |
+| View `OnListCustomDraw` | 68 | 3-A-5 |
+| View `OnSidebarTreeCustomDraw` | 36 | 3-A-6 |
+| 다이얼로그 7개 `OnDrawItem` | 230 | 3-A-2 |
 
 ### 전체 진행
 
 - [x] 컨트롤 서브클래스 4개 → `app/ui/drawing/` (`c2696c3`) — 빌드 통과
 - [x] 접두사 `Sage` 전환 (`ddf4aa3`) — 빌드 통과
-- [ ] **3-A-1 `CSageButton`** ← 다음 (아래 상세)
-- [ ] 3-A-2 다이얼로그 7개 교체 — 6개는 `bPrimary = (nIDCtl == IDOK)` 뿐이라 단순.
+- [x] **3-A-1 `CSageButton`** (`034ffb4`~`46b0081`) — 빌드·화면 확인 완료
+- [ ] **3-A-2 다이얼로그 7개 교체** ← 다음
+      6개는 `bPrimary = (nIDCtl == IDOK)` 뿐이라 단순.
       `TaechangPriceSimpleDlg`는 버튼 그리기 없음
 - [ ] 3-A-3 `CSageSectionLabel` — `SS_OWNERDRAW` 7개, `DrawSectionLabel` + ID 7개 OR 제거
 - [ ] 3-A-4 `CSageEdit` — `DrawEditBorder` 35곳 흡수
@@ -142,76 +147,28 @@ WebView2 기반) 문서였고 존재하지 않는 폴더 구조를 규정했다.
 
 ---
 
-### 3-A-1 — `CSageButton` 상세
+### 3-A-1 — `CSageButton` (완료)
 
-브랜치: `refactor/sage-button`
+커밋 3개로 분리해 각 단계마다 화면을 확인했다.
 
-속성 셋이 **전부 ID 분기**다. 인스턴스 속성으로 옮긴다.
-
-| 속성 | 현재 | 변경 후 |
+| 커밋 | 내용 | 이 시점 화면 |
 |---|---|---|
-| variant | ID 12개 OR (`bPrimary`) | `SetVariant(SAGE_BUTTON_PRIMARY)` |
-| 아이콘 | ID 분기 4곳 / 종류 3개 (검색·계산·리셋) | `SetIcon(SAGE_BUTTON_ICON_SEARCH)` |
-| 폰트 | ID 2개 분기 | `SetFont()` 결과를 `GetFont()`로 (R2) |
+| `034ffb4` | `SageButton.h/.cpp` 신설 + vcxproj 등록 | 미사용이므로 변화 없음 |
+| `fa65896` | View 버튼 26개를 `CSageButton`으로 교체, `SetVariant` 12 / `SetIcon` 4, R2 해소 | 부모가 계속 그리므로 변화 없음 |
+| `46b0081` | `OnDrawItem`의 버튼 블록 117줄 제거, base 위임 | **여기서 컨트롤이 그리기 시작** — 이전과 동일 확인 |
 
-enum은 `SageButton.h`에 둔다 (모듈 전용 → `SAGE_` 접두사, R4).
+**결과**
+- `bPrimary` ID 12개 OR 조건식 소멸. 버튼을 추가해도 `OnDrawItem`을 고칠 필요가 없다
+- `OnDrawItem` 128 → 11줄, `SageTaechangView.cpp` 4,305 → 4,204줄
+- 체크박스 3개(`EstimateOnePage`, `PriceSingleCheck`, `PriceNoMaxCheck`)는 오너드로우가 아니라 제외
 
-#### 커밋 1 — 컨트롤 신설 (View 미변경)
-
-- [ ] `coding-rules` 상수 규칙 분리 (선행 작업, 로컬이라 커밋 대상 아님)
-- [ ] `app/ui/drawing/SageButton.h` — enum 2종 + 클래스 선언
-- [ ] `app/ui/drawing/SageButton.cpp` — `DrawItem` + 아이콘 3종 그리기
-      (기존 `OnDrawItem` 2350~2462의 로직을 그대로 옮긴다. **로직 변경 금지**)
-- [ ] vcxproj / filters 등록 (Python 스크립트)
-- [ ] 검증: 빌드 통과 (아직 아무도 안 쓰므로 화면 변화 없어야 함)
-
-#### 커밋 2 — View 버튼 교체
-
-- [ ] `SageTaechangView.h`의 `CButton` 멤버 27개 → `CSageButton`
-- [ ] `CreateChildControls` 등에서 Primary 12개에 `SetVariant` 호출
-- [ ] 아이콘 4곳에 `SetIcon` 호출
-      (`ID_TAECHANG_RESULT_SEARCH_BTN`, `ID_COORDER_SEARCH_BTN`, `ID_CALC_BTN`, `ID_CALC_RESET_BTN`)
-- [ ] **R2 처리** — `m_wndResultResetBtn.SetFont(&m_fontHeader)`로 변경
-- [ ] 검증: 빌드 + **화면 변화가 없어야 한다**
-      이 시점에는 부모 `OnDrawItem`이 `ODT_BUTTON`을 가로채므로
-      `CSageButton::DrawItem`은 아직 호출되지 않는다. `SetVariant`/`SetIcon`은 다음 커밋에서 활성화된다
-
-#### 커밋 3 — View `OnDrawItem`에서 버튼 제거
-
-**MFC 리플렉션은 base 호출을 타고 간다.** `CView::OnDrawItem`이 자식에게 리플렉트하므로,
-버튼 블록을 제거하는 것만으로는 부족하고 **미처리 owner-draw를 반드시 base로 넘겨야** 한다.
-(현재 콤보박스가 `CSageFilterComboBox::DrawItem`으로 그려지는 것도 이 경로다.)
-
-- [ ] `OnDrawItem`의 `ODT_BUTTON` 처리 블록 제거 (2345~2462)
-- [ ] 섹션 라벨(`ODT_STATIC`) 처리는 3-A-3까지 유지
-- [ ] 남는 형태 — 미처리 건은 전부 base로
-
-```cpp
-void CSageTaechangView::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct) {
-    if (lpDrawItemStruct->CtlType == ODT_STATIC && <섹션 라벨 ID>) {
-        DrawSectionLabel(lpDrawItemStruct);
-        return;
-    }
-    CView::OnDrawItem(nIDCtl, lpDrawItemStruct);
-}
-```
-
-- [ ] 검증: 빌드 + **워크플로 7개 화면의 버튼 표시가 이전과 동일한지**
-      버튼이 전혀 안 그려지면 base 호출이 빠졌다는 신호다
-
-#### 완료 기준
-
-- `OnDrawItem`에 `bPrimary` ID 조건식이 없다
-- 버튼을 추가할 때 `OnDrawItem`을 고칠 필요가 없다
-- **화면 표시가 이전과 동일하다** — 색·테두리·아이콘·폰트·텍스트 위치
-
-### 이번 범위 제외
-
-- **hover(hot)** — `TrackMouseEvent`/`ODS_HOTLIGHT` 전무. 새 기능이라 제외.
-  `itemState`를 그대로 넘기는 시그니처로 두어 나중에 시그니처 변경 없이 추가 가능하게 한다
-- **Danger 변형** — 삭제 버튼 색이 바뀌는 디자인 변경. 별도 UI 결정 항목
-- **폰트 저장소** — `ApplyControlFonts` 124줄은 같은 병증이나 공용 폰트 저장소가 필요.
-  컨트롤 승격 후 별도 작업
+**교훈**
+- 아이콘 색이 `variant`별로 달랐는데 확인해보니 **전부 그 시점의 텍스트 색과 같은 값**이었다.
+  `GetTextColor()` 한 줄로 대체해 분기를 없애면서 결과는 동일하게 유지했다
+- R2(폰트 불일치)는 `GetFont()`를 쓰기로 한 순간 드러났다.
+  화면에 의존하는 값을 컨트롤로 옮길 때는 **설정값과 실제 사용값이 같은지** 먼저 확인해야 한다
+- CRLF 파일에서 Python 정규식의 행끝 매칭(`$`)은 캐리지 리턴 때문에 실패한다.
+  라인 단위로 캐리지 리턴을 떼어낸 뒤 매칭해야 한다 (Step 1의 `sed` 백슬래시 사고와 같은 계열)
 
 ---
 
