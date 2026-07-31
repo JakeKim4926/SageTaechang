@@ -10,6 +10,7 @@
 #include "app/ui/drawing/SageButton.h"
 #include "app/ui/drawing/SageSectionLabel.h"
 #include "app/ui/drawing/SageListCtrl.h"
+#include "app/ui/drawing/SageSidebarTree.h"
 
 struct TaechangResultRow;
 struct TaechangPriceDto;
@@ -77,7 +78,7 @@ public:
 
 protected:
     CStatic m_wndSidebarTitle;
-    CTreeCtrl m_wndSidebarTree;
+    CSageSidebarTree m_wndSidebarTree;
     CStatic m_wndHeaderTitle;
     CStatic m_wndHeaderStatus;
     CSageTabCtrl m_wndTaskTabs;
@@ -347,7 +348,6 @@ protected:
     afx_msg void OnInputReset();
     afx_msg LRESULT OnWorkflowComplete(WPARAM wParam, LPARAM lParam);
     afx_msg void OnDropFiles(HDROP hDropInfo);
-    afx_msg void OnSidebarTreeCustomDraw(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnResultListItemChanged(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnLogin();
     afx_msg void OnLogout();

@@ -245,7 +245,6 @@ BEGIN_MESSAGE_MAP(CSageTaechangView, CView)
 	ON_NOTIFY(LVN_ITEMCHANGED, ID_COORDER_LIST, &CSageTaechangView::OnCoListSelChanged)
 	ON_MESSAGE(WM_TAECHANG_WORKFLOW_COMPLETE, &CSageTaechangView::OnWorkflowComplete)
 	ON_WM_DROPFILES()
-	ON_NOTIFY(NM_CUSTOMDRAW, ID_TAECHANG_SIDEBAR_TREE, &CSageTaechangView::OnSidebarTreeCustomDraw)
 	ON_NOTIFY(LVN_ITEMCHANGED, ID_TAECHANG_RESULT_LIST, &CSageTaechangView::OnResultListItemChanged)
 END_MESSAGE_MAP()
 
@@ -2326,43 +2325,6 @@ CString CSageTaechangView::BuildExecutionHistoryLine(int nWorkflowType, int nTas
 	}
 
 	return strLine;
-}
-
-void CSageTaechangView::OnSidebarTreeCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
-	NMTVCUSTOMDRAW* pCD = reinterpret_cast<NMTVCUSTOMDRAW*>(pNMHDR);
-	*pResult = CDRF_DODEFAULT;
-	switch (pCD->nmcd.dwDrawStage) {
-		case CDDS_PREPAINT:
-			*pResult = CDRF_NOTIFYITEMDRAW;
-			break;
-		case CDDS_ITEMPREPAINT:
-		{
-			HTREEITEM hItem = reinterpret_cast<HTREEITEM>(pCD->nmcd.dwItemSpec);
-			BOOL bIsGroupHeader = (m_wndSidebarTree.GetParentItem(hItem) == NULL);
-			BOOL bIsSelected = (pCD->nmcd.uItemState & CDIS_SELECTED) != 0;
-			if (bIsGroupHeader) {
-				pCD->clrText = TAECHANG_COLOR_SIDEBAR_CATEGORY;
-				pCD->clrTextBk = TAECHANG_COLOR_SIDEBAR;
-				*pResult = CDRF_NEWFONT;
-			} else {
-				pCD->clrText = TAECHANG_COLOR_SIDEBAR_TEXT;
-				pCD->clrTextBk = bIsSelected ? TAECHANG_COLOR_SIDEBAR_SELECTED : TAECHANG_COLOR_SIDEBAR;
-				*pResult = CDRF_NEWFONT;
-				if (bIsSelected)
-					*pResult |= CDRF_NOTIFYPOSTPAINT;
-			}
-			break;
-		}
-		case CDDS_ITEMPOSTPAINT:
-		{
-			if (pCD->nmcd.uItemState & CDIS_SELECTED) {
-				CDC* pItemDC = CDC::FromHandle(pCD->nmcd.hdc);
-				CRect rcItem(pCD->nmcd.rc);
-				pItemDC->FillSolidRect(rcItem.left, rcItem.top, 3, rcItem.Height(), TAECHANG_COLOR_PRIMARY);
-			}
-			break;
-		}
-	}
 }
 
 void CSageTaechangView::OnResultListItemChanged(NMHDR* pNMHDR, LRESULT* pResult) {
