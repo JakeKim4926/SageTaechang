@@ -5,6 +5,12 @@
 
 ## 열린 항목
 
+### [2026-07-31] 구조불일치 — 입력 컨트롤 테두리 방식이 View와 다이얼로그에서 다름
+- 위치: app/ui/view/SageTaechangView.cpp `DrawEditBorder` / app/ui/dialogs/*.cpp
+- 설명: View는 `WS_BORDER` 없이 부모 `OnDraw`에서 `DrawEditBorder`로 **컨트롤 바깥 1px**에 그린다(대상 16개, 콤보박스 3개 포함). 다이얼로그는 `WS_BORDER`로 시스템이 그린다. 3-A-4에서 컨트롤 승격을 검토했으나, 테두리가 컨트롤 영역 밖이라 리플렉션으로 옮기면 픽셀 위치가 1px 이동한다. 3-A의 완료 기준이 화면 무변화이므로 **현행 유지로 결정**했다.
+- 위험도: 낮음
+- 후속: 현행 유지. 향후 테마·디자인 변경 시 `WS_BORDER` + `SetWindowTheme` 전환을 별도로 검토한다. 검토 시 화면 변화 검증이 필요하다
+
 ### [2026-07-31] 기존부채 — TaechangCoverPriceDlg 호출부 없음
 - 위치: app/ui/dialogs/TaechangPriceSimpleDlg.h:44 및 대응 .cpp
 - 설명: 클래스가 정의되어 있으나 프로젝트 어디서도 DoModal 호출이 없다. 3-A-2에서 버튼 교체 대상을 세다가 발견했다.

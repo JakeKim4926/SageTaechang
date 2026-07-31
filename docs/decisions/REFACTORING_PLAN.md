@@ -143,8 +143,12 @@ View의 오너드로우 컨트롤 34개(버튼 26 + 섹션 라벨 7 + 필터 콤
 - [x] **3-A-3 `CSageSectionLabel`** (`f6450cf`~`4cde74f`) — 화면 확인 완료
       `SS_OWNERDRAW` 7개 승격. **View의 `OnDrawItem`이 완전히 사라짐** (128 → 0줄).
       7개 모두 `SetFont(&m_fontContent)`와 그리기 폰트가 일치해 R2 같은 함정이 없었다
-- [ ] **3-A-4 `CSageEdit`** ← 다음 — `DrawEditBorder` 35곳 흡수
-- [ ] 3-A-5 `CSageListCtrl` — `OnListCustomDraw`
+- [~] **3-A-4 `CSageEdit`** — **건너뜀.** 컨트롤 승격 문제가 아니라 테두리 배치·테마 정책 문제다.
+      `DrawEditBorder`가 `InflateRect(1,1)`로 **컨트롤 바깥 1px**에 그리므로 리플렉션으로 옮기면
+      픽셀 위치가 이동한다. 3-A 완료 기준(화면 무변화)에 걸려 현행 유지.
+      대상 16개 중 콤보박스 3개가 섞여 있어 `CSageEdit` 하나로 해결되지도 않는다.
+      `DEBT_LOG`에 기록했고, `sagetaechang-ui`의 `WS_BORDER` 금지 문구는 View 입력 컨트롤 한정으로 수정
+- [ ] **3-A-5 `CSageListCtrl`** ← 다음 — `OnListCustomDraw`
 - [ ] 3-A-6 `CSageSidebarTree` — `OnSidebarTreeCustomDraw`
 - [ ] 3-A-7 중복이 드러나면 `SageUiStyle`로 추출
 - [ ] 3-A-8 `OnCtlColor` 잔여 정리 (핸들러는 남을 수 있으나 컨트롤 종류 분기는 제거)
