@@ -3,10 +3,10 @@
 #include "pch.h"
 #include "app/infra/db/SqlContext.h"
 
-class SQLInitializer {
+class SqlInitializer {
 public:
-    SQLInitializer(SqlContext* pSqlContext);
-    ~SQLInitializer();
+    SqlInitializer(SqlContext* pSqlContext);
+    ~SqlInitializer();
 
 public:
     BOOL Initialize(CString& strError);

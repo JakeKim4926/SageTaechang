@@ -4,13 +4,13 @@
 #include "app/infra/db/TaechangUserRepository.h"
 #include "app/core/auth/TaechangUserService.h"
 
-SQLInitializer::SQLInitializer(SqlContext* pSqlContext) {
+SqlInitializer::SqlInitializer(SqlContext* pSqlContext) {
     m_pSqlContext = pSqlContext;
 }
 
-SQLInitializer::~SQLInitializer() {}
+SqlInitializer::~SqlInitializer() {}
 
-BOOL SQLInitializer::Initialize(CString& strError) {
+BOOL SqlInitializer::Initialize(CString& strError) {
     CString strRollbackError;
 
     if (m_pSqlContext == NULL) {
@@ -45,7 +45,7 @@ BOOL SQLInitializer::Initialize(CString& strError) {
     return TRUE;
 }
 
-BOOL SQLInitializer::CreateTables(CString& strError) {
+BOOL SqlInitializer::CreateTables(CString& strError) {
     if (CreateTaechangPriceTable(strError) == FALSE)
         return FALSE;
 
@@ -58,7 +58,7 @@ BOOL SQLInitializer::CreateTables(CString& strError) {
     return TRUE;
 }
 
-BOOL SQLInitializer::CreateTaechangPriceTable(CString& strError) {
+BOOL SqlInitializer::CreateTaechangPriceTable(CString& strError) {
     CString strSql;
 
     strSql =
@@ -83,7 +83,7 @@ BOOL SQLInitializer::CreateTaechangPriceTable(CString& strError) {
     return m_pSqlContext->Execute(strSql, strError);
 }
 
-BOOL SQLInitializer::CreateIndexes(CString& strError) {
+BOOL SqlInitializer::CreateIndexes(CString& strError) {
     CString strSql;
 
     strSql =
@@ -121,7 +121,7 @@ BOOL SQLInitializer::CreateIndexes(CString& strError) {
     return TRUE;
 }
 
-BOOL SQLInitializer::CreateTaechangUserTable(CString& strError) {
+BOOL SqlInitializer::CreateTaechangUserTable(CString& strError) {
     CString strSql;
 
     strSql =
@@ -142,7 +142,7 @@ BOOL SQLInitializer::CreateTaechangUserTable(CString& strError) {
     return TRUE;
 }
 
-BOOL SQLInitializer::SeedDefaultAdmin(CString& strError) {
+BOOL SqlInitializer::SeedDefaultAdmin(CString& strError) {
     sqlite3* pDb = m_pSqlContext->GetDb();
     sqlite3_stmt* pStatement = NULL;
 
@@ -177,7 +177,7 @@ BOOL SQLInitializer::SeedDefaultAdmin(CString& strError) {
     return repo.Insert(adminDto, nNewId, strError);
 }
 
-BOOL SQLInitializer::CreateTaechangReceivableCompanyOrderTable(CString& strError) {
+BOOL SqlInitializer::CreateTaechangReceivableCompanyOrderTable(CString& strError) {
     CString strSql;
 
     strSql =

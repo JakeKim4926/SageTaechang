@@ -24,7 +24,7 @@ SageDBMgr::~SageDBMgr() {
 }
 
 BOOL SageDBMgr::Initialize(CString& strError) {
-    SQLInitializer sqlInitializer(&m_sqlContext);
+    SqlInitializer sqlInitializer(&m_sqlContext);
 
     if (m_bInitialized == TRUE) {
         return TRUE;
