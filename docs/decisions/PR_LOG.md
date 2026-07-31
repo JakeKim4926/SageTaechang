@@ -1,3 +1,9 @@
+## [2026-07-31] refactor/view-control-extract
+- **목적**: View에 정의돼 있던 MFC 컨트롤 서브클래스를 app/ui/drawing으로 분리하고, 신규 코드 접두사를 Sage로 전환
+- **변경 내용**: CTaechangHeaderCtrl / CTaechangTabCtrl / CTaechangComboBox / CTaechangFilterComboBox 4개를 클래스당 파일로 app/ui/drawing에 분리(SageTaechangView.h의 클래스 정의와 .cpp 구현 193줄 제거). 이후 파일명·클래스명을 CSage*로 전환. vcxproj 78→86 항목, filters에 app\ui\drawing 필터 생성. View.cpp 4,499→4,305줄, View.h 428→397줄. 부수적으로 CSageTabCtrl은 메시지맵과 OnPaint 구현이 100줄 떨어져 있던 것이 한 파일로 모임. 리팩토링 계획을 docs/decisions/REFACTORING_PLAN.md로 이관하고 작성 절차는 sagetaechang-plan skill로 분리
+- **PR 링크**: 없음 (develop 직접 머지)
+- **결과**: merged
+
 ## [2026-07-31] refactor/layer-cleanup
 - **목적**: Step 1 재배치 이후 남은 계층 정리 — 앱 헤더의 DB 계층 전역 노출 제거, SqlInitializer 클래스명 정합
 - **변경 내용**: SageTaechang.h(CWinApp 헤더)에서 SageDBMgr.h include를 제거하고 실제 사용처인 SageTaechang.cpp에 직접 추가. 이 과정에서 SageTaechangView.h가 SageTaechang.h → SageDBMgr.h → TaechangPriceRepository.h 사슬로 TaechangPriceDto를 간접 획득하던 것이 빌드 오류로 드러나, 전방 선언 + 직접 include로 정리(별도 fix 커밋). SQLInitializer 클래스명을 SqlInitializer로 변경(13곳). DEBT_LOG 2건 해소. 별건으로 coding-rules의 "함수 반환 타입에 포인터 사용 금지"를 제거하고 계약 규약(기본 비소유 / Get*·Find* 네이밍 / 소유권 이전 동사)으로 전환해, SageDBMgr Getter 부채 1건은 코드 변경 없이 철회
