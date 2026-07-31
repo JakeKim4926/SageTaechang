@@ -7,6 +7,7 @@
 #include "app/ui/drawing/SageTabCtrl.h"
 #include "app/ui/drawing/SageComboBox.h"
 #include "app/ui/drawing/SageFilterComboBox.h"
+#include "app/ui/drawing/SageButton.h"
 
 struct TaechangResultRow;
 struct TaechangPriceDto;
@@ -88,22 +89,22 @@ protected:
     CStatic m_wndOutputLabel;
     CEdit m_wndInputPath;
     CEdit m_wndOutputFolder;
-    CButton m_wndSelectInput;
-    CButton m_wndSelectOutput;
-    CButton m_wndLoad;
-    CButton m_wndGenerate;
-    CButton m_wndExportCsv;
-    CButton m_wndSelectAll;
+    CSageButton m_wndSelectInput;
+    CSageButton m_wndSelectOutput;
+    CSageButton m_wndLoad;
+    CSageButton m_wndGenerate;
+    CSageButton m_wndExportCsv;
+    CSageButton m_wndSelectAll;
     CButton m_wndEstimateOnePage;
-    CButton m_wndInputReset;
+    CSageButton m_wndInputReset;
     CProgressCtrl m_wndProgress;
     CStatic m_wndProgressText;
     CSageHeaderCtrl m_wndResultHeader;
     CListCtrl m_wndResultList;
     CSageFilterComboBox m_wndResultFilterCriteria;
     CEdit m_wndResultFilter;
-    CButton m_wndResultSearchBtn;
-    CButton m_wndResultResetBtn;
+    CSageButton m_wndResultSearchBtn;
+    CSageButton m_wndResultResetBtn;
     CEdit m_wndDetail;
     CStatic m_wndEmptyStateHint;
     CStatic m_wndActionStatus;
@@ -136,17 +137,17 @@ protected:
     TaechangWorkflowUiState m_stateDelivery;
     TaechangWorkflowUiState m_stateEstimate;
 
-    CButton m_wndLoginBtn;
-    CButton m_wndLogoutBtn;
+    CSageButton m_wndLoginBtn;
+    CSageButton m_wndLogoutBtn;
     CStatic m_wndUserLabel;
     int m_nAuthDividerX;
 
     // ── 가격 데이터 관리 패널 ────────────────────────────────────────────────
     CStatic             m_wndPriceCompanyLabel;
     CSageComboBox   m_wndPriceCompanyCombo;
-    CButton             m_wndPriceAddCompanyBtn;
-    CButton             m_wndPriceRenameCompanyBtn;
-    CButton             m_wndPriceDeleteCompanyBtn;
+    CSageButton         m_wndPriceAddCompanyBtn;
+    CSageButton         m_wndPriceRenameCompanyBtn;
+    CSageButton         m_wndPriceDeleteCompanyBtn;
     CSageHeaderCtrl m_wndPriceCopiesHeader;
     CListCtrl           m_wndPriceCopiesList;
     CStatic             m_wndPriceMinCopiesLabel;
@@ -159,10 +160,10 @@ protected:
     CEdit               m_wndPricePrintEdit;
     CStatic             m_wndPriceCoverLabel;
     CEdit               m_wndPriceCoverEdit;
-    CButton             m_wndPriceAddBtn;
-    CButton             m_wndPriceModifyBtn;
-    CButton             m_wndPriceDeleteBtn;
-    CButton             m_wndPriceCancelBtn;
+    CSageButton         m_wndPriceAddBtn;
+    CSageButton         m_wndPriceModifyBtn;
+    CSageButton         m_wndPriceDeleteBtn;
+    CSageButton         m_wndPriceCancelBtn;
     CStatic             m_wndPriceDetailHeader;
     CStatic             m_wndPriceDetailDivider;
     CStatic             m_wndPriceSummaryTitle;
@@ -173,13 +174,13 @@ protected:
     // ── 부수 계산 패널 ───────────────────────────────────────────────────────
     CStatic              m_wndCalcCompanyLabel;
     CSageComboBox    m_wndCalcCompanyCombo;
-    CButton              m_wndCalcCompanyPickBtn;
+    CSageButton          m_wndCalcCompanyPickBtn;
     CStatic              m_wndCalcCopiesLabel;
     CEdit                m_wndCalcCopiesEdit;
     CStatic              m_wndCalcPagesLabel;
     CEdit                m_wndCalcPagesEdit;
-    CButton              m_wndCalcBtn;
-    CButton              m_wndCalcResetBtn;
+    CSageButton          m_wndCalcBtn;
+    CSageButton          m_wndCalcResetBtn;
     CStatic              m_wndCalcPrintLabel;
     CStatic              m_wndCalcPrintValue;
     CStatic              m_wndCalcCoverLabel;
@@ -210,13 +211,13 @@ protected:
     BOOL m_bFormattingPriceCover;
 
     // ── 법인 순서 데이터 관리 패널 ───────────────────────────────────────────
-    CButton             m_wndCoAddBtn;
-    CButton             m_wndCoModifyBtn;
-    CButton             m_wndCoDeleteBtn;
-    CButton             m_wndCoCancelBtn;
+    CSageButton         m_wndCoAddBtn;
+    CSageButton         m_wndCoModifyBtn;
+    CSageButton         m_wndCoDeleteBtn;
+    CSageButton         m_wndCoCancelBtn;
     CStatic             m_wndCoSearchLabel;
     CEdit               m_wndCoSearchEdit;
-    CButton             m_wndCoSearchBtn;
+    CSageButton         m_wndCoSearchBtn;
     CStatic             m_wndCoOrderLabel;
     CEdit               m_wndCoOrderEdit;
     CStatic             m_wndCoNameLabel;
