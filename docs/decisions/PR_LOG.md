@@ -1,3 +1,9 @@
+## [2026-08-01] refactor/sage-sidebar-tree
+- **목적**: 사이드바 트리 커스텀드로우를 컨트롤로 승격 (3-A-6)
+- **변경 내용**: CSageSidebarTree 신설. ON_NOTIFY_REFLECT로 트리가 자기 NM_CUSTOMDRAW를 처리하고 View의 OnSidebarTreeCustomDraw·메시지맵 등록·헤더 선언을 제거. **설정 메서드가 필요 없는 단일 스타일 컨트롤**로, CSageTabCtrl·CSageSectionLabel과 같은 형태다. 그룹 헤더 판정이 GetParentItem(hItem) == NULL로 트리 내부 정보만 쓰기 때문 — 워크플로 타입은 SetItemData에 실려 있으나 그리기 로직이 참조하지 않아 "컨트롤은 도메인 개념을 알면 안 된다" 기준을 원래부터 지키고 있었다. TVN_SELCHANGED는 워크플로 전환 로직이라 View에 잔류(리플렉션은 NM_CUSTOMDRAW만 가져감). 이동한 그리기 로직은 함수 시그니처와 m_wndSidebarTree. 접두사를 빼면 원본과 완전히 동일함을 diff로 확인. View.cpp 4,124→4,088줄
+- **PR 링크**: 없음 (develop 직접 머지)
+- **결과**: merged
+
 ## [2026-08-01] refactor/sage-listctrl
 - **목적**: 리스트 커스텀드로우를 컨트롤로 승격하고, 작업 중 발견한 리페인트 병목을 해소 (3-A-5)
 - **변경 내용**: CSageListCtrl 신설. OnListCustomDraw의 리스트 ID 분기를 렌더링 속성 3종(SetAlternateRowColor / SetCenterFirstColumn / SetHighlightColumns)으로 분해하고 ON_NOTIFY_REFLECT로 컨트롤이 자기 커스텀드로우를 처리하게 함. 컨트롤은 워크플로 타입을 모르고, IsReceivablesResultTable() 판단은 View에 남긴 뒤 ApplyResultColumns에서 금액 컬럼 범위만 전달. 계산 내역 리스트는 메시지맵 미등록으로 원래 커스텀드로우가 걸리지 않았어서 OFF/OFF로 현행 재현(DEBT_LOG 기록). View의 OnListCustomDraw·메시지맵 3개·헤더 선언 제거. **추가로 O(N^2) 리페인트 병목을 발견**: 행 삽입마다 리페인트가 걸려 그때까지의 전체 행에 커스텀드로우가 다시 도는 구조였고(미수금 10컬럼 500행이면 약 125만 회), 리스트 4곳에 SetRedraw 억제를 넣어 O(N)으로 정리. 조기 return이 모두 억제 시작 이전에 있음을 확인
