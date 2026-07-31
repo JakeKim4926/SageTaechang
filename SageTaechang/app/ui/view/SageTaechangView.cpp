@@ -2975,6 +2975,7 @@ void CSageTaechangView::RefreshPriceCopiesList(const CString& strCompanyName) {
 		return;
 	}
 
+	m_wndPriceCopiesList.SetRedraw(FALSE);
 	for (int i = 0; i < arrPrice.GetSize(); ++i) {
 		const TaechangPriceDto& dto = arrPrice[i];
 		CString strMin;
@@ -2996,6 +2997,8 @@ void CSageTaechangView::RefreshPriceCopiesList(const CString& strCompanyName) {
 		m_wndPriceCopiesList.SetItemText(nIndex, 3, strCover);
 	}
 	UpdatePriceSummaryCard();
+	m_wndPriceCopiesList.SetRedraw(TRUE);
+	m_wndPriceCopiesList.Invalidate();
 }
 
 void CSageTaechangView::UpdatePriceSummaryCard() {
@@ -3695,6 +3698,7 @@ void CSageTaechangView::TrimCalcHistoryToVisibleCapacity() {
 }
 
 void CSageTaechangView::RefreshCalcHistoryList() {
+	m_wndCalcHistoryList.SetRedraw(FALSE);
 	m_wndCalcHistoryList.DeleteAllItems();
 	for (int i = 0; i < m_arrCalcHistory.GetSize(); ++i) {
 		const CalcHistoryEntry& e = m_arrCalcHistory[i];
@@ -3723,6 +3727,8 @@ void CSageTaechangView::RefreshCalcHistoryList() {
 		CString strTime = e.timeCalc.Format(TAECHANG_UI_CALC_HIST_TIME_FMT);
 		m_wndCalcHistoryList.SetItemText(i, 9, strTime);
 	}
+	m_wndCalcHistoryList.SetRedraw(TRUE);
+	m_wndCalcHistoryList.Invalidate();
 }
 
 // ── 법인 순서 데이터 관리 패널 ────────────────────────────────────────────────
@@ -3912,6 +3918,7 @@ void CSageTaechangView::RefreshCompanyOrderList() {
 		AfxMessageBox(strError);
 		return;
 	}
+	m_wndCoList.SetRedraw(FALSE);
 	m_wndCoList.DeleteAllItems();
 	CString strFilterLower = m_strCoSearchKeyword;
 	strFilterLower.MakeLower();
@@ -3941,6 +3948,8 @@ void CSageTaechangView::RefreshCompanyOrderList() {
 	}
 	UpdateCoPanelState();
 	Invalidate(FALSE);
+	m_wndCoList.SetRedraw(TRUE);
+	m_wndCoList.Invalidate();
 }
 
 void CSageTaechangView::OnCoAdd() {
