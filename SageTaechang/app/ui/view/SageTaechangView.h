@@ -275,7 +275,6 @@ protected:
     void RebuildCurrentWorkflowResultList();
     COLORREF ResolveStatusColor(const CString& strStatus) const;
     COLORREF ResolveStatusBgColor(const CString& strStatus) const;
-    void DrawSectionLabel(LPDRAWITEMSTRUCT lpDrawItemStruct);
     void DrawEditBorder(CDC* pDC, CWnd& wnd);
     BOOL ValidateInputPath(CString& strInputPath);
     BOOL ValidateOutputFolder(CString& strOutputFolder);
@@ -347,7 +346,6 @@ protected:
     afx_msg void OnInputReset();
     afx_msg LRESULT OnWorkflowComplete(WPARAM wParam, LPARAM lParam);
     afx_msg void OnDropFiles(HDROP hDropInfo);
-    afx_msg void OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct);
     afx_msg void OnSidebarTreeCustomDraw(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnListCustomDraw(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnResultListItemChanged(NMHDR* pNMHDR, LRESULT* pResult);

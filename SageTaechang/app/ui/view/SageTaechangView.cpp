@@ -246,7 +246,6 @@ BEGIN_MESSAGE_MAP(CSageTaechangView, CView)
 	ON_NOTIFY(NM_CUSTOMDRAW, ID_COORDER_LIST, &CSageTaechangView::OnListCustomDraw)
 	ON_MESSAGE(WM_TAECHANG_WORKFLOW_COMPLETE, &CSageTaechangView::OnWorkflowComplete)
 	ON_WM_DROPFILES()
-	ON_WM_DRAWITEM()
 	ON_NOTIFY(NM_CUSTOMDRAW, ID_TAECHANG_SIDEBAR_TREE, &CSageTaechangView::OnSidebarTreeCustomDraw)
 	ON_NOTIFY(LVN_ITEMCHANGED, ID_TAECHANG_RESULT_LIST, &CSageTaechangView::OnResultListItemChanged)
 	ON_NOTIFY(NM_CUSTOMDRAW, ID_TAECHANG_RESULT_LIST, &CSageTaechangView::OnListCustomDraw)
@@ -2317,37 +2316,6 @@ CString CSageTaechangView::BuildExecutionHistoryLine(int nWorkflowType, int nTas
 	}
 
 	return strLine;
-}
-
-void CSageTaechangView::DrawSectionLabel(LPDRAWITEMSTRUCT lpDrawItemStruct) {
-	CDC* pDC = CDC::FromHandle(lpDrawItemStruct->hDC);
-	CRect rect = lpDrawItemStruct->rcItem;
-	pDC->FillSolidRect(rect, TAECHANG_COLOR_APP_BACKGROUND);
-	constexpr int nAccentWidth = 3;
-	pDC->FillSolidRect(rect.left, rect.top + 2, nAccentWidth, rect.Height() - 4, TAECHANG_COLOR_PRIMARY);
-	CWnd* pWnd = CWnd::FromHandle(lpDrawItemStruct->hwndItem);
-	CString strText;
-	pWnd->GetWindowText(strText);
-	pDC->SetBkMode(TRANSPARENT);
-	pDC->SetTextColor(TAECHANG_COLOR_TEXT);
-	CFont* pOldFont = pDC->SelectObject(&m_fontContent);
-	CRect rcText = rect;
-	rcText.left += nAccentWidth + 8;
-	pDC->DrawText(strText, rcText, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
-	if (pOldFont)
-		pDC->SelectObject(pOldFont);
-}
-
-void CSageTaechangView::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct) {
-	if (lpDrawItemStruct->CtlType == ODT_STATIC &&
-		(nIDCtl == ID_TAECHANG_INPUT_SECTION || nIDCtl == ID_TAECHANG_OUTPUT_SECTION ||
-		 nIDCtl == ID_TAECHANG_RESULT_SECTION || nIDCtl == ID_TAECHANG_DETAIL_SECTION ||
-		 nIDCtl == ID_CALC_HISTORY_SECTION ||
-		 nIDCtl == ID_COORDER_CRUD_SECTION || nIDCtl == ID_COORDER_LIST_SECTION)) {
-		DrawSectionLabel(lpDrawItemStruct);
-		return;
-	}
-	CView::OnDrawItem(nIDCtl, lpDrawItemStruct);
 }
 
 void CSageTaechangView::OnSidebarTreeCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
