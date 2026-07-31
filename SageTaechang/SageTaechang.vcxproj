@@ -221,47 +221,47 @@ if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templ
   <ItemGroup>
     <ClInclude Include="external\sqlite\sqlite3.h" />
     <ClInclude Include="framework.h" />
-    <ClInclude Include="MainFrm.h" />
+    <ClInclude Include="app\ui\frame\MainFrm.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="RepositoryHelper.h" />
+    <ClInclude Include="app\infra\db\RepositoryHelper.h" />
     <ClInclude Include="Resource.h" />
-    <ClInclude Include="SageDBMgr.h" />
+    <ClInclude Include="app\infra\db\SageDBMgr.h" />
     <ClInclude Include="SageTaechang.h" />
-    <ClInclude Include="SageTaechangDoc.h" />
-    <ClInclude Include="SageTaechangView.h" />
-    <ClInclude Include="SQLContext.h" />
-    <ClInclude Include="SQLInitializer.h" />
-    <ClInclude Include="TaechangPriceDto.h" />
-    <ClInclude Include="TaechangPriceRepository.h" />
-    <ClInclude Include="TaechangPriceService.h" />
-    <ClInclude Include="TaechangReceivableCompanyOrderDto.h" />
-    <ClInclude Include="TaechangReceivableCompanyOrderRepository.h" />
-    <ClInclude Include="TaechangReceivableCompanyOrderService.h" />
-    <ClInclude Include="TaechangUserDto.h" />
-    <ClInclude Include="TaechangUserRepository.h" />
-    <ClInclude Include="TaechangUserService.h" />
-    <ClInclude Include="TaechangAuthSession.h" />
-    <ClInclude Include="TaechangLoginDlg.h" />
-    <ClInclude Include="TaechangPasswordChangeDlg.h" />
-    <ClInclude Include="TaechangCompanyDlg.h" />
-    <ClInclude Include="TaechangPriceRangeDlg.h" />
-    <ClInclude Include="TaechangPriceSimpleDlg.h" />
-    <ClInclude Include="TaechangCalcCompanyPickerDlg.h" />
-    <ClInclude Include="TaechangCalcEstimateDlg.h" />
+    <ClInclude Include="app\ui\frame\SageTaechangDoc.h" />
+    <ClInclude Include="app\ui\view\SageTaechangView.h" />
+    <ClInclude Include="app\infra\db\SqlContext.h" />
+    <ClInclude Include="app\infra\db\SqlInitializer.h" />
+    <ClInclude Include="app\core\price\TaechangPriceDto.h" />
+    <ClInclude Include="app\infra\db\TaechangPriceRepository.h" />
+    <ClInclude Include="app\core\price\TaechangPriceService.h" />
+    <ClInclude Include="app\core\receivable\TaechangReceivableCompanyOrderDto.h" />
+    <ClInclude Include="app\infra\db\TaechangReceivableCompanyOrderRepository.h" />
+    <ClInclude Include="app\core\receivable\TaechangReceivableCompanyOrderService.h" />
+    <ClInclude Include="app\core\auth\TaechangUserDto.h" />
+    <ClInclude Include="app\infra\db\TaechangUserRepository.h" />
+    <ClInclude Include="app\core\auth\TaechangUserService.h" />
+    <ClInclude Include="app\core\auth\TaechangAuthSession.h" />
+    <ClInclude Include="app\ui\dialogs\TaechangLoginDlg.h" />
+    <ClInclude Include="app\ui\dialogs\TaechangPasswordChangeDlg.h" />
+    <ClInclude Include="app\ui\dialogs\TaechangCompanyDlg.h" />
+    <ClInclude Include="app\ui\dialogs\TaechangPriceRangeDlg.h" />
+    <ClInclude Include="app\ui\dialogs\TaechangPriceSimpleDlg.h" />
+    <ClInclude Include="app\ui\dialogs\TaechangCalcCompanyPickerDlg.h" />
+    <ClInclude Include="app\ui\dialogs\TaechangCalcEstimateDlg.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TaechangDefine.h" />
-    <ClInclude Include="app\application\services\TaechangReceivablesExcelService.h" />
+    <ClInclude Include="app\infra\office\TaechangReceivablesExcelService.h" />
     <ClInclude Include="app\common\TaechangJson.h" />
-    <ClInclude Include="app\common\TaechangFileUtils.h" />
+    <ClInclude Include="app\infra\file\TaechangFileUtils.h" />
     <ClInclude Include="app\common\TaechangDialogHelper.h" />
-    <ClInclude Include="app\infrastructure\bridge\TaechangBridgeResponse.h" />
-    <ClInclude Include="app\application\services\TaechangDeliveryExcelService.h" />
-    <ClInclude Include="app\application\services\TaechangEstimateExcelService.h" />
-    <ClInclude Include="app\application\services\TaechangPdfCompareService.h" />
-    <ClInclude Include="app\application\services\TaechangHwpCompareService.h" />
-    <ClInclude Include="app\application\services\TaechangAppSettingsService.h" />
-    <ClInclude Include="app\application\services\TaechangCompareCsvExportService.h" />
-    <ClInclude Include="app\presentation\TaechangWorkflowResultPresenter.h" />
+    <ClInclude Include="app\core\workflow\TaechangWorkflowResponse.h" />
+    <ClInclude Include="app\infra\office\TaechangDeliveryExcelService.h" />
+    <ClInclude Include="app\infra\office\TaechangEstimateExcelService.h" />
+    <ClInclude Include="app\infra\office\TaechangPdfCompareService.h" />
+    <ClInclude Include="app\infra\office\TaechangHwpCompareService.h" />
+    <ClInclude Include="app\infra\file\TaechangAppSettingsService.h" />
+    <ClInclude Include="app\infra\file\TaechangCompareCsvExportService.h" />
+    <ClInclude Include="app\core\workflow\TaechangWorkflowResultPresenter.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="external\sqlite\sqlite3.c">
@@ -270,45 +270,45 @@ if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templ
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="app\ui\frame\MainFrm.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="SageDBMgr.cpp" />
+    <ClCompile Include="app\infra\db\SageDBMgr.cpp" />
     <ClCompile Include="SageTaechang.cpp" />
-    <ClCompile Include="SageTaechangDoc.cpp" />
-    <ClCompile Include="SageTaechangView.cpp" />
-    <ClCompile Include="app\application\services\TaechangReceivablesExcelService.cpp" />
+    <ClCompile Include="app\ui\frame\SageTaechangDoc.cpp" />
+    <ClCompile Include="app\ui\view\SageTaechangView.cpp" />
+    <ClCompile Include="app\infra\office\TaechangReceivablesExcelService.cpp" />
     <ClCompile Include="app\common\TaechangJson.cpp" />
-    <ClCompile Include="app\common\TaechangFileUtils.cpp" />
+    <ClCompile Include="app\infra\file\TaechangFileUtils.cpp" />
     <ClCompile Include="app\common\TaechangDialogHelper.cpp" />
-    <ClCompile Include="app\infrastructure\bridge\TaechangBridgeResponse.cpp" />
-    <ClCompile Include="app\application\services\TaechangDeliveryExcelService.cpp" />
-    <ClCompile Include="app\application\services\TaechangEstimateExcelService.cpp" />
-    <ClCompile Include="app\application\services\TaechangPdfCompareService.cpp" />
-    <ClCompile Include="app\application\services\TaechangHwpCompareService.cpp" />
-    <ClCompile Include="app\application\services\TaechangAppSettingsService.cpp" />
-    <ClCompile Include="app\application\services\TaechangCompareCsvExportService.cpp" />
-    <ClCompile Include="app\presentation\TaechangWorkflowResultPresenter.cpp" />
-    <ClCompile Include="SQLContext.cpp" />
-    <ClCompile Include="SQLInitializer.cpp" />
-    <ClCompile Include="TaechangPriceRepository.cpp" />
-    <ClCompile Include="TaechangPriceService.cpp" />
-    <ClCompile Include="TaechangReceivableCompanyOrderRepository.cpp" />
-    <ClCompile Include="TaechangReceivableCompanyOrderService.cpp" />
-    <ClCompile Include="TaechangUserRepository.cpp" />
-    <ClCompile Include="TaechangUserService.cpp" />
-    <ClCompile Include="TaechangAuthSession.cpp" />
-    <ClCompile Include="TaechangLoginDlg.cpp" />
-    <ClCompile Include="TaechangPasswordChangeDlg.cpp" />
-    <ClCompile Include="TaechangCompanyDlg.cpp" />
-    <ClCompile Include="TaechangPriceRangeDlg.cpp" />
-    <ClCompile Include="TaechangPriceSimpleDlg.cpp" />
-    <ClCompile Include="TaechangCalcCompanyPickerDlg.cpp" />
-    <ClCompile Include="TaechangCalcEstimateDlg.cpp" />
+    <ClCompile Include="app\core\workflow\TaechangWorkflowResponse.cpp" />
+    <ClCompile Include="app\infra\office\TaechangDeliveryExcelService.cpp" />
+    <ClCompile Include="app\infra\office\TaechangEstimateExcelService.cpp" />
+    <ClCompile Include="app\infra\office\TaechangPdfCompareService.cpp" />
+    <ClCompile Include="app\infra\office\TaechangHwpCompareService.cpp" />
+    <ClCompile Include="app\infra\file\TaechangAppSettingsService.cpp" />
+    <ClCompile Include="app\infra\file\TaechangCompareCsvExportService.cpp" />
+    <ClCompile Include="app\core\workflow\TaechangWorkflowResultPresenter.cpp" />
+    <ClCompile Include="app\infra\db\SqlContext.cpp" />
+    <ClCompile Include="app\infra\db\SqlInitializer.cpp" />
+    <ClCompile Include="app\infra\db\TaechangPriceRepository.cpp" />
+    <ClCompile Include="app\core\price\TaechangPriceService.cpp" />
+    <ClCompile Include="app\infra\db\TaechangReceivableCompanyOrderRepository.cpp" />
+    <ClCompile Include="app\core\receivable\TaechangReceivableCompanyOrderService.cpp" />
+    <ClCompile Include="app\infra\db\TaechangUserRepository.cpp" />
+    <ClCompile Include="app\core\auth\TaechangUserService.cpp" />
+    <ClCompile Include="app\core\auth\TaechangAuthSession.cpp" />
+    <ClCompile Include="app\ui\dialogs\TaechangLoginDlg.cpp" />
+    <ClCompile Include="app\ui\dialogs\TaechangPasswordChangeDlg.cpp" />
+    <ClCompile Include="app\ui\dialogs\TaechangCompanyDlg.cpp" />
+    <ClCompile Include="app\ui\dialogs\TaechangPriceRangeDlg.cpp" />
+    <ClCompile Include="app\ui\dialogs\TaechangPriceSimpleDlg.cpp" />
+    <ClCompile Include="app\ui\dialogs\TaechangCalcCompanyPickerDlg.cpp" />
+    <ClCompile Include="app\ui\dialogs\TaechangCalcEstimateDlg.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SageTaechang.rc" />

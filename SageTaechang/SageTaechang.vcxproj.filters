@@ -1,6 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
     <Filter Include="소스 파일">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
@@ -9,367 +13,375 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="리소스 파일">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="소스 파일\default">
-      <UniqueIdentifier>{f0d91be8-90ae-49b2-864d-a77985e2c82f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="헤더 파일\default">
-      <UniqueIdentifier>{e317d8ca-bc0a-478c-8b38-efd030de12cf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일\application">
-      <UniqueIdentifier>{E4FCD92B-41BE-4CF0-9620-45ECC3157273}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일\application\services">
-      <UniqueIdentifier>{CFE708AE-7A92-46F1-B3FC-D550C523787D}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일\common">
-      <UniqueIdentifier>{2C385120-CDA5-47CB-8C87-E32CECB8B3D5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일\infrastructure">
-      <UniqueIdentifier>{BD8A6B14-D7B9-4C28-ABB1-8B1C6948C85E}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일\infrastructure\bridge">
-      <UniqueIdentifier>{D97AF64B-4747-4AD5-A980-3BB4F3C929B0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일\presentation">
-      <UniqueIdentifier>{D89B4C8B-7B71-4E77-A493-91B4B7CDB211}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="헤더 파일\application">
-      <UniqueIdentifier>{F449F2D7-2CFC-46FB-B2FA-E45499E489D3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="헤더 파일\application\services">
-      <UniqueIdentifier>{EB1E3C8D-B67E-485F-BBC2-8385025A7CF5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="헤더 파일\common">
-      <UniqueIdentifier>{B480D12C-4D04-4D8C-83F2-42B4EEFB6E4E}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="헤더 파일\infrastructure">
-      <UniqueIdentifier>{89D07C9A-F33C-4D60-A30B-A4E1F81E3289}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="헤더 파일\infrastructure\bridge">
-      <UniqueIdentifier>{71FAB409-1284-4252-8F01-BD4E81F6EE4F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="헤더 파일\presentation">
-      <UniqueIdentifier>{CB0D56E5-3533-4B33-B4FE-1D87545ED237}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일\SQLite">
-      <UniqueIdentifier>{c3840102-3d4a-4fde-bbdf-31dbd3f1970d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="헤더 파일\SQLite">
-      <UniqueIdentifier>{91227adf-fc6d-4b96-acc1-b1095fe8cc4c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일\SQLite\Database">
-      <UniqueIdentifier>{4c8f101b-299c-4f9c-9c94-aa37b9cf95c1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일\SQLite\Dto">
-      <UniqueIdentifier>{61775cd8-0e32-4c93-90b7-8267bc97d253}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일\SQLite\Repository">
-      <UniqueIdentifier>{590357e0-d1fb-4c99-9213-a77a317f95d8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일\SQLite\Service">
-      <UniqueIdentifier>{0619480f-1b95-4d20-823f-70566974e822}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="헤더 파일\SQLite\Database">
-      <UniqueIdentifier>{7791d903-2756-49c1-9ed3-847987d8aebe}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="헤더 파일\SQLite\Dto">
-      <UniqueIdentifier>{2cdf2fbc-856a-4b59-b5d7-03a04338e301}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="헤더 파일\SQLite\Service">
-      <UniqueIdentifier>{31873263-0443-43a0-b553-af905af3a03d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="헤더 파일\SQLite\Repository">
-      <UniqueIdentifier>{917cf346-ce28-4c70-b60c-5aeb839d8577}</UniqueIdentifier>
+    <Filter Include="소스 파일\app">
+      <UniqueIdentifier>{EF236727-84D3-5731-9705-81392A5A9C74}</UniqueIdentifier>
     </Filter>
     <Filter Include="소스 파일\external">
       <UniqueIdentifier>{18f03a2d-7c3d-4b72-a1a4-b98bc796ee4b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\external\sqlite">
-      <UniqueIdentifier>{158e4b84-b149-4bc6-b555-e325c1292e0b}</UniqueIdentifier>
+    <Filter Include="헤더 파일\app">
+      <UniqueIdentifier>{400676D2-123F-51A6-85AD-755B8C15FC6B}</UniqueIdentifier>
     </Filter>
     <Filter Include="헤더 파일\external">
       <UniqueIdentifier>{1093c0be-e68a-443c-bf01-010bc773a849}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\app\common">
+      <UniqueIdentifier>{87695AD8-052C-577C-B303-84938369A067}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\app\core">
+      <UniqueIdentifier>{6D1A651D-9913-56DB-8558-6E11DAACFADE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\app\infra">
+      <UniqueIdentifier>{8EEE3660-5C5D-5808-AFA2-176858FEDC53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\app\ui">
+      <UniqueIdentifier>{380572C7-9D67-5CE4-89F9-450F172B0A21}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\external\sqlite">
+      <UniqueIdentifier>{158e4b84-b149-4bc6-b555-e325c1292e0b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\app\common">
+      <UniqueIdentifier>{A5C4E455-59D5-574A-8387-3F58A9C110BE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\app\core">
+      <UniqueIdentifier>{5CC99776-01F6-50E3-B7F2-E5CCDE622733}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\app\infra">
+      <UniqueIdentifier>{DFEEAB0B-6FCA-54C5-9760-7EC12C83CA46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\app\ui">
+      <UniqueIdentifier>{64021CD2-850F-5DB3-8300-AD183F969A9F}</UniqueIdentifier>
+    </Filter>
     <Filter Include="헤더 파일\external\sqlite">
       <UniqueIdentifier>{7fdfde01-7041-4a78-9195-eaec80e5e064}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\SQLite\Auth">
-      <UniqueIdentifier>{a1b2c3d4-e5f6-7890-abcd-ef1234567890}</UniqueIdentifier>
+    <Filter Include="소스 파일\app\core\auth">
+      <UniqueIdentifier>{2B4718E1-FD76-5D0E-B42E-6B26D171B8EE}</UniqueIdentifier>
     </Filter>
-    <Filter Include="헤더 파일\SQLite\Auth">
-      <UniqueIdentifier>{b2c3d4e5-f6a7-8901-bcde-f12345678901}</UniqueIdentifier>
+    <Filter Include="소스 파일\app\core\price">
+      <UniqueIdentifier>{6AF3D208-6CA9-5E8E-9999-170425728428}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\app\core\receivable">
+      <UniqueIdentifier>{0315196B-9F62-5CF6-AB4D-3421EE89F173}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\app\core\workflow">
+      <UniqueIdentifier>{5D1E06CB-2208-5E08-A268-1AEFA7D32DDB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\app\infra\db">
+      <UniqueIdentifier>{9A70704E-B947-5B20-A952-3C7F6FAEFBC6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\app\infra\file">
+      <UniqueIdentifier>{9E466ABE-3196-581E-9143-424727911800}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\app\infra\office">
+      <UniqueIdentifier>{552F78F0-44F0-5448-8E7D-E710F762C181}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\app\ui\dialogs">
+      <UniqueIdentifier>{FE3927EF-12CF-531A-80B3-158A9ECADC8A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\app\ui\frame">
+      <UniqueIdentifier>{A39B9FD2-B703-5622-A9FD-885004D97056}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\app\ui\view">
+      <UniqueIdentifier>{BE0D45ED-54C7-5877-9282-6DF3BA467778}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\app\core\auth">
+      <UniqueIdentifier>{86DFE7B5-6A90-578E-8A66-C92D758ACE21}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\app\core\price">
+      <UniqueIdentifier>{59F201F2-AED4-5E09-9390-EFABC0701266}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\app\core\receivable">
+      <UniqueIdentifier>{436F2E0D-6054-5E26-92D9-3174A67C0706}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\app\core\workflow">
+      <UniqueIdentifier>{FA15CEFC-112B-59A2-869E-E417B7FF814B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\app\infra\db">
+      <UniqueIdentifier>{3677B1DE-4234-52C6-9547-2E071AD5BBBF}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\app\infra\file">
+      <UniqueIdentifier>{E4475BEB-BFE4-5508-B441-34D8851490C0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\app\infra\office">
+      <UniqueIdentifier>{664F1CF3-6BFD-56FE-947E-8BDA330C5FED}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\app\ui\dialogs">
+      <UniqueIdentifier>{89C70203-DB43-5F32-917C-6C9D6323C198}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\app\ui\frame">
+      <UniqueIdentifier>{56FA811A-100E-51FF-A034-744289C239C3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\app\ui\view">
+      <UniqueIdentifier>{4776A43D-50AD-578E-B8E6-8BA90F0F8188}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="targetver.h">
+    <ClCompile Include="external\sqlite\sqlite3.c">
+      <Filter>소스 파일\external\sqlite</Filter>
+    </ClCompile>
+    <ClCompile Include="app\ui\frame\MainFrm.cpp">
+      <Filter>소스 파일\app\ui\frame</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="app\infra\db\SageDBMgr.cpp">
+      <Filter>소스 파일\app\infra\db</Filter>
+    </ClCompile>
+    <ClCompile Include="SageTaechang.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="app\ui\frame\SageTaechangDoc.cpp">
+      <Filter>소스 파일\app\ui\frame</Filter>
+    </ClCompile>
+    <ClCompile Include="app\ui\view\SageTaechangView.cpp">
+      <Filter>소스 파일\app\ui\view</Filter>
+    </ClCompile>
+    <ClCompile Include="app\infra\office\TaechangReceivablesExcelService.cpp">
+      <Filter>소스 파일\app\infra\office</Filter>
+    </ClCompile>
+    <ClCompile Include="app\common\TaechangJson.cpp">
+      <Filter>소스 파일\app\common</Filter>
+    </ClCompile>
+    <ClCompile Include="app\infra\file\TaechangFileUtils.cpp">
+      <Filter>소스 파일\app\infra\file</Filter>
+    </ClCompile>
+    <ClCompile Include="app\common\TaechangDialogHelper.cpp">
+      <Filter>소스 파일\app\common</Filter>
+    </ClCompile>
+    <ClCompile Include="app\core\workflow\TaechangWorkflowResponse.cpp">
+      <Filter>소스 파일\app\core\workflow</Filter>
+    </ClCompile>
+    <ClCompile Include="app\infra\office\TaechangDeliveryExcelService.cpp">
+      <Filter>소스 파일\app\infra\office</Filter>
+    </ClCompile>
+    <ClCompile Include="app\infra\office\TaechangEstimateExcelService.cpp">
+      <Filter>소스 파일\app\infra\office</Filter>
+    </ClCompile>
+    <ClCompile Include="app\infra\office\TaechangPdfCompareService.cpp">
+      <Filter>소스 파일\app\infra\office</Filter>
+    </ClCompile>
+    <ClCompile Include="app\infra\office\TaechangHwpCompareService.cpp">
+      <Filter>소스 파일\app\infra\office</Filter>
+    </ClCompile>
+    <ClCompile Include="app\infra\file\TaechangAppSettingsService.cpp">
+      <Filter>소스 파일\app\infra\file</Filter>
+    </ClCompile>
+    <ClCompile Include="app\infra\file\TaechangCompareCsvExportService.cpp">
+      <Filter>소스 파일\app\infra\file</Filter>
+    </ClCompile>
+    <ClCompile Include="app\core\workflow\TaechangWorkflowResultPresenter.cpp">
+      <Filter>소스 파일\app\core\workflow</Filter>
+    </ClCompile>
+    <ClCompile Include="app\infra\db\SqlContext.cpp">
+      <Filter>소스 파일\app\infra\db</Filter>
+    </ClCompile>
+    <ClCompile Include="app\infra\db\SqlInitializer.cpp">
+      <Filter>소스 파일\app\infra\db</Filter>
+    </ClCompile>
+    <ClCompile Include="app\infra\db\TaechangPriceRepository.cpp">
+      <Filter>소스 파일\app\infra\db</Filter>
+    </ClCompile>
+    <ClCompile Include="app\core\price\TaechangPriceService.cpp">
+      <Filter>소스 파일\app\core\price</Filter>
+    </ClCompile>
+    <ClCompile Include="app\infra\db\TaechangReceivableCompanyOrderRepository.cpp">
+      <Filter>소스 파일\app\infra\db</Filter>
+    </ClCompile>
+    <ClCompile Include="app\core\receivable\TaechangReceivableCompanyOrderService.cpp">
+      <Filter>소스 파일\app\core\receivable</Filter>
+    </ClCompile>
+    <ClCompile Include="app\infra\db\TaechangUserRepository.cpp">
+      <Filter>소스 파일\app\infra\db</Filter>
+    </ClCompile>
+    <ClCompile Include="app\core\auth\TaechangUserService.cpp">
+      <Filter>소스 파일\app\core\auth</Filter>
+    </ClCompile>
+    <ClCompile Include="app\core\auth\TaechangAuthSession.cpp">
+      <Filter>소스 파일\app\core\auth</Filter>
+    </ClCompile>
+    <ClCompile Include="app\ui\dialogs\TaechangLoginDlg.cpp">
+      <Filter>소스 파일\app\ui\dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="app\ui\dialogs\TaechangPasswordChangeDlg.cpp">
+      <Filter>소스 파일\app\ui\dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="app\ui\dialogs\TaechangCompanyDlg.cpp">
+      <Filter>소스 파일\app\ui\dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="app\ui\dialogs\TaechangPriceRangeDlg.cpp">
+      <Filter>소스 파일\app\ui\dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="app\ui\dialogs\TaechangPriceSimpleDlg.cpp">
+      <Filter>소스 파일\app\ui\dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="app\ui\dialogs\TaechangCalcCompanyPickerDlg.cpp">
+      <Filter>소스 파일\app\ui\dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="app\ui\dialogs\TaechangCalcEstimateDlg.cpp">
+      <Filter>소스 파일\app\ui\dialogs</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="external\sqlite\sqlite3.h">
+      <Filter>헤더 파일\external\sqlite</Filter>
+    </ClInclude>
+    <ClInclude Include="framework.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="app\ui\frame\MainFrm.h">
+      <Filter>헤더 파일\app\ui\frame</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="app\infra\db\RepositoryHelper.h">
+      <Filter>헤더 파일\app\infra\db</Filter>
+    </ClInclude>
     <ClInclude Include="Resource.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="app\infra\db\SageDBMgr.h">
+      <Filter>헤더 파일\app\infra\db</Filter>
+    </ClInclude>
+    <ClInclude Include="SageTaechang.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="app\ui\frame\SageTaechangDoc.h">
+      <Filter>헤더 파일\app\ui\frame</Filter>
+    </ClInclude>
+    <ClInclude Include="app\ui\view\SageTaechangView.h">
+      <Filter>헤더 파일\app\ui\view</Filter>
+    </ClInclude>
+    <ClInclude Include="app\infra\db\SqlContext.h">
+      <Filter>헤더 파일\app\infra\db</Filter>
+    </ClInclude>
+    <ClInclude Include="app\infra\db\SqlInitializer.h">
+      <Filter>헤더 파일\app\infra\db</Filter>
+    </ClInclude>
+    <ClInclude Include="app\core\price\TaechangPriceDto.h">
+      <Filter>헤더 파일\app\core\price</Filter>
+    </ClInclude>
+    <ClInclude Include="app\infra\db\TaechangPriceRepository.h">
+      <Filter>헤더 파일\app\infra\db</Filter>
+    </ClInclude>
+    <ClInclude Include="app\core\price\TaechangPriceService.h">
+      <Filter>헤더 파일\app\core\price</Filter>
+    </ClInclude>
+    <ClInclude Include="app\core\receivable\TaechangReceivableCompanyOrderDto.h">
+      <Filter>헤더 파일\app\core\receivable</Filter>
+    </ClInclude>
+    <ClInclude Include="app\infra\db\TaechangReceivableCompanyOrderRepository.h">
+      <Filter>헤더 파일\app\infra\db</Filter>
+    </ClInclude>
+    <ClInclude Include="app\core\receivable\TaechangReceivableCompanyOrderService.h">
+      <Filter>헤더 파일\app\core\receivable</Filter>
+    </ClInclude>
+    <ClInclude Include="app\core\auth\TaechangUserDto.h">
+      <Filter>헤더 파일\app\core\auth</Filter>
+    </ClInclude>
+    <ClInclude Include="app\infra\db\TaechangUserRepository.h">
+      <Filter>헤더 파일\app\infra\db</Filter>
+    </ClInclude>
+    <ClInclude Include="app\core\auth\TaechangUserService.h">
+      <Filter>헤더 파일\app\core\auth</Filter>
+    </ClInclude>
+    <ClInclude Include="app\core\auth\TaechangAuthSession.h">
+      <Filter>헤더 파일\app\core\auth</Filter>
+    </ClInclude>
+    <ClInclude Include="app\ui\dialogs\TaechangLoginDlg.h">
+      <Filter>헤더 파일\app\ui\dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="app\ui\dialogs\TaechangPasswordChangeDlg.h">
+      <Filter>헤더 파일\app\ui\dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="app\ui\dialogs\TaechangCompanyDlg.h">
+      <Filter>헤더 파일\app\ui\dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="app\ui\dialogs\TaechangPriceRangeDlg.h">
+      <Filter>헤더 파일\app\ui\dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="app\ui\dialogs\TaechangPriceSimpleDlg.h">
+      <Filter>헤더 파일\app\ui\dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="app\ui\dialogs\TaechangCalcCompanyPickerDlg.h">
+      <Filter>헤더 파일\app\ui\dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="app\ui\dialogs\TaechangCalcEstimateDlg.h">
+      <Filter>헤더 파일\app\ui\dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="TaechangDefine.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="app\infra\office\TaechangReceivablesExcelService.h">
+      <Filter>헤더 파일\app\infra\office</Filter>
+    </ClInclude>
     <ClInclude Include="app\common\TaechangJson.h">
-      <Filter>헤더 파일\common</Filter>
+      <Filter>헤더 파일\app\common</Filter>
     </ClInclude>
-    <ClInclude Include="app\application\services\TaechangReceivablesExcelService.h">
-      <Filter>헤더 파일\application\services</Filter>
-    </ClInclude>
-    <ClInclude Include="app\infrastructure\bridge\TaechangBridgeResponse.h">
-      <Filter>헤더 파일\infrastructure\bridge</Filter>
-    </ClInclude>
-    <ClInclude Include="app\application\services\TaechangDeliveryExcelService.h">
-      <Filter>헤더 파일\application\services</Filter>
-    </ClInclude>
-    <ClInclude Include="app\application\services\TaechangEstimateExcelService.h">
-      <Filter>헤더 파일\application\services</Filter>
-    </ClInclude>
-    <ClInclude Include="app\application\services\TaechangPdfCompareService.h">
-      <Filter>헤더 파일\application\services</Filter>
-    </ClInclude>
-    <ClInclude Include="app\application\services\TaechangHwpCompareService.h">
-      <Filter>헤더 파일\application\services</Filter>
-    </ClInclude>
-    <ClInclude Include="app\application\services\TaechangAppSettingsService.h">
-      <Filter>헤더 파일\application\services</Filter>
-    </ClInclude>
-    <ClInclude Include="app\application\services\TaechangCompareCsvExportService.h">
-      <Filter>헤더 파일\application\services</Filter>
-    </ClInclude>
-    <ClInclude Include="app\presentation\TaechangWorkflowResultPresenter.h">
-      <Filter>헤더 파일\presentation</Filter>
-    </ClInclude>
-    <ClInclude Include="framework.h">
-      <Filter>헤더 파일\default</Filter>
-    </ClInclude>
-    <ClInclude Include="MainFrm.h">
-      <Filter>헤더 파일\default</Filter>
-    </ClInclude>
-    <ClInclude Include="pch.h">
-      <Filter>헤더 파일\default</Filter>
-    </ClInclude>
-    <ClInclude Include="SageTaechang.h">
-      <Filter>헤더 파일\default</Filter>
-    </ClInclude>
-    <ClInclude Include="SageTaechangDoc.h">
-      <Filter>헤더 파일\default</Filter>
-    </ClInclude>
-    <ClInclude Include="SageTaechangView.h">
-      <Filter>헤더 파일\default</Filter>
-    </ClInclude>
-    <ClInclude Include="app\common\TaechangFileUtils.h">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="app\infra\file\TaechangFileUtils.h">
+      <Filter>헤더 파일\app\infra\file</Filter>
     </ClInclude>
     <ClInclude Include="app\common\TaechangDialogHelper.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\app\common</Filter>
     </ClInclude>
-    <ClInclude Include="external\sqlite\sqlite3.h">
-      <Filter>헤더 파일\external\sqlite</Filter>
+    <ClInclude Include="app\core\workflow\TaechangWorkflowResponse.h">
+      <Filter>헤더 파일\app\core\workflow</Filter>
     </ClInclude>
-    <ClInclude Include="SQLContext.h">
-      <Filter>헤더 파일\SQLite\Database</Filter>
+    <ClInclude Include="app\infra\office\TaechangDeliveryExcelService.h">
+      <Filter>헤더 파일\app\infra\office</Filter>
     </ClInclude>
-    <ClInclude Include="RepositoryHelper.h">
-      <Filter>헤더 파일\SQLite\Repository</Filter>
+    <ClInclude Include="app\infra\office\TaechangEstimateExcelService.h">
+      <Filter>헤더 파일\app\infra\office</Filter>
     </ClInclude>
-    <ClInclude Include="TaechangPriceDto.h">
-      <Filter>헤더 파일\SQLite\Dto</Filter>
+    <ClInclude Include="app\infra\office\TaechangPdfCompareService.h">
+      <Filter>헤더 파일\app\infra\office</Filter>
     </ClInclude>
-    <ClInclude Include="TaechangReceivableCompanyOrderDto.h">
-      <Filter>헤더 파일\SQLite\Dto</Filter>
+    <ClInclude Include="app\infra\office\TaechangHwpCompareService.h">
+      <Filter>헤더 파일\app\infra\office</Filter>
     </ClInclude>
-    <ClInclude Include="TaechangPriceRepository.h">
-      <Filter>헤더 파일\SQLite\Repository</Filter>
+    <ClInclude Include="app\infra\file\TaechangAppSettingsService.h">
+      <Filter>헤더 파일\app\infra\file</Filter>
     </ClInclude>
-    <ClInclude Include="TaechangReceivableCompanyOrderRepository.h">
-      <Filter>헤더 파일\SQLite\Repository</Filter>
+    <ClInclude Include="app\infra\file\TaechangCompareCsvExportService.h">
+      <Filter>헤더 파일\app\infra\file</Filter>
     </ClInclude>
-    <ClInclude Include="TaechangPriceService.h">
-      <Filter>헤더 파일\SQLite\Service</Filter>
+    <ClInclude Include="app\core\workflow\TaechangWorkflowResultPresenter.h">
+      <Filter>헤더 파일\app\core\workflow</Filter>
     </ClInclude>
-    <ClInclude Include="TaechangReceivableCompanyOrderService.h">
-      <Filter>헤더 파일\SQLite\Service</Filter>
-    </ClInclude>
-    <ClInclude Include="TaechangUserDto.h">
-      <Filter>헤더 파일\SQLite\Dto</Filter>
-    </ClInclude>
-    <ClInclude Include="TaechangUserRepository.h">
-      <Filter>헤더 파일\SQLite\Repository</Filter>
-    </ClInclude>
-    <ClInclude Include="TaechangUserService.h">
-      <Filter>헤더 파일\SQLite\Service</Filter>
-    </ClInclude>
-    <ClInclude Include="TaechangAuthSession.h">
-      <Filter>헤더 파일\SQLite\Auth</Filter>
-    </ClInclude>
-    <ClInclude Include="TaechangLoginDlg.h">
-      <Filter>헤더 파일\presentation</Filter>
-    </ClInclude>
-    <ClInclude Include="TaechangPasswordChangeDlg.h">
-      <Filter>헤더 파일\presentation</Filter>
-    </ClInclude>
-    <ClInclude Include="TaechangCompanyDlg.h">
-      <Filter>헤더 파일\presentation</Filter>
-    </ClInclude>
-    <ClInclude Include="TaechangPriceRangeDlg.h">
-      <Filter>헤더 파일\presentation</Filter>
-    </ClInclude>
-    <ClInclude Include="TaechangPriceSimpleDlg.h">
-      <Filter>헤더 파일\presentation</Filter>
-    </ClInclude>
-    <ClInclude Include="TaechangCalcCompanyPickerDlg.h">
-      <Filter>헤더 파일\presentation</Filter>
-    </ClInclude>
-    <ClInclude Include="TaechangCalcEstimateDlg.h">
-      <Filter>헤더 파일\presentation</Filter>
-    </ClInclude>
-    <ClInclude Include="SQLInitializer.h">
-      <Filter>헤더 파일\SQLite\Database</Filter>
-    </ClInclude>
-    <ClInclude Include="SageDBMgr.h">
-      <Filter>헤더 파일\SQLite\Database</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="app\application\services\TaechangReceivablesExcelService.cpp">
-      <Filter>소스 파일\application\services</Filter>
-    </ClCompile>
-    <ClCompile Include="app\common\TaechangJson.cpp">
-      <Filter>소스 파일\common</Filter>
-    </ClCompile>
-    <ClCompile Include="app\infrastructure\bridge\TaechangBridgeResponse.cpp">
-      <Filter>소스 파일\infrastructure\bridge</Filter>
-    </ClCompile>
-    <ClCompile Include="app\application\services\TaechangDeliveryExcelService.cpp">
-      <Filter>소스 파일\application\services</Filter>
-    </ClCompile>
-    <ClCompile Include="app\application\services\TaechangEstimateExcelService.cpp">
-      <Filter>소스 파일\application\services</Filter>
-    </ClCompile>
-    <ClCompile Include="app\application\services\TaechangPdfCompareService.cpp">
-      <Filter>소스 파일\application\services</Filter>
-    </ClCompile>
-    <ClCompile Include="app\application\services\TaechangHwpCompareService.cpp">
-      <Filter>소스 파일\application\services</Filter>
-    </ClCompile>
-    <ClCompile Include="app\application\services\TaechangAppSettingsService.cpp">
-      <Filter>소스 파일\application\services</Filter>
-    </ClCompile>
-    <ClCompile Include="app\application\services\TaechangCompareCsvExportService.cpp">
-      <Filter>소스 파일\application\services</Filter>
-    </ClCompile>
-    <ClCompile Include="app\presentation\TaechangWorkflowResultPresenter.cpp">
-      <Filter>소스 파일\presentation</Filter>
-    </ClCompile>
-    <ClCompile Include="SageTaechang.cpp">
-      <Filter>소스 파일\default</Filter>
-    </ClCompile>
-    <ClCompile Include="SageTaechangDoc.cpp">
-      <Filter>소스 파일\default</Filter>
-    </ClCompile>
-    <ClCompile Include="SageTaechangView.cpp">
-      <Filter>소스 파일\default</Filter>
-    </ClCompile>
-    <ClCompile Include="MainFrm.cpp">
-      <Filter>소스 파일\default</Filter>
-    </ClCompile>
-    <ClCompile Include="pch.cpp">
-      <Filter>소스 파일\default</Filter>
-    </ClCompile>
-    <ClCompile Include="app\common\TaechangFileUtils.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="app\common\TaechangDialogHelper.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="SQLContext.cpp">
-      <Filter>소스 파일\SQLite\Database</Filter>
-    </ClCompile>
-    <ClCompile Include="external\sqlite\sqlite3.c">
-      <Filter>소스 파일\external\sqlite</Filter>
-    </ClCompile>
-    <ClCompile Include="TaechangPriceService.cpp">
-      <Filter>소스 파일\SQLite\Service</Filter>
-    </ClCompile>
-    <ClCompile Include="TaechangPriceRepository.cpp">
-      <Filter>소스 파일\SQLite\Repository</Filter>
-    </ClCompile>
-    <ClCompile Include="TaechangReceivableCompanyOrderRepository.cpp">
-      <Filter>소스 파일\SQLite\Repository</Filter>
-    </ClCompile>
-    <ClCompile Include="TaechangUserRepository.cpp">
-      <Filter>소스 파일\SQLite\Repository</Filter>
-    </ClCompile>
-    <ClCompile Include="TaechangUserService.cpp">
-      <Filter>소스 파일\SQLite\Service</Filter>
-    </ClCompile>
-    <ClCompile Include="TaechangReceivableCompanyOrderService.cpp">
-      <Filter>소스 파일\SQLite\Service</Filter>
-    </ClCompile>
-    <ClCompile Include="TaechangAuthSession.cpp">
-      <Filter>소스 파일\SQLite\Auth</Filter>
-    </ClCompile>
-    <ClCompile Include="TaechangLoginDlg.cpp">
-      <Filter>소스 파일\presentation</Filter>
-    </ClCompile>
-    <ClCompile Include="TaechangPasswordChangeDlg.cpp">
-      <Filter>소스 파일\presentation</Filter>
-    </ClCompile>
-    <ClCompile Include="TaechangCompanyDlg.cpp">
-      <Filter>소스 파일\presentation</Filter>
-    </ClCompile>
-    <ClCompile Include="TaechangPriceRangeDlg.cpp">
-      <Filter>소스 파일\presentation</Filter>
-    </ClCompile>
-    <ClCompile Include="TaechangPriceSimpleDlg.cpp">
-      <Filter>소스 파일\presentation</Filter>
-    </ClCompile>
-    <ClCompile Include="TaechangCalcCompanyPickerDlg.cpp">
-      <Filter>소스 파일\presentation</Filter>
-    </ClCompile>
-    <ClCompile Include="TaechangCalcEstimateDlg.cpp">
-      <Filter>소스 파일\presentation</Filter>
-    </ClCompile>
-    <ClCompile Include="SQLInitializer.cpp">
-      <Filter>소스 파일\SQLite\Database</Filter>
-    </ClCompile>
-    <ClCompile Include="SageDBMgr.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SageTaechang.rc">
-      <Filter>리소스 파일</Filter>
+    <Filter>리소스 파일</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\SageTaechang.rc2">
-      <Filter>리소스 파일</Filter>
+    <Filter>리소스 파일</Filter>
     </None>
     <None Include="resources\GmarketSansTTFBold.ttf">
-      <Filter>리소스 파일</Filter>
+    <Filter>리소스 파일</Filter>
     </None>
     <None Include="resources\GmarketSansTTFLight.ttf">
-      <Filter>리소스 파일</Filter>
+    <Filter>리소스 파일</Filter>
     </None>
     <None Include="resources\GmarketSansTTFMedium.ttf">
-      <Filter>리소스 파일</Filter>
+    <Filter>리소스 파일</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\SageTaechangDoc.ico">
-      <Filter>리소스 파일</Filter>
+    <Filter>리소스 파일</Filter>
     </Image>
     <Image Include="res\SageTaechang.ico">
-      <Filter>리소스 파일</Filter>
+    <Filter>리소스 파일</Filter>
     </Image>
     <Image Include="res\Toolbar.bmp">
-      <Filter>리소스 파일</Filter>
+    <Filter>리소스 파일</Filter>
     </Image>
   </ItemGroup>
 </Project>
