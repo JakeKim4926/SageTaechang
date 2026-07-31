@@ -29,7 +29,6 @@ protected:
     afx_msg void OnPrintPriceChanged();
     afx_msg void OnCoverPriceChanged();
     afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
-    afx_msg void OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct);
 
     DECLARE_MESSAGE_MAP()
 

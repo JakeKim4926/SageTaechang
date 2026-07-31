@@ -6,7 +6,6 @@
 
 BEGIN_MESSAGE_MAP(TaechangCalcEstimateDlg, CDialog)
     ON_WM_CTLCOLOR()
-    ON_WM_DRAWITEM()
     ON_EN_CHANGE(ID_CALC_ESTIMATE_DLG_YEAR_EDIT,  &TaechangCalcEstimateDlg::OnYearChanged)
     ON_EN_CHANGE(ID_CALC_ESTIMATE_DLG_MONTH_EDIT, &TaechangCalcEstimateDlg::OnMonthChanged)
 END_MESSAGE_MAP()
@@ -461,41 +460,4 @@ HBRUSH TaechangCalcEstimateDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 
     pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
     return m_brushBackground;
-}
-
-void TaechangCalcEstimateDlg::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct) {
-    if (lpDrawItemStruct->CtlType != ODT_BUTTON) {
-        CDialog::OnDrawItem(nIDCtl, lpDrawItemStruct);
-        return;
-    }
-
-    CDC* pDC = CDC::FromHandle(lpDrawItemStruct->hDC);
-    CRect rect = lpDrawItemStruct->rcItem;
-    BOOL bPressed = (lpDrawItemStruct->itemState & ODS_SELECTED) != 0;
-    BOOL bDisabled = (lpDrawItemStruct->itemState & ODS_DISABLED) != 0;
-    BOOL bPrimary = (nIDCtl == IDOK);
-
-    if (bPrimary) {
-        COLORREF clrBg = bDisabled ? TAECHANG_COLOR_BORDER
-            : bPressed ? TAECHANG_COLOR_PRIMARY_PRESS : TAECHANG_COLOR_PRIMARY;
-        pDC->FillSolidRect(rect, clrBg);
-        pDC->SetTextColor(bDisabled ? TAECHANG_COLOR_SECONDARY_TEXT : TAECHANG_COLOR_BUTTON_TEXT);
-    } else {
-        pDC->FillSolidRect(rect, bDisabled ? TAECHANG_COLOR_APP_BACKGROUND : TAECHANG_COLOR_PANEL);
-        CBrush brBorder;
-        brBorder.CreateSolidBrush(bDisabled ? TAECHANG_COLOR_BORDER : TAECHANG_COLOR_PRIMARY);
-        pDC->FrameRect(rect, &brBorder);
-        pDC->SetTextColor(bDisabled ? TAECHANG_COLOR_SECONDARY_TEXT : TAECHANG_COLOR_PRIMARY);
-    }
-
-    CWnd* pWnd = CWnd::FromHandle(lpDrawItemStruct->hwndItem);
-    CString strText;
-    pWnd->GetWindowText(strText);
-
-    pDC->SetBkMode(TRANSPARENT);
-    CFont* pOldFont = pDC->SelectObject(&m_font);
-    rect.OffsetRect(0, TAECHANG_BUTTON_TEXT_TOP_OFFSET);
-    pDC->DrawText(strText, rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-    if (pOldFont)
-        pDC->SelectObject(pOldFont);
 }

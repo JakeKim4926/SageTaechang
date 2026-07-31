@@ -70,44 +70,8 @@ static BOOL ContainsNonAsciiSimple(const CString& str) {
     return FALSE;
 }
 
-static void DrawSimpleButton(CFont& font, int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct) {
-    if (lpDrawItemStruct->CtlType != ODT_BUTTON)
-        return;
-
-    CDC* pDC = CDC::FromHandle(lpDrawItemStruct->hDC);
-    CRect rect = lpDrawItemStruct->rcItem;
-    BOOL bPressed = (lpDrawItemStruct->itemState & ODS_SELECTED) != 0;
-    BOOL bDisabled = (lpDrawItemStruct->itemState & ODS_DISABLED) != 0;
-    BOOL bPrimary = (nIDCtl == IDOK);
-
-    if (bPrimary) {
-        COLORREF clrBg = bDisabled ? TAECHANG_COLOR_BORDER
-            : bPressed ? TAECHANG_COLOR_PRIMARY_PRESS : TAECHANG_COLOR_PRIMARY;
-        pDC->FillSolidRect(rect, clrBg);
-        pDC->SetTextColor(bDisabled ? TAECHANG_COLOR_SECONDARY_TEXT : TAECHANG_COLOR_BUTTON_TEXT);
-    } else {
-        pDC->FillSolidRect(rect, bDisabled ? TAECHANG_COLOR_APP_BACKGROUND : TAECHANG_COLOR_PANEL);
-        CBrush brBorder;
-        brBorder.CreateSolidBrush(bDisabled ? TAECHANG_COLOR_BORDER : TAECHANG_COLOR_PRIMARY);
-        pDC->FrameRect(rect, &brBorder);
-        pDC->SetTextColor(bDisabled ? TAECHANG_COLOR_SECONDARY_TEXT : TAECHANG_COLOR_PRIMARY);
-    }
-
-    CWnd* pWnd = CWnd::FromHandle(lpDrawItemStruct->hwndItem);
-    CString strText;
-    pWnd->GetWindowText(strText);
-
-    pDC->SetBkMode(TRANSPARENT);
-    CFont* pOldFont = pDC->SelectObject(&font);
-    rect.OffsetRect(0, TAECHANG_BUTTON_TEXT_TOP_OFFSET);
-    pDC->DrawText(strText, rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-    if (pOldFont)
-        pDC->SelectObject(pOldFont);
-}
-
 BEGIN_MESSAGE_MAP(TaechangCompanyRenameDlg, CDialog)
     ON_WM_CTLCOLOR()
-    ON_WM_DRAWITEM()
 END_MESSAGE_MAP()
 
 TaechangCompanyRenameDlg::TaechangCompanyRenameDlg(CWnd* pParent)
@@ -249,18 +213,9 @@ HBRUSH TaechangCompanyRenameDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor
     return m_brushBackground;
 }
 
-void TaechangCompanyRenameDlg::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct) {
-    if (lpDrawItemStruct->CtlType != ODT_BUTTON) {
-        CDialog::OnDrawItem(nIDCtl, lpDrawItemStruct);
-        return;
-    }
-    DrawSimpleButton(m_font, nIDCtl, lpDrawItemStruct);
-}
-
 BEGIN_MESSAGE_MAP(TaechangCoverPriceDlg, CDialog)
     ON_EN_CHANGE(ID_PRICE_COVER_DLG_EDIT, &TaechangCoverPriceDlg::OnCoverPriceChanged)
     ON_WM_CTLCOLOR()
-    ON_WM_DRAWITEM()
 END_MESSAGE_MAP()
 
 TaechangCoverPriceDlg::TaechangCoverPriceDlg(CWnd* pParent)
@@ -426,12 +381,4 @@ HBRUSH TaechangCoverPriceDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
     }
     pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
     return m_brushBackground;
-}
-
-void TaechangCoverPriceDlg::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct) {
-    if (lpDrawItemStruct->CtlType != ODT_BUTTON) {
-        CDialog::OnDrawItem(nIDCtl, lpDrawItemStruct);
-        return;
-    }
-    DrawSimpleButton(m_font, nIDCtl, lpDrawItemStruct);
 }
