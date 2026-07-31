@@ -22,6 +22,18 @@ const COLORREF g_backgroundColors[SAGE_BG_COUNT] = {
 
 CBrush g_brushes[SAGE_BG_COUNT];
 
+constexpr int SAGE_TEXT_COUNT = SAGE_TEXT_SIDEBAR_CATEGORY + 1;
+
+const COLORREF g_textColors[SAGE_TEXT_COUNT] = {
+	TAECHANG_COLOR_TEXT,
+	TAECHANG_COLOR_SECONDARY_TEXT,
+	TAECHANG_COLOR_PRIMARY,
+	TAECHANG_COLOR_SUCCESS,
+	TAECHANG_COLOR_ERROR,
+	TAECHANG_COLOR_SIDEBAR_TEXT,
+	TAECHANG_COLOR_SIDEBAR_CATEGORY
+};
+
 }
 
 namespace SageUiResources {
@@ -61,6 +73,10 @@ HBRUSH GetBrush(SageBackgroundRole nRole) {
 
 COLORREF GetBackgroundColor(SageBackgroundRole nRole) {
 	return g_backgroundColors[nRole];
+}
+
+COLORREF GetTextColor(SageTextRole nRole) {
+	return g_textColors[nRole];
 }
 
 }

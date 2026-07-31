@@ -236,6 +236,7 @@ if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templ
     <ClInclude Include="app\ui\drawing\SageButton.h" />
     <ClInclude Include="app\ui\drawing\SageSectionLabel.h" />
     <ClInclude Include="app\ui\drawing\SageListCtrl.h" />
+    <ClInclude Include="app\ui\drawing\SageLabel.h" />
     <ClInclude Include="app\ui\drawing\SageUiResources.h" />
     <ClInclude Include="app\ui\drawing\SageUiStyle.h" />
     <ClInclude Include="app\ui\drawing\SageSidebarTree.h" />
@@ -298,6 +299,7 @@ if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templ
     <ClCompile Include="app\ui\drawing\SageButton.cpp" />
     <ClCompile Include="app\ui\drawing\SageSectionLabel.cpp" />
     <ClCompile Include="app\ui\drawing\SageListCtrl.cpp" />
+    <ClCompile Include="app\ui\drawing\SageLabel.cpp" />
     <ClCompile Include="app\ui\drawing\SageUiResources.cpp" />
     <ClCompile Include="app\ui\drawing\SageUiStyle.cpp" />
     <ClCompile Include="app\ui\drawing\SageSidebarTree.cpp" />

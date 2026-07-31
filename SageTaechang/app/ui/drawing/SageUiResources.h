@@ -7,6 +7,16 @@ enum SageFontRole {
 	SAGE_FONT_HEADER
 };
 
+enum SageTextRole {
+	SAGE_TEXT_DEFAULT,
+	SAGE_TEXT_SECONDARY,
+	SAGE_TEXT_PRIMARY,
+	SAGE_TEXT_SUCCESS,
+	SAGE_TEXT_ERROR,
+	SAGE_TEXT_SIDEBAR,
+	SAGE_TEXT_SIDEBAR_CATEGORY
+};
+
 enum SageBackgroundRole {
 	SAGE_BG_APP,
 	SAGE_BG_PANEL,
@@ -22,4 +32,5 @@ namespace SageUiResources {
 	CFont* GetFont(SageFontRole nRole);
 	HBRUSH GetBrush(SageBackgroundRole nRole);
 	COLORREF GetBackgroundColor(SageBackgroundRole nRole);
+	COLORREF GetTextColor(SageTextRole nRole);
 }
