@@ -9,6 +9,7 @@
 #include "app/ui/drawing/SageFilterComboBox.h"
 #include "app/ui/drawing/SageButton.h"
 #include "app/ui/drawing/SageSectionLabel.h"
+#include "app/ui/drawing/SageListCtrl.h"
 
 struct TaechangResultRow;
 struct TaechangPriceDto;
@@ -101,7 +102,7 @@ protected:
     CProgressCtrl m_wndProgress;
     CStatic m_wndProgressText;
     CSageHeaderCtrl m_wndResultHeader;
-    CListCtrl m_wndResultList;
+    CSageListCtrl m_wndResultList;
     CSageFilterComboBox m_wndResultFilterCriteria;
     CEdit m_wndResultFilter;
     CSageButton m_wndResultSearchBtn;
@@ -150,7 +151,7 @@ protected:
     CSageButton         m_wndPriceRenameCompanyBtn;
     CSageButton         m_wndPriceDeleteCompanyBtn;
     CSageHeaderCtrl m_wndPriceCopiesHeader;
-    CListCtrl           m_wndPriceCopiesList;
+    CSageListCtrl       m_wndPriceCopiesList;
     CStatic             m_wndPriceMinCopiesLabel;
     CEdit               m_wndPriceMinCopiesEdit;
     CButton             m_wndPriceSingleCheck;
@@ -197,7 +198,7 @@ protected:
     CStatic              m_wndCalcTotalValue;
     CSageSectionLabel       m_wndCalcHistorySection;
     CSageHeaderCtrl  m_wndCalcHistoryHeader;
-    CListCtrl            m_wndCalcHistoryList;
+    CSageListCtrl        m_wndCalcHistoryList;
     CRect                m_rectCalcInputPanel;
     CRect                m_rectCalcResultPanel;
     CArray<CalcHistoryEntry, CalcHistoryEntry&> m_arrCalcHistory;
@@ -227,7 +228,7 @@ protected:
     CSageSectionLabel      m_wndCoListSection;
     CRect               m_rectCoCard;
     CSageHeaderCtrl m_wndCoListHeader;
-    CListCtrl           m_wndCoList;
+    CSageListCtrl       m_wndCoList;
     int                 m_nCoPanelState;
     CString             m_strCoSearchKeyword;
     int                 m_nCoSelectedOrderId;

@@ -401,6 +401,7 @@ void CSageTaechangView::CreateChildControls() {
 	m_wndProgress.Create(WS_CHILD | WS_VISIBLE | PBS_MARQUEE, rectEmpty, this, ID_TAECHANG_PROGRESS);
 	m_wndProgressText.Create(L"", WS_CHILD | WS_VISIBLE | SS_RIGHT, rectEmpty, this);
 	m_wndResultList.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SINGLESEL, rectEmpty, this, ID_TAECHANG_RESULT_LIST);
+	m_wndResultList.SetAlternateRowColor(TRUE);
 	{
 		CHeaderCtrl* pHeader = m_wndResultList.GetHeaderCtrl();
 		if (pHeader && pHeader->GetSafeHwnd()) {
@@ -637,6 +638,11 @@ void CSageTaechangView::ApplyResultColumns() {
 	if (bNeedGridLines)
 		dwExtStyle |= LVS_EX_GRIDLINES;
 	m_wndResultList.SetExtendedStyle(dwExtStyle);
+	constexpr int nAmountColCount = TAECHANG_RECEIVABLES_COL_IDX_RECEIVABLE_AMOUNT - TAECHANG_RECEIVABLES_COL_IDX_TOTAL_AMOUNT + 1;
+	if (IsReceivablesResultTable())
+		m_wndResultList.SetHighlightColumns(TAECHANG_RECEIVABLES_COL_IDX_TOTAL_AMOUNT, nAmountColCount);
+	else
+		m_wndResultList.SetHighlightColumns(0, 0);
 
 	m_wndResultList.DeleteAllItems();
 	CHeaderCtrl* pHeader = m_wndResultList.GetHeaderCtrl();
@@ -2489,6 +2495,8 @@ void CSageTaechangView::CreatePriceManagePanel() {
 	m_wndPriceDeleteCompanyBtn.SetVariant(SAGE_BUTTON_PRIMARY);
 
 	m_wndPriceCopiesList.Create(WS_CHILD | WS_BORDER | LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS, r, this, ID_PRICE_COPIES_LIST);
+	m_wndPriceCopiesList.SetAlternateRowColor(TRUE);
+	m_wndPriceCopiesList.SetCenterFirstColumn(TRUE);
 	m_wndPriceCopiesList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_GRIDLINES);
 	m_wndPriceCopiesList.InsertColumn(0, TAECHANG_UI_PRICE_COL_MIN_COPIES, LVCFMT_CENTER, TAECHANG_PRICE_COL_MIN_WIDTH);
 	m_wndPriceCopiesList.InsertColumn(1, TAECHANG_UI_PRICE_COL_MAX_COPIES, LVCFMT_CENTER, TAECHANG_PRICE_COL_MAX_WIDTH);
@@ -3805,6 +3813,8 @@ void CSageTaechangView::CreateCompanyOrderPanel() {
 	m_wndCoCompanyEdit.Create(WS_CHILD | ES_MULTILINE | ES_AUTOHSCROLL, r, this, ID_COORDER_COMPANY_EDIT);
 	m_wndCoCompanyEdit.LimitText(TAECHANG_CO_COMPANY_NAME_MAX);
 	m_wndCoList.Create(WS_CHILD | LVS_REPORT | LVS_SHOWSELALWAYS | LVS_SINGLESEL, r, this, ID_COORDER_LIST);
+	m_wndCoList.SetAlternateRowColor(TRUE);
+	m_wndCoList.SetCenterFirstColumn(TRUE);
 	m_wndCoList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_GRIDLINES);
 	m_wndCoList.InsertColumn(0, TAECHANG_UI_CO_COL_ORDER, LVCFMT_CENTER, TAECHANG_CO_ORDER_COL_WIDTH);
 	m_wndCoList.InsertColumn(1, TAECHANG_UI_CO_COL_COMPANY, LVCFMT_LEFT, TAECHANG_CO_COMPANY_NAME_WIDTH);
