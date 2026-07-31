@@ -75,7 +75,7 @@ WebView2 기반) 문서였고 존재하지 않는 폴더 구조를 규정했다.
 
 | # | 내용 | 영향 | 대응 |
 |---|---|---|---|
-| R1 | `refactor/view-control-extract`에 **미검증 커밋 2개** (`c2696c3`, `ddf4aa3`) | 3-A 다음 작업을 얹으면 실패 원인이 셋으로 갈림 | 진행 전 빌드 확인 |
+| ~~R1~~ | ~~미검증 커밋 2개~~ | — | **해소** — 빌드 통과 확인, develop 머지 예정 |
 | R2 | **폰트 불일치** — `m_wndResultResetBtn`은 `SetFont(m_fontContent)`인데 `OnDrawItem`은 `m_fontHeader`로 그림 | `GetFont()` 사용 시 화면 변경 | 승격 시 `SetFont(&m_fontHeader)`로 일치 |
 | R3 | `coding-rules`에 "상수 접두사는 `TAECHANG_` 유지"가 남아 있는데 3-A에서 `SAGE_BUTTON_*`을 만든다 | 첫 코드부터 규칙 위반 | 아래 **선행 작업**에서 규칙 분리 |
 | R4 | `TaechangDefine.h`에 enum이 0개 — enum 배치 관례가 없다 | `SAGE_BUTTON_VARIANT`를 어디 둘지 불명 | 컨트롤 전용 enum은 컨트롤 헤더에 (규칙에 명시) |
@@ -115,22 +115,27 @@ WebView2 기반) 문서였고 존재하지 않는 폴더 구조를 규정했다.
 | View `OnSidebarTreeCustomDraw` | 36 |
 | 다이얼로그 7개 `OnDrawItem` | 230 |
 
-### 작업 순서
+### 전체 진행
 
-- [x] 컨트롤 서브클래스 4개 → `app/ui/drawing/` (`c2696c3`)
-- [x] 접두사 `Sage` 전환 (`ddf4aa3`)
-- [ ] `coding-rules` 상수 규칙 분리 (위 선행 작업)
-- [ ] **`CSageButton`** ← 다음
-- [ ] 다이얼로그 7개 교체 — 6개는 `bPrimary = (nIDCtl == IDOK)` 뿐이라 단순.
+- [x] 컨트롤 서브클래스 4개 → `app/ui/drawing/` (`c2696c3`) — 빌드 통과
+- [x] 접두사 `Sage` 전환 (`ddf4aa3`) — 빌드 통과
+- [ ] **3-A-1 `CSageButton`** ← 다음 (아래 상세)
+- [ ] 3-A-2 다이얼로그 7개 교체 — 6개는 `bPrimary = (nIDCtl == IDOK)` 뿐이라 단순.
       `TaechangPriceSimpleDlg`는 버튼 그리기 없음
-- [ ] `CSageSectionLabel` — `SS_OWNERDRAW` 7개, `DrawSectionLabel` + ID 7개 OR 제거
-- [ ] `CSageEdit` — `DrawEditBorder` 35곳 흡수
-- [ ] `CSageListCtrl` — `OnListCustomDraw`
-- [ ] `CSageSidebarTree` — `OnSidebarTreeCustomDraw`
-- [ ] 중복이 드러나면 `SageUiStyle`로 추출
-- [ ] `OnCtlColor` 잔여 정리 (핸들러는 남을 수 있으나 컨트롤 종류 분기는 제거)
+- [ ] 3-A-3 `CSageSectionLabel` — `SS_OWNERDRAW` 7개, `DrawSectionLabel` + ID 7개 OR 제거
+- [ ] 3-A-4 `CSageEdit` — `DrawEditBorder` 35곳 흡수
+- [ ] 3-A-5 `CSageListCtrl` — `OnListCustomDraw`
+- [ ] 3-A-6 `CSageSidebarTree` — `OnSidebarTreeCustomDraw`
+- [ ] 3-A-7 중복이 드러나면 `SageUiStyle`로 추출
+- [ ] 3-A-8 `OnCtlColor` 잔여 정리 (핸들러는 남을 수 있으나 컨트롤 종류 분기는 제거)
 
-### `CSageButton` 설계
+> 3-A-2 이후는 착수 시점에 상세화한다. 앞 단계 결과가 뒤 단계 설계를 바꾼다.
+
+---
+
+### 3-A-1 — `CSageButton` 상세
+
+브랜치: `refactor/sage-button`
 
 속성 셋이 **전부 ID 분기**다. 인스턴스 속성으로 옮긴다.
 
@@ -138,13 +143,39 @@ WebView2 기반) 문서였고 존재하지 않는 폴더 구조를 규정했다.
 |---|---|---|
 | variant | ID 12개 OR (`bPrimary`) | `SetVariant(SAGE_BUTTON_PRIMARY)` |
 | 아이콘 | ID 분기 4곳 / 종류 3개 (검색·계산·리셋) | `SetIcon(SAGE_BUTTON_ICON_SEARCH)` |
-| 폰트 | ID 2개 분기 | `SetFont()` 결과를 `GetFont()`로 (R2 처리 필요) |
+| 폰트 | ID 2개 분기 | `SetFont()` 결과를 `GetFont()`로 (R2) |
 
 enum은 `SageButton.h`에 둔다 (모듈 전용 → `SAGE_` 접두사, R4).
 
-### 완료 기준
+#### 커밋 1 — 컨트롤 신설 (View 미변경)
 
-**화면 표시가 이전과 동일해야 한다.** 버튼 색·테두리·아이콘·폰트·텍스트 위치가 바뀌면 실패다.
+- [ ] `coding-rules` 상수 규칙 분리 (선행 작업, 로컬이라 커밋 대상 아님)
+- [ ] `app/ui/drawing/SageButton.h` — enum 2종 + 클래스 선언
+- [ ] `app/ui/drawing/SageButton.cpp` — `DrawItem` + 아이콘 3종 그리기
+      (기존 `OnDrawItem` 2350~2462의 로직을 그대로 옮긴다. **로직 변경 금지**)
+- [ ] vcxproj / filters 등록 (Python 스크립트)
+- [ ] 검증: 빌드 통과 (아직 아무도 안 쓰므로 화면 변화 없어야 함)
+
+#### 커밋 2 — View 버튼 교체
+
+- [ ] `SageTaechangView.h`의 `CButton` 멤버 27개 → `CSageButton`
+- [ ] `CreateChildControls` 등에서 Primary 12개에 `SetVariant` 호출
+- [ ] 아이콘 4곳에 `SetIcon` 호출
+      (`ID_TAECHANG_RESULT_SEARCH_BTN`, `ID_COORDER_SEARCH_BTN`, `ID_CALC_BTN`, `ID_CALC_RESET_BTN`)
+- [ ] **R2 처리** — `m_wndResultResetBtn.SetFont(&m_fontHeader)`로 변경
+- [ ] 검증: 빌드 + 화면 확인 (아직 `OnDrawItem`이 살아 있어 이중 그리기 가능 → 다음 커밋과 함께 확인)
+
+#### 커밋 3 — View `OnDrawItem`에서 버튼 제거
+
+- [ ] `OnDrawItem`의 `ODT_BUTTON` 처리 블록 제거 (2345~2462)
+- [ ] 섹션 라벨(`ODT_STATIC`) 처리는 3-A-3까지 유지
+- [ ] 검증: 빌드 + **워크플로 7개 화면의 버튼 표시가 이전과 동일한지**
+
+#### 완료 기준
+
+- `OnDrawItem`에 `bPrimary` ID 조건식이 없다
+- 버튼을 추가할 때 `OnDrawItem`을 고칠 필요가 없다
+- **화면 표시가 이전과 동일하다** — 색·테두리·아이콘·폰트·텍스트 위치
 
 ### 이번 범위 제외
 
