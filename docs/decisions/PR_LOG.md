@@ -1,3 +1,9 @@
+## [2026-07-31] refactor/sage-button-dialogs
+- **목적**: 다이얼로그의 버튼 그리기 복제를 제거하고 CSageButton으로 통일 (3-A-2)
+- **변경 내용**: 다이얼로그 파일 7개(클래스 8개 — TaechangPriceSimpleDlg에 CompanyRenameDlg/CoverPriceDlg 2개)의 m_wndOkBtn/m_wndCancelBtn을 CSageButton으로 교체하고 확인 버튼에 SetVariant(PRIMARY) 호출. OnDrawItem 함수 8개, 메시지맵 ON_WM_DRAWITEM() 8개, 헤더 선언 8개, static DrawSimpleButton 1개 제거(총 325줄 삭제). 버튼 외 오너드로우 컨트롤이 없어 핸들러를 통째로 제거해도 안전했고, 체크박스는 BS_AUTOCHECKBOX라 영향 없음. 커밋 2개로 나눠 교체 후 화면 무변화, 제거 후 컨트롤 그리기를 각각 확인. 작업 중 발견한 CoverPriceDlg 미호출·파일명 불일치는 DEBT_LOG에 기록
+- **PR 링크**: 없음 (develop 직접 머지)
+- **결과**: merged
+
 ## [2026-07-31] refactor/sage-button
 - **목적**: 버튼 스타일을 부모 OnDrawItem의 ID 조건식으로 가르던 구조를 컨트롤 자기 그리기로 전환 (3-A-1)
 - **변경 내용**: CSageButton 신설(Primary/Secondary variant, 검색·계산·리셋 아이콘 3종). View의 오너드로우 버튼 26개를 CButton→CSageButton으로 교체하고 Primary 12개에 SetVariant, 아이콘 4곳에 SetIcon 호출. OnDrawItem의 ODT_BUTTON 블록 117줄을 제거하고 미처리 owner-draw를 CView::OnDrawItem으로 위임해 MFC 리플렉션이 동작하게 함. bPrimary ID 12개 OR 조건식과 아이콘 ID 분기 소멸. 아이콘 색이 전부 그 시점 텍스트 색과 같은 값이어서 GetTextColor()로 통합. m_wndResultResetBtn의 SetFont가 실제 그리던 폰트(m_fontHeader)와 달랐던 것도 함께 해소. OnDrawItem 128→11줄, View.cpp 4,305→4,204줄. 커밋 3개로 나눠 각 단계마다 화면 동일성 확인

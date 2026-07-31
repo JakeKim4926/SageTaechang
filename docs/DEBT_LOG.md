@@ -5,6 +5,18 @@
 
 ## 열린 항목
 
+### [2026-07-31] 기존부채 — TaechangCoverPriceDlg 호출부 없음
+- 위치: app/ui/dialogs/TaechangPriceSimpleDlg.h:44 및 대응 .cpp
+- 설명: 클래스가 정의되어 있으나 프로젝트 어디서도 DoModal 호출이 없다. 3-A-2에서 버튼 교체 대상을 세다가 발견했다.
+- 위험도: 낮음
+- 후속: 실제 미사용이면 제거. 표지 단가 입력이 계획된 기능이면 진입 경로를 연결
+
+### [2026-07-31] 구조불일치 — TaechangPriceSimpleDlg 파일명과 내용 불일치
+- 위치: app/ui/dialogs/TaechangPriceSimpleDlg.h / .cpp
+- 설명: 파일명은 PriceSimpleDlg인데 실제로는 TaechangCompanyRenameDlg와 TaechangCoverPriceDlg 두 클래스가 들어 있다. coding-design의 "파일 하나에 과도하게 많은 클래스를 넣지 않는다"와 어긋난다.
+- 위험도: 낮음
+- 후속: 클래스당 파일로 분리하고 파일명을 클래스명에 맞춤
+
 ### [2026-07-31] 구조불일치 — UI 계층이 infra를 직접 호출
 - 위치: app/ui/view/SageTaechangView.cpp, app/ui/dialogs/{TaechangLoginDlg, TaechangPasswordChangeDlg, TaechangCalcEstimateDlg}.cpp
 - 설명: coding-design의 의존 방향(ui → core ← infra)을 어기고 SageDBMgr/Repository를 직접 참조한다.
