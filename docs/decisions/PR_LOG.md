@@ -1,3 +1,9 @@
+## [2026-08-01] refactor/sage-ui-style
+- **목적**: 컨트롤 간 실제 중복을 조사하고 공유 그리기 조각을 추출 (3-A-7)
+- **변경 내용**: 컨트롤 7개를 전수 조사한 결과 **진짜 중복은 콤보 화살표 삼각형 14줄 하나**였고, SageComboBox와 SageFilterComboBox가 들여쓰기만 다른 동일 코드를 갖고 있었다. `namespace SageUiStyle`에 `DrawComboArrow` 하나만 두고 두 곳을 한 줄 호출로 교체(28줄 제거). **추출하지 않은 후보 3건과 이유를 함께 기록** — 배경 채우기(컨트롤마다 색이 다르고 FillSolidRect 한 줄), 테두리(CSageButton Secondary 한 곳뿐), 가운데 텍스트(6곳이나 색·rect·포맷이 매번 달라 관용구지 로직이 아님). SageUiStyle을 색상 파사드로 만드는 안은 색이 이미 TaechangDefine.h에 모여 있어 기각. 조사 중 폰트 선택 가드 불일치 2곳 발견해 DEBT_LOG 기록
+- **PR 링크**: 없음 (develop 직접 머지)
+- **결과**: merged
+
 ## [2026-08-01] refactor/sage-sidebar-tree
 - **목적**: 사이드바 트리 커스텀드로우를 컨트롤로 승격 (3-A-6)
 - **변경 내용**: CSageSidebarTree 신설. ON_NOTIFY_REFLECT로 트리가 자기 NM_CUSTOMDRAW를 처리하고 View의 OnSidebarTreeCustomDraw·메시지맵 등록·헤더 선언을 제거. **설정 메서드가 필요 없는 단일 스타일 컨트롤**로, CSageTabCtrl·CSageSectionLabel과 같은 형태다. 그룹 헤더 판정이 GetParentItem(hItem) == NULL로 트리 내부 정보만 쓰기 때문 — 워크플로 타입은 SetItemData에 실려 있으나 그리기 로직이 참조하지 않아 "컨트롤은 도메인 개념을 알면 안 된다" 기준을 원래부터 지키고 있었다. TVN_SELCHANGED는 워크플로 전환 로직이라 View에 잔류(리플렉션은 NM_CUSTOMDRAW만 가져감). 이동한 그리기 로직은 함수 시그니처와 m_wndSidebarTree. 접두사를 빼면 원본과 완전히 동일함을 diff로 확인. View.cpp 4,124→4,088줄

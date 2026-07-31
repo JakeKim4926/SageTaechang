@@ -159,8 +159,16 @@ View의 오너드로우 컨트롤 34개(버튼 26 + 섹션 라벨 7 + 필터 콤
       그룹 헤더 판정이 `GetParentItem(hItem) == NULL`로 트리 내부 정보만 쓰기 때문이다.
       워크플로 타입은 `SetItemData`에 실려 있으나 그리기 로직이 보지 않아 도메인 무지 기준을 원래부터 지켰다.
       `TVN_SELCHANGED`는 View 잔류 — 리플렉션은 `NM_CUSTOMDRAW`만 가져간다
-- [ ] 3-A-7 중복이 드러나면 `SageUiStyle`로 추출 ← 다음 (컨트롤 7개 확보, 판단 시점)
-- [ ] 3-A-8 `OnCtlColor` 잔여 정리 (핸들러는 남을 수 있으나 컨트롤 종류 분기는 제거)
+- [x] **3-A-7 `SageUiStyle`** (`1448aa9`~`cf88dff`) — 화면 확인 완료
+      컨트롤 7개를 조사해 **진짜 중복은 콤보 화살표 14줄 하나**임을 확인하고 그것만 추출했다.
+      `SageComboBox`·`SageFilterComboBox`가 들여쓰기만 다른 동일 코드를 갖고 있었다.
+      **추출하지 않은 후보와 이유** — 배경 채우기(컨트롤마다 색이 다름, `FillSolidRect` 한 줄),
+      테두리(`CSageButton` Secondary 한 곳뿐), 가운데 텍스트(6곳이지만 관용구지 로직이 아님.
+      폰트 선택→`DrawText`→복원 사이의 색·rect·포맷이 매번 달라 콜백/RAII가 필요해 손해).
+      **`SageUiStyle`을 색상 파사드로 만드는 안은 기각** — 색은 이미 `TaechangDefine.h`에 모여 있어
+      간접 층만 늘어난다. skill의 예시 3개(`FillControlBackground`/`DrawBorder`/`DrawCenteredText`)를
+      실제 API와 "왜 아닌지"로 교체했고, 컨트롤 목록 상태·`CSageEdit` 보류 사유도 반영했다
+- [ ] 3-A-8 `OnCtlColor` 잔여 정리 ← 다음 (핸들러는 남을 수 있으나 컨트롤 종류 분기는 제거)
 
 > 3-A-2 이후는 착수 시점에 상세화한다. 앞 단계 결과가 뒤 단계 설계를 바꾼다.
 

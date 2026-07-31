@@ -5,6 +5,12 @@
 
 ## 열린 항목
 
+### [2026-08-01] 구조불일치 — 컨트롤의 폰트 선택 가드가 6곳 중 2곳만 다름
+- 위치: app/ui/drawing/SageButton.cpp:57, app/ui/drawing/SageSectionLabel.cpp:17
+- 설명: 그리기 중 폰트를 거는 6곳 가운데 `CSageTabCtrl`·`CSageHeaderCtrl`·`CSageFilterComboBox`(2곳)는 `pFont ? dc.SelectObject(pFont) : NULL`로 가드하는데, 이 2곳은 `pDC->SelectObject(GetFont())`로 가드가 없다. `GetFont()`가 NULL이면 디버그 빌드에서 ASSERT가 뜬다. 실제로는 두 컨트롤 모두 `ApplyControlFonts`에서 항상 `SetFont`을 받으므로 재현되지 않는다. 3-A-7 중복 조사 중 발견했고, 고치면 3-A-7 범위(콤보 화살표 추출)가 흐려져 남겼다.
+- 위험도: 낮음
+- 후속: 폰트 저장소 작업(`ApplyControlFonts` 해체) 때 6곳을 한 번에 통일한다. 그때 컨트롤이 자기 폰트를 갖게 되므로 가드 방식도 함께 정해진다
+
 ### [2026-08-01] 기존부채 — Excel COM 최적화 설정이 없음
 - 위치: app/infra/office/TaechangReceivablesExcelService.cpp (및 office 계층 전반)
 - 설명: `ScreenUpdating` / `Calculation` / `EnableEvents` / `DisplayAlerts` 설정이 하나도 없다. 3-A-5에서 미수금 생성 지연을 조사하다 발견했다. UI 쪽 O(N^2) 리페인트는 `SetRedraw`로 해결했으나 워커 쪽 개선 여지는 남아 있다. 셀 접근 패턴(범위 일괄 읽기 vs 셀 단위 접근)도 아직 확인하지 않았다.
