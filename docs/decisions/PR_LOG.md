@@ -1,3 +1,9 @@
+## [2026-07-31] refactor/layer-cleanup
+- **목적**: Step 1 재배치 이후 남은 계층 정리 — 앱 헤더의 DB 계층 전역 노출 제거, SqlInitializer 클래스명 정합
+- **변경 내용**: SageTaechang.h(CWinApp 헤더)에서 SageDBMgr.h include를 제거하고 실제 사용처인 SageTaechang.cpp에 직접 추가. 이 과정에서 SageTaechangView.h가 SageTaechang.h → SageDBMgr.h → TaechangPriceRepository.h 사슬로 TaechangPriceDto를 간접 획득하던 것이 빌드 오류로 드러나, 전방 선언 + 직접 include로 정리(별도 fix 커밋). SQLInitializer 클래스명을 SqlInitializer로 변경(13곳). DEBT_LOG 2건 해소. 별건으로 coding-rules의 "함수 반환 타입에 포인터 사용 금지"를 제거하고 계약 규약(기본 비소유 / Get*·Find* 네이밍 / 소유권 이전 동사)으로 전환해, SageDBMgr Getter 부채 1건은 코드 변경 없이 철회
+- **PR 링크**: 없음 (develop 직접 머지)
+- **결과**: merged
+
 ## [2026-07-31] refactor/layer-relocation
 - **목적**: 소스 구조를 core/infra/ui 3계층으로 재배치해 신규 파일 배치 기준을 확립. 기존에는 루트 평면 배치와 app/ 4계층이 공존해 새 파일을 어디 둘지 판단이 서지 않았고, 그 결과 기능이 SageTaechangView(4,497줄)로 몰렸다
 - **변경 내용**: 루트 파일 20여 개와 기존 app/application·infrastructure·presentation을 app/core(price·receivable·auth·workflow) / app/infra(db·office·file) / app/ui(frame·view·dialogs)로 이동. include를 프로젝트 루트 기준 전체 경로로 통일. vcxproj 78항목 경로 갱신, filters를 "소스 파일\app\..." 37개 필터로 전면 재작성. SQLContext/SQLInitializer 파일명을 Sql 표기로 정합(클래스명은 유지). 실체가 없던 bridge 폴더 제거하고 TaechangBridgeResponse를 core/workflow/TaechangWorkflowResponse로 이동. **로직 변경 없음** — 이동 커밋이 0 insertions/0 deletions. 남은 의존 위반 6건은 docs/DEBT_LOG.md에 기록
