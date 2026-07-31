@@ -20,6 +20,6 @@ namespace SageUiResources {
 	void Create();
 	void Destroy();
 	CFont* GetFont(SageFontRole nRole);
-	CBrush* GetBrush(SageBackgroundRole nRole);
+	HBRUSH GetBrush(SageBackgroundRole nRole);
 	COLORREF GetBackgroundColor(SageBackgroundRole nRole);
 }

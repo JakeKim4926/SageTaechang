@@ -55,8 +55,8 @@ CFont* GetFont(SageFontRole nRole) {
 	}
 }
 
-CBrush* GetBrush(SageBackgroundRole nRole) {
-	return &g_brushes[nRole];
+HBRUSH GetBrush(SageBackgroundRole nRole) {
+	return g_brushes[nRole];
 }
 
 COLORREF GetBackgroundColor(SageBackgroundRole nRole) {
