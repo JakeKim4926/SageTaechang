@@ -243,13 +243,10 @@ BEGIN_MESSAGE_MAP(CSageTaechangView, CView)
 	ON_BN_CLICKED(ID_COORDER_CANCEL_BTN, &CSageTaechangView::OnCoCancel)
 	ON_BN_CLICKED(ID_COORDER_SEARCH_BTN, &CSageTaechangView::OnCoSearch)
 	ON_NOTIFY(LVN_ITEMCHANGED, ID_COORDER_LIST, &CSageTaechangView::OnCoListSelChanged)
-	ON_NOTIFY(NM_CUSTOMDRAW, ID_COORDER_LIST, &CSageTaechangView::OnListCustomDraw)
 	ON_MESSAGE(WM_TAECHANG_WORKFLOW_COMPLETE, &CSageTaechangView::OnWorkflowComplete)
 	ON_WM_DROPFILES()
 	ON_NOTIFY(NM_CUSTOMDRAW, ID_TAECHANG_SIDEBAR_TREE, &CSageTaechangView::OnSidebarTreeCustomDraw)
 	ON_NOTIFY(LVN_ITEMCHANGED, ID_TAECHANG_RESULT_LIST, &CSageTaechangView::OnResultListItemChanged)
-	ON_NOTIFY(NM_CUSTOMDRAW, ID_TAECHANG_RESULT_LIST, &CSageTaechangView::OnListCustomDraw)
-	ON_NOTIFY(NM_CUSTOMDRAW, ID_PRICE_COPIES_LIST, &CSageTaechangView::OnListCustomDraw)
 END_MESSAGE_MAP()
 
 CSageTaechangView::CSageTaechangView() noexcept
@@ -2355,75 +2352,6 @@ void CSageTaechangView::OnSidebarTreeCustomDraw(NMHDR* pNMHDR, LRESULT* pResult)
 				CDC* pItemDC = CDC::FromHandle(pCD->nmcd.hdc);
 				CRect rcItem(pCD->nmcd.rc);
 				pItemDC->FillSolidRect(rcItem.left, rcItem.top, 3, rcItem.Height(), TAECHANG_COLOR_PRIMARY);
-			}
-			break;
-		}
-	}
-}
-
-void CSageTaechangView::OnListCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
-	NMLVCUSTOMDRAW* pCD = reinterpret_cast<NMLVCUSTOMDRAW*>(pNMHDR);
-	*pResult = CDRF_DODEFAULT;
-
-	switch (pCD->nmcd.dwDrawStage) {
-		case CDDS_PREPAINT:
-			*pResult = CDRF_NOTIFYITEMDRAW;
-			break;
-		case CDDS_ITEMPREPAINT:
-		{
-			int nItem = static_cast<int>(pCD->nmcd.dwItemSpec);
-			UINT uState = ListView_GetItemState(pCD->nmcd.hdr.hwndFrom, nItem, LVIS_SELECTED);
-			if (!(uState & LVIS_SELECTED)) {
-				pCD->clrTextBk = (nItem % 2 == 1) ? TAECHANG_COLOR_LIST_ROW_ALT : TAECHANG_COLOR_PANEL;
-				pCD->clrText = TAECHANG_COLOR_TEXT;
-				*pResult = CDRF_NEWFONT;
-				if (IsReceivablesResultTable() || pCD->nmcd.hdr.idFrom == ID_PRICE_COPIES_LIST ||
-					pCD->nmcd.hdr.idFrom == ID_CALC_HISTORY_LIST ||
-					pCD->nmcd.hdr.idFrom == ID_COORDER_LIST)
-					*pResult |= CDRF_NOTIFYSUBITEMDRAW;
-			} else if (pCD->nmcd.hdr.idFrom == ID_COORDER_LIST) {
-				*pResult = CDRF_NOTIFYSUBITEMDRAW;
-			}
-			break;
-		}
-		case CDDS_SUBITEM | CDDS_ITEMPREPAINT:
-		{
-			int nItem = static_cast<int>(pCD->nmcd.dwItemSpec);
-			int nSubItem = pCD->iSubItem;
-			UINT uState = ListView_GetItemState(pCD->nmcd.hdr.hwndFrom, nItem, LVIS_SELECTED);
-			if (!(uState & LVIS_SELECTED)) {
-				if (IsReceivablesResultTable() &&
-					(nSubItem == TAECHANG_RECEIVABLES_COL_IDX_TOTAL_AMOUNT ||
-					 nSubItem == TAECHANG_RECEIVABLES_COL_IDX_DEPOSIT_AMOUNT ||
-					 nSubItem == TAECHANG_RECEIVABLES_COL_IDX_RECEIVABLE_AMOUNT)) {
-					pCD->clrTextBk = (nItem % 2 == 1) ? TAECHANG_COLOR_LIST_AMOUNT_COL_ALT : TAECHANG_COLOR_LIST_AMOUNT_COL;
-					pCD->clrText = TAECHANG_COLOR_TEXT;
-					*pResult = CDRF_NEWFONT;
-				}
-				if ((pCD->nmcd.hdr.idFrom == ID_PRICE_COPIES_LIST ||
-					 pCD->nmcd.hdr.idFrom == ID_CALC_HISTORY_LIST ||
-					 pCD->nmcd.hdr.idFrom == ID_COORDER_LIST) && nSubItem == 0) {
-					BOOL bSelected = (uState & LVIS_SELECTED) != 0;
-					CDC* pDC = CDC::FromHandle(pCD->nmcd.hdc);
-					COLORREF clrBk = bSelected
-						? ::GetSysColor(COLOR_HIGHLIGHT)
-						: ((nItem % 2 == 1) ? TAECHANG_COLOR_LIST_ROW_ALT : TAECHANG_COLOR_PANEL);
-					RECT rcItem;
-					ListView_GetSubItemRect(pCD->nmcd.hdr.hwndFrom, nItem, 0, LVIR_LABEL, &rcItem);
-					pDC->FillSolidRect(&rcItem, clrBk);
-					wchar_t szText[64] = {};
-					LVITEM lvi = {};
-					lvi.mask = LVIF_TEXT;
-					lvi.iItem = nItem;
-					lvi.iSubItem = 0;
-					lvi.pszText = szText;
-					lvi.cchTextMax = 63;
-					ListView_GetItem(pCD->nmcd.hdr.hwndFrom, &lvi);
-					pDC->SetTextColor(bSelected ? ::GetSysColor(COLOR_HIGHLIGHTTEXT) : TAECHANG_COLOR_TEXT);
-					pDC->SetBkMode(TRANSPARENT);
-					pDC->DrawText(szText, -1, &rcItem, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
-					*pResult = CDRF_SKIPDEFAULT;
-				}
 			}
 			break;
 		}
