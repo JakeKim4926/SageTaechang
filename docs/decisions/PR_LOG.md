@@ -1,3 +1,9 @@
+## [2026-07-31] refactor/sage-button
+- **목적**: 버튼 스타일을 부모 OnDrawItem의 ID 조건식으로 가르던 구조를 컨트롤 자기 그리기로 전환 (3-A-1)
+- **변경 내용**: CSageButton 신설(Primary/Secondary variant, 검색·계산·리셋 아이콘 3종). View의 오너드로우 버튼 26개를 CButton→CSageButton으로 교체하고 Primary 12개에 SetVariant, 아이콘 4곳에 SetIcon 호출. OnDrawItem의 ODT_BUTTON 블록 117줄을 제거하고 미처리 owner-draw를 CView::OnDrawItem으로 위임해 MFC 리플렉션이 동작하게 함. bPrimary ID 12개 OR 조건식과 아이콘 ID 분기 소멸. 아이콘 색이 전부 그 시점 텍스트 색과 같은 값이어서 GetTextColor()로 통합. m_wndResultResetBtn의 SetFont가 실제 그리던 폰트(m_fontHeader)와 달랐던 것도 함께 해소. OnDrawItem 128→11줄, View.cpp 4,305→4,204줄. 커밋 3개로 나눠 각 단계마다 화면 동일성 확인
+- **PR 링크**: 없음 (develop 직접 머지)
+- **결과**: merged
+
 ## [2026-07-31] refactor/view-control-extract
 - **목적**: View에 정의돼 있던 MFC 컨트롤 서브클래스를 app/ui/drawing으로 분리하고, 신규 코드 접두사를 Sage로 전환
 - **변경 내용**: CTaechangHeaderCtrl / CTaechangTabCtrl / CTaechangComboBox / CTaechangFilterComboBox 4개를 클래스당 파일로 app/ui/drawing에 분리(SageTaechangView.h의 클래스 정의와 .cpp 구현 193줄 제거). 이후 파일명·클래스명을 CSage*로 전환. vcxproj 78→86 항목, filters에 app\ui\drawing 필터 생성. View.cpp 4,499→4,305줄, View.h 428→397줄. 부수적으로 CSageTabCtrl은 메시지맵과 OnPaint 구현이 100줄 떨어져 있던 것이 한 파일로 모임. 리팩토링 계획을 docs/decisions/REFACTORING_PLAN.md로 이관하고 작성 절차는 sagetaechang-plan skill로 분리
