@@ -1,7 +1,7 @@
 #pragma once
 
 #include "pch.h"
-#include "TaechangUserDto.h"
+#include "app/core/auth/TaechangUserDto.h"
 
 #define taechangAuth TaechangAuthSession::GetInstance()
 

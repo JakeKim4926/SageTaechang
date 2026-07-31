@@ -8,7 +8,7 @@
 #endif
 
 #include "resource.h"       // 주 기호입니다.
-#include "SageDBMgr.h"
+#include "app/infra/db/SageDBMgr.h"
 
 // CSageTaechangApp:
 // 이 클래스의 구현에 대해서는 SageTaechang.cpp을(를) 참조하세요.

@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "TaechangPriceSimpleDlg.h"
+#include "app/ui/dialogs/TaechangPriceSimpleDlg.h"
 #include "TaechangDefine.h"
 
 static BYTE* BuildSimpleDialogTemplate(LPCWSTR pszTitle) {

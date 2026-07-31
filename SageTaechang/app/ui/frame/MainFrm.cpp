@@ -6,7 +6,7 @@
 #include "framework.h"
 #include "SageTaechang.h"
 
-#include "MainFrm.h"
+#include "app/ui/frame/MainFrm.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

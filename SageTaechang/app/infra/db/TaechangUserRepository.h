@@ -1,8 +1,8 @@
 #pragma once
 
 #include "pch.h"
-#include "SqlContext.h"
-#include "TaechangUserDto.h"
+#include "app/infra/db/SqlContext.h"
+#include "app/core/auth/TaechangUserDto.h"
 
 class TaechangUserRepository {
 public:

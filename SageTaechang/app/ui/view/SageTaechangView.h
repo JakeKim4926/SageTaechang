@@ -2,7 +2,7 @@
 #pragma once
 
 #include "TaechangDefine.h"
-#include "TaechangReceivableCompanyOrderDto.h"
+#include "app/core/receivable/TaechangReceivableCompanyOrderDto.h"
 
 struct TaechangResultRow;
 

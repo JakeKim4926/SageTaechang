@@ -1,8 +1,8 @@
 #pragma once
 
 #include "pch.h"
-#include "TaechangReceivableCompanyOrderDto.h"
-#include "TaechangReceivableCompanyOrderRepository.h"
+#include "app/core/receivable/TaechangReceivableCompanyOrderDto.h"
+#include "app/infra/db/TaechangReceivableCompanyOrderRepository.h"
 
 class TaechangReceivableCompanyOrderService {
 public:

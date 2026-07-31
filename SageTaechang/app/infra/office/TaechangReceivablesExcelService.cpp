@@ -1,10 +1,10 @@
 ﻿#include "pch.h"
-#include "app/application/services/TaechangReceivablesExcelService.h"
+#include "app/infra/office/TaechangReceivablesExcelService.h"
 #include "app/common/TaechangJson.h"
-#include "app/common/TaechangFileUtils.h"
+#include "app/infra/file/TaechangFileUtils.h"
 #include "app/common/TaechangDialogHelper.h"
-#include "app/infrastructure/bridge/TaechangBridgeResponse.h"
-#include "SageDBMgr.h"
+#include "app/core/workflow/TaechangWorkflowResponse.h"
+#include "app/infra/db/SageDBMgr.h"
 #include "TaechangDefine.h"
 
 namespace

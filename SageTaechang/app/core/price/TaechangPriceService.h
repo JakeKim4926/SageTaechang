@@ -1,8 +1,8 @@
 #pragma once
 
 #include "pch.h"
-#include "TaechangPriceDto.h"
-#include "TaechangPriceRepository.h"
+#include "app/core/price/TaechangPriceDto.h"
+#include "app/infra/db/TaechangPriceRepository.h"
 
 class TaechangPriceService {
 public:

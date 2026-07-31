@@ -2,15 +2,15 @@
 
 #include <afxwin.h>
 
-#include "SqlContext.h"
-#include "SQLInitializer.h"
+#include "app/infra/db/SqlContext.h"
+#include "app/infra/db/SqlInitializer.h"
 
-#include "TaechangPriceRepository.h"
-#include "TaechangPriceService.h"
-#include "TaechangReceivableCompanyOrderRepository.h"
-#include "TaechangReceivableCompanyOrderService.h"
-#include "TaechangUserRepository.h"
-#include "TaechangUserService.h"
+#include "app/infra/db/TaechangPriceRepository.h"
+#include "app/core/price/TaechangPriceService.h"
+#include "app/infra/db/TaechangReceivableCompanyOrderRepository.h"
+#include "app/core/receivable/TaechangReceivableCompanyOrderService.h"
+#include "app/infra/db/TaechangUserRepository.h"
+#include "app/core/auth/TaechangUserService.h"
 
 #define sageDBMgr SageDBMgr::GetInstance()
 

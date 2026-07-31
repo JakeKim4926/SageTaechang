@@ -1,7 +1,7 @@
 #pragma once
 
 #include "pch.h"
-#include "SqlContext.h"
+#include "app/infra/db/SqlContext.h"
 
 class SQLInitializer {
 public:

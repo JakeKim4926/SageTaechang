@@ -1,7 +1,7 @@
 #include "pch.h"
-#include "TaechangCalcEstimateDlg.h"
+#include "app/ui/dialogs/TaechangCalcEstimateDlg.h"
 #include "TaechangDefine.h"
-#include "app/common/TaechangFileUtils.h"
+#include "app/infra/file/TaechangFileUtils.h"
 #include "app/common/TaechangJson.h"
 
 BEGIN_MESSAGE_MAP(TaechangCalcEstimateDlg, CDialog)

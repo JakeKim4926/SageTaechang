@@ -1,8 +1,8 @@
 #include "pch.h"
-#include "SQLInitializer.h"
+#include "app/infra/db/SqlInitializer.h"
 #include "TaechangDefine.h"
-#include "TaechangUserRepository.h"
-#include "TaechangUserService.h"
+#include "app/infra/db/TaechangUserRepository.h"
+#include "app/core/auth/TaechangUserService.h"
 
 SQLInitializer::SQLInitializer(SqlContext* pSqlContext) {
     m_pSqlContext = pSqlContext;

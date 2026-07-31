@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "TaechangDefine.h"
-#include "app/common/TaechangFileUtils.h"
+#include "app/infra/file/TaechangFileUtils.h"
 
 BOOL FileExists(const CString& strPath) {
 	DWORD dwAttr = GetFileAttributesW(strPath);

@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "TaechangPriceRangeDlg.h"
+#include "app/ui/dialogs/TaechangPriceRangeDlg.h"
 #include "TaechangDefine.h"
 
 namespace

@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "app/common/TaechangJson.h"
-#include "app/infrastructure/bridge/TaechangBridgeResponse.h"
+#include "app/core/workflow/TaechangWorkflowResponse.h"
 
 CString BuildSuccessResponse(const CString& strRequestId, const CString& strPayloadJson) {
 	return L"{\"type\":\"response\",\"requestId\":\"" + JsonEscapeString(strRequestId) +

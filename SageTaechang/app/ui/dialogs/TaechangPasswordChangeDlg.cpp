@@ -1,9 +1,9 @@
 #include "pch.h"
-#include "TaechangPasswordChangeDlg.h"
+#include "app/ui/dialogs/TaechangPasswordChangeDlg.h"
 #include "TaechangDefine.h"
-#include "TaechangAuthSession.h"
-#include "TaechangUserService.h"
-#include "SageDBMgr.h"
+#include "app/core/auth/TaechangAuthSession.h"
+#include "app/core/auth/TaechangUserService.h"
+#include "app/infra/db/SageDBMgr.h"
 
 BEGIN_MESSAGE_MAP(TaechangPasswordChangeDlg, CDialog)
     ON_WM_CTLCOLOR()

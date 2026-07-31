@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "TaechangCompanyDlg.h"
+#include "app/ui/dialogs/TaechangCompanyDlg.h"
 #include "TaechangDefine.h"
 
 BEGIN_MESSAGE_MAP(TaechangCompanyDlg, CDialog)

@@ -1,6 +1,6 @@
 #include "pch.h"
-#include "TaechangUserRepository.h"
-#include "RepositoryHelper.h"
+#include "app/infra/db/TaechangUserRepository.h"
+#include "app/infra/db/RepositoryHelper.h"
 
 TaechangUserRepository::TaechangUserRepository(SqlContext* pSqlContext) {
     m_pSqlContext = pSqlContext;

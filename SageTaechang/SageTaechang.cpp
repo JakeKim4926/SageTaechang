@@ -7,10 +7,10 @@
 #include "afxwinappex.h"
 #include "afxdialogex.h"
 #include "SageTaechang.h"
-#include "MainFrm.h"
+#include "app/ui/frame/MainFrm.h"
 
-#include "SageTaechangDoc.h"
-#include "SageTaechangView.h"
+#include "app/ui/frame/SageTaechangDoc.h"
+#include "app/ui/view/SageTaechangView.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

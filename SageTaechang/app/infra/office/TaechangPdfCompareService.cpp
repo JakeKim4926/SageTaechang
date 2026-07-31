@@ -1,9 +1,9 @@
 ﻿#include "pch.h"
-#include "app/application/services/TaechangPdfCompareService.h"
-#include "app/application/services/TaechangAppSettingsService.h"
+#include "app/infra/office/TaechangPdfCompareService.h"
+#include "app/infra/file/TaechangAppSettingsService.h"
 #include "app/common/TaechangJson.h"
-#include "app/common/TaechangFileUtils.h"
-#include "app/infrastructure/bridge/TaechangBridgeResponse.h"
+#include "app/infra/file/TaechangFileUtils.h"
+#include "app/core/workflow/TaechangWorkflowResponse.h"
 #include "TaechangDefine.h"
 #include <filesystem>
 

@@ -10,7 +10,7 @@
 #include "SageTaechang.h"
 #endif
 
-#include "SageTaechangDoc.h"
+#include "app/ui/frame/SageTaechangDoc.h"
 
 #include <propkey.h>
 

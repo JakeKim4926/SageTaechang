@@ -1,6 +1,6 @@
 #include "pch.h"
-#include "TaechangReceivableCompanyOrderRepository.h"
-#include "RepositoryHelper.h"
+#include "app/infra/db/TaechangReceivableCompanyOrderRepository.h"
+#include "app/infra/db/RepositoryHelper.h"
 
 TaechangReceivableCompanyOrderRepository::TaechangReceivableCompanyOrderRepository(SqlContext* pSqlContext) {
     m_pSqlContext = pSqlContext;
