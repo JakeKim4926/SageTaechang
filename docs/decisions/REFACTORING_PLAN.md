@@ -253,16 +253,37 @@ enum SageFontRole   { SAGE_FONT_CONTROL, CONTENT, TITLE, HEADER };          // 4
 
 #### 6단계 분할
 
-| # | 내용 | 화면 |
+| # | 내용 | 상태 |
 |---|---|---|
-| 1 | `SageUiResources` 신설 + 폰트 4개 이관 | 무변화 |
-| 2 | 브러시 6개 추가, View 브러시 4개 제거 | 무변화 |
-| 3 | `CSageLabel` 신설 (미사용) | 무변화 |
-| 4 | 라벨 34개 타입 교체 + 역할 지정 | 무변화 (View 분기가 아직 이김) |
-| 5 | `OnCtlColor` 라벨 분기 제거 | **핵심 검증 지점 — 라벨이 스스로 색을 냄** |
-| 6 | `ApplyControlFonts` 라벨 36곳 제거 | 무변화 |
+| 1 | `SageUiResources` 신설 + 폰트 4개 이관 | **완료** (`827eda3`) — 빌드·화면 확인 |
+| 2 | 브러시 6개 추가, View 브러시 4개 제거 | **완료** (`5f1d805`~`0163b6d`) — 빌드·화면 확인 |
+| 3 | `CSageLabel` 신설 (미사용) | **코드 완료** (`5b66f49`) — **빌드 미검증** |
+| 4 | 라벨 34개 타입 교체 + 역할 지정 | 대기 — 무변화 (View 분기가 아직 이김) |
+| 5 | `OnCtlColor` 라벨 분기 제거 | 대기 — **핵심 검증 지점** |
+| 6 | `ApplyControlFonts` 라벨 36곳 제거 | 대기 — 무변화 |
 
 각 단계마다 빌드 가능한 상태를 유지한다. **화면 변화가 생기면 즉시 중단하고 원인을 보고한다.**
+
+브랜치 `refactor/sage-ui-resources`에 커밋 6개. **3단계 빌드 미검증이라 develop 머지 전이다.**
+
+#### 재개 지점 — 4단계 착수 전 할 일
+
+34개 라벨마다 `(텍스트 역할, 배경 역할, 폰트 역할)` 3개를 지정해야 한다.
+잘못 옮기면 5단계에서 색이 틀어지는데 34개 중 어디인지 찾기 어렵다.
+**현재 `OnCtlColor`·`ApplyControlFonts`의 매핑을 표로 뽑아 확인받은 뒤 착수한다.**
+
+#### 1~3단계에서 확인된 것
+
+- 폰트 4개가 `ApplyControlFonts` 안에서 생성되고 있었다. 두 번 호출하면 안 되는 구조였고,
+  생성을 `InitInstance`로 옮기면서 해소됐다. `LoadPrivateFonts()` 이후여야 한다
+- 컨트롤 99개의 폰트 역할 배정이 이전과 1:1 동일함을 스크립트로 대조 확인 (불일치 0건)
+- 헤더 상태 브러시의 `DeleteObject`/`CreateSolidBrush` 재생성이 사라졌다
+- `GetBrush`는 `HBRUSH`를 반환해야 한다. `CBrush*`로 두면 C2440 — `OnCtlColor`가 되던 것은
+  `CBrush::operator HBRUSH()` 때문이고 포인터에는 적용되지 않는다 (`0163b6d`에서 수정)
+- `CSageLabel` 기본값 `SAGE_TEXT_DEFAULT` + `SAGE_BG_APP`는 View의 기존 기본 경로와 같다.
+  4단계에서 역할 지정을 빠뜨려도 기존 색이 나오는 안전망이다
+- **죽은 코드 2건 발견** — 헤더 상태 기능 전체(`WS_VISIBLE` 없음 + 크기 0), `m_brushListHeader`.
+  둘 다 `DEBT_LOG` 기록, 이번 변경이 만든 것이 아니라 미변경
 
 ---
 
