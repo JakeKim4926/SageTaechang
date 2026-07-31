@@ -3,6 +3,10 @@
 
 #include "TaechangDefine.h"
 #include "app/core/receivable/TaechangReceivableCompanyOrderDto.h"
+#include "app/ui/drawing/TaechangHeaderCtrl.h"
+#include "app/ui/drawing/TaechangTabCtrl.h"
+#include "app/ui/drawing/TaechangComboBox.h"
+#include "app/ui/drawing/TaechangFilterComboBox.h"
 
 struct TaechangResultRow;
 struct TaechangPriceDto;
@@ -45,37 +49,6 @@ struct CalcHistoryEntry {
     CalcHistoryEntry() : nCopies(0), nPages(0), nPrintPrice(0), nCoverPrice(0), nFreight(0), nTotal(0) {}
 };
 
-class CTaechangHeaderCtrl : public CHeaderCtrl
-{
-    DECLARE_MESSAGE_MAP()
-protected:
-    afx_msg void OnPaint();
-};
-
-class CTaechangTabCtrl : public CTabCtrl
-{
-    DECLARE_MESSAGE_MAP()
-protected:
-    afx_msg void OnPaint();
-};
-
-class CTaechangComboBox : public CComboBox
-{
-    DECLARE_MESSAGE_MAP()
-protected:
-    afx_msg void OnPaint();
-};
-
-
-class CTaechangFilterComboBox : public CComboBox
-{
-    DECLARE_MESSAGE_MAP()
-public:
-    virtual void DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct);
-    virtual void MeasureItem(LPMEASUREITEMSTRUCT lpMeasureItemStruct);
-protected:
-    afx_msg void OnPaint();
-};
 
 
 class CSageTaechangView : public CView

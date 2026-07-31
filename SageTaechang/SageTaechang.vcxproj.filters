@@ -79,6 +79,9 @@
     <Filter Include="소스 파일\app\ui\dialogs">
       <UniqueIdentifier>{FE3927EF-12CF-531A-80B3-158A9ECADC8A}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\app\ui\drawing">
+      <UniqueIdentifier>{EDE6A8DA-3079-5030-80F3-F097D5AF0753}</UniqueIdentifier>
+    </Filter>
     <Filter Include="소스 파일\app\ui\frame">
       <UniqueIdentifier>{A39B9FD2-B703-5622-A9FD-885004D97056}</UniqueIdentifier>
     </Filter>
@@ -109,6 +112,9 @@
     <Filter Include="헤더 파일\app\ui\dialogs">
       <UniqueIdentifier>{89C70203-DB43-5F32-917C-6C9D6323C198}</UniqueIdentifier>
     </Filter>
+    <Filter Include="헤더 파일\app\ui\drawing">
+      <UniqueIdentifier>{AC70005E-2910-5A09-BEA1-BD750427EB25}</UniqueIdentifier>
+    </Filter>
     <Filter Include="헤더 파일\app\ui\frame">
       <UniqueIdentifier>{56FA811A-100E-51FF-A034-744289C239C3}</UniqueIdentifier>
     </Filter>
@@ -137,6 +143,18 @@
     </ClCompile>
     <ClCompile Include="app\ui\view\SageTaechangView.cpp">
       <Filter>소스 파일\app\ui\view</Filter>
+    </ClCompile>
+    <ClCompile Include="app\ui\drawing\TaechangHeaderCtrl.cpp">
+      <Filter>소스 파일\app\ui\drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="app\ui\drawing\TaechangTabCtrl.cpp">
+      <Filter>소스 파일\app\ui\drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="app\ui\drawing\TaechangComboBox.cpp">
+      <Filter>소스 파일\app\ui\drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="app\ui\drawing\TaechangFilterComboBox.cpp">
+      <Filter>소스 파일\app\ui\drawing</Filter>
     </ClCompile>
     <ClCompile Include="app\infra\office\TaechangReceivablesExcelService.cpp">
       <Filter>소스 파일\app\infra\office</Filter>
@@ -253,6 +271,18 @@
     </ClInclude>
     <ClInclude Include="app\ui\view\SageTaechangView.h">
       <Filter>헤더 파일\app\ui\view</Filter>
+    </ClInclude>
+    <ClInclude Include="app\ui\drawing\TaechangHeaderCtrl.h">
+      <Filter>헤더 파일\app\ui\drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="app\ui\drawing\TaechangTabCtrl.h">
+      <Filter>헤더 파일\app\ui\drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="app\ui\drawing\TaechangComboBox.h">
+      <Filter>헤더 파일\app\ui\drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="app\ui\drawing\TaechangFilterComboBox.h">
+      <Filter>헤더 파일\app\ui\drawing</Filter>
     </ClInclude>
     <ClInclude Include="app\infra\db\SqlContext.h">
       <Filter>헤더 파일\app\infra\db</Filter>
