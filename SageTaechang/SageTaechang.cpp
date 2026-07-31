@@ -12,6 +12,7 @@
 
 #include "app/ui/frame/SageTaechangDoc.h"
 #include "app/ui/view/SageTaechangView.h"
+#include "app/ui/drawing/SageUiResources.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -66,6 +67,7 @@ BOOL CSageTaechangApp::InitInstance() {
 		return FALSE;
 
 	LoadPrivateFonts();
+	SageUiResources::Create();
 
 	EnableTaskbarInteraction(FALSE);
 
@@ -106,6 +108,7 @@ BOOL CSageTaechangApp::InitInstance() {
 }
 
 int CSageTaechangApp::ExitInstance() {
+	SageUiResources::Destroy();
 	ReleasePrivateFonts();
 
 	sageDBMgr.Finalize();

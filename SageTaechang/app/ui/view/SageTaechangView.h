@@ -111,10 +111,6 @@ protected:
     CEdit m_wndDetail;
     CStatic m_wndEmptyStateHint;
     CStatic m_wndActionStatus;
-    CFont m_fontTitle;
-    CFont m_fontHeader;
-    CFont m_fontControl;
-    CFont m_fontContent;
     CBrush m_brushAppBackground;
     CBrush m_brushPanel;
     CBrush m_brushSidebar;

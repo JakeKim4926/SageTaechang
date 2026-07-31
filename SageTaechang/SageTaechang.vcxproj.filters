@@ -165,6 +165,9 @@
     <ClCompile Include="app\ui\drawing\SageListCtrl.cpp">
       <Filter>소스 파일\app\ui\drawing</Filter>
     </ClCompile>
+    <ClCompile Include="app\ui\drawing\SageUiResources.cpp">
+      <Filter>소스 파일\app\ui\drawing</Filter>
+    </ClCompile>
     <ClCompile Include="app\ui\drawing\SageUiStyle.cpp">
       <Filter>소스 파일\app\ui\drawing</Filter>
     </ClCompile>
@@ -306,6 +309,9 @@
       <Filter>헤더 파일\app\ui\drawing</Filter>
     </ClInclude>
     <ClInclude Include="app\ui\drawing\SageListCtrl.h">
+      <Filter>헤더 파일\app\ui\drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="app\ui\drawing\SageUiResources.h">
       <Filter>헤더 파일\app\ui\drawing</Filter>
     </ClInclude>
     <ClInclude Include="app\ui\drawing\SageUiStyle.h">
