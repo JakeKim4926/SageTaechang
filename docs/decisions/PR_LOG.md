@@ -1,3 +1,9 @@
+## [2026-08-02] refactor/sage-label-roles
+- **목적**: 라벨이 역할로 자기 색과 폰트를 내게 해 View의 색상 분기를 걷어냄 (3-A-8 4~6단계, Step 3-A 완결)
+- **변경 내용**: View의 `CStatic` 39개 중 **37개를 `CSageLabel`로 교체**하고 `ApplyLabelRoles`에서 `(텍스트/배경/폰트)` 역할을 지정. 착수 전 39개의 매핑을 표로 확정해 확인받고, 코드 작성 후 스크립트로 `OnCtlColor`·`ApplyControlFonts`의 기존 값과 대조(불일치 0건). 이후 `OnCtlColor`에서 라벨 분기를 제거하고 `IsKindOf(RUNTIME_CLASS(CSageLabel))` 조기 반환 2줄로 대체(**112 → 31줄**), `ApplyControlFonts`에서 라벨 34줄 제거(**114 → 76줄**). 리플렉션 동작은 추측하지 않고 MFC 원본에서 확인 — `CWnd::OnCtlColor`(`wincore.cpp:4308`)가 `SendChildNotifyLastMsg`로 자식에게 먼저 넘기고 자식이 반환한 브러시를 그대로 돌려주므로, 부모는 그 반환값을 조기 반환하면 된다. **동적 색 2개(`m_wndHeaderStatus`·`m_wndActionStatus`)는 `CStatic`으로 잔류** — 역할이 고정값인 `CSageLabel`로는 런타임 색 변경을 담을 수 없다. 체크박스 2개와 기본값 2개도 잔류. 구분선 3개는 원래대로 폰트 미지정. **줄 수는 6줄만 줄었다**(분기 119줄 제거, 역할 지정 113줄 추가) — 얻은 것은 길이가 아니라 View가 라벨 색을 판단하지 않게 된 것이고, 3-B에서 라벨이 역할을 들고 함께 이동한다는 점이 실제 이득이다. 작업 중 확인된 `m_wndPriceCompanyLabel` 배경색 버그는 5단계 검증을 흐리지 않도록 현행 유지하고 DEBT_LOG에 남김
+- **PR 링크**: 없음 (develop 직접 머지)
+- **결과**: merged
+
 ## [2026-08-02] refactor/sage-ui-resources
 - **목적**: 색상과 폰트를 한 저장소로 묶기 위한 기반 마련 (3-A-8 1~3단계)
 - **변경 내용**: `namespace SageUiResources` 신설 — 폰트 4개 + 배경 브러시 6개를 소유하고 역할 enum 3종(`SageFontRole` 4 / `SageBackgroundRole` 6 / `SageTextRole` 7)으로 꺼내 쓴다. **폰트가 `ApplyControlFonts` 안에서 생성되던 구조**(두 번 호출하면 안 됨)를 `InitInstance`/`ExitInstance` 수명으로 옮겨 해소했고, `LoadPrivateFonts()` 이후여야 한다. View의 폰트 멤버 4개와 브러시 멤버 4개 제거, 헤더 상태 브러시의 `DeleteObject`/`CreateSolidBrush` 재생성도 소멸. 컨트롤 99개의 폰트 역할 배정이 이전과 1:1 동일함을 스크립트로 대조(불일치 0건). `CSageLabel`을 신설했으나 **아직 아무도 쓰지 않는다** — 기본값 `SAGE_TEXT_DEFAULT`+`SAGE_BG_APP`가 View의 기존 폴백과 같아 다음 단계에서 역할 지정을 빠뜨려도 색이 유지되는 안전망이다. `GetBrush`는 `HBRUSH`를 반환해야 한다(`CBrush*`는 C2440 — `CBrush::operator HBRUSH()`가 포인터에는 적용되지 않는다). 작업 중 죽은 코드 2건(헤더 상태 기능 전체, `m_brushListHeader`)과 배경색 버그 1건(`m_wndPriceCompanyLabel`) 발견해 DEBT_LOG 기록. **3-A-8은 6단계 중 3단계까지이며 4~6단계는 별도 브랜치로 이어간다**

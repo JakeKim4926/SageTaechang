@@ -29,8 +29,8 @@ WebView2 기반) 문서였고 존재하지 않는 폴더 구조를 규정했다.
 | 0 | 스킬 정비 | **완료** (로컬, 커밋 대상 아님) |
 | 1 | 파일을 `core`/`infra`/`ui`로 이동 | **완료** — develop 머지 |
 | 2 | 잔여 정리 (앱 헤더 DB 의존, `SqlInitializer`) | **완료** — develop 머지 |
-| 3-A | 공통 컨트롤 승격 | 진행 중 |
-| 3-B | 패널 분리 | 대기 |
+| 3-A | 공통 컨트롤 승격 | **완료** — 3-A-1~8 (3-A-4는 건너뜀) |
+| 3-B | 패널 분리 | 다음 |
 | 4 | 워크플로 핸들러 + 레지스트리 | 대기 |
 | 5 | `Sage` 접두사 전환 (상수·Define) | 대기 |
 
@@ -104,7 +104,7 @@ WebView2 기반) 문서였고 존재하지 않는 폴더 구조를 규정했다.
 
 ---
 
-## Step 3-A — 공통 컨트롤 승격 (진행 중)
+## Step 3-A — 공통 컨트롤 승격 (완료)
 
 브랜치: 하위 단계마다 별도 (`refactor/view-control-extract`, `refactor/sage-button`, …)
 규칙: `sagetaechang-ui` > *MFC 공통 컨트롤 규격*, `coding-design` > *화면은 컨트롤을 그리는 방법을 몰라야 한다*
@@ -117,22 +117,24 @@ WebView2 기반) 문서였고 존재하지 않는 폴더 구조를 규정했다.
 - **복잡한 사례부터.** 인터페이스 모양은 가장 까다로운 사례가 결정한다.
   다이얼로그(버튼 2~3개, `IDOK`만 Primary)에 맞춰 만들면 View(버튼 27개 + 아이콘 3종)에서 다시 뜯는다
 
-### 회수 대상 698줄 중 462줄 완료 (66%)
-
-**3-A-8의 회수량을 236줄 → 약 140줄로 정정한다.** `ApplyControlFonts` 124줄 중 라벨은 36곳이고
-나머지 63개(버튼·에디트·리스트)는 이번 범위가 아니다. 3-A 완료 시 총 회수는 약 600줄이 된다.
+### 회수 대상 698줄 중 581줄 완료 (83%)
 
 | 위치 | 줄 | 상태 |
 |---|---|---|
 | View `OnDrawItem` | 128 | **완료** — 함수 자체가 사라짐 (3-A-1, 3-A-3) |
 | 다이얼로그 8개 `OnDrawItem` | 230 | **완료** — `DrawSimpleButton`까지 (3-A-2) |
-| View `OnCtlColor` | 112 | 3-A-8 — 약 102줄 회수 (체크박스 1블록 + 기본값 2개는 잔류) |
-| View `ApplyControlFonts` | 124 | 3-A-8 — **라벨 몫 약 36줄만.** 나머지 88줄은 비라벨 63개라 별도 |
+| View `OnCtlColor` | 112 | **완료** — 31줄로 (3-A-8). 동적 색 2개 + 체크박스 1블록 + 기본값 2개 잔류 |
+| View `ApplyControlFonts` | 124 | **완료** — 라벨 몫 34줄 제거, 76줄로 (3-A-8). 나머지는 비라벨 65개 |
 | View `OnListCustomDraw` | 68 | **완료** (3-A-5) |
 | View `OnSidebarTreeCustomDraw` | 36 | **완료** (3-A-6) |
 
-**`OnDrawItem`·커스텀드로우 계열이 전부 제거됐다.** 남은 것은 폰트·색상 축이다.
+**회수 대상이 전부 처리됐다.** 오너드로우·커스텀드로우·색상·폰트 축이 모두 컨트롤로 내려갔다.
 View의 오너드로우 컨트롤 34개(버튼 26 + 섹션 라벨 7 + 필터 콤보 1)가 모두 `CSage*`로 승격됐다.
+
+**단, 줄 수는 회수의 척도가 아니었다.** 3-A-8은 분기 119줄을 지우고 역할 지정 113줄을 새로 썼다.
+View.cpp는 4,073 → 4,067줄로 6줄만 줄었다. 얻은 것은 길이가 아니라
+**"View가 라벨의 색을 판단한다"가 "라벨이 자기 역할을 선언한다"로 바뀐 것**이다.
+3-B에서 패널을 분리할 때 라벨이 역할을 들고 함께 이동한다는 점이 실제 이득이다.
 
 ### 전체 진행
 
@@ -171,7 +173,12 @@ View의 오너드로우 컨트롤 34개(버튼 26 + 섹션 라벨 7 + 필터 콤
       **`SageUiStyle`을 색상 파사드로 만드는 안은 기각** — 색은 이미 `TaechangDefine.h`에 모여 있어
       간접 층만 늘어난다. skill의 예시 3개(`FillControlBackground`/`DrawBorder`/`DrawCenteredText`)를
       실제 API와 "왜 아닌지"로 교체했고, 컨트롤 목록 상태·`CSageEdit` 보류 사유도 반영했다
-- [ ] **3-A-8 `CSageLabel` + `SageUiResources`** ← 다음 — 아래 상세 참조
+- [x] **3-A-8 `CSageLabel` + `SageUiResources`** (`827eda3`~`260d1dd`) — 6단계 전부 화면 확인 완료
+      색상과 폰트를 `SageUiResources` 한 곳으로 모으고 라벨 37개가 역할로 자기 색을 내게 했다.
+      **6단계로 쪼갠 것이 결정적이었다** — 3·4단계는 화면이 변할 수 없는 구조라
+      5단계에서 색이 틀어지면 원인이 매핑뿐임이 보장됐다.
+      착수 전 39개 라벨의 `(텍스트/배경/폰트)` 매핑을 표로 확정하고 스크립트로 대조(불일치 0건).
+      아래 *3-A-8 결과* 참조
 
 > 3-A-2 이후는 착수 시점에 상세화한다. 앞 단계 결과가 뒤 단계 설계를 바꾼다.
 
@@ -202,136 +209,56 @@ View의 오너드로우 컨트롤 34개(버튼 26 + 섹션 라벨 7 + 필터 콤
 
 ---
 
-### 3-A-8 — `CSageLabel` + `SageUiResources` (진행 중)
+### 3-A-8 — `CSageLabel` + `SageUiResources` (완료)
 
-브랜치: 하위 단계마다 별도
+색상(`OnCtlColor`)과 폰트(`ApplyControlFonts`)를 하나로 묶었다.
+6단계로 나눠 각 단계마다 화면을 확인했다.
 
-색상(`OnCtlColor`)과 폰트(`ApplyControlFonts`)를 **하나로 묶는다.**
-`OnCtlColor` 대상 36개 중 33개가 폰트도 받으므로, 나누면 같은 라벨을 두 번 건드린다.
-**3-B보다 먼저 한다** — 패널 분리 후에는 View가 패널 내부 라벨의 색·폰트를 아는 더 나쁜 구조가 된다.
-
-#### 조사로 확정된 사실
-
-- `OnCtlColor` 112줄은 **컨트롤 종류 분기가 아니라 인스턴스 비교**다. 종류 분기는 맨 끝 기본값 2개뿐
-- 대상 36개 = `CStatic` 34 + `CButton` 2(체크박스)
-- 동적 색상 2곳(`m_wndHeaderStatus`·`m_wndActionStatus`)의 반환값이 전부 팔레트 상수라
-  **역할 enum으로 깨끗하게 표현된다. 원시 `COLORREF` 탈출구가 필요 없다**
-- 배경이 역할로 고정되면 `m_brushHeaderStatus`의 `DeleteObject`/`CreateSolidBrush` 재생성이 사라진다
-
-#### 범위 조건 (확장 금지)
-
-- [ ] `SageUiResources`는 **폰트 4개 + 배경 브러시 6개만** 소유한다.
-      테마 시스템·런타임 색상 변경·DPI 대응은 만들지 않는다
-- [ ] 체크박스 2개는 `OnCtlColor`에 분기 1개로 남긴다. **`CSageCheckBox`를 만들지 않는다**
-- [ ] 동적 색 2개(`m_wndHeaderStatus`·`m_wndActionStatus`)도 `OnCtlColor`에 남긴다.
-      역할이 고정값인 `CSageLabel`로는 런타임 색 변경을 담을 수 없다
-- [ ] `CSageLabel`은 `CStatic` 39개 중 동적 2개를 뺀 37개를 처리한다.
-      **원시 `COLORREF` 탈출구 없이 역할 enum만** 쓴다
-- [ ] 기존 `m_fontControl`/`Content`/`Title`/`Header` 역할을 그대로 옮긴다. 새 폰트 체계 없음
-
-```cpp
-enum SageTextRole   { SAGE_TEXT_DEFAULT, SECONDARY, PRIMARY, SUCCESS, ERROR,
-                      SIDEBAR, SIDEBAR_CATEGORY };                          // 7
-enum SageBackgroundRole { SAGE_BG_APP, PANEL, SIDEBAR,
-                          STATUS_SUCCESS, STATUS_WARNING, STATUS_ERROR };   // 6
-enum SageFontRole   { SAGE_FONT_CONTROL, CONTENT, TITLE, HEADER };          // 4
-```
-
-`SageUiResources`는 `SageUiStyle`과 분리한다 — 후자는 상태 없는 그리기 함수인데
-이쪽은 생성·소멸 수명이 있다. GDI 객체라 정적 초기화를 쓸 수 없으므로
-`CWinApp::InitInstance`/`ExitInstance`에서 `Create()`/`Destroy()`한다.
-
-#### 리플렉션 함정 2개 (5단계에서 화면이 깨지는 지점)
-
-```cpp
-1861  HBRUSH hBrush = CView::OnCtlColor(...);      // 여기서 자식에게 리플렉션
-1862  pDC->SetTextColor(TAECHANG_COLOR_TEXT);      // 자식이 정한 색을 즉시 뭉갠다
-```
-
-- **함정 1** — 라벨 조기 반환이 1862번 줄보다 **위**에 와야 한다
-- **함정 2** — 라벨도 static이라 맨 끝 `CTLCOLOR_STATIC` 기본값이 가로챈다.
-  `pWnd->IsKindOf(RUNTIME_CLASS(CSageLabel))`로 조기 반환한다 (`DECLARE_DYNAMIC` 필요)
-
-3-A-1의 "부모가 base를 호출하면 자식에게 리플렉션된다"와 같은 계열이다.
-
-#### 6단계 분할
-
-| # | 내용 | 상태 |
+| 커밋 | 내용 | 이 시점 화면 |
 |---|---|---|
-| 1 | `SageUiResources` 신설 + 폰트 4개 이관 | **완료** (`827eda3`) — 빌드·화면 확인 |
-| 2 | 브러시 6개 추가, View 브러시 4개 제거 | **완료** (`5f1d805`~`0163b6d`) — 빌드·화면 확인 |
-| 3 | `CSageLabel` 신설 (미사용) | **완료** (`5b66f49`) — 빌드 확인 |
-| 4 | 라벨 39개 타입 교체 + 역할 지정 | 대기 — 무변화 (View 분기가 아직 이김) |
-| 5 | `OnCtlColor` 라벨 분기 제거 | 대기 — **핵심 검증 지점** |
-| 6 | `ApplyControlFonts` 라벨 36곳 제거 | 대기 — 무변화 |
+| `827eda3` | `SageUiResources` 신설 + 폰트 4개 이관 | 변화 없음 |
+| `5f1d805`~`0163b6d` | 브러시 6개 추가, View 브러시 4개 제거 | 변화 없음 |
+| `5b66f49` | `CSageLabel` 신설 (미사용) | 미사용이므로 변화 없음 |
+| `b9eb338` | 라벨 37개 타입 교체 + 역할 지정 | View 분기가 이기므로 변화 없음 |
+| `6607cce` | `OnCtlColor` 라벨 분기 제거 | **여기서 라벨이 자기 색을 냄** — 이전과 동일 확인 |
+| `260d1dd` | `ApplyControlFonts` 라벨 34줄 제거 | 변화 없음 |
 
-각 단계마다 빌드 가능한 상태를 유지한다. **화면 변화가 생기면 즉시 중단하고 원인을 보고한다.**
+**결과**
 
-1~3단계는 `refactor/sage-ui-resources`에서 빌드·화면 확인 후 `develop` 머지 완료.
-4~6단계는 별도 브랜치로 이어간다.
-
-#### 4단계 역할 매핑 (확인 완료 — 이대로 옮긴다)
-
-View의 `CStatic` 멤버는 **39개**다. `OnCtlColor` 명시 분기 34개 + 폴백 5개.
-`ApplyControlFonts`에서 폰트를 받는 것은 36개(구분선 3개 제외).
-
-**A. 명시 분기 (20개)** — 색이 코드에 직접 적혀 있다
-
-| 멤버 | 텍스트 | 배경 | 폰트 |
-|---|---|---|---|
-| `m_wndTitle` | SIDEBAR | SIDEBAR | TITLE |
-| `m_wndSidebarTitle` | SIDEBAR_CATEGORY | SIDEBAR | CONTROL |
-| `m_wndHeaderTitle` | PRIMARY | APP | HEADER |
-| `m_wndUserLabel` | SECONDARY | APP | CONTENT |
-| `m_wndEmptyStateHint` | SECONDARY | APP | CONTENT |
-| `m_wndCoSearchLabel` | SECONDARY | APP | CONTENT |
-| `m_wndCoOrderLabel` | SECONDARY | PANEL | CONTENT |
-| `m_wndCoNameLabel` | SECONDARY | PANEL | CONTENT |
-| `m_wndPriceSummaryTitle` | SECONDARY | PANEL | CONTENT |
-| `m_wndPriceSummaryCount` | SECONDARY | PANEL | CONTENT |
-| `m_wndPriceSummaryRange` | SECONDARY | PANEL | CONTENT |
-| `m_wndPriceMinCopiesLabel` | SECONDARY | PANEL | CONTENT |
-| `m_wndPriceMaxCopiesLabel` | SECONDARY | PANEL | CONTENT |
-| `m_wndPricePrintLabel` | SECONDARY | PANEL | CONTENT |
-| `m_wndPriceCoverLabel` | SECONDARY | PANEL | CONTENT |
-| `m_wndPriceDetailHeader` | DEFAULT | PANEL | HEADER |
-| `m_wndCalcTotalLabel` | PRIMARY | PANEL | HEADER |
-| `m_wndCalcTotalValue` | PRIMARY | PANEL | HEADER |
-| `m_wndActionStatus` | **동적** | APP | CONTENT |
-| `m_wndHeaderStatus` | **동적** | **동적** | CONTENT |
-
-**B. 배경만 지정된 블록 (14개)** — 텍스트는 함수 첫 줄 기본값을 그대로 쓴다.
-전부 **DEFAULT + PANEL**. `Calc*` 11개는 폰트 CONTENT, 구분선 3개는 폰트 미지정.
-
-`m_wndCalcCompanyLabel` `m_wndCalcCopiesLabel` `m_wndCalcPagesLabel` `m_wndCalcPrintLabel`
-`m_wndCalcPrintValue` `m_wndCalcCoverLabel` `m_wndCalcCoverValue` `m_wndCalcSubtotalLabel`
-`m_wndCalcSubtotalValue` `m_wndCalcFreightLabel` `m_wndCalcFreightUnitLabel`
-`m_wndCalcDivider` `m_wndCalcTotalDivider` `m_wndPriceDetailDivider`
-
-**C. 분기 없음 (5개)** — `CTLCOLOR_STATIC` 폴백. 전부 **DEFAULT + APP**, 폰트 CONTENT.
-
-`m_wndWorkflowLabel` `m_wndInputLabel` `m_wndOutputLabel` `m_wndProgressText` `m_wndPriceCompanyLabel`
-
-**동적 2개는 4단계 대상에서 제외한다.** `CSageLabel`은 역할이 고정값이라 런타임에 바뀌는
-색을 담을 수 없다. 5단계에서 이 둘의 `OnCtlColor` 분기는 남긴다.
-
-**`m_wndPriceCompanyLabel`은 배경이 APP인 것이 버그로 확인됐다** — 가격 패널의 다른 라벨은
-전부 PANEL인데 이것만 분기에서 빠졌다. 4단계에서는 **현행대로 APP으로 옮기고** 별도 커밋으로
-고친다. 여기서 같이 고치면 5단계 검증 때 나타난 화면 변화가 의도한 수정인지 이관 실수인지
-구분할 수 없다. `DEBT_LOG` 기록.
-
-#### 1~3단계에서 확인된 것
-
-- 폰트 4개가 `ApplyControlFonts` 안에서 생성되고 있었다. 두 번 호출하면 안 되는 구조였고,
-  생성을 `InitInstance`로 옮기면서 해소됐다. `LoadPrivateFonts()` 이후여야 한다
-- 컨트롤 99개의 폰트 역할 배정이 이전과 1:1 동일함을 스크립트로 대조 확인 (불일치 0건)
+- `OnCtlColor` 112 → 31줄. 잔류는 동적 색 2개 + 체크박스 1블록 + 기본값 2개
+- `ApplyControlFonts` 114 → 76줄. 남은 `SetFont` 65개는 전부 비라벨
+- 폰트가 `ApplyControlFonts` 안에서 생성되던 구조(두 번 호출 불가)가
+  `InitInstance`/`ExitInstance` 수명으로 정리됐다. `LoadPrivateFonts()` 이후여야 한다
 - 헤더 상태 브러시의 `DeleteObject`/`CreateSolidBrush` 재생성이 사라졌다
-- `GetBrush`는 `HBRUSH`를 반환해야 한다. `CBrush*`로 두면 C2440 — `OnCtlColor`가 되던 것은
-  `CBrush::operator HBRUSH()` 때문이고 포인터에는 적용되지 않는다 (`0163b6d`에서 수정)
-- `CSageLabel` 기본값 `SAGE_TEXT_DEFAULT` + `SAGE_BG_APP`는 View의 기존 기본 경로와 같다.
-  4단계에서 역할 지정을 빠뜨려도 기존 색이 나오는 안전망이다
-- **죽은 코드 2건 발견** — 헤더 상태 기능 전체(`WS_VISIBLE` 없음 + 크기 0), `m_brushListHeader`.
-  둘 다 `DEBT_LOG` 기록, 이번 변경이 만든 것이 아니라 미변경
+- View.cpp 4,073 → 4,067줄. **줄 수는 6줄만 줄었다** (분기 119줄 제거, 역할 지정 113줄 추가)
+
+**남긴 것과 이유**
+
+- 동적 색 2개(`m_wndHeaderStatus`·`m_wndActionStatus`)는 `CStatic`으로 남겼다.
+  `CSageLabel`은 역할이 고정값이라 런타임에 바뀌는 색을 담을 수 없다
+- 체크박스 2개는 `CButton`이라 대상이 아니다. `CSageCheckBox`는 만들지 않았다
+- 구분선 3개는 원래 폰트를 받지 않아 `SetFontRole`을 호출하지 않았다
+- `m_wndPriceCompanyLabel`의 배경이 APP인 것은 버그지만 현행대로 옮겼다.
+  여기서 고치면 5단계 화면 변화의 원인을 구분할 수 없다. `DEBT_LOG` 기록
+
+**교훈**
+
+- **역할 매핑을 착수 전에 표로 확정하고 확인받은 것이 이 단계를 살렸다.**
+  39개를 옮기고 나서 색이 틀어지면 어디가 원인인지 찾을 수 없다.
+  매핑을 문서로 고정한 뒤 코드와 스크립트로 대조했다 (불일치 0건)
+- **화면이 변할 수 없는 단계와 변할 수 있는 단계를 분리한 것**이 핵심이었다.
+  3·4단계는 View 분기가 이기는 구조라 화면 변화가 원천적으로 불가능하고 5단계에서만 변할 수 있다.
+  그래서 5단계에서 이상이 생기면 원인이 매핑 하나로 좁혀진다
+- 리플렉션 동작을 추측하지 않고 MFC 원본에서 확인했다.
+  `CWnd::OnCtlColor`(`wincore.cpp:4308`)가 `SendChildNotifyLastMsg`로 자식에게 먼저 넘기고
+  **자식이 반환한 브러시를 그대로 돌려준다.** 그래서 부모는 `CView::OnCtlColor`의 반환값을
+  그대로 조기 반환하면 된다. 자식이 NULL을 반환할 때만 부모가 처리한다 (`wincore.cpp:3515`)
+- `GetBrush`는 `HBRUSH`를 반환해야 한다. `CBrush*`로 두면 C2440 —
+  `OnCtlColor`에서 되던 것은 `CBrush::operator HBRUSH()` 때문이고 포인터에는 적용되지 않는다
+- 계획서의 "약 140줄 회수" 예상은 빗나갔다. **제거할 줄만 세고 새로 쓸 줄을 세지 않았다.**
+  다음 단계 견적에서는 양쪽을 다 센다
+- 죽은 코드 2건(헤더 상태 기능 전체, `m_brushListHeader`)을 발견해 `DEBT_LOG`에 기록했다.
+  이번 변경이 만든 것이 아니라 손대지 않았다
 
 ---
 
