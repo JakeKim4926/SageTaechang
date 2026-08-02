@@ -1959,103 +1959,22 @@ BOOL CSageTaechangView::OnEraseBkgnd(CDC* pDC) {
 
 HBRUSH CSageTaechangView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
 	HBRUSH hBrush = CView::OnCtlColor(pDC, pWnd, nCtlColor);
+	if (pWnd->IsKindOf(RUNTIME_CLASS(CSageLabel)))
+		return hBrush;
 	pDC->SetTextColor(TAECHANG_COLOR_TEXT);
-	if (pWnd->GetSafeHwnd() == m_wndTitle.GetSafeHwnd()) {
-		pDC->SetTextColor(TAECHANG_COLOR_SIDEBAR_TEXT);
-		pDC->SetBkColor(TAECHANG_COLOR_SIDEBAR);
-		return SageUiResources::GetBrush(SAGE_BG_SIDEBAR);
-	}
-	if (pWnd->GetSafeHwnd() == m_wndSidebarTitle.GetSafeHwnd()) {
-		pDC->SetTextColor(TAECHANG_COLOR_SIDEBAR_CATEGORY);
-		pDC->SetBkColor(TAECHANG_COLOR_SIDEBAR);
-		return SageUiResources::GetBrush(SAGE_BG_SIDEBAR);
-	}
-	if (pWnd->GetSafeHwnd() == m_wndHeaderTitle.GetSafeHwnd()) {
-		pDC->SetTextColor(TAECHANG_COLOR_PRIMARY);
-		pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
-		return SageUiResources::GetBrush(SAGE_BG_APP);
-	}
-	if (pWnd->GetSafeHwnd() == m_wndUserLabel.GetSafeHwnd()) {
-		pDC->SetTextColor(TAECHANG_COLOR_SECONDARY_TEXT);
-		pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
-		return SageUiResources::GetBrush(SAGE_BG_APP);
-	}
 	if (pWnd->GetSafeHwnd() == m_wndHeaderStatus.GetSafeHwnd()) {
 		pDC->SetTextColor(m_colorHeaderStatus);
 		pDC->SetBkColor(SageUiResources::GetBackgroundColor(m_nHeaderStatusBgRole));
 		return SageUiResources::GetBrush(m_nHeaderStatusBgRole);
-	}
-	if (pWnd->GetSafeHwnd() == m_wndEmptyStateHint.GetSafeHwnd()) {
-		pDC->SetTextColor(TAECHANG_COLOR_SECONDARY_TEXT);
-		pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
-		return SageUiResources::GetBrush(SAGE_BG_APP);
-	}
-	if (pWnd->GetSafeHwnd() == m_wndCoSearchLabel.GetSafeHwnd()) {
-		pDC->SetTextColor(TAECHANG_COLOR_SECONDARY_TEXT);
-		pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
-		return SageUiResources::GetBrush(SAGE_BG_APP);
-	}
-	if (pWnd->GetSafeHwnd() == m_wndCoOrderLabel.GetSafeHwnd() ||
-		pWnd->GetSafeHwnd() == m_wndCoNameLabel.GetSafeHwnd()) {
-		pDC->SetTextColor(TAECHANG_COLOR_SECONDARY_TEXT);
-		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
-		return SageUiResources::GetBrush(SAGE_BG_PANEL);
 	}
 	if (pWnd->GetSafeHwnd() == m_wndActionStatus.GetSafeHwnd()) {
 		pDC->SetTextColor(m_bLastTaskSuccess ? TAECHANG_COLOR_SUCCESS : TAECHANG_COLOR_ERROR);
 		pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
 		return SageUiResources::GetBrush(SAGE_BG_APP);
 	}
-	if (pWnd->GetSafeHwnd() == m_wndPriceSummaryTitle.GetSafeHwnd()) {
-		pDC->SetTextColor(TAECHANG_COLOR_SECONDARY_TEXT);
-		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
-		return SageUiResources::GetBrush(SAGE_BG_PANEL);
-	}
-	if (pWnd->GetSafeHwnd() == m_wndPriceSummaryCount.GetSafeHwnd() ||
-		pWnd->GetSafeHwnd() == m_wndPriceSummaryRange.GetSafeHwnd()) {
-		pDC->SetTextColor(TAECHANG_COLOR_SECONDARY_TEXT);
-		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
-		return SageUiResources::GetBrush(SAGE_BG_PANEL);
-	}
 	if (pWnd->GetSafeHwnd() == m_wndPriceNoMaxCheck.GetSafeHwnd() ||
 		pWnd->GetSafeHwnd() == m_wndPriceSingleCheck.GetSafeHwnd()) {
 		pDC->SetTextColor(TAECHANG_COLOR_TEXT);
-		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
-		return SageUiResources::GetBrush(SAGE_BG_PANEL);
-	}
-	if (pWnd->GetSafeHwnd() == m_wndPriceDetailHeader.GetSafeHwnd()) {
-		pDC->SetTextColor(TAECHANG_COLOR_TEXT);
-		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
-		return SageUiResources::GetBrush(SAGE_BG_PANEL);
-	}
-	if (pWnd->GetSafeHwnd() == m_wndPriceMinCopiesLabel.GetSafeHwnd() ||
-		pWnd->GetSafeHwnd() == m_wndPriceMaxCopiesLabel.GetSafeHwnd() ||
-		pWnd->GetSafeHwnd() == m_wndPricePrintLabel.GetSafeHwnd() ||
-		pWnd->GetSafeHwnd() == m_wndPriceCoverLabel.GetSafeHwnd()) {
-		pDC->SetTextColor(TAECHANG_COLOR_SECONDARY_TEXT);
-		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
-		return SageUiResources::GetBrush(SAGE_BG_PANEL);
-	}
-	if (pWnd->GetSafeHwnd() == m_wndCalcTotalLabel.GetSafeHwnd() ||
-		pWnd->GetSafeHwnd() == m_wndCalcTotalValue.GetSafeHwnd()) {
-		pDC->SetTextColor(TAECHANG_COLOR_PRIMARY);
-		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
-		return SageUiResources::GetBrush(SAGE_BG_PANEL);
-	}
-	if (pWnd->GetSafeHwnd() == m_wndCalcCompanyLabel.GetSafeHwnd() ||
-		pWnd->GetSafeHwnd() == m_wndCalcCopiesLabel.GetSafeHwnd() ||
-		pWnd->GetSafeHwnd() == m_wndCalcPagesLabel.GetSafeHwnd() ||
-		pWnd->GetSafeHwnd() == m_wndCalcPrintLabel.GetSafeHwnd() ||
-		pWnd->GetSafeHwnd() == m_wndCalcPrintValue.GetSafeHwnd() ||
-		pWnd->GetSafeHwnd() == m_wndCalcCoverLabel.GetSafeHwnd() ||
-		pWnd->GetSafeHwnd() == m_wndCalcCoverValue.GetSafeHwnd() ||
-		pWnd->GetSafeHwnd() == m_wndCalcSubtotalLabel.GetSafeHwnd() ||
-		pWnd->GetSafeHwnd() == m_wndCalcSubtotalValue.GetSafeHwnd() ||
-		pWnd->GetSafeHwnd() == m_wndCalcFreightLabel.GetSafeHwnd() ||
-		pWnd->GetSafeHwnd() == m_wndCalcFreightUnitLabel.GetSafeHwnd() ||
-		pWnd->GetSafeHwnd() == m_wndCalcDivider.GetSafeHwnd() ||
-		pWnd->GetSafeHwnd() == m_wndCalcTotalDivider.GetSafeHwnd() ||
-		pWnd->GetSafeHwnd() == m_wndPriceDetailDivider.GetSafeHwnd()) {
 		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
 		return SageUiResources::GetBrush(SAGE_BG_PANEL);
 	}
