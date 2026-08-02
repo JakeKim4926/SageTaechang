@@ -31,7 +31,8 @@ WebView2 기반) 문서였고 존재하지 않는 폴더 구조를 규정했다.
 | 2 | 잔여 정리 (앱 헤더 DB 의존, `SqlInitializer`) | **완료** — develop 머지 |
 | 3-A | 공통 컨트롤 승격 | **완료** — 3-A-1~8 (3-A-4는 건너뜀) |
 | 3-B | 패널 분리 | 다음 |
-| 4 | 워크플로 핸들러 + 레지스트리 | 대기 |
+| 4 | 워크플로 핸들러 + 레지스트리 | **진행 중** — 3-B보다 먼저 (사용자 결정) |
+| 4-B | 의존 역전 (core Service ↔ infra Repository) | 대기 — Step 4에서 분리 |
 | 5 | `Sage` 접두사 전환 (상수·Define) | 대기 |
 
 ### Step 간 의존
@@ -51,6 +52,8 @@ WebView2 기반) 문서였고 존재하지 않는 폴더 구조를 규정했다.
 ```
 
 3-B 전체가 Step 4에 막혀 있는 것이 아니다. **결과리스트+필터 하나만** 4 이후다.
+그럼에도 **4를 3-B보다 먼저 하기로 했다** — 결과리스트가 3-B에서 가장 큰 패널이라
+그것만 뒤로 미루면 3-B를 두 번 나눠 하게 된다.
 
 `.claude/`는 `.gitignore` 대상이므로 스킬 변경은 브랜치·커밋 단위에서 제외한다.
 
@@ -281,45 +284,109 @@ View.cpp는 4,073 → 4,067줄로 6줄만 줄었다. 얻은 것은 길이가 아
 
 ---
 
-## Step 4 — 워크플로 핸들러
+## Step 4 — 워크플로 핸들러 (진행 중)
 
-브랜치: `refactor/workflow-handler`
-배치: `app/core/workflow/handlers/` (현재 `app/core/workflow/`에 `TaechangWorkflowResponse`,
-`TaechangWorkflowResultPresenter` 2개가 있으므로 핸들러 5쌍은 하위 폴더로)
+브랜치: 하위 단계마다 별도
+규칙: `coding-design` > *View 비대화 방지*, `sagetaechang-ui` > *컨트롤은 도메인 개념을 알면 안 된다*
 
-- [ ] **`ISageWorkflowHandler`** 정의 — 탭 구성 / 출력폴더 필요 여부 / 행 선택 필요 여부 /
-      결과 컬럼 정의 / 응답→행 변환
-- [ ] 레지스트리 + 워크플로 1~5 핸들러 (미수금·납품·견적·PDF·HWP)
-- [ ] View의 워크플로 조건 분기 사슬 제거
-- [ ] 결과리스트 패널 분리 (3-B에서 미룬 항목)
+### 조사로 확정된 사실
+
+- 워크플로 타입 분기가 **View의 함수 27개**에 흩어져 있다 (`TAECHANG_WORKFLOW_*` 사용 75곳)
+- 대상은 워크플로 1~5뿐이다. 6·7(단가관리·계산)은 패널이라 핸들러가 없다 (`IsPriceWorkflowType()`이 이미 가른다)
+- `RunWorkflowWorker`(View.cpp의 static 함수)가 **infra 서비스 5개를 직접 생성·호출**한다.
+  View.cpp의 `#include "app/infra/..."` 7줄이 그 결과다
+- `app/core/workflow/`에는 현재 `TaechangWorkflowResponse`·`TaechangWorkflowResultPresenter` 2쌍만 있다
+- `CSageListCtrl`은 이미 도메인을 모른다 (`SetHighlightColumns(시작, 개수)`).
+  **컨트롤 API는 그대로 두고 판단 주체만 핸들러로 옮긴다**
+
+### 분기의 축 9개
+
+| 축 | 대표 함수 | 분기 수 |
+|---|---|---|
+| 요청 ID·실행 | `GetTaskRequestId`, `RunWorkflowWorker` | 10 |
+| 실행 전 검증 | `RunWorkflowTask` | 7 |
+| 응답 표시 | `DisplayResponse` | 8 |
+| 입력 선택 | `OnSelectInput`, `ApplyDroppedInputPaths`, `OnInputReset` | 9 |
+| 결과 컬럼 | `ApplyResultColumns` + 술어 3개 | — |
+| 탭 구성 | `ApplyWorkflowTabs`, `HasDocumentResultTab` | 2 |
+| 레이아웃·전환 | `LayoutChildControls`, `OnWorkflowChanged`, `OnSidebarSelectionChanged` | 9 |
+| 라벨 | `UpdateWorkflowLabels` | 4 |
+| 결과 필터 | `GetDefaultFilterCriteria` 외 3개 | 6 |
+
+### 배치
+
+```
+app/core/workflow/
+  ISageWorkflowHandler.h          탭·컬럼·라벨·검증·필터를 답한다
+  ISageWorkflowRunner.h           실행 (core가 정의, infra가 구현)
+  SageWorkflowColumn.h            이름·너비·정렬 값 객체 (Win32 상수 금지, 자체 enum)
+  SageWorkflowRegistry.h/.cpp     등록부 1곳. FindHandler(int) — NULL 가능
+  handlers/                       핸들러 5쌍 (미수금·납품·견적·PDF·HWP)
+```
+
+`core`는 `afxwin.h`를 넣지 않는다. `CString`은 허용된다.
+정렬은 `LVCFMT_*`를 쓰지 않고 자체 enum으로 두고 View가 변환한다.
+
+### 8단계 분할
+
+| # | 내용 | 화면 |
+|---|---|---|
+| 4-1 | 인터페이스 + 등록부 + 핸들러 5개 골격. **View는 아직 쓰지 않는다** | 무변화 |
+| 4-2 | 라벨 축 — `UpdateWorkflowLabels` | 무변화 |
+| 4-3 | 탭 축 — `ApplyWorkflowTabs`, `HasDocumentResultTab`, `IsCompareWorkflow` | 무변화 |
+| 4-4 | 결과 컬럼 축 — `ApplyResultColumns` + 술어 3개 | 무변화 |
+| 4-5 | 입력 축 — `OnSelectInput`, `ApplyDroppedInputPaths`, `OnInputReset` | 무변화 |
+| 4-6 | 검증·필터·UI상태 축 — `RunWorkflowTask` 검증, 필터 4개, `GetWorkflowUiState` | 무변화 |
+| 4-7 | 응답 표시 축 — `DisplayResponse` | 무변화 |
+| 4-8 | **실행 축 + infra 역전** — `ISageWorkflowRunner`, infra 5개 구현, View의 infra include 제거 | 무변화 |
+
+각 단계마다 빌드 가능한 상태를 유지한다. **화면 변화가 생기면 즉시 중단하고 원인을 보고한다.**
+
+3-A-8의 교훈을 적용한다 — **단계마다 제거할 줄과 새로 쓸 줄을 함께 센다.**
 
 ### 조회는 `Find*`다
-
-**워크플로 6·7(단가관리·계산)은 핸들러가 없다.** 패널로 유지하기로 했고,
-`IsPriceWorkflowType()` 인라인이 이미 그 구분을 하고 있다.
 
 ```cpp
 ISageWorkflowHandler* FindHandler(int nWorkflowType);   // NULL 가능, 호출부가 검사
 ```
 
-`Get*`으로 지으면 계약이 거짓이 된다.
+워크플로 6·7은 핸들러가 없으므로 `Get*`으로 지으면 계약이 거짓이 된다.
 
-### core의 MFC 비의존 유지
+### 완료 기준
 
-핸들러가 "결과 컬럼"과 "탭 구성"을 답해야 하는데 `app/core/`는 MFC 헤더를 넣지 않는다.
-컬럼은 이름·너비·정렬을 담은 값 객체로, 탭은 인덱스·라벨로 표현한다. `CString`은 허용된다.
-
-### 완료 기준 — 등록부 1곳은 허용한다
-
-C++에서 핸들러 자동 등록(정적 초기화 트릭)은 초기화 순서 문제와
-링커가 참조 없는 오브젝트를 제거하는 문제가 있어 함정이 많다. 현실적인 기준으로 잡는다.
-
-> **워크플로 추가 = 핸들러 파일 1쌍 + 중앙 등록부 1곳 수정.**
+> **워크플로 추가 = `handlers/`에 파일 1쌍 + 등록부 1곳 수정.**
 > View / 결과 컬럼 / 응답 파싱 / 탭 구성 어디도 고칠 필요가 없다.
 
-"파일 하나만"을 목표로 하려면 자동 등록 구조를 별도로 설계해야 한다. 이번 범위 밖이다.
+측정 가능한 형태로:
 
-DEBT_LOG 열린 3건도 여기서 해소한다.
+- [ ] `View.cpp`에 `TAECHANG_WORKFLOW_RECEIVABLES`~`_HWP_COMPARE` 사용이 **0곳**
+      (6·7 단가 워크플로와 사이드바 등록 데이터는 제외)
+- [ ] `View.cpp`에 `#include "app/infra/office/..."`가 **0줄**
+- [ ] 각 단계에서 화면 표시가 바뀌면 실패
+
+자동 등록(정적 초기화 트릭)은 초기화 순서와 링커의 미참조 오브젝트 제거 문제가 있어 만들지 않는다.
+등록부 1곳은 허용한다.
+
+### 범위 밖
+
+- **워크플로 6·7(단가관리·계산)** — 패널이지 워크플로 실행이 아니다. 핸들러를 만들지 않는다
+- **레이아웃·전환 축** (`LayoutChildControls` 등 9분기) — 어느 패널을 보일지 결정하는 코드라
+  3-B(패널 분리) 소관이다. 여기서 건드리면 두 작업의 검증 지점이 섞인다
+- **결과리스트 패널 분리** — Step 4 완료 후 3-B의 첫 항목으로 진행한다
+- **`CSageEdit` / 테두리 정책** — 3-A-4에서 보류한 그대로
+
+### DEBT_LOG 3건 중 해소되는 것은 1건의 일부다
+
+계획서는 이전에 "열린 3건을 여기서 해소한다"고 적었으나 **정정한다.**
+
+| 부채 | Step 4 |
+|---|---|
+| UI→infra 직접 호출 | **부분 해소** — View의 office 서비스 5개는 4-8에서. 다이얼로그 3개가 `SageDBMgr`을 부르는 것은 단가·인증 경로라 워크플로와 무관 |
+| core Service 헤더가 infra Repository 헤더에 의존 | **해소 안 됨** — auth·price·receivable Service 3개의 문제로 접점이 없다 |
+| infra/office가 infra/db 참조 | **해소 안 됨** — `TaechangReceivablesExcelService`의 infra 내부 문제 |
+
+남는 2.5건은 **Step 4-후속(가칭 Step 4-B) 의존 역전**으로 별도 처리한다.
+Step 4에서 `core`가 인터페이스를 정의하는 패턴이 자리잡은 뒤에 하는 것이 순서상 맞다.
 
 ---
 
