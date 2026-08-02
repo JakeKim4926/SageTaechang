@@ -1,3 +1,9 @@
+## [2026-08-02] refactor/sage-ui-resources
+- **목적**: 색상과 폰트를 한 저장소로 묶기 위한 기반 마련 (3-A-8 1~3단계)
+- **변경 내용**: `namespace SageUiResources` 신설 — 폰트 4개 + 배경 브러시 6개를 소유하고 역할 enum 3종(`SageFontRole` 4 / `SageBackgroundRole` 6 / `SageTextRole` 7)으로 꺼내 쓴다. **폰트가 `ApplyControlFonts` 안에서 생성되던 구조**(두 번 호출하면 안 됨)를 `InitInstance`/`ExitInstance` 수명으로 옮겨 해소했고, `LoadPrivateFonts()` 이후여야 한다. View의 폰트 멤버 4개와 브러시 멤버 4개 제거, 헤더 상태 브러시의 `DeleteObject`/`CreateSolidBrush` 재생성도 소멸. 컨트롤 99개의 폰트 역할 배정이 이전과 1:1 동일함을 스크립트로 대조(불일치 0건). `CSageLabel`을 신설했으나 **아직 아무도 쓰지 않는다** — 기본값 `SAGE_TEXT_DEFAULT`+`SAGE_BG_APP`가 View의 기존 폴백과 같아 다음 단계에서 역할 지정을 빠뜨려도 색이 유지되는 안전망이다. `GetBrush`는 `HBRUSH`를 반환해야 한다(`CBrush*`는 C2440 — `CBrush::operator HBRUSH()`가 포인터에는 적용되지 않는다). 작업 중 죽은 코드 2건(헤더 상태 기능 전체, `m_brushListHeader`)과 배경색 버그 1건(`m_wndPriceCompanyLabel`) 발견해 DEBT_LOG 기록. **3-A-8은 6단계 중 3단계까지이며 4~6단계는 별도 브랜치로 이어간다**
+- **PR 링크**: 없음 (develop 직접 머지)
+- **결과**: merged
+
 ## [2026-08-01] refactor/sage-ui-style
 - **목적**: 컨트롤 간 실제 중복을 조사하고 공유 그리기 조각을 추출 (3-A-7)
 - **변경 내용**: 컨트롤 7개를 전수 조사한 결과 **진짜 중복은 콤보 화살표 삼각형 14줄 하나**였고, SageComboBox와 SageFilterComboBox가 들여쓰기만 다른 동일 코드를 갖고 있었다. `namespace SageUiStyle`에 `DrawComboArrow` 하나만 두고 두 곳을 한 줄 호출로 교체(28줄 제거). **추출하지 않은 후보 3건과 이유를 함께 기록** — 배경 채우기(컨트롤마다 색이 다르고 FillSolidRect 한 줄), 테두리(CSageButton Secondary 한 곳뿐), 가운데 텍스트(6곳이나 색·rect·포맷이 매번 달라 관용구지 로직이 아님). SageUiStyle을 색상 파사드로 만드는 안은 색이 이미 TaechangDefine.h에 모여 있어 기각. 조사 중 폰트 선택 가드 불일치 2곳 발견해 DEBT_LOG 기록

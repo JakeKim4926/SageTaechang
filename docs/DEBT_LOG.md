@@ -5,6 +5,12 @@
 
 ## 열린 항목
 
+### [2026-08-02] 기존부채 — m_wndPriceCompanyLabel만 가격 패널에서 배경색이 다름
+- 위치: app/ui/view/SageTaechangView.cpp `OnCtlColor` (1847~1958, 해당 분기 없음)
+- 설명: 가격 데이터 관리 패널의 라벨은 전부 배경 PANEL 분기를 타는데 `m_wndPriceCompanyLabel`만 분기가 없어 맨 끝 `CTLCOLOR_STATIC` 폴백으로 APP 배경이 된다. 3-A-8 4단계 역할 매핑을 뽑다 발견했고 버그로 확인받았다. 4단계에서 같이 고치면 5단계 검증 때 나타난 화면 변화가 의도한 수정인지 이관 실수인지 구분할 수 없어 현행(APP)대로 옮긴다.
+- 위험도: 낮음
+- 후속: 3-A-8 완료 후 별도 커밋으로 `SetBackgroundRole(SAGE_BG_PANEL)` 한 줄. 화면이 실제로 바뀌는 수정이라 눈으로 확인이 필요하다
+
 ### [2026-08-01] 기존부채 — 헤더 상태 표시 기능이 통째로 동작하지 않음
 - 위치: app/ui/view/SageTaechangView.cpp:372 `m_wndHeaderStatus.Create`, :841 `MoveWindow(0,0,0,0)`
 - 설명: `m_wndHeaderStatus`가 `WS_CHILD | SS_RIGHT`로만 생성되어 **`WS_VISIBLE`이 없고**, `ShowWindow` 호출도 없으며 레이아웃에서 크기를 `0,0,0,0`으로 준다. 즉 화면에 표시된 적이 없다. 그런데 이 컨트롤을 위해 멤버 2개(`m_colorHeaderStatus`/`m_nHeaderStatusBgRole`), 함수 2개(`ResolveStatusColor`/`ResolveStatusBgRole`), `OnCtlColor` 분기 5줄, 상수 3개(`TAECHANG_COLOR_STATUS_BG_SUCCESS`/`WARNING`/`ERROR` — 다른 사용처 없음)가 유지되고 있다. `SetStatusText`가 같이 호출하는 `pFrame->SetMessageText`(창 하단 상태바)는 정상 동작하므로 상태 표시 자체가 안 되는 것은 아니다. PR_LOG의 상태별 색 기능(PR #15)에서 도입됐고 컨트롤을 보이게 하는 단계가 빠진 것으로 보인다. 3-A-8 2단계에서 브러시를 이관하다 발견했다.

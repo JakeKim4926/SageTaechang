@@ -223,7 +223,10 @@ View의 오너드로우 컨트롤 34개(버튼 26 + 섹션 라벨 7 + 필터 콤
 - [ ] `SageUiResources`는 **폰트 4개 + 배경 브러시 6개만** 소유한다.
       테마 시스템·런타임 색상 변경·DPI 대응은 만들지 않는다
 - [ ] 체크박스 2개는 `OnCtlColor`에 분기 1개로 남긴다. **`CSageCheckBox`를 만들지 않는다**
-- [ ] `CSageLabel`은 `CStatic` 34개만 처리한다. **원시 `COLORREF` 탈출구 없이 역할 enum만** 쓴다
+- [ ] 동적 색 2개(`m_wndHeaderStatus`·`m_wndActionStatus`)도 `OnCtlColor`에 남긴다.
+      역할이 고정값인 `CSageLabel`로는 런타임 색 변경을 담을 수 없다
+- [ ] `CSageLabel`은 `CStatic` 39개 중 동적 2개를 뺀 37개를 처리한다.
+      **원시 `COLORREF` 탈출구 없이 역할 enum만** 쓴다
 - [ ] 기존 `m_fontControl`/`Content`/`Title`/`Header` 역할을 그대로 옮긴다. 새 폰트 체계 없음
 
 ```cpp
@@ -257,20 +260,65 @@ enum SageFontRole   { SAGE_FONT_CONTROL, CONTENT, TITLE, HEADER };          // 4
 |---|---|---|
 | 1 | `SageUiResources` 신설 + 폰트 4개 이관 | **완료** (`827eda3`) — 빌드·화면 확인 |
 | 2 | 브러시 6개 추가, View 브러시 4개 제거 | **완료** (`5f1d805`~`0163b6d`) — 빌드·화면 확인 |
-| 3 | `CSageLabel` 신설 (미사용) | **코드 완료** (`5b66f49`) — **빌드 미검증** |
-| 4 | 라벨 34개 타입 교체 + 역할 지정 | 대기 — 무변화 (View 분기가 아직 이김) |
+| 3 | `CSageLabel` 신설 (미사용) | **완료** (`5b66f49`) — 빌드 확인 |
+| 4 | 라벨 39개 타입 교체 + 역할 지정 | 대기 — 무변화 (View 분기가 아직 이김) |
 | 5 | `OnCtlColor` 라벨 분기 제거 | 대기 — **핵심 검증 지점** |
 | 6 | `ApplyControlFonts` 라벨 36곳 제거 | 대기 — 무변화 |
 
 각 단계마다 빌드 가능한 상태를 유지한다. **화면 변화가 생기면 즉시 중단하고 원인을 보고한다.**
 
-브랜치 `refactor/sage-ui-resources`에 커밋 6개. **3단계 빌드 미검증이라 develop 머지 전이다.**
+1~3단계는 `refactor/sage-ui-resources`에서 빌드·화면 확인 후 `develop` 머지 완료.
+4~6단계는 별도 브랜치로 이어간다.
 
-#### 재개 지점 — 4단계 착수 전 할 일
+#### 4단계 역할 매핑 (확인 완료 — 이대로 옮긴다)
 
-34개 라벨마다 `(텍스트 역할, 배경 역할, 폰트 역할)` 3개를 지정해야 한다.
-잘못 옮기면 5단계에서 색이 틀어지는데 34개 중 어디인지 찾기 어렵다.
-**현재 `OnCtlColor`·`ApplyControlFonts`의 매핑을 표로 뽑아 확인받은 뒤 착수한다.**
+View의 `CStatic` 멤버는 **39개**다. `OnCtlColor` 명시 분기 34개 + 폴백 5개.
+`ApplyControlFonts`에서 폰트를 받는 것은 36개(구분선 3개 제외).
+
+**A. 명시 분기 (20개)** — 색이 코드에 직접 적혀 있다
+
+| 멤버 | 텍스트 | 배경 | 폰트 |
+|---|---|---|---|
+| `m_wndTitle` | SIDEBAR | SIDEBAR | TITLE |
+| `m_wndSidebarTitle` | SIDEBAR_CATEGORY | SIDEBAR | CONTROL |
+| `m_wndHeaderTitle` | PRIMARY | APP | HEADER |
+| `m_wndUserLabel` | SECONDARY | APP | CONTENT |
+| `m_wndEmptyStateHint` | SECONDARY | APP | CONTENT |
+| `m_wndCoSearchLabel` | SECONDARY | APP | CONTENT |
+| `m_wndCoOrderLabel` | SECONDARY | PANEL | CONTENT |
+| `m_wndCoNameLabel` | SECONDARY | PANEL | CONTENT |
+| `m_wndPriceSummaryTitle` | SECONDARY | PANEL | CONTENT |
+| `m_wndPriceSummaryCount` | SECONDARY | PANEL | CONTENT |
+| `m_wndPriceSummaryRange` | SECONDARY | PANEL | CONTENT |
+| `m_wndPriceMinCopiesLabel` | SECONDARY | PANEL | CONTENT |
+| `m_wndPriceMaxCopiesLabel` | SECONDARY | PANEL | CONTENT |
+| `m_wndPricePrintLabel` | SECONDARY | PANEL | CONTENT |
+| `m_wndPriceCoverLabel` | SECONDARY | PANEL | CONTENT |
+| `m_wndPriceDetailHeader` | DEFAULT | PANEL | HEADER |
+| `m_wndCalcTotalLabel` | PRIMARY | PANEL | HEADER |
+| `m_wndCalcTotalValue` | PRIMARY | PANEL | HEADER |
+| `m_wndActionStatus` | **동적** | APP | CONTENT |
+| `m_wndHeaderStatus` | **동적** | **동적** | CONTENT |
+
+**B. 배경만 지정된 블록 (14개)** — 텍스트는 함수 첫 줄 기본값을 그대로 쓴다.
+전부 **DEFAULT + PANEL**. `Calc*` 11개는 폰트 CONTENT, 구분선 3개는 폰트 미지정.
+
+`m_wndCalcCompanyLabel` `m_wndCalcCopiesLabel` `m_wndCalcPagesLabel` `m_wndCalcPrintLabel`
+`m_wndCalcPrintValue` `m_wndCalcCoverLabel` `m_wndCalcCoverValue` `m_wndCalcSubtotalLabel`
+`m_wndCalcSubtotalValue` `m_wndCalcFreightLabel` `m_wndCalcFreightUnitLabel`
+`m_wndCalcDivider` `m_wndCalcTotalDivider` `m_wndPriceDetailDivider`
+
+**C. 분기 없음 (5개)** — `CTLCOLOR_STATIC` 폴백. 전부 **DEFAULT + APP**, 폰트 CONTENT.
+
+`m_wndWorkflowLabel` `m_wndInputLabel` `m_wndOutputLabel` `m_wndProgressText` `m_wndPriceCompanyLabel`
+
+**동적 2개는 4단계 대상에서 제외한다.** `CSageLabel`은 역할이 고정값이라 런타임에 바뀌는
+색을 담을 수 없다. 5단계에서 이 둘의 `OnCtlColor` 분기는 남긴다.
+
+**`m_wndPriceCompanyLabel`은 배경이 APP인 것이 버그로 확인됐다** — 가격 패널의 다른 라벨은
+전부 PANEL인데 이것만 분기에서 빠졌다. 4단계에서는 **현행대로 APP으로 옮기고** 별도 커밋으로
+고친다. 여기서 같이 고치면 5단계 검증 때 나타난 화면 변화가 의도한 수정인지 이관 실수인지
+구분할 수 없다. `DEBT_LOG` 기록.
 
 #### 1~3단계에서 확인된 것
 
