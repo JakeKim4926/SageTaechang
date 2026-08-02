@@ -434,6 +434,7 @@ void CSageTaechangView::CreateChildControls() {
 	CreateCompanyOrderPanel();
 
 	ApplyControlFonts();
+	ApplyLabelRoles();
 	ApplyWorkflowTabs();
 	ApplyResultColumns();
 	UpdateWorkflowLabels();
@@ -585,6 +586,118 @@ void CSageTaechangView::ApplyControlFonts() {
 	m_wndCoList.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	if (::IsWindow(m_wndCoListHeader.GetSafeHwnd()))
 		m_wndCoListHeader.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
+}
+
+void CSageTaechangView::ApplyLabelRoles() {
+	m_wndTitle.SetTextColorRole(SAGE_TEXT_SIDEBAR);
+	m_wndTitle.SetBackgroundRole(SAGE_BG_SIDEBAR);
+	m_wndTitle.SetFontRole(SAGE_FONT_TITLE);
+
+	m_wndSidebarTitle.SetTextColorRole(SAGE_TEXT_SIDEBAR_CATEGORY);
+	m_wndSidebarTitle.SetBackgroundRole(SAGE_BG_SIDEBAR);
+	m_wndSidebarTitle.SetFontRole(SAGE_FONT_CONTROL);
+
+	m_wndHeaderTitle.SetTextColorRole(SAGE_TEXT_PRIMARY);
+	m_wndHeaderTitle.SetFontRole(SAGE_FONT_HEADER);
+
+	m_wndUserLabel.SetTextColorRole(SAGE_TEXT_SECONDARY);
+	m_wndUserLabel.SetFontRole(SAGE_FONT_CONTENT);
+
+	m_wndEmptyStateHint.SetTextColorRole(SAGE_TEXT_SECONDARY);
+	m_wndEmptyStateHint.SetFontRole(SAGE_FONT_CONTENT);
+
+	m_wndCoSearchLabel.SetTextColorRole(SAGE_TEXT_SECONDARY);
+	m_wndCoSearchLabel.SetFontRole(SAGE_FONT_CONTENT);
+
+	m_wndCoOrderLabel.SetTextColorRole(SAGE_TEXT_SECONDARY);
+	m_wndCoOrderLabel.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndCoOrderLabel.SetFontRole(SAGE_FONT_CONTENT);
+
+	m_wndCoNameLabel.SetTextColorRole(SAGE_TEXT_SECONDARY);
+	m_wndCoNameLabel.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndCoNameLabel.SetFontRole(SAGE_FONT_CONTENT);
+
+	m_wndPriceSummaryTitle.SetTextColorRole(SAGE_TEXT_SECONDARY);
+	m_wndPriceSummaryTitle.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndPriceSummaryTitle.SetFontRole(SAGE_FONT_CONTENT);
+
+	m_wndPriceSummaryCount.SetTextColorRole(SAGE_TEXT_SECONDARY);
+	m_wndPriceSummaryCount.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndPriceSummaryCount.SetFontRole(SAGE_FONT_CONTENT);
+
+	m_wndPriceSummaryRange.SetTextColorRole(SAGE_TEXT_SECONDARY);
+	m_wndPriceSummaryRange.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndPriceSummaryRange.SetFontRole(SAGE_FONT_CONTENT);
+
+	m_wndPriceMinCopiesLabel.SetTextColorRole(SAGE_TEXT_SECONDARY);
+	m_wndPriceMinCopiesLabel.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndPriceMinCopiesLabel.SetFontRole(SAGE_FONT_CONTENT);
+
+	m_wndPriceMaxCopiesLabel.SetTextColorRole(SAGE_TEXT_SECONDARY);
+	m_wndPriceMaxCopiesLabel.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndPriceMaxCopiesLabel.SetFontRole(SAGE_FONT_CONTENT);
+
+	m_wndPricePrintLabel.SetTextColorRole(SAGE_TEXT_SECONDARY);
+	m_wndPricePrintLabel.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndPricePrintLabel.SetFontRole(SAGE_FONT_CONTENT);
+
+	m_wndPriceCoverLabel.SetTextColorRole(SAGE_TEXT_SECONDARY);
+	m_wndPriceCoverLabel.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndPriceCoverLabel.SetFontRole(SAGE_FONT_CONTENT);
+
+	m_wndPriceDetailHeader.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndPriceDetailHeader.SetFontRole(SAGE_FONT_HEADER);
+
+	m_wndCalcTotalLabel.SetTextColorRole(SAGE_TEXT_PRIMARY);
+	m_wndCalcTotalLabel.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndCalcTotalLabel.SetFontRole(SAGE_FONT_HEADER);
+
+	m_wndCalcTotalValue.SetTextColorRole(SAGE_TEXT_PRIMARY);
+	m_wndCalcTotalValue.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndCalcTotalValue.SetFontRole(SAGE_FONT_HEADER);
+
+	m_wndCalcCompanyLabel.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndCalcCompanyLabel.SetFontRole(SAGE_FONT_CONTENT);
+
+	m_wndCalcCopiesLabel.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndCalcCopiesLabel.SetFontRole(SAGE_FONT_CONTENT);
+
+	m_wndCalcPagesLabel.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndCalcPagesLabel.SetFontRole(SAGE_FONT_CONTENT);
+
+	m_wndCalcPrintLabel.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndCalcPrintLabel.SetFontRole(SAGE_FONT_CONTENT);
+
+	m_wndCalcPrintValue.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndCalcPrintValue.SetFontRole(SAGE_FONT_CONTENT);
+
+	m_wndCalcCoverLabel.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndCalcCoverLabel.SetFontRole(SAGE_FONT_CONTENT);
+
+	m_wndCalcCoverValue.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndCalcCoverValue.SetFontRole(SAGE_FONT_CONTENT);
+
+	m_wndCalcSubtotalLabel.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndCalcSubtotalLabel.SetFontRole(SAGE_FONT_CONTENT);
+
+	m_wndCalcSubtotalValue.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndCalcSubtotalValue.SetFontRole(SAGE_FONT_CONTENT);
+
+	m_wndCalcFreightLabel.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndCalcFreightLabel.SetFontRole(SAGE_FONT_CONTENT);
+
+	m_wndCalcFreightUnitLabel.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndCalcFreightUnitLabel.SetFontRole(SAGE_FONT_CONTENT);
+
+	m_wndCalcDivider.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndCalcTotalDivider.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndPriceDetailDivider.SetBackgroundRole(SAGE_BG_PANEL);
+
+	m_wndWorkflowLabel.SetFontRole(SAGE_FONT_CONTENT);
+	m_wndInputLabel.SetFontRole(SAGE_FONT_CONTENT);
+	m_wndOutputLabel.SetFontRole(SAGE_FONT_CONTENT);
+	m_wndProgressText.SetFontRole(SAGE_FONT_CONTENT);
+	m_wndPriceCompanyLabel.SetFontRole(SAGE_FONT_CONTENT);
 }
 
 void CSageTaechangView::ApplyWorkflowTabs() {

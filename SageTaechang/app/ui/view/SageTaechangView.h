@@ -9,6 +9,7 @@
 #include "app/ui/drawing/SageFilterComboBox.h"
 #include "app/ui/drawing/SageButton.h"
 #include "app/ui/drawing/SageSectionLabel.h"
+#include "app/ui/drawing/SageLabel.h"
 #include "app/ui/drawing/SageListCtrl.h"
 #include "app/ui/drawing/SageUiResources.h"
 #include "app/ui/drawing/SageSidebarTree.h"
@@ -78,19 +79,19 @@ public:
 #endif
 
 protected:
-    CStatic m_wndSidebarTitle;
+    CSageLabel m_wndSidebarTitle;
     CSageSidebarTree m_wndSidebarTree;
-    CStatic m_wndHeaderTitle;
+    CSageLabel m_wndHeaderTitle;
     CStatic m_wndHeaderStatus;
     CSageTabCtrl m_wndTaskTabs;
     CSageSectionLabel m_wndInputSection;
     CSageSectionLabel m_wndOutputSection;
     CSageSectionLabel m_wndResultSection;
     CSageSectionLabel m_wndDetailSection;
-    CStatic m_wndTitle;
-    CStatic m_wndWorkflowLabel;
-    CStatic m_wndInputLabel;
-    CStatic m_wndOutputLabel;
+    CSageLabel m_wndTitle;
+    CSageLabel m_wndWorkflowLabel;
+    CSageLabel m_wndInputLabel;
+    CSageLabel m_wndOutputLabel;
     CEdit m_wndInputPath;
     CEdit m_wndOutputFolder;
     CSageButton m_wndSelectInput;
@@ -102,7 +103,7 @@ protected:
     CButton m_wndEstimateOnePage;
     CSageButton m_wndInputReset;
     CProgressCtrl m_wndProgress;
-    CStatic m_wndProgressText;
+    CSageLabel m_wndProgressText;
     CSageHeaderCtrl m_wndResultHeader;
     CSageListCtrl m_wndResultList;
     CSageFilterComboBox m_wndResultFilterCriteria;
@@ -110,7 +111,7 @@ protected:
     CSageButton m_wndResultSearchBtn;
     CSageButton m_wndResultResetBtn;
     CEdit m_wndDetail;
-    CStatic m_wndEmptyStateHint;
+    CSageLabel m_wndEmptyStateHint;
     CStatic m_wndActionStatus;
     CBrush m_brushListHeader;
     BOOL m_bRunning;
@@ -135,61 +136,61 @@ protected:
 
     CSageButton m_wndLoginBtn;
     CSageButton m_wndLogoutBtn;
-    CStatic m_wndUserLabel;
+    CSageLabel m_wndUserLabel;
     int m_nAuthDividerX;
 
     // ── 가격 데이터 관리 패널 ────────────────────────────────────────────────
-    CStatic             m_wndPriceCompanyLabel;
+    CSageLabel          m_wndPriceCompanyLabel;
     CSageComboBox   m_wndPriceCompanyCombo;
     CSageButton         m_wndPriceAddCompanyBtn;
     CSageButton         m_wndPriceRenameCompanyBtn;
     CSageButton         m_wndPriceDeleteCompanyBtn;
     CSageHeaderCtrl m_wndPriceCopiesHeader;
     CSageListCtrl       m_wndPriceCopiesList;
-    CStatic             m_wndPriceMinCopiesLabel;
+    CSageLabel          m_wndPriceMinCopiesLabel;
     CEdit               m_wndPriceMinCopiesEdit;
     CButton             m_wndPriceSingleCheck;
-    CStatic             m_wndPriceMaxCopiesLabel;
+    CSageLabel          m_wndPriceMaxCopiesLabel;
     CEdit               m_wndPriceMaxCopiesEdit;
     CButton             m_wndPriceNoMaxCheck;
-    CStatic             m_wndPricePrintLabel;
+    CSageLabel          m_wndPricePrintLabel;
     CEdit               m_wndPricePrintEdit;
-    CStatic             m_wndPriceCoverLabel;
+    CSageLabel          m_wndPriceCoverLabel;
     CEdit               m_wndPriceCoverEdit;
     CSageButton         m_wndPriceAddBtn;
     CSageButton         m_wndPriceModifyBtn;
     CSageButton         m_wndPriceDeleteBtn;
     CSageButton         m_wndPriceCancelBtn;
-    CStatic             m_wndPriceDetailHeader;
-    CStatic             m_wndPriceDetailDivider;
-    CStatic             m_wndPriceSummaryTitle;
-    CStatic             m_wndPriceSummaryCount;
-    CStatic             m_wndPriceSummaryRange;
+    CSageLabel          m_wndPriceDetailHeader;
+    CSageLabel          m_wndPriceDetailDivider;
+    CSageLabel          m_wndPriceSummaryTitle;
+    CSageLabel          m_wndPriceSummaryCount;
+    CSageLabel          m_wndPriceSummaryRange;
     CRect               m_rectPriceSummaryCard;
 
     // ── 부수 계산 패널 ───────────────────────────────────────────────────────
-    CStatic              m_wndCalcCompanyLabel;
+    CSageLabel           m_wndCalcCompanyLabel;
     CSageComboBox    m_wndCalcCompanyCombo;
     CSageButton          m_wndCalcCompanyPickBtn;
-    CStatic              m_wndCalcCopiesLabel;
+    CSageLabel           m_wndCalcCopiesLabel;
     CEdit                m_wndCalcCopiesEdit;
-    CStatic              m_wndCalcPagesLabel;
+    CSageLabel           m_wndCalcPagesLabel;
     CEdit                m_wndCalcPagesEdit;
     CSageButton          m_wndCalcBtn;
     CSageButton          m_wndCalcResetBtn;
-    CStatic              m_wndCalcPrintLabel;
-    CStatic              m_wndCalcPrintValue;
-    CStatic              m_wndCalcCoverLabel;
-    CStatic              m_wndCalcCoverValue;
-    CStatic              m_wndCalcSubtotalLabel;
-    CStatic              m_wndCalcSubtotalValue;
-    CStatic              m_wndCalcFreightLabel;
+    CSageLabel           m_wndCalcPrintLabel;
+    CSageLabel           m_wndCalcPrintValue;
+    CSageLabel           m_wndCalcCoverLabel;
+    CSageLabel           m_wndCalcCoverValue;
+    CSageLabel           m_wndCalcSubtotalLabel;
+    CSageLabel           m_wndCalcSubtotalValue;
+    CSageLabel           m_wndCalcFreightLabel;
     CEdit                m_wndCalcFreightEdit;
-    CStatic              m_wndCalcFreightUnitLabel;
-    CStatic              m_wndCalcDivider;
-    CStatic              m_wndCalcTotalDivider;
-    CStatic              m_wndCalcTotalLabel;
-    CStatic              m_wndCalcTotalValue;
+    CSageLabel           m_wndCalcFreightUnitLabel;
+    CSageLabel           m_wndCalcDivider;
+    CSageLabel           m_wndCalcTotalDivider;
+    CSageLabel           m_wndCalcTotalLabel;
+    CSageLabel           m_wndCalcTotalValue;
     CSageSectionLabel       m_wndCalcHistorySection;
     CSageHeaderCtrl  m_wndCalcHistoryHeader;
     CSageListCtrl        m_wndCalcHistoryList;
@@ -211,12 +212,12 @@ protected:
     CSageButton         m_wndCoModifyBtn;
     CSageButton         m_wndCoDeleteBtn;
     CSageButton         m_wndCoCancelBtn;
-    CStatic             m_wndCoSearchLabel;
+    CSageLabel          m_wndCoSearchLabel;
     CEdit               m_wndCoSearchEdit;
     CSageButton         m_wndCoSearchBtn;
-    CStatic             m_wndCoOrderLabel;
+    CSageLabel          m_wndCoOrderLabel;
     CEdit               m_wndCoOrderEdit;
-    CStatic             m_wndCoNameLabel;
+    CSageLabel          m_wndCoNameLabel;
     CEdit               m_wndCoCompanyEdit;
     CSageSectionLabel      m_wndCoCrudSection;
     CSageSectionLabel      m_wndCoListSection;
@@ -232,6 +233,7 @@ protected:
     void CreateChildControls();
     void BuildSidebarTree();
     void ApplyControlFonts();
+    void ApplyLabelRoles();
     void ApplyWorkflowTabs();
     void ApplyResultColumns();
     void UpdateTaskTabVisibility();
