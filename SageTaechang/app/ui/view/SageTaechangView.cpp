@@ -474,12 +474,7 @@ void CSageTaechangView::BuildSidebarTree() {
 }
 
 void CSageTaechangView::ApplyControlFonts() {
-	m_wndTitle.SetFont(SageUiResources::GetFont(SAGE_FONT_TITLE));
-
-	m_wndHeaderTitle.SetFont(SageUiResources::GetFont(SAGE_FONT_HEADER));
-
 	m_wndSidebarTree.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTROL));
-	m_wndSidebarTitle.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTROL));
 
 	m_wndHeaderStatus.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndTaskTabs.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
@@ -487,9 +482,6 @@ void CSageTaechangView::ApplyControlFonts() {
 	m_wndOutputSection.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndResultSection.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndDetailSection.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndWorkflowLabel.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndInputLabel.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndOutputLabel.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndInputPath.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndOutputFolder.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndSelectInput.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
@@ -500,7 +492,6 @@ void CSageTaechangView::ApplyControlFonts() {
 	m_wndSelectAll.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndEstimateOnePage.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndInputReset.SetFont(SageUiResources::GetFont(SAGE_FONT_HEADER));
-	m_wndProgressText.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndResultList.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	if (::IsWindow(m_wndResultHeader.GetSafeHwnd()))
 		m_wndResultHeader.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
@@ -511,14 +502,10 @@ void CSageTaechangView::ApplyControlFonts() {
 	m_wndResultSearchBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndResultResetBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_HEADER));
 	m_wndDetail.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndEmptyStateHint.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndActionStatus.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndLoginBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndLogoutBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndUserLabel.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 
-	// 가격 데이터 관리 패널
-	m_wndPriceCompanyLabel.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndPriceCompanyCombo.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndPriceAddCompanyBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndPriceRenameCompanyBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
@@ -526,46 +513,24 @@ void CSageTaechangView::ApplyControlFonts() {
 	m_wndPriceCopiesList.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	if (::IsWindow(m_wndPriceCopiesHeader.GetSafeHwnd()))
 		m_wndPriceCopiesHeader.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndPriceMinCopiesLabel.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndPriceMinCopiesEdit.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndPriceSingleCheck.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndPriceMaxCopiesLabel.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndPriceMaxCopiesEdit.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndPriceNoMaxCheck.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndPricePrintLabel.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndPricePrintEdit.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndPriceCoverLabel.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndPriceCoverEdit.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndPriceAddBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndPriceModifyBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndPriceDeleteBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndPriceCancelBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndPriceDetailHeader.SetFont(SageUiResources::GetFont(SAGE_FONT_HEADER));
-	m_wndPriceSummaryTitle.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndPriceSummaryCount.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndPriceSummaryRange.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 
-	// 부수 계산 패널
-	m_wndCalcCompanyLabel.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndCalcCompanyCombo.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndCalcCompanyPickBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndCalcCopiesLabel.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndCalcCopiesEdit.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndCalcPagesLabel.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndCalcPagesEdit.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndCalcBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndCalcResetBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndCalcPrintLabel.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndCalcPrintValue.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndCalcCoverLabel.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndCalcCoverValue.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndCalcSubtotalLabel.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndCalcSubtotalValue.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndCalcFreightLabel.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndCalcFreightEdit.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndCalcFreightUnitLabel.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndCalcTotalLabel.SetFont(SageUiResources::GetFont(SAGE_FONT_HEADER));
-	m_wndCalcTotalValue.SetFont(SageUiResources::GetFont(SAGE_FONT_HEADER));
 	m_wndCalcHistorySection.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndCalcHistoryList.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	if (::IsWindow(m_wndCalcHistoryHeader.GetSafeHwnd()))
@@ -576,12 +541,9 @@ void CSageTaechangView::ApplyControlFonts() {
 	m_wndCoModifyBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndCoDeleteBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndCoCancelBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndCoSearchLabel.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndCoSearchEdit.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndCoSearchBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndCoOrderLabel.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndCoOrderEdit.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndCoNameLabel.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndCoCompanyEdit.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndCoList.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	if (::IsWindow(m_wndCoListHeader.GetSafeHwnd()))
