@@ -11,12 +11,6 @@
 - 위험도: 중
 - 후속: Step 4-7(응답 표시 축)에서 행 삽입이 핸들러로 넘어갈 때 View 술어를 제거한다
 
-### [2026-08-04] 중복로직 — View의 핸들러 조회 + NULL 검사가 축마다 반복된다
-- 위치: app/ui/view/SageTaechangView.cpp — 2026-08-04(4-5 완료) 기준 **9곳** (622, 636, 722, 1081, 1111, 1123, 1386, 1408, 1495)
-- 설명: `SageWorkflowRegistry::FindHandler(GetSelectedWorkflow())` + NULL 검사가 축마다 반복된다. 4-4 시점 4곳에서 4-5 시점 9곳으로 늘었고 4-6·4-7에서 더 는다.
-- 위험도: 낮음
-- 후속: 선행 일반화를 피하려 미뤘으나 9곳이면 실제 중복이다. **4-6 착수 전에 View 전용 `FindCurrentHandler()` 도입 여부를 결정한다** (NULL 검사는 반환값이 달라 호출부에 남는다)
-
 ### [2026-08-02] 기존부채 — m_wndPriceCompanyLabel만 가격 패널에서 배경색이 다름
 - 위치: app/ui/view/SageTaechangView.cpp `OnCtlColor` (1847~1958, 해당 분기 없음)
 - 설명: 가격 데이터 관리 패널의 라벨은 전부 배경 PANEL 분기를 타는데 `m_wndPriceCompanyLabel`만 분기가 없어 맨 끝 `CTLCOLOR_STATIC` 폴백으로 APP 배경이 된다. 3-A-8 4단계 역할 매핑을 뽑다 발견했고 버그로 확인받았다. 4단계에서 같이 고치면 5단계 검증 때 나타난 화면 변화가 의도한 수정인지 이관 실수인지 구분할 수 없어 현행(APP)대로 옮긴다.
@@ -90,6 +84,11 @@
 - 후속: Step 4에서 core Service 경유로 전환
 
 ## 해결됨
+
+### [2026-08-04] 해결 — View의 핸들러 조회 + NULL 검사가 축마다 반복된다
+- 등록: 2026-08-04 (Step 4-4) / 해결: 2026-08-04 (`e8a0c56`)
+- 내용: `SageWorkflowRegistry::FindHandler(GetSelectedWorkflow())`가 4-4 시점 4곳에서 4-5 시점 9곳으로 늘었다.
+- 해결: View 사설 헬퍼 `FindCurrentHandler()`로 모았다. NULL 검사는 반환값이 함수마다 달라 호출부에 남긴다. View.h는 전방 선언만 두고 핸들러 헤더를 물지 않는다.
 
 ### [2026-08-04] 해결 — 탭 semantic 상수 3쌍이 같은 값이라 분기가 무의미
 - 등록: 2026-08-04 (Step 4-3) / 해결: 2026-08-04 (`b2e8169`)
