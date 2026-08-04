@@ -337,8 +337,8 @@ app/core/workflow/
 | 4-2 | 라벨 축 — `UpdateWorkflowLabels` | 무변화 | **완료** `8a72d27` (#93) |
 | 4-3 | 탭 **구성** 축 — `ApplyWorkflowTabs`, `HasDocumentResultTab`, 인덱스 변환 2개 | 무변화 | **완료** (빌드 확인 대기) |
 | 4-4 | 결과 컬럼 축 — `ApplyResultColumns` · `UpdateResultColumns` | 무변화 | **완료** `54e51bd` |
-| 4-5 | 입력 축 — `OnSelectInput`, `ApplyDroppedInputPaths`, `OnInputReset` | 무변화 | 다음 |
-| 4-6 | 검증·필터·UI상태 축 — `RunWorkflowTask` 검증, 필터 4개, `GetWorkflowUiState` | 무변화 | 대기 |
+| 4-5 | 입력 축 — `OnSelectInput`, `ApplyDroppedInputPaths`, `OnInputReset` | 무변화 | **완료** `e6b616b` |
+| 4-6 | 검증·필터·UI상태 축 — `RunWorkflowTask` 검증, 필터 4개, `GetWorkflowUiState` | 무변화 | 다음 |
 | 4-7 | 응답 표시 축 — `DisplayResponse` | 무변화 | 대기 |
 | 4-8 | **실행 축 + infra 역전** — `ISageWorkflowRunner`, infra 3개 구현, View의 infra include 제거 | 무변화 | 대기 |
 
@@ -401,6 +401,15 @@ app/core/workflow/
 **범위 밖으로 뺀 화면 변경** — 미수금·납품·견적 표가 창 폭을 채우지 못하고 오른쪽에 여백이 남는 문제는
 4-4가 만든 것이 아니라 원래 있던 동작이다. 리팩토링과 섞지 않고 별도 `style:` 커밋(`5a456bc`)으로
 컬럼 비례 확대를 적용했다. 가변 컬럼이 없는 표에만 적용되므로 기본·검수 표는 그대로다.
+
+**4-5** (`e6b616b`) — 입력 축. 검수 제거 후라 분기가 둘뿐이었다.
+
+- `GetInputDialogTitle` (제목 3종) + `UsesInputTable` (선택·드롭 자동 불러오기 + 입력 초기화 가능)
+- **술어 3개가 아니라 성질 1개다.** 납품·견적은 입력 파일을 표로 펼쳐 행을 골라 생성하고,
+  미수금은 불러온 결과 자체가 결과 표다. 이 성질을 4-6(선택 행 수집)·4-7(생성 결과 무표시,
+  실행 후 탭 전환)에서도 쓰므로 `LoadsOnSelect` 같은 좁은 이름을 피했다
+- View는 `+13 / -11`로 **순 +2줄**. 분기는 사라졌지만 핸들러 조회 3벌이 들어와 상쇄됐다.
+  얻은 것은 줄 수가 아니라 세 함수에서 워크플로 상수가 사라진 것
 
 ### 검수 워크플로 제거 (2026-08-04, `b2e8169`)
 

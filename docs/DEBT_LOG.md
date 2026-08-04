@@ -12,10 +12,10 @@
 - 후속: Step 4-7(응답 표시 축)에서 행 삽입이 핸들러로 넘어갈 때 View 술어를 제거한다
 
 ### [2026-08-04] 중복로직 — View의 핸들러 조회 + NULL 검사가 축마다 반복된다
-- 위치: app/ui/view/SageTaechangView.cpp `UpdateWorkflowLabels`, `ApplyWorkflowTabs`, `GetTaskTabVisualIndex`, `GetTaskTabSemanticIndex`
-- 설명: `SageWorkflowRegistry::FindHandler(GetSelectedWorkflow())` + NULL 검사가 4곳이며 Step 4-4~4-7에서 축이 늘 때마다 증가한다. 지금 헬퍼를 만들면 선행 일반화라 미뤘다.
+- 위치: app/ui/view/SageTaechangView.cpp — 2026-08-04(4-5 완료) 기준 **9곳** (622, 636, 722, 1081, 1111, 1123, 1386, 1408, 1495)
+- 설명: `SageWorkflowRegistry::FindHandler(GetSelectedWorkflow())` + NULL 검사가 축마다 반복된다. 4-4 시점 4곳에서 4-5 시점 9곳으로 늘었고 4-6·4-7에서 더 는다.
 - 위험도: 낮음
-- 후속: Step 4-4 착수 시 호출부 개수를 다시 세고 View 전용 헬퍼 도입 여부를 결정한다
+- 후속: 선행 일반화를 피하려 미뤘으나 9곳이면 실제 중복이다. **4-6 착수 전에 View 전용 `FindCurrentHandler()` 도입 여부를 결정한다** (NULL 검사는 반환값이 달라 호출부에 남는다)
 
 ### [2026-08-02] 기존부채 — m_wndPriceCompanyLabel만 가격 패널에서 배경색이 다름
 - 위치: app/ui/view/SageTaechangView.cpp `OnCtlColor` (1847~1958, 해당 분기 없음)
