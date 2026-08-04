@@ -1521,6 +1521,10 @@ void CSageTaechangView::RunWorkflowTask(int nTaskType) {
 	if (m_bRunning)
 		return;
 
+	ISageWorkflowHandler* pHandler = FindCurrentHandler();
+	if (pHandler == NULL)
+		return;
+
 	CString strInputPath;
 	CString strOutputFolder;
 	if (!ValidateInputPath(strInputPath))
@@ -1531,7 +1535,7 @@ void CSageTaechangView::RunWorkflowTask(int nTaskType) {
 		return;
 
 	CString strSelectedRowNums;
-	if ((nWorkflowType == TAECHANG_WORKFLOW_DELIVERY || nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE) && nTaskType == TAECHANG_TASK_GENERATE) {
+	if (pHandler->UsesInputTable() && nTaskType == TAECHANG_TASK_GENERATE) {
 		int nSelectedCount = 0;
 		int nListCount = m_wndResultList.GetItemCount();
 		for (int i = 0; i < nListCount; ++i) {
@@ -1547,17 +1551,11 @@ void CSageTaechangView::RunWorkflowTask(int nTaskType) {
 				strSelectedRowNums += TAECHANG_UI_ROW_NUM_SEPARATOR;
 			strSelectedRowNums += strNum;
 		}
-		if (strSelectedRowNums.IsEmpty()) {
-			LPCWSTR pszMsg = (nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE)
-				? TAECHANG_UI_ESTIMATE_SELECT_ROW_REQUIRED
-				: TAECHANG_UI_DELIVERY_SELECT_ROW_REQUIRED;
-			AfxMessageBox(pszMsg, MB_ICONWARNING);
-			return;
-		}
-		if (nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE &&
-			m_wndEstimateOnePage.GetCheck() == BST_CHECKED &&
-			nSelectedCount > TAECHANG_ESTIMATE_ONE_PAGE_MAX_ROWS) {
-			AfxMessageBox(TAECHANG_UI_ESTIMATE_ONE_PAGE_LIMIT, MB_ICONWARNING);
+		BOOL bHasSelectedRowNums = strSelectedRowNums.IsEmpty() ? FALSE : TRUE;
+		BOOL bOnePage = (m_wndEstimateOnePage.GetCheck() == BST_CHECKED) ? TRUE : FALSE;
+		CString strSelectionError;
+		if (!pHandler->ValidateSelectedRows(nSelectedCount, bHasSelectedRowNums, bOnePage, strSelectionError)) {
+			AfxMessageBox(strSelectionError, MB_ICONWARNING);
 			return;
 		}
 	}

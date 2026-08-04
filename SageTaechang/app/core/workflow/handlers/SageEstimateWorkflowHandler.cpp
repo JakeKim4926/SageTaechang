@@ -87,3 +87,15 @@ LPCWSTR SageEstimateWorkflowHandler::GetInputDialogTitle() const {
 BOOL SageEstimateWorkflowHandler::UsesInputTable() const {
 	return TRUE;
 }
+
+BOOL SageEstimateWorkflowHandler::ValidateSelectedRows(int nSelectedCount, BOOL bHasSelectedRowNums, BOOL bOnePage, CString& strError) const {
+	if (!bHasSelectedRowNums) {
+		strError = TAECHANG_UI_ESTIMATE_SELECT_ROW_REQUIRED;
+		return FALSE;
+	}
+	if (bOnePage && nSelectedCount > TAECHANG_ESTIMATE_ONE_PAGE_MAX_ROWS) {
+		strError = TAECHANG_UI_ESTIMATE_ONE_PAGE_LIMIT;
+		return FALSE;
+	}
+	return TRUE;
+}

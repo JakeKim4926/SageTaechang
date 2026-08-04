@@ -89,3 +89,13 @@ LPCWSTR SageDeliveryWorkflowHandler::GetInputDialogTitle() const {
 BOOL SageDeliveryWorkflowHandler::UsesInputTable() const {
 	return TRUE;
 }
+
+BOOL SageDeliveryWorkflowHandler::ValidateSelectedRows(int nSelectedCount, BOOL bHasSelectedRowNums, BOOL bOnePage, CString& strError) const {
+	UNREFERENCED_PARAMETER(nSelectedCount);
+	UNREFERENCED_PARAMETER(bOnePage);
+	if (!bHasSelectedRowNums) {
+		strError = TAECHANG_UI_DELIVERY_SELECT_ROW_REQUIRED;
+		return FALSE;
+	}
+	return TRUE;
+}

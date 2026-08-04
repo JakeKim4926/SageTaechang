@@ -93,3 +93,11 @@ LPCWSTR SageReceivablesWorkflowHandler::GetInputDialogTitle() const {
 BOOL SageReceivablesWorkflowHandler::UsesInputTable() const {
 	return FALSE;
 }
+
+BOOL SageReceivablesWorkflowHandler::ValidateSelectedRows(int nSelectedCount, BOOL bHasSelectedRowNums, BOOL bOnePage, CString& strError) const {
+	UNREFERENCED_PARAMETER(nSelectedCount);
+	UNREFERENCED_PARAMETER(bHasSelectedRowNums);
+	UNREFERENCED_PARAMETER(bOnePage);
+	UNREFERENCED_PARAMETER(strError);
+	return TRUE;
+}
