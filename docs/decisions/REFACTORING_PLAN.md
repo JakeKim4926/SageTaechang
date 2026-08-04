@@ -31,7 +31,7 @@ WebView2 기반) 문서였고 존재하지 않는 폴더 구조를 규정했다.
 | 2 | 잔여 정리 (앱 헤더 DB 의존, `SqlInitializer`) | **완료** — develop 머지 |
 | 3-A | 공통 컨트롤 승격 | **완료** — 3-A-1~8 (3-A-4는 건너뜀) |
 | 3-B | 패널 분리 | 다음 |
-| 4 | 워크플로 핸들러 + 레지스트리 | **진행 중** — 3-B보다 먼저 (사용자 결정) |
+| 4 | 워크플로 핸들러 + 레지스트리 | **진행 중** — 4-1·4-2 완료 (3-B보다 먼저, 사용자 결정) |
 | 4-B | 의존 역전 (core Service ↔ infra Repository) | 대기 — Step 4에서 분리 |
 | 5 | `Sage` 접두사 전환 (상수·Define) | 대기 |
 
@@ -329,20 +329,42 @@ app/core/workflow/
 
 ### 8단계 분할
 
-| # | 내용 | 화면 |
-|---|---|---|
-| 4-1 | 인터페이스 + 등록부 + 핸들러 5개 골격. **View는 아직 쓰지 않는다** | 무변화 |
-| 4-2 | 라벨 축 — `UpdateWorkflowLabels` | 무변화 |
-| 4-3 | 탭 축 — `ApplyWorkflowTabs`, `HasDocumentResultTab`, `IsCompareWorkflow` | 무변화 |
-| 4-4 | 결과 컬럼 축 — `ApplyResultColumns` + 술어 3개 | 무변화 |
-| 4-5 | 입력 축 — `OnSelectInput`, `ApplyDroppedInputPaths`, `OnInputReset` | 무변화 |
-| 4-6 | 검증·필터·UI상태 축 — `RunWorkflowTask` 검증, 필터 4개, `GetWorkflowUiState` | 무변화 |
-| 4-7 | 응답 표시 축 — `DisplayResponse` | 무변화 |
-| 4-8 | **실행 축 + infra 역전** — `ISageWorkflowRunner`, infra 5개 구현, View의 infra include 제거 | 무변화 |
+| # | 내용 | 화면 | 상태 |
+|---|---|---|---|
+| 4-1 | 인터페이스 + 등록부 + 핸들러 5개 골격. **View는 아직 쓰지 않는다** | 무변화 | **완료** `92468e4` (#92) |
+| 4-2 | 라벨 축 — `UpdateWorkflowLabels` | 무변화 | **완료** `8a72d27` (#93) |
+| 4-3 | 탭 축 — `ApplyWorkflowTabs`, `HasDocumentResultTab`, `IsCompareWorkflow` | 무변화 | 다음 |
+| 4-4 | 결과 컬럼 축 — `ApplyResultColumns` + 술어 3개 | 무변화 | 대기 |
+| 4-5 | 입력 축 — `OnSelectInput`, `ApplyDroppedInputPaths`, `OnInputReset` | 무변화 | 대기 |
+| 4-6 | 검증·필터·UI상태 축 — `RunWorkflowTask` 검증, 필터 4개, `GetWorkflowUiState` | 무변화 | 대기 |
+| 4-7 | 응답 표시 축 — `DisplayResponse` | 무변화 | 대기 |
+| 4-8 | **실행 축 + infra 역전** — `ISageWorkflowRunner`, infra 5개 구현, View의 infra include 제거 | 무변화 | 대기 |
 
 각 단계마다 빌드 가능한 상태를 유지한다. **화면 변화가 생기면 즉시 중단하고 원인을 보고한다.**
 
 3-A-8의 교훈을 적용한다 — **단계마다 제거할 줄과 새로 쓸 줄을 함께 센다.**
+
+### 4-1·4-2 결과
+
+**4-1** (`92468e4`) — 인터페이스·등록부·핸들러 5개 골격. View 미사용이라 화면이 변할 수 없는 단계.
+정적 인스턴스 5개를 익명 네임스페이스 배열에 두고 `FindHandler`가 선형 탐색한다.
+
+**4-2** (`8a72d27`) — 라벨 4종(`GetHeaderTitle` / `GetInputSectionLabel` /
+`GetActionButtonLabel` / `GetDetailSectionLabel`, 전부 `LPCWSTR` 반환)을 핸들러가 답한다.
+워크플로 5개 순회로 화면 무변화 확인.
+
+- **`FindHandler`의 NULL 경로는 도달하지 않는다.** `OnWorkflowChanged`가 `IsPriceWorkflowType`으로
+  조기 반환하므로 `UpdateWorkflowLabels`에 오는 것은 워크플로 1~5뿐이다.
+  View는 NULL이면 조기 반환한다 — 기존 `else`(미수금 겸 catch-all)를 남기면 완료 기준이 깨진다
+- 실행 버튼은 `GetActionButtonLabel`이다. 검수 워크플로에서는 "생성"이 아니라 "실행"이라 `Generate`로 짓지 않았다
+- PDF와 HWP의 버튼 상수는 값이 같지만(`검수 실행`) 통합하지 않았다. 값이 같은 것과 개념이 같은 것은 다르다
+- `m_wndDetail` 본문은 라벨이 아니라 View 상태(`m_strExecutionHistory`)에 의존해 범위 밖으로 뒀다
+- **줄 수 견적이 맞았다** — 예상 View -15 / 전체 +110, 실제 **View -13 / 전체 +97**.
+  3-A-8에서 빗나간 이유(제거할 줄만 세고 새로 쓸 줄을 세지 않음)가 해소됐다.
+  단 이 단계 단독으로는 손해이며, 회수는 4-3 이후 같은 핸들러에 축이 누적되면서 일어난다
+
+**4-3 착수 시점 사실**: `IsCompareWorkflow`는 View에 18곳에서 쓰인다.
+4-2에서 라벨 용도 1곳만 가져왔고 나머지는 탭·결과 판정이라 4-3 범위다.
 
 ### 조회는 `Find*`다
 

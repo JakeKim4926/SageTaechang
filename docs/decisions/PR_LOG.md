@@ -420,3 +420,17 @@
 - **검증**: git diff --check 통과, Debug x64 빌드 성공
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/83
 - **결과**: merged
+
+## [2026-08-04] refactor/workflow-handler
+- **목적**: Step 4-1. 워크플로 타입 분기를 View 밖으로 옮기기 위한 확장점(핸들러 인터페이스와 등록부) 신설
+- **변경 내용**: `ISageWorkflowHandler`, `SageWorkflowRegistry`(`FindHandler`는 NULL 가능), 핸들러 5개 골격, vcxproj/filters 등록
+- **검증**: Debug x64 빌드 성공. View 미사용이라 화면 변화 없음
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/92
+- **결과**: merged
+
+## [2026-08-04] refactor/workflow-handler-labels
+- **목적**: Step 4-2. `UpdateWorkflowLabels`의 워크플로 분기 5갈래 제거
+- **변경 내용**: 핸들러가 헤더 제목/입력 섹션/실행 버튼/상세 섹션 라벨을 답하도록 이관. 착수 전 5x4 매핑 표로 상수까지 대조
+- **검증**: Debug x64 빌드 성공, 워크플로 5개 + 단가 2개 순회로 표시 무변화 확인
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/93
+- **결과**: merged
