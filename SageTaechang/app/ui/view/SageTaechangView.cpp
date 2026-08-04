@@ -775,17 +775,38 @@ void CSageTaechangView::UpdateResultColumns() {
 
 	int nColumnCount = pHandler->GetResultColumnCount(m_nLastTaskType);
 	int nFixedWidth = 0;
+	int nDefinedWidth = 0;
+	BOOL bHasStretchColumn = FALSE;
 	for (int i = 0; i < nColumnCount; ++i) {
 		const SageWorkflowColumn& column = pHandler->GetResultColumn(m_nLastTaskType, i);
-		if (!column.bStretch)
+		nDefinedWidth += column.nWidth;
+		if (column.bStretch)
+			bHasStretchColumn = TRUE;
+		else
 			nFixedWidth += column.nWidth;
 	}
 
+	if (bHasStretchColumn) {
+		for (int i = 0; i < nColumnCount; ++i) {
+			const SageWorkflowColumn& column = pHandler->GetResultColumn(m_nLastTaskType, i);
+			int nColumnWidth = column.nWidth;
+			if (column.bStretch && nWidth - nFixedWidth > nColumnWidth)
+				nColumnWidth = nWidth - nFixedWidth;
+			m_wndResultList.SetColumnWidth(i, nColumnWidth);
+		}
+		return;
+	}
+
+	int nAssignedWidth = 0;
 	for (int i = 0; i < nColumnCount; ++i) {
 		const SageWorkflowColumn& column = pHandler->GetResultColumn(m_nLastTaskType, i);
 		int nColumnWidth = column.nWidth;
-		if (column.bStretch && nWidth - nFixedWidth > nColumnWidth)
-			nColumnWidth = nWidth - nFixedWidth;
+		if (nWidth > nDefinedWidth) {
+			nColumnWidth = (i == nColumnCount - 1)
+				? nWidth - nAssignedWidth
+				: ::MulDiv(column.nWidth, nWidth, nDefinedWidth);
+		}
+		nAssignedWidth += nColumnWidth;
 		m_wndResultList.SetColumnWidth(i, nColumnWidth);
 	}
 }
