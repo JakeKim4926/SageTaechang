@@ -63,47 +63,6 @@ BOOL ShowIFileOpenDialog(
 	return bResult;
 }
 
-CString ShowIFileSaveDialog(
-	HWND hOwner,
-	LPCWSTR pszTitle,
-	LPCWSTR pszDefExt,
-	const COMDLG_FILTERSPEC* paTypes,
-	UINT nTypes,
-	LPCWSTR pszInitialName) {
-	IFileSaveDialog* pDialog = nullptr;
-	if (FAILED(CoCreateInstance(CLSID_FileSaveDialog, nullptr, CLSCTX_ALL,
-								IID_PPV_ARGS(&pDialog))))
-		return L"";
-
-	DWORD dwOptions = 0;
-	pDialog->GetOptions(&dwOptions);
-	pDialog->SetOptions(dwOptions | FOS_FORCEFILESYSTEM | FOS_PATHMUSTEXIST | FOS_OVERWRITEPROMPT);
-
-	if (nTypes > 0 && paTypes)
-		pDialog->SetFileTypes(nTypes, paTypes);
-	if (pszDefExt && *pszDefExt)
-		pDialog->SetDefaultExtension(pszDefExt);
-	if (pszTitle && *pszTitle)
-		pDialog->SetTitle(pszTitle);
-	if (pszInitialName && *pszInitialName)
-		pDialog->SetFileName(pszInitialName);
-
-	CString strResult;
-	if (SUCCEEDED(SafeShowDialog(pDialog, hOwner))) {
-		IShellItem* pItem = nullptr;
-		if (SUCCEEDED(pDialog->GetResult(&pItem)) && pItem) {
-			LPWSTR pszPath = nullptr;
-			if (SUCCEEDED(pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszPath)) && pszPath) {
-				strResult = pszPath;
-				CoTaskMemFree(pszPath);
-			}
-			pItem->Release();
-		}
-	}
-	pDialog->Release();
-	return strResult;
-}
-
 HWND GetAppMainWindow() {
 	struct EnumCtx { DWORD dwPid; HWND hFound; };
 	EnumCtx ctx = { GetCurrentProcessId(), nullptr };

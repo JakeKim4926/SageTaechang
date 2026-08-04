@@ -11,12 +11,4 @@ BOOL ShowIFileOpenDialog(
     BOOL bMultiSelect,
     std::vector<CString>& outPaths);
 
-CString ShowIFileSaveDialog(
-    HWND hOwner,
-    LPCWSTR pszTitle,
-    LPCWSTR pszDefExt,
-    const COMDLG_FILTERSPEC* paTypes,
-    UINT nTypes,
-    LPCWSTR pszInitialName);
-
 HWND GetAppMainWindow();

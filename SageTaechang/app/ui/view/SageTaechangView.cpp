@@ -9,14 +9,10 @@
 #include "app/ui/view/SageTaechangView.h"
 #include "app/ui/drawing/SageUiResources.h"
 #include "app/infra/file/TaechangAppSettingsService.h"
-#include "app/infra/file/TaechangCompareCsvExportService.h"
 #include "app/infra/office/TaechangDeliveryExcelService.h"
 #include "app/infra/office/TaechangEstimateExcelService.h"
-#include "app/infra/office/TaechangHwpCompareService.h"
-#include "app/infra/office/TaechangPdfCompareService.h"
 #include "app/infra/office/TaechangReceivablesExcelService.h"
 #include "app/common/TaechangJson.h"
-#include "app/common/TaechangDialogHelper.h"
 #include "app/core/workflow/ISageWorkflowHandler.h"
 #include "app/core/workflow/SageWorkflowRegistry.h"
 #include "app/core/workflow/TaechangWorkflowResponse.h"
@@ -46,8 +42,6 @@ struct TaechangWorkflowTask {
 	int m_nTaskType;
 	CString m_strInputPath;
 	CString m_strOutputFolder;
-	CString m_strPdfFilePaths;
-	CString m_strHwpFilePaths;
 	CString m_strSelectedRowNums;
 	BOOL m_bEstimateOnePage;
 };
@@ -70,32 +64,7 @@ static CString BuildWorkflowPayload(const CString& strInputPath, const CString& 
 	return strPayload;
 }
 
-static CString BuildComparePayload(const CString& strJsonKey, const CString& strFilePaths) {
-	CString strPayload = L"{\"" + strJsonKey + L"\":[";
-	CString strRemaining = strFilePaths;
-	int nIndex = 0;
-	BOOL bFirst = TRUE;
-	while (TRUE) {
-		CString strPath = strRemaining.Tokenize(L"\r\n", nIndex);
-		if (strPath.IsEmpty())
-			break;
-		strPath.Trim();
-		if (strPath.IsEmpty())
-			continue;
-		if (!bFirst)
-			strPayload += L",";
-		strPayload += L"\"" + JsonEscapeString(strPath) + L"\"";
-		bFirst = FALSE;
-	}
-	strPayload += L"]}";
-	return strPayload;
-}
-
 static CString GetTaskRequestId(const TaechangWorkflowTask* pTask) {
-	if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_PDF_COMPARE)
-		return TAECHANG_REQUEST_PDF_COMPARE;
-	if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_HWP_COMPARE)
-		return TAECHANG_REQUEST_HWP_COMPARE;
 	if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE) {
 		if (pTask->m_nTaskType == TAECHANG_TASK_LOAD)
 			return TAECHANG_REQUEST_ESTIMATE_LOAD;
@@ -118,20 +87,8 @@ static UINT RunWorkflowWorker(LPVOID pParam) {
 	pResult->m_nTaskType = pTask->m_nTaskType;
 
 	try {
-		CString strPayload;
-		if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_PDF_COMPARE)
-			strPayload = BuildComparePayload(L"pdfFilePaths", pTask->m_strPdfFilePaths);
-		else if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_HWP_COMPARE)
-			strPayload = BuildComparePayload(L"hwpFilePaths", pTask->m_strHwpFilePaths);
-		else
-			strPayload = BuildWorkflowPayload(pTask->m_strInputPath, pTask->m_strOutputFolder, pTask->m_strSelectedRowNums, pTask->m_bEstimateOnePage);
-		if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_PDF_COMPARE) {
-			TaechangPdfCompareService service;
-			pResult->m_strResponseJson = service.BuildRunCompareResponse(TAECHANG_REQUEST_PDF_COMPARE, strPayload);
-		} else if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_HWP_COMPARE) {
-			TaechangHwpCompareService service;
-			pResult->m_strResponseJson = service.BuildRunCompareResponse(TAECHANG_REQUEST_HWP_COMPARE, strPayload);
-		} else if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE) {
+		CString strPayload = BuildWorkflowPayload(pTask->m_strInputPath, pTask->m_strOutputFolder, pTask->m_strSelectedRowNums, pTask->m_bEstimateOnePage);
+		if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE) {
 			TaechangEstimateExcelService service;
 			if (pTask->m_nTaskType == TAECHANG_TASK_LOAD)
 				pResult->m_strResponseJson = service.BuildLoadInputDataResponse(TAECHANG_REQUEST_ESTIMATE_LOAD, strPayload);
@@ -209,7 +166,6 @@ BEGIN_MESSAGE_MAP(CSageTaechangView, CView)
 	ON_BN_CLICKED(ID_TAECHANG_SELECT_OUTPUT, &CSageTaechangView::OnSelectOutput)
 	ON_BN_CLICKED(ID_TAECHANG_LOAD_WORKFLOW, &CSageTaechangView::OnLoadWorkflow)
 	ON_BN_CLICKED(ID_TAECHANG_GENERATE_WORKFLOW, &CSageTaechangView::OnGenerateWorkflow)
-	ON_BN_CLICKED(ID_TAECHANG_EXPORT_CSV, &CSageTaechangView::OnExportCsv)
 	ON_BN_CLICKED(ID_TAECHANG_SELECT_ALL, &CSageTaechangView::OnSelectAll)
 	ON_BN_CLICKED(ID_TAECHANG_ESTIMATE_ONE_PAGE, &CSageTaechangView::OnEstimateOnePage)
 	ON_BN_CLICKED(ID_TAECHANG_INPUT_RESET_BTN, &CSageTaechangView::OnInputReset)
@@ -389,7 +345,6 @@ void CSageTaechangView::CreateChildControls() {
 	m_wndLoad.SetVariant(SAGE_BUTTON_PRIMARY);
 	m_wndGenerate.Create(TAECHANG_UI_RECEIVABLES_GENERATE_BUTTON, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_GENERATE_WORKFLOW);
 	m_wndGenerate.SetVariant(SAGE_BUTTON_PRIMARY);
-	m_wndExportCsv.Create(TAECHANG_UI_EXPORT_CSV_BUTTON, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_EXPORT_CSV);
 	m_wndSelectAll.Create(TAECHANG_UI_SELECT_ALL_BUTTON, WS_CHILD | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_SELECT_ALL);
 	m_wndEstimateOnePage.Create(TAECHANG_UI_ESTIMATE_ONE_PAGE_CHECK, WS_CHILD | BS_AUTOCHECKBOX, rectEmpty, this, ID_TAECHANG_ESTIMATE_ONE_PAGE);
 	m_wndInputReset.Create(TAECHANG_UI_INPUT_RESET_BTN, WS_CHILD | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_INPUT_RESET_BTN);
@@ -441,7 +396,6 @@ void CSageTaechangView::CreateChildControls() {
 	ApplyResultColumns();
 	UpdateWorkflowLabels();
 	UpdateResultColumns();
-	UpdateExportButtonState();
 	BuildSidebarTree();
 }
 
@@ -490,7 +444,6 @@ void CSageTaechangView::ApplyControlFonts() {
 	m_wndSelectOutput.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndLoad.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndGenerate.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndExportCsv.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndSelectAll.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndEstimateOnePage.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndInputReset.SetFont(SageUiResources::GetFont(SAGE_FONT_HEADER));
@@ -708,13 +661,11 @@ void CSageTaechangView::ApplyResultColumns() {
 }
 
 void CSageTaechangView::UpdateTaskTabVisibility() {
-	BOOL bIsCompare = IsCompareWorkflow(GetSelectedWorkflow());
 	BOOL bShowInput = IsInputTabSelected();
-	BOOL bShowOutput = ((bShowInput || IsResultTab()) && !bIsCompare) ? TRUE : FALSE;
+	BOOL bShowOutput = (bShowInput || IsResultTab()) ? TRUE : FALSE;
 	BOOL bShowAction = IsActionTabVisible();
 	BOOL bShowResult = IsResultTab() || (IsInputTabSelected() && (IsDeliveryInputTable() || IsEstimateInputTable()));
 	BOOL bShowDetail = IsDetailTab();
-	BOOL bShowExport = IsExportTab();
 
 	m_wndInputSection.ShowWindow(bShowInput ? SW_SHOW : SW_HIDE);
 	m_wndInputLabel.ShowWindow(SW_HIDE);
@@ -726,11 +677,10 @@ void CSageTaechangView::UpdateTaskTabVisibility() {
 	m_wndSelectOutput.ShowWindow(bShowOutput ? SW_SHOW : SW_HIDE);
 
 	BOOL bShowDataManage = IsDataManageTab();
-	BOOL bShowHint = (!bShowResult && !bShowDetail && !bShowExport && !m_bRunning && !bShowDataManage) ? TRUE : FALSE;
+	BOOL bShowHint = (!bShowResult && !bShowDetail && !m_bRunning && !bShowDataManage) ? TRUE : FALSE;
 
 	m_wndLoad.ShowWindow(SW_HIDE);
 	m_wndGenerate.ShowWindow(bShowAction ? SW_SHOW : SW_HIDE);
-	m_wndExportCsv.ShowWindow(bShowExport ? SW_SHOW : SW_HIDE);
 	BOOL bShowInputReset = (bShowAction && IsInputResetVisible()) ? TRUE : FALSE;
 	m_wndInputReset.ShowWindow(bShowInputReset ? SW_SHOW : SW_HIDE);
 	BOOL bShowSelectAll = (bShowAction && (IsDeliveryInputTable() || IsEstimateInputTable())) ? TRUE : FALSE;
@@ -866,7 +816,6 @@ void CSageTaechangView::LayoutChildControls() {
 		m_wndSelectOutput.ShowWindow(SW_HIDE);
 		m_wndLoad.ShowWindow(SW_HIDE);
 		m_wndGenerate.ShowWindow(SW_HIDE);
-		m_wndExportCsv.ShowWindow(SW_HIDE);
 		m_wndSelectAll.ShowWindow(SW_HIDE);
 		m_wndEstimateOnePage.ShowWindow(SW_HIDE);
 		m_wndInputReset.ShowWindow(SW_HIDE);
@@ -912,13 +861,12 @@ void CSageTaechangView::LayoutChildControls() {
 		return;
 	}
 
-	BOOL bIsCompare = IsCompareWorkflow(GetSelectedWorkflow());
 	if (IsInputTabSelected()) {
-		LayoutInputSection(nContentLeft, nContentTop, nContentWidth, !bIsCompare);
-		nContentTop += (bIsCompare ? TAECHANG_INPUT_PANEL_HEIGHT / 2 : TAECHANG_INPUT_PANEL_HEIGHT) + TAECHANG_PANEL_GAP;
+		LayoutInputSection(nContentLeft, nContentTop, nContentWidth, TRUE);
+		nContentTop += TAECHANG_INPUT_PANEL_HEIGHT + TAECHANG_PANEL_GAP;
 	}
 
-	if (IsActionTabVisible() || IsExportTab()) {
+	if (IsActionTabVisible()) {
 		LayoutActionSection(nContentLeft, nContentTop, nContentWidth);
 		nContentTop += TAECHANG_BUTTON_HEIGHT + TAECHANG_PANEL_GAP;
 	}
@@ -959,11 +907,9 @@ void CSageTaechangView::LayoutInputSection(int nLeft, int nTop, int nWidth, BOOL
 }
 
 void CSageTaechangView::LayoutActionSection(int nLeft, int nTop, int nWidth) {
-	BOOL bIsCompare = IsCompareWorkflow(GetSelectedWorkflow());
 	BOOL bShowAction = IsActionTabVisible();
 	BOOL bShowLoad = FALSE;
 	BOOL bShowGenerate = bShowAction;
-	BOOL bShowExport = IsExportTab();
 
 	int nX = nLeft;
 	if (bShowLoad) {
@@ -977,10 +923,6 @@ void CSageTaechangView::LayoutActionSection(int nLeft, int nTop, int nWidth) {
 	if (IsInputResetVisible()) {
 		m_wndInputReset.MoveWindow(nX, nTop, TAECHANG_INPUT_RESET_WIDTH, TAECHANG_BUTTON_HEIGHT);
 		nX += TAECHANG_INPUT_RESET_WIDTH + TAECHANG_ACTION_GAP;
-	}
-	if (bShowExport) {
-		m_wndExportCsv.MoveWindow(nX, nTop, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
-		nX += TAECHANG_BUTTON_WIDTH + TAECHANG_ACTION_GAP;
 	}
 	if (bShowAction) {
 		int nProgressLeft = nX;
@@ -1143,15 +1085,10 @@ void CSageTaechangView::UpdateWorkflowLabels() {
 	m_wndInputSection.SetWindowTextW(pHandler->GetInputSectionLabel());
 	m_wndGenerate.SetWindowTextW(pHandler->GetActionButtonLabel());
 	m_wndDetailSection.SetWindowTextW(pHandler->GetDetailSectionLabel());
-	m_wndDetail.SetWindowTextW(IsCompareWorkflow(nWorkflowType) ? CString() : m_strExecutionHistory);
+	m_wndDetail.SetWindowTextW(m_strExecutionHistory);
 	ApplyWorkflowTabs();
 	ApplyResultColumns();
 	LayoutChildControls();
-	UpdateExportButtonState();
-}
-
-BOOL CSageTaechangView::IsCompareWorkflow(int nWorkflowType) const {
-	return (nWorkflowType == TAECHANG_WORKFLOW_PDF_COMPARE || nWorkflowType == TAECHANG_WORKFLOW_HWP_COMPARE) ? TRUE : FALSE;
 }
 
 BOOL CSageTaechangView::IsInputTabSelected() const {
@@ -1159,19 +1096,11 @@ BOOL CSageTaechangView::IsInputTabSelected() const {
 }
 
 BOOL CSageTaechangView::IsResultTab() const {
-	if (IsCompareWorkflow(GetSelectedWorkflow()))
-		return (m_nSelectedTaskTab == TAECHANG_TAB_INDEX_PREVIEW) ? TRUE : FALSE;
 	return (m_nSelectedTaskTab == TAECHANG_TAB_INDEX_DOCUMENT_RESULT) ? TRUE : FALSE;
 }
 
 BOOL CSageTaechangView::IsDetailTab() const {
-	if (IsCompareWorkflow(GetSelectedWorkflow()))
-		return (m_nSelectedTaskTab == TAECHANG_TAB_INDEX_RESULT) ? TRUE : FALSE;
 	return (m_nSelectedTaskTab == TAECHANG_TAB_INDEX_DOCUMENT_HISTORY) ? TRUE : FALSE;
-}
-
-BOOL CSageTaechangView::IsExportTab() const {
-	return (IsCompareWorkflow(GetSelectedWorkflow()) && m_nSelectedTaskTab == TAECHANG_TAB_INDEX_DETAIL) ? TRUE : FALSE;
 }
 
 BOOL CSageTaechangView::IsActionTabVisible() const {
@@ -1367,12 +1296,6 @@ void CSageTaechangView::RebuildCurrentWorkflowResultList() {
 	}
 }
 
-void CSageTaechangView::UpdateExportButtonState() {
-	BOOL bEnabled = (!m_bRunning && IsCompareWorkflow(GetSelectedWorkflow()) && !m_strLastResponseJson.IsEmpty()) ? TRUE : FALSE;
-	if (::IsWindow(m_wndExportCsv.GetSafeHwnd()))
-		m_wndExportCsv.EnableWindow(bEnabled);
-}
-
 void CSageTaechangView::OnWorkflowChanged() {
 	RestoreWorkflowUiState(m_nCurrentWorkflow);
 
@@ -1395,7 +1318,6 @@ void CSageTaechangView::OnWorkflowChanged() {
 	}
 
 	UpdateWorkflowLabels();
-	UpdateExportButtonState();
 	RestoreWorkflowUiState(m_nCurrentWorkflow);
 	RebuildCurrentWorkflowResultList();
 	if (!m_bRunning)
@@ -1432,12 +1354,6 @@ void CSageTaechangView::OnSidebarSelectionChanged(NMHDR* pNMHDR, LRESULT* pResul
 			return;
 		}
 	}
-	if (nItemData == TAECHANG_WORKFLOW_PDF_COMPARE || nItemData == TAECHANG_WORKFLOW_HWP_COMPARE) {
-		SetStatusText(TAECHANG_UI_FEATURE_PREPARING);
-		if (m_hLastWorkflowItem != NULL)
-			m_wndSidebarTree.SelectItem(m_hLastWorkflowItem);
-		return;
-	}
 	int nNewWorkflow = static_cast<int>(nItemData);
 	m_hLastWorkflowItem = hItem;
 	if (nNewWorkflow == m_nCurrentWorkflow)
@@ -1468,15 +1384,9 @@ void CSageTaechangView::ApplyDroppedInputPaths(const CString& strPaths) {
 		return;
 
 	int nWorkflowType = GetSelectedWorkflow();
-	BOOL bIsCompare = IsCompareWorkflow(nWorkflowType);
-	CString strInputPaths;
-	if (bIsCompare) {
-		strInputPaths = strPaths;
-	} else {
-		int nIndex = 0;
-		strInputPaths = strPaths.Tokenize(L"\r\n", nIndex);
-		strInputPaths.Trim();
-	}
+	int nIndex = 0;
+	CString strInputPaths = strPaths.Tokenize(L"\r\n", nIndex);
+	strInputPaths.Trim();
 	if (strInputPaths.IsEmpty())
 		return;
 
@@ -1493,31 +1403,6 @@ void CSageTaechangView::ApplyDroppedInputPaths(const CString& strPaths) {
 
 void CSageTaechangView::OnSelectInput() {
 	int nWorkflowType = GetSelectedWorkflow();
-	if (nWorkflowType == TAECHANG_WORKFLOW_PDF_COMPARE || nWorkflowType == TAECHANG_WORKFLOW_HWP_COMPARE) {
-		LPCWSTR pszExt = nWorkflowType == TAECHANG_WORKFLOW_HWP_COMPARE ? L"hwp" : L"pdf";
-		LPCWSTR pszFilter = nWorkflowType == TAECHANG_WORKFLOW_HWP_COMPARE ? TAECHANG_UI_HWP_FILTER : TAECHANG_UI_PDF_FILTER;
-		LPCWSTR pszTitle = nWorkflowType == TAECHANG_WORKFLOW_HWP_COMPARE ? TAECHANG_UI_SELECT_HWP_INPUT_TITLE : TAECHANG_UI_SELECT_PDF_INPUT_TITLE;
-		CFileDialog dlg(TRUE, pszExt, NULL, OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_ALLOWMULTISELECT, pszFilter, this);
-		CString strBuffer;
-		LPTSTR pszBuffer = strBuffer.GetBuffer(32768);
-		ZeroMemory(pszBuffer, sizeof(TCHAR) * 32768);
-		dlg.m_ofn.lpstrFile = pszBuffer;
-		dlg.m_ofn.nMaxFile = 32768;
-		dlg.m_ofn.lpstrTitle = pszTitle;
-		if (dlg.DoModal() == IDOK) {
-			POSITION pos = dlg.GetStartPosition();
-			CString strPaths;
-			while (pos != NULL) {
-				if (!strPaths.IsEmpty())
-					strPaths += L"\r\n";
-				strPaths += dlg.GetNextPathName(pos);
-			}
-			m_wndInputPath.SetWindowTextW(strPaths);
-		}
-		strBuffer.ReleaseBuffer();
-		return;
-	}
-
 	CFileDialog dlg(TRUE, L"xls", NULL, OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST, TAECHANG_UI_EXCEL_FILTER, this);
 	if (nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE)
 		dlg.m_ofn.lpstrTitle = TAECHANG_UI_SELECT_ESTIMATE_INPUT_TITLE;
@@ -1565,37 +1450,6 @@ void CSageTaechangView::OnLoadWorkflow() {
 
 void CSageTaechangView::OnGenerateWorkflow() {
 	RunWorkflowTask(TAECHANG_TASK_GENERATE);
-}
-
-void CSageTaechangView::OnExportCsv() {
-	if (m_strLastResponseJson.IsEmpty() || !IsCompareWorkflow(m_nLastWorkflowType)) {
-		AfxMessageBox(TAECHANG_UI_EXPORT_RESULT_REQUIRED, MB_ICONWARNING);
-		return;
-	}
-
-	COMDLG_FILTERSPEC arrTypes[] =
-	{
-		{ L"CSV Files", L"*.csv" },
-		{ L"All Files", L"*.*" }
-	};
-	CString strPath = ShowIFileSaveDialog(
-		GetSafeHwnd(),
-		TAECHANG_UI_SELECT_CSV_OUTPUT_TITLE,
-		L"csv",
-		arrTypes,
-		2,
-		L"taechang-compare-result.csv");
-	if (strPath.IsEmpty())
-		return;
-
-	CString strError;
-	TaechangCompareCsvExportService service;
-	if (!service.ExportCompareResult(m_strLastResponseJson, strPath, strError)) {
-		AfxMessageBox(strError, MB_ICONERROR);
-		return;
-	}
-
-	SetStatusText(TAECHANG_UI_EXPORT_COMPLETED);
 }
 
 void CSageTaechangView::OnSelectAll() {
@@ -1668,7 +1522,7 @@ void CSageTaechangView::RunWorkflowTask(int nTaskType) {
 		return;
 
 	int nWorkflowType = GetSelectedWorkflow();
-	if (nTaskType == TAECHANG_TASK_GENERATE && nWorkflowType != TAECHANG_WORKFLOW_PDF_COMPARE && nWorkflowType != TAECHANG_WORKFLOW_HWP_COMPARE && !ValidateOutputFolder(strOutputFolder))
+	if (nTaskType == TAECHANG_TASK_GENERATE && !ValidateOutputFolder(strOutputFolder))
 		return;
 
 	CString strSelectedRowNums;
@@ -1712,10 +1566,6 @@ void CSageTaechangView::RunWorkflowTask(int nTaskType) {
 	pTask->m_strSelectedRowNums = strSelectedRowNums;
 	pTask->m_bEstimateOnePage = (nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE && m_wndEstimateOnePage.GetCheck() == BST_CHECKED) ? TRUE : FALSE;
 	m_strRunningInputPath = strInputPath;
-	if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_PDF_COMPARE)
-		pTask->m_strPdfFilePaths = strInputPath;
-	else if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_HWP_COMPARE)
-		pTask->m_strHwpFilePaths = strInputPath;
 
 	SetRunningState(TRUE);
 	AfxBeginThread(RunWorkflowWorker, pTask, THREAD_PRIORITY_NORMAL, 0, 0, NULL);
@@ -1767,7 +1617,6 @@ void CSageTaechangView::SetRunningState(BOOL bRunning) {
 		KillTimer(ID_TAECHANG_PROGRESS_TIMER);
 		UpdateProgressPercent(TAECHANG_PROGRESS_COMPLETE);
 	}
-	UpdateExportButtonState();
 	UpdateTaskTabVisibility();
 	LayoutChildControls();
 	if (bRunning)
@@ -1884,8 +1733,7 @@ void CSageTaechangView::SetStatusText(const CString& strStatus) {
 COLORREF CSageTaechangView::ResolveStatusColor(const CString& strStatus) const {
 	if (strStatus == TAECHANG_UI_RUNNING)
 		return TAECHANG_COLOR_PRIMARY;
-	if (strStatus == TAECHANG_UI_COMPLETED ||
-		strStatus == TAECHANG_UI_EXPORT_COMPLETED)
+	if (strStatus == TAECHANG_UI_COMPLETED)
 		return TAECHANG_COLOR_SUCCESS;
 	if (strStatus == TAECHANG_UI_FAILED)
 		return TAECHANG_COLOR_ERROR;
@@ -1893,7 +1741,7 @@ COLORREF CSageTaechangView::ResolveStatusColor(const CString& strStatus) const {
 }
 
 SageBackgroundRole CSageTaechangView::ResolveStatusBgRole(const CString& strStatus) const {
-	if (strStatus == TAECHANG_UI_COMPLETED || strStatus == TAECHANG_UI_EXPORT_COMPLETED)
+	if (strStatus == TAECHANG_UI_COMPLETED)
 		return SAGE_BG_STATUS_SUCCESS;
 	if (strStatus == TAECHANG_UI_RUNNING)
 		return SAGE_BG_STATUS_WARNING;
@@ -1932,13 +1780,9 @@ void CSageTaechangView::DisplayResponse(int nWorkflowType, int nTaskType, const 
 
 	TaechangWorkflowResultPresenter presenter;
 	std::vector<TaechangResultRow> arrRows;
-	CString strDetailText;
-	BOOL bSuccess = presenter.BuildRows(nWorkflowType, nTaskType, strResponseJson, arrRows, strDetailText);
+	BOOL bSuccess = presenter.BuildRows(nWorkflowType, nTaskType, strResponseJson, arrRows);
 	AppendExecutionHistory(nWorkflowType, nTaskType, strResponseJson, bSuccess);
-	if (IsCompareWorkflow(nWorkflowType))
-		m_wndDetail.SetWindowTextW(strDetailText);
-	else
-		m_wndDetail.SetWindowTextW(m_strExecutionHistory);
+	m_wndDetail.SetWindowTextW(m_strExecutionHistory);
 
 	if (!bDocumentGenerateNoResult) {
 		if (nWorkflowType == TAECHANG_WORKFLOW_RECEIVABLES ||
@@ -1984,12 +1828,10 @@ void CSageTaechangView::DisplayResponse(int nWorkflowType, int nTaskType, const 
 	m_wndActionStatus.SetWindowTextW(bSuccess ? TAECHANG_UI_ACTION_STATUS_COMPLETED : TAECHANG_UI_ACTION_STATUS_FAILED);
 	m_wndActionStatus.Invalidate();
 	SetStatusText(bSuccess ? TAECHANG_UI_COMPLETED : TAECHANG_UI_FAILED);
-	UpdateExportButtonState();
 	SaveWorkflowUiState(nWorkflowType);
 }
 
 void CSageTaechangView::InsertResultRow(const TaechangResultRow& row) {
-	BOOL bIsCompare = IsCompareWorkflow(GetSelectedWorkflow());
 	int nCount = m_wndResultList.GetItemCount();
 	int nCol = 0;
 	int nIndex;
@@ -2035,14 +1877,8 @@ void CSageTaechangView::InsertResultRow(const TaechangResultRow& row) {
 		m_wndResultList.SetItemText(nIndex, 8, row.m_strReason);
 		return;
 	}
-	if (bIsCompare) {
-		nIndex = m_wndResultList.InsertItem(nCount, row.m_strFile);
-		++nCol;
-		m_wndResultList.SetItemText(nIndex, nCol++, row.m_strField);
-	} else {
-		nIndex = m_wndResultList.InsertItem(nCount, row.m_strField);
-		++nCol;
-	}
+	nIndex = m_wndResultList.InsertItem(nCount, row.m_strField);
+	++nCol;
 	m_wndResultList.SetItemText(nIndex, nCol++, row.m_strValue);
 	m_wndResultList.SetItemText(nIndex, nCol++, row.m_strStatus);
 	m_wndResultList.SetItemText(nIndex, nCol++, row.m_strReason);
@@ -2067,8 +1903,7 @@ void CSageTaechangView::RefreshDocumentResultFilter() {
 
 	TaechangWorkflowResultPresenter presenter;
 	std::vector<TaechangResultRow> arrRows;
-	CString strDetailText;
-	presenter.BuildRows(m_nLastWorkflowType, m_nLastTaskType, m_strLastResponseJson, arrRows, strDetailText);
+	presenter.BuildRows(m_nLastWorkflowType, m_nLastTaskType, m_strLastResponseJson, arrRows);
 	for (int i = 0; i < static_cast<int>(arrRows.size()); ++i) {
 		if (!strFilterLower.IsEmpty()) {
 			CString strTargetLower;

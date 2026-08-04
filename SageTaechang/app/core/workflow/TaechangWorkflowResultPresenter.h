@@ -5,7 +5,6 @@ struct TaechangResultRow
     TaechangResultRow();
 
     int m_nSourceRowIndex;
-    CString m_strFile;
     CString m_strField;
     CString m_strValue;
     CString m_strStatus;
@@ -37,8 +36,7 @@ public:
         int nWorkflowType,
         int nTaskType,
         const CString& strResponseJson,
-        std::vector<TaechangResultRow>& outRows,
-        CString& outDetailText);
+        std::vector<TaechangResultRow>& outRows);
 
 private:
     void AddRow(
@@ -52,9 +50,6 @@ private:
         const CString& strResponseJson,
         std::vector<TaechangResultRow>& outRows) const;
 
-    void AddCompareFileRows(
-        const CString& strResponseJson,
-        std::vector<TaechangResultRow>& outRows) const;
 
     void AddReceivablesResultRows(
         const CString& strResponseJson,
@@ -67,6 +62,4 @@ private:
     void AddEstimateInputRows(
         const CString& strResponseJson,
         std::vector<TaechangResultRow>& outRows) const;
-
-    BOOL IsCompareWorkflow(int nWorkflowType) const;
 };

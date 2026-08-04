@@ -98,7 +98,6 @@ protected:
     CSageButton m_wndSelectOutput;
     CSageButton m_wndLoad;
     CSageButton m_wndGenerate;
-    CSageButton m_wndExportCsv;
     CSageButton m_wndSelectAll;
     CButton m_wndEstimateOnePage;
     CSageButton m_wndInputReset;
@@ -248,12 +247,9 @@ protected:
     void SetStatusText(const CString& strStatus);
     int GetSelectedWorkflow() const;
     void UpdateWorkflowLabels();
-    void UpdateExportButtonState();
-    BOOL IsCompareWorkflow(int nWorkflowType) const;
     BOOL IsInputTabSelected() const;
     BOOL IsResultTab() const;
     BOOL IsDetailTab() const;
-    BOOL IsExportTab() const;
     BOOL IsActionTabVisible() const;
     int GetTaskTabVisualIndex(int nSemanticTabIndex) const;
     int GetTaskTabSemanticIndex(int nVisualTabIndex) const;
@@ -336,7 +332,6 @@ protected:
     afx_msg void OnSelectOutput();
     afx_msg void OnLoadWorkflow();
     afx_msg void OnGenerateWorkflow();
-    afx_msg void OnExportCsv();
     afx_msg void OnSelectAll();
     afx_msg void OnEstimateOnePage();
     afx_msg void OnInputReset();

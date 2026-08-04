@@ -204,16 +204,7 @@
     <ClCompile Include="app\infra\office\TaechangEstimateExcelService.cpp">
       <Filter>소스 파일\app\infra\office</Filter>
     </ClCompile>
-    <ClCompile Include="app\infra\office\TaechangPdfCompareService.cpp">
-      <Filter>소스 파일\app\infra\office</Filter>
-    </ClCompile>
-    <ClCompile Include="app\infra\office\TaechangHwpCompareService.cpp">
-      <Filter>소스 파일\app\infra\office</Filter>
-    </ClCompile>
     <ClCompile Include="app\infra\file\TaechangAppSettingsService.cpp">
-      <Filter>소스 파일\app\infra\file</Filter>
-    </ClCompile>
-    <ClCompile Include="app\infra\file\TaechangCompareCsvExportService.cpp">
       <Filter>소스 파일\app\infra\file</Filter>
     </ClCompile>
     <ClCompile Include="app\core\workflow\SageWorkflowResultTable.cpp">
@@ -229,12 +220,6 @@
       <Filter>소스 파일\app\core\workflow\handlers</Filter>
     </ClCompile>
     <ClCompile Include="app\core\workflow\handlers\SageEstimateWorkflowHandler.cpp">
-      <Filter>소스 파일\app\core\workflow\handlers</Filter>
-    </ClCompile>
-    <ClCompile Include="app\core\workflow\handlers\SagePdfCompareWorkflowHandler.cpp">
-      <Filter>소스 파일\app\core\workflow\handlers</Filter>
-    </ClCompile>
-    <ClCompile Include="app\core\workflow\handlers\SageHwpCompareWorkflowHandler.cpp">
       <Filter>소스 파일\app\core\workflow\handlers</Filter>
     </ClCompile>
     <ClCompile Include="app\core\workflow\TaechangWorkflowResultPresenter.cpp">
@@ -437,16 +422,7 @@
     <ClInclude Include="app\infra\office\TaechangEstimateExcelService.h">
       <Filter>헤더 파일\app\infra\office</Filter>
     </ClInclude>
-    <ClInclude Include="app\infra\office\TaechangPdfCompareService.h">
-      <Filter>헤더 파일\app\infra\office</Filter>
-    </ClInclude>
-    <ClInclude Include="app\infra\office\TaechangHwpCompareService.h">
-      <Filter>헤더 파일\app\infra\office</Filter>
-    </ClInclude>
     <ClInclude Include="app\infra\file\TaechangAppSettingsService.h">
-      <Filter>헤더 파일\app\infra\file</Filter>
-    </ClInclude>
-    <ClInclude Include="app\infra\file\TaechangCompareCsvExportService.h">
       <Filter>헤더 파일\app\infra\file</Filter>
     </ClInclude>
     <ClInclude Include="app\core\workflow\SageWorkflowTab.h">
@@ -468,12 +444,6 @@
       <Filter>헤더 파일\app\core\workflow\handlers</Filter>
     </ClInclude>
     <ClInclude Include="app\core\workflow\handlers\SageEstimateWorkflowHandler.h">
-      <Filter>헤더 파일\app\core\workflow\handlers</Filter>
-    </ClInclude>
-    <ClInclude Include="app\core\workflow\handlers\SagePdfCompareWorkflowHandler.h">
-      <Filter>헤더 파일\app\core\workflow\handlers</Filter>
-    </ClInclude>
-    <ClInclude Include="app\core\workflow\handlers\SageHwpCompareWorkflowHandler.h">
       <Filter>헤더 파일\app\core\workflow\handlers</Filter>
     </ClInclude>
     <ClInclude Include="app\core\workflow\TaechangWorkflowResultPresenter.h">

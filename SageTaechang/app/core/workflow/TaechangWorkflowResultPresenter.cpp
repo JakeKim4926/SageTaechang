@@ -132,16 +132,6 @@ namespace
 		return bNegative ? CString(L"-") + strDigits : strDigits;
 	}
 
-	CString ComposeReason(const CString& strReason, const CString& strRightValue) {
-		CString strResult = strReason;
-		if (!strRightValue.IsEmpty()) {
-			if (!strResult.IsEmpty())
-				strResult += TAECHANG_UI_PRESENTER_SEPARATOR;
-			strResult += TAECHANG_UI_RESULT_BASELINE_PREFIX + strRightValue.Left(80);
-		}
-		return strResult;
-	}
-
 }
 
 TaechangResultRow::TaechangResultRow()
@@ -151,10 +141,8 @@ BOOL TaechangWorkflowResultPresenter::BuildRows(
 	int nWorkflowType,
 	int nTaskType,
 	const CString& strResponseJson,
-	std::vector<TaechangResultRow>& outRows,
-	CString& outDetailText) {
+	std::vector<TaechangResultRow>& outRows) {
 	outRows.clear();
-	outDetailText = strResponseJson;
 
 	BOOL bSuccess = JsonExtractBool(strResponseJson, L"success");
 
@@ -173,11 +161,7 @@ BOOL TaechangWorkflowResultPresenter::BuildRows(
 		AddDeliveryInputRows(strResponseJson, outRows);
 	else if (nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE && nTaskType == TAECHANG_TASK_LOAD)
 		AddEstimateInputRows(strResponseJson, outRows);
-	else if (IsCompareWorkflow(nWorkflowType)) {
-		AddRow(outRows, TAECHANG_UI_RESULT_STATUS, TAECHANG_UI_COMPLETED, TAECHANG_RESULT_STATUS_SUCCESS, L"");
-		AddSummaryRows(strResponseJson, outRows);
-		AddCompareFileRows(strResponseJson, outRows);
-	} else {
+	else {
 		AddRow(outRows, TAECHANG_UI_RESULT_STATUS, TAECHANG_UI_COMPLETED, TAECHANG_RESULT_STATUS_SUCCESS, L"");
 		AddSummaryRows(strResponseJson, outRows);
 	}
@@ -217,29 +201,6 @@ void TaechangWorkflowResultPresenter::AddSummaryRows(
 		AddRow(outRows, TAECHANG_UI_RESULT_FILE, strFileName, TAECHANG_RESULT_STATUS_OUTPUT, L"");
 	if (!strFolder.IsEmpty())
 		AddRow(outRows, TAECHANG_UI_RESULT_FOLDER, strFolder, TAECHANG_RESULT_STATUS_OUTPUT, L"");
-}
-
-void TaechangWorkflowResultPresenter::AddCompareFileRows(
-	const CString& strResponseJson,
-	std::vector<TaechangResultRow>& outRows) const {
-	CString strFilesJson = JsonExtractArray(strResponseJson, L"files");
-	std::vector<CString> arrObjects;
-	SplitJsonObjectArray(strFilesJson, arrObjects);
-	for (int i = 0; i < static_cast<int>(arrObjects.size()); ++i) {
-		CString strFileName = JsonExtractString(arrObjects[i], L"fileName");
-		CString strStatus = JsonExtractString(arrObjects[i], L"status");
-		CString strReason = JsonExtractString(arrObjects[i], L"reason");
-		CString strLeftValue = JsonExtractString(arrObjects[i], L"leftValue");
-		CString strRightValue = JsonExtractString(arrObjects[i], L"rightValue");
-		CString strItemLabel = JsonExtractString(arrObjects[i], L"itemLabel");
-		TaechangResultRow row;
-		row.m_strFile = strFileName;
-		row.m_strField = strItemLabel;
-		row.m_strValue = strLeftValue;
-		row.m_strStatus = strStatus;
-		row.m_strReason = ComposeReason(strReason, strRightValue);
-		outRows.push_back(row);
-	}
 }
 
 void TaechangWorkflowResultPresenter::AddReceivablesResultRows(
@@ -340,8 +301,4 @@ void TaechangWorkflowResultPresenter::AddEstimateInputRows(
 		row.m_strReason = FormatAmountText(strFreight);
 		outRows.push_back(row);
 	}
-}
-
-BOOL TaechangWorkflowResultPresenter::IsCompareWorkflow(int nWorkflowType) const {
-	return IsCompareWorkflowType(nWorkflowType);
 }
