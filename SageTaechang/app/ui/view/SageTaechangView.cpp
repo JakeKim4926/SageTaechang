@@ -17,6 +17,8 @@
 #include "app/infra/office/TaechangReceivablesExcelService.h"
 #include "app/common/TaechangJson.h"
 #include "app/common/TaechangDialogHelper.h"
+#include "app/core/workflow/ISageWorkflowHandler.h"
+#include "app/core/workflow/SageWorkflowRegistry.h"
 #include "app/core/workflow/TaechangWorkflowResponse.h"
 #include "app/core/workflow/TaechangWorkflowResultPresenter.h"
 #include "app/core/auth/TaechangAuthSession.h"
@@ -1200,28 +1202,13 @@ int CSageTaechangView::GetSelectedWorkflow() const {
 
 void CSageTaechangView::UpdateWorkflowLabels() {
 	int nWorkflowType = GetSelectedWorkflow();
-	if (nWorkflowType == TAECHANG_WORKFLOW_HWP_COMPARE) {
-		m_wndHeaderTitle.SetWindowTextW(TAECHANG_UI_HWP_COMPARE_NAME);
-		m_wndInputSection.SetWindowTextW(TAECHANG_UI_SECTION_INSPECTION_INPUT);
-		m_wndGenerate.SetWindowTextW(TAECHANG_UI_HWP_COMPARE_BUTTON);
-	} else if (nWorkflowType == TAECHANG_WORKFLOW_PDF_COMPARE) {
-		m_wndHeaderTitle.SetWindowTextW(TAECHANG_UI_PDF_COMPARE_NAME);
-		m_wndInputSection.SetWindowTextW(TAECHANG_UI_SECTION_INSPECTION_INPUT);
-		m_wndGenerate.SetWindowTextW(TAECHANG_UI_PDF_COMPARE_BUTTON);
-	} else if (nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE) {
-		m_wndHeaderTitle.SetWindowTextW(TAECHANG_UI_ESTIMATE_NAME);
-		m_wndInputSection.SetWindowTextW(TAECHANG_UI_SECTION_INPUT);
-		m_wndGenerate.SetWindowTextW(TAECHANG_UI_ESTIMATE_GENERATE_BUTTON);
-	} else if (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY) {
-		m_wndHeaderTitle.SetWindowTextW(TAECHANG_UI_DELIVERY_NAME);
-		m_wndInputSection.SetWindowTextW(TAECHANG_UI_SECTION_INPUT);
-		m_wndGenerate.SetWindowTextW(TAECHANG_UI_DELIVERY_GENERATE_BUTTON);
-	} else {
-		m_wndHeaderTitle.SetWindowTextW(TAECHANG_UI_RECEIVABLES_NAME);
-		m_wndInputSection.SetWindowTextW(TAECHANG_UI_SECTION_INPUT);
-		m_wndGenerate.SetWindowTextW(TAECHANG_UI_RECEIVABLES_GENERATE_BUTTON);
-	}
-	m_wndDetailSection.SetWindowTextW(IsCompareWorkflow(nWorkflowType) ? TAECHANG_UI_SECTION_DETAIL : TAECHANG_UI_SECTION_HISTORY);
+	ISageWorkflowHandler* pHandler = SageWorkflowRegistry::FindHandler(nWorkflowType);
+	if (pHandler == NULL)
+		return;
+	m_wndHeaderTitle.SetWindowTextW(pHandler->GetHeaderTitle());
+	m_wndInputSection.SetWindowTextW(pHandler->GetInputSectionLabel());
+	m_wndGenerate.SetWindowTextW(pHandler->GetActionButtonLabel());
+	m_wndDetailSection.SetWindowTextW(pHandler->GetDetailSectionLabel());
 	m_wndDetail.SetWindowTextW(IsCompareWorkflow(nWorkflowType) ? CString() : m_strExecutionHistory);
 	ApplyWorkflowTabs();
 	ApplyResultColumns();
