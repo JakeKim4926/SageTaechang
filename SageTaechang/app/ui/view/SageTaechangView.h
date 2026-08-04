@@ -255,7 +255,6 @@ protected:
     BOOL IsDetailTab() const;
     BOOL IsExportTab() const;
     BOOL IsActionTabVisible() const;
-    BOOL HasDocumentResultTab() const;
     int GetTaskTabVisualIndex(int nSemanticTabIndex) const;
     int GetTaskTabSemanticIndex(int nVisualTabIndex) const;
     BOOL IsReceivablesResultTable() const;

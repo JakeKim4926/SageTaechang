@@ -446,6 +446,9 @@
     <ClInclude Include="app\infra\file\TaechangCompareCsvExportService.h">
       <Filter>헤더 파일\app\infra\file</Filter>
     </ClInclude>
+    <ClInclude Include="app\core\workflow\SageWorkflowTab.h">
+      <Filter>헤더 파일\app\core\workflow</Filter>
+    </ClInclude>
     <ClInclude Include="app\core\workflow\ISageWorkflowHandler.h">
       <Filter>헤더 파일\app\core\workflow</Filter>
     </ClInclude>

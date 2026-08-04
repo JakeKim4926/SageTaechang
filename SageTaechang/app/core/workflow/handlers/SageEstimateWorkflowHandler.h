@@ -11,4 +11,7 @@ public:
     virtual LPCWSTR GetInputSectionLabel() const;
     virtual LPCWSTR GetActionButtonLabel() const;
     virtual LPCWSTR GetDetailSectionLabel() const;
+
+    virtual int GetTabCount() const;
+    virtual const SageWorkflowTab& GetTab(int nVisualTabIndex) const;
 };

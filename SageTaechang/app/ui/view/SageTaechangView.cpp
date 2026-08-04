@@ -666,22 +666,12 @@ void CSageTaechangView::ApplyLabelRoles() {
 
 void CSageTaechangView::ApplyWorkflowTabs() {
 	m_wndTaskTabs.DeleteAllItems();
-	if (IsCompareWorkflow(GetSelectedWorkflow())) {
-		m_wndTaskTabs.InsertItem(TAECHANG_TAB_INDEX_INPUT, TAECHANG_UI_TAB_FILES);
-		m_wndTaskTabs.InsertItem(TAECHANG_TAB_INDEX_PREVIEW, TAECHANG_UI_TAB_INSPECTION);
-		m_wndTaskTabs.InsertItem(TAECHANG_TAB_INDEX_RESULT, TAECHANG_UI_TAB_DETAIL);
-		m_wndTaskTabs.InsertItem(TAECHANG_TAB_INDEX_DETAIL, TAECHANG_UI_TAB_EXPORT);
-	} else {
-		m_wndTaskTabs.InsertItem(TAECHANG_TAB_INDEX_INPUT, TAECHANG_UI_TAB_INPUT);
-		if (HasDocumentResultTab()) {
-			m_wndTaskTabs.InsertItem(TAECHANG_TAB_INDEX_DOCUMENT_RESULT, TAECHANG_UI_TAB_RESULT);
-			m_wndTaskTabs.InsertItem(TAECHANG_TAB_INDEX_DOCUMENT_HISTORY, TAECHANG_UI_TAB_HISTORY);
-			if (GetSelectedWorkflow() == TAECHANG_WORKFLOW_RECEIVABLES)
-				m_wndTaskTabs.InsertItem(TAECHANG_TAB_INDEX_DOCUMENT_DATA_MANAGE, TAECHANG_UI_TAB_DATA_MANAGE);
-		} else {
-			m_wndTaskTabs.InsertItem(1, TAECHANG_UI_TAB_HISTORY);
-		}
-	}
+	ISageWorkflowHandler* pHandler = SageWorkflowRegistry::FindHandler(GetSelectedWorkflow());
+	if (pHandler == NULL)
+		return;
+	int nTabCount = pHandler->GetTabCount();
+	for (int nVisualTabIndex = 0; nVisualTabIndex < nTabCount; ++nVisualTabIndex)
+		m_wndTaskTabs.InsertItem(nVisualTabIndex, pHandler->GetTab(nVisualTabIndex).pszLabel);
 	m_wndTaskTabs.SetCurSel(GetTaskTabVisualIndex(m_nSelectedTaskTab));
 	UpdateTaskTabVisibility();
 }
@@ -1244,29 +1234,25 @@ BOOL CSageTaechangView::IsActionTabVisible() const {
 	return IsInputTabSelected() ? TRUE : FALSE;
 }
 
-BOOL CSageTaechangView::HasDocumentResultTab() const {
-	int nWorkflowType = GetSelectedWorkflow();
-	return (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY || nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE) ? FALSE : TRUE;
-}
-
 int CSageTaechangView::GetTaskTabVisualIndex(int nSemanticTabIndex) const {
-	if (IsCompareWorkflow(GetSelectedWorkflow()))
-		return nSemanticTabIndex;
-	if (HasDocumentResultTab())
-		return nSemanticTabIndex;
-	if (nSemanticTabIndex == TAECHANG_TAB_INDEX_DOCUMENT_HISTORY)
-		return 1;
+	ISageWorkflowHandler* pHandler = SageWorkflowRegistry::FindHandler(GetSelectedWorkflow());
+	if (pHandler == NULL)
+		return TAECHANG_TAB_INDEX_INPUT;
+	int nTabCount = pHandler->GetTabCount();
+	for (int nVisualTabIndex = 0; nVisualTabIndex < nTabCount; ++nVisualTabIndex) {
+		if (pHandler->GetTab(nVisualTabIndex).nSemanticIndex == nSemanticTabIndex)
+			return nVisualTabIndex;
+	}
 	return TAECHANG_TAB_INDEX_INPUT;
 }
 
 int CSageTaechangView::GetTaskTabSemanticIndex(int nVisualTabIndex) const {
-	if (IsCompareWorkflow(GetSelectedWorkflow()))
-		return nVisualTabIndex;
-	if (HasDocumentResultTab())
-		return nVisualTabIndex;
-	if (nVisualTabIndex == 1)
-		return TAECHANG_TAB_INDEX_DOCUMENT_HISTORY;
-	return TAECHANG_TAB_INDEX_INPUT;
+	ISageWorkflowHandler* pHandler = SageWorkflowRegistry::FindHandler(GetSelectedWorkflow());
+	if (pHandler == NULL)
+		return TAECHANG_TAB_INDEX_INPUT;
+	if (nVisualTabIndex < 0 || nVisualTabIndex >= pHandler->GetTabCount())
+		return TAECHANG_TAB_INDEX_INPUT;
+	return pHandler->GetTab(nVisualTabIndex).nSemanticIndex;
 }
 
 BOOL CSageTaechangView::IsReceivablesResultTable() const {
