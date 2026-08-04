@@ -31,7 +31,7 @@ WebView2 기반) 문서였고 존재하지 않는 폴더 구조를 규정했다.
 | 2 | 잔여 정리 (앱 헤더 DB 의존, `SqlInitializer`) | **완료** — develop 머지 |
 | 3-A | 공통 컨트롤 승격 | **완료** — 3-A-1~8 (3-A-4는 건너뜀) |
 | 3-B | 패널 분리 | 다음 |
-| 4 | 워크플로 핸들러 + 레지스트리 | **진행 중** — 4-1·4-2 완료 (3-B보다 먼저, 사용자 결정) |
+| 4 | 워크플로 핸들러 + 레지스트리 | **진행 중** — 4-1~4-4 완료 (3-B보다 먼저, 사용자 결정) |
 | 4-B | 의존 역전 (core Service ↔ infra Repository) | 대기 — Step 4에서 분리 |
 | 5 | `Sage` 접두사 전환 (상수·Define) | 대기 |
 
@@ -319,7 +319,7 @@ View.cpp는 4,073 → 4,067줄로 6줄만 줄었다. 얻은 것은 길이가 아
 app/core/workflow/
   ISageWorkflowHandler.h          탭·컬럼·라벨·검증·필터를 답한다
   ISageWorkflowRunner.h           실행 (core가 정의, infra가 구현)
-  SageWorkflowColumn.h            이름·너비·정렬 값 객체 (Win32 상수 금지, 자체 enum)
+  SageWorkflowResultTable.h/.cpp  컬럼 값 객체 + 표 표시 속성 + 공용 기본 표 (Win32 상수 금지, 자체 enum)
   SageWorkflowRegistry.h/.cpp     등록부 1곳. FindHandler(int) — NULL 가능
   handlers/                       핸들러 5쌍 (미수금·납품·견적·PDF·HWP)
 ```
@@ -334,8 +334,8 @@ app/core/workflow/
 | 4-1 | 인터페이스 + 등록부 + 핸들러 5개 골격. **View는 아직 쓰지 않는다** | 무변화 | **완료** `92468e4` (#92) |
 | 4-2 | 라벨 축 — `UpdateWorkflowLabels` | 무변화 | **완료** `8a72d27` (#93) |
 | 4-3 | 탭 **구성** 축 — `ApplyWorkflowTabs`, `HasDocumentResultTab`, 인덱스 변환 2개 | 무변화 | **완료** (빌드 확인 대기) |
-| 4-4 | 결과 컬럼 축 — `ApplyResultColumns` + 술어 3개 | 무변화 | 대기 |
-| 4-5 | 입력 축 — `OnSelectInput`, `ApplyDroppedInputPaths`, `OnInputReset` | 무변화 | 대기 |
+| 4-4 | 결과 컬럼 축 — `ApplyResultColumns` · `UpdateResultColumns` | 무변화 | **완료** `54e51bd` |
+| 4-5 | 입력 축 — `OnSelectInput`, `ApplyDroppedInputPaths`, `OnInputReset` | 무변화 | 다음 |
 | 4-6 | 검증·필터·UI상태 축 — `RunWorkflowTask` 검증, 필터 4개, `GetWorkflowUiState` | 무변화 | 대기 |
 | 4-7 | 응답 표시 축 — `DisplayResponse` | 무변화 | 대기 |
 | 4-8 | **실행 축 + infra 역전** — `ISageWorkflowRunner`, infra 5개 구현, View의 infra include 제거 | 무변화 | 대기 |
@@ -344,7 +344,7 @@ app/core/workflow/
 
 3-A-8의 교훈을 적용한다 — **단계마다 제거할 줄과 새로 쓸 줄을 함께 센다.**
 
-### 4-1~4-3 결과
+### 4-1~4-4 결과
 
 **4-1** (`92468e4`) — 인터페이스·등록부·핸들러 5개 골격. View 미사용이라 화면이 변할 수 없는 단계.
 정적 인스턴스 5개를 익명 네임스페이스 배열에 두고 `FindHandler`가 선형 탐색한다.
@@ -382,6 +382,27 @@ app/core/workflow/
 
 **탭 축은 "구성"과 "판정"이 다른 단계다.** 구성(어떤 탭을 어떤 순서로 그리는가)은 4-3,
 판정(지금 선택된 탭이 결과 탭인가)은 4-6이다. 후자는 상수 값이 우연히 겹쳐 버티고 있다 (`DEBT_LOG`).
+
+**4-4** (`54e51bd`) — 결과 표 정의를 핸들러가 답한다. **View에서 108줄이 빠지고 25줄이 들어와 순 -83줄**로,
+지금까지 축 중 회수가 가장 컸다.
+
+- **컬럼 목록이 두 함수에 따로 적혀 있던 것이 하나가 됐다.** `ApplyResultColumns`(삽입)와
+  `UpdateResultColumns`(너비)가 같은 표를 순회한다. 이전에는 한쪽만 고치면 어긋나는 구조였다
+- 값 컬럼이 창 폭에 맞춰 늘어나는 동작은 `bStretch` 한 필드로 표현했다
+- 기본 표(항목·값·상태·사유)는 `SageWorkflowResultTable`에 한 벌만 두고 3개 핸들러가 공유한다.
+  검수 핸들러는 앞에 파일명 하나를 얹는다. **5벌 복제를 피한 이유**는 기본 표에 컬럼을 추가할 때
+  5곳을 고쳐야 하는 구조가 이 리팩토링이 없애려는 병증 그 자체이기 때문이다
+- 계획서의 파일명을 정정했다 — `SageWorkflowColumn.h` → `SageWorkflowResultTable.h/.cpp`.
+  컬럼 값 객체만으로는 부족했고 표시 속성(체크박스·그리드선·강조)과 공용 기본 표가 함께 필요했다
+
+**착수 전 확정한 사실 — `m_nLastWorkflowType`은 항상 `0` 아니면 선택된 워크플로다.**
+`SetRunningState(TRUE)`가 사이드바를 비활성화해(`:1811`) 실행 중 전환이 막히고,
+문서 워크플로는 상태가 워크플로별로 보관되며, 그 외는 전환 시 `0`으로 초기화된다.
+이 불변식이 없었으면 "직전 워크플로"의 핸들러를 따로 조회해야 했다.
+
+**범위 밖으로 뺀 화면 변경** — 미수금·납품·견적 표가 창 폭을 채우지 못하고 오른쪽에 여백이 남는 문제는
+4-4가 만든 것이 아니라 원래 있던 동작이다. 리팩토링과 섞지 않고 별도 `style:` 커밋(`5a456bc`)으로
+컬럼 비례 확대를 적용했다. 가변 컬럼이 없는 표에만 적용되므로 기본·검수 표는 그대로다.
 
 ### 조회는 `Find*`다
 

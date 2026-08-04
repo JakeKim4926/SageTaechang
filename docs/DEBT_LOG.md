@@ -5,6 +5,12 @@
 
 ## 열린 항목
 
+### [2026-08-04] 중복로직 — 결과 표 판정 규칙이 핸들러와 View 양쪽에 있다
+- 위치: app/core/workflow/handlers/ 내 `HasReceivablesResultTable` / `HasDeliveryInputTable` / `HasEstimateInputTable` ↔ app/ui/view/SageTaechangView.cpp `IsReceivablesResultTable` / `IsDeliveryInputTable` / `IsEstimateInputTable`
+- 설명: Step 4-4로 "이 태스크에 전용 표가 있는가" 판정이 핸들러에 생겼지만, View의 술어 3개도 같은 규칙(워크플로 + 태스크 조합)을 그대로 들고 있다. View 쪽은 행 삽입·필터·버튼 표시에서 아직 20곳 넘게 쓰여 지울 수 없었다. 한쪽 규칙만 바뀌면 컬럼과 행 내용이 어긋난다.
+- 위험도: 중
+- 후속: Step 4-7(응답 표시 축)에서 행 삽입이 핸들러로 넘어갈 때 View 술어를 제거한다
+
 ### [2026-08-04] 구조불일치 — 탭 semantic 상수 3쌍이 같은 값이라 분기가 무의미
 - 위치: TaechangDefine.h:115~119,689 / app/ui/view/SageTaechangView.cpp `IsResultTab`, `IsDetailTab`
 - 설명: PREVIEW(1)==DOCUMENT_RESULT(1), RESULT(2)==DOCUMENT_HISTORY(2), DETAIL(3)==DATA_MANAGE(3)이라 두 술어의 워크플로 분기가 실제로는 같은 숫자를 비교한다. Step 4-3에서 탭 구성이 핸들러로 옮겨가 배열만 고치면 되는 구조가 됐는데, 이 술어들은 따라오지 않아 탭 순서를 바꾸면 조용히 어긋난다.
