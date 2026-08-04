@@ -11,12 +11,6 @@
 - 위험도: 중
 - 후속: Step 4-7(응답 표시 축)에서 행 삽입이 핸들러로 넘어갈 때 View 술어를 제거한다
 
-### [2026-08-04] 구조불일치 — 탭 semantic 상수 3쌍이 같은 값이라 분기가 무의미
-- 위치: TaechangDefine.h:115~119,689 / app/ui/view/SageTaechangView.cpp `IsResultTab`, `IsDetailTab`
-- 설명: PREVIEW(1)==DOCUMENT_RESULT(1), RESULT(2)==DOCUMENT_HISTORY(2), DETAIL(3)==DATA_MANAGE(3)이라 두 술어의 워크플로 분기가 실제로는 같은 숫자를 비교한다. Step 4-3에서 탭 구성이 핸들러로 옮겨가 배열만 고치면 되는 구조가 됐는데, 이 술어들은 따라오지 않아 탭 순서를 바꾸면 조용히 어긋난다.
-- 위험도: 중
-- 후속: Step 4-6에서 "결과 탭 / 상세 탭의 semantic 인덱스"를 핸들러가 답하게 한다
-
 ### [2026-08-04] 중복로직 — View의 핸들러 조회 + NULL 검사가 축마다 반복된다
 - 위치: app/ui/view/SageTaechangView.cpp `UpdateWorkflowLabels`, `ApplyWorkflowTabs`, `GetTaskTabVisualIndex`, `GetTaskTabSemanticIndex`
 - 설명: `SageWorkflowRegistry::FindHandler(GetSelectedWorkflow())` + NULL 검사가 4곳이며 Step 4-4~4-7에서 축이 늘 때마다 증가한다. 지금 헬퍼를 만들면 선행 일반화라 미뤘다.
@@ -96,6 +90,11 @@
 - 후속: Step 4에서 core Service 경유로 전환
 
 ## 해결됨
+
+### [2026-08-04] 해결 — 탭 semantic 상수 3쌍이 같은 값이라 분기가 무의미
+- 등록: 2026-08-04 (Step 4-3) / 해결: 2026-08-04 (`b2e8169`)
+- 내용: PREVIEW(1)==DOCUMENT_RESULT(1), RESULT(2)==DOCUMENT_HISTORY(2), DETAIL(3)==DATA_MANAGE(3)으로 값이 겹쳐 `IsResultTab`·`IsDetailTab`의 워크플로 분기가 같은 숫자를 비교하고 있었다.
+- 해결: 겹치던 세 상수가 전부 검수 워크플로 전용이라 PDF·HWP 제거와 함께 사라졌다. 남은 탭 인덱스는 문서용 0~3뿐이고 중복 값이 없다. 술어의 분기도 함께 접혔다.
 
 ### [2026-07-31] 해결 — 앱 헤더가 DB 계층을 전역 노출
 - 위치: SageTaechang.h:11

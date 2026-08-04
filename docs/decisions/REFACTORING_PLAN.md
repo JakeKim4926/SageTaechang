@@ -32,6 +32,7 @@ WebView2 기반) 문서였고 존재하지 않는 폴더 구조를 규정했다.
 | 3-A | 공통 컨트롤 승격 | **완료** — 3-A-1~8 (3-A-4는 건너뜀) |
 | 3-B | 패널 분리 | 다음 |
 | 4 | 워크플로 핸들러 + 레지스트리 | **진행 중** — 4-1~4-4 완료 (3-B보다 먼저, 사용자 결정) |
+| — | 검수 워크플로(PDF·HWP) 제거 | **완료** — 4-4 이후 삽입, `b2e8169` |
 | 4-B | 의존 역전 (core Service ↔ infra Repository) | 대기 — Step 4에서 분리 |
 | 5 | `Sage` 접두사 전환 (상수·Define) | 대기 |
 
@@ -292,9 +293,10 @@ View.cpp는 4,073 → 4,067줄로 6줄만 줄었다. 얻은 것은 길이가 아
 ### 조사로 확정된 사실
 
 - 워크플로 타입 분기가 **View의 함수 27개**에 흩어져 있다 (`TAECHANG_WORKFLOW_*` 사용 75곳)
-- 대상은 워크플로 1~5뿐이다. 6·7(단가관리·계산)은 패널이라 핸들러가 없다 (`IsPriceWorkflowType()`이 이미 가른다)
-- `RunWorkflowWorker`(View.cpp의 static 함수)가 **infra 서비스 5개를 직접 생성·호출**한다.
-  View.cpp의 `#include "app/infra/..."` 7줄이 그 결과다
+- 대상은 **워크플로 1~3**이다. 4·5(PDF·HWP 검수)는 2026-08-04에 제거했고(`b2e8169`),
+  6·7(단가관리·계산)은 패널이라 핸들러가 없다 (`IsPriceWorkflowType()`이 이미 가른다)
+- `RunWorkflowWorker`(View.cpp의 static 함수)가 **infra 서비스를 직접 생성·호출**한다
+  (검수 제거 후 3개: 미수금·납품·견적 엑셀). View.cpp의 `#include "app/infra/..."`가 그 결과다
 - `app/core/workflow/`에는 현재 `TaechangWorkflowResponse`·`TaechangWorkflowResultPresenter` 2쌍만 있다
 - `CSageListCtrl`은 이미 도메인을 모른다 (`SetHighlightColumns(시작, 개수)`).
   **컨트롤 API는 그대로 두고 판단 주체만 핸들러로 옮긴다**
@@ -321,7 +323,7 @@ app/core/workflow/
   ISageWorkflowRunner.h           실행 (core가 정의, infra가 구현)
   SageWorkflowResultTable.h/.cpp  컬럼 값 객체 + 표 표시 속성 + 공용 기본 표 (Win32 상수 금지, 자체 enum)
   SageWorkflowRegistry.h/.cpp     등록부 1곳. FindHandler(int) — NULL 가능
-  handlers/                       핸들러 5쌍 (미수금·납품·견적·PDF·HWP)
+  handlers/                       핸들러 3쌍 (미수금·납품·견적)
 ```
 
 `core`는 `afxwin.h`를 넣지 않는다. `CString`은 허용된다.
@@ -338,7 +340,7 @@ app/core/workflow/
 | 4-5 | 입력 축 — `OnSelectInput`, `ApplyDroppedInputPaths`, `OnInputReset` | 무변화 | 다음 |
 | 4-6 | 검증·필터·UI상태 축 — `RunWorkflowTask` 검증, 필터 4개, `GetWorkflowUiState` | 무변화 | 대기 |
 | 4-7 | 응답 표시 축 — `DisplayResponse` | 무변화 | 대기 |
-| 4-8 | **실행 축 + infra 역전** — `ISageWorkflowRunner`, infra 5개 구현, View의 infra include 제거 | 무변화 | 대기 |
+| 4-8 | **실행 축 + infra 역전** — `ISageWorkflowRunner`, infra 3개 구현, View의 infra include 제거 | 무변화 | 대기 |
 
 각 단계마다 빌드 가능한 상태를 유지한다. **화면 변화가 생기면 즉시 중단하고 원인을 보고한다.**
 
@@ -372,16 +374,12 @@ app/core/workflow/
 - **계획서의 4-3 범위 기재를 정정한다.** 이전 표기는 `IsCompareWorkflow`를 대상에 넣었으나
   4-3에서 3곳만 줄어 **15곳이 남는다.** 남은 곳의 소관은 아래와 같다
 
-| 잔존 위치 | 소관 |
-|---|---|
-| `LayoutChildControls` · `LayoutActionSection` · `UpdateTaskTabVisibility` 등 4곳 | 3-B (레이아웃·전환) |
-| `ApplyResultColumns` | 4-4 |
-| `UpdateExportButtonState` · `OnExportCsv` · `m_wndDetail` 본문 | 4-6 |
-| `DisplayResponse` · `InsertResultRow` | 4-7 |
-| `IsResultTab` · `IsDetailTab` · `IsExportTab` | 4-6 (`DEBT_LOG` 상수 충돌 항목과 함께) |
-
 **탭 축은 "구성"과 "판정"이 다른 단계다.** 구성(어떤 탭을 어떤 순서로 그리는가)은 4-3,
-판정(지금 선택된 탭이 결과 탭인가)은 4-6이다. 후자는 상수 값이 우연히 겹쳐 버티고 있다 (`DEBT_LOG`).
+판정(지금 선택된 탭이 결과 탭인가)은 원래 4-6 소관이었다.
+
+> **후속 정정 (2026-08-04)** — 위에서 "15곳이 남는다"고 적었던 `IsCompareWorkflow` 잔존분은
+> **검수 워크플로 제거(`b2e8169`)로 전부 사라졌다.** 술어 자체가 없어졌으므로 3-B·4-6·4-7이
+> 이 축을 이어받을 일이 없다. 아래 *검수 워크플로 제거* 참조.
 
 **4-4** (`54e51bd`) — 결과 표 정의를 핸들러가 답한다. **View에서 108줄이 빠지고 25줄이 들어와 순 -83줄**로,
 지금까지 축 중 회수가 가장 컸다.
@@ -404,6 +402,24 @@ app/core/workflow/
 4-4가 만든 것이 아니라 원래 있던 동작이다. 리팩토링과 섞지 않고 별도 `style:` 커밋(`5a456bc`)으로
 컬럼 비례 확대를 적용했다. 가변 컬럼이 없는 표에만 적용되므로 기본·검수 표는 그대로다.
 
+### 검수 워크플로 제거 (2026-08-04, `b2e8169`)
+
+4-4를 마친 뒤 **PDF·HWP 표지 검수(워크플로 4·5)가 실제로 쓰지 않는 기능**임이 확인되어 제거했다.
+Step 4를 잠시 멈추고 먼저 처리한 이유는 **지울 코드를 핸들러로 옮기는 낭비를 막기 위해서**다.
+남은 4-5~4-8에서 검수 분기가 차지하는 비중이 절반 가까이였다.
+
+- **화면 변화 없음이 보장됐다.** `BuildSidebarTree`에 검수 그룹이 이미 없어 UI에서 도달할 수 없는 상태였다
+- 삭제 규모: **20파일, -1,295줄** (infra 서비스 3개 766줄, 핸들러 2쌍, View 168줄, 상수 31개)
+- `IsCompareWorkflow` 15곳이 통째로 사라져 탭 판정·레이아웃·행 삽입 분기가 접혔다
+- `DEBT_LOG`의 *탭 semantic 상수 충돌* 항목이 함께 해소됐다 (겹치던 상수 3개가 모두 검수 전용이었다)
+- 함께 정리한 고아: `ShowIFileSaveDialog`, `TaechangResultRow::m_strFile`, `ComposeReason`,
+  `BuildRows`의 `outDetailText` 매개변수
+
+**교훈 — 삭제는 3단계(호출부 → 파일 → 상수)로 나눠도 중간 커밋이 빌드되지 않을 수 있다.**
+호출부에서 조건식을 지울 때 **뒤에서 쓰는 지역변수 선언까지 함께 지운 실수**가 있었다.
+빌드 확인 후 5커밋을 1커밋으로 squash해 "항상 빌드 가능한 이력"을 회복했다.
+다음 삭제 작업에서는 단계마다 빌드를 받거나 처음부터 한 커밋으로 간다.
+
 ### 조회는 `Find*`다
 
 ```cpp
@@ -419,7 +435,7 @@ ISageWorkflowHandler* FindHandler(int nWorkflowType);   // NULL 가능, 호출�
 
 측정 가능한 형태로:
 
-- [ ] `View.cpp`에 `TAECHANG_WORKFLOW_RECEIVABLES`~`_HWP_COMPARE` 사용이 **0곳**
+- [ ] `View.cpp`에 `TAECHANG_WORKFLOW_RECEIVABLES`·`_DELIVERY`·`_ESTIMATE` 사용이 **0곳**
       (6·7 단가 워크플로와 사이드바 등록 데이터는 제외)
 - [ ] `View.cpp`에 `#include "app/infra/office/..."`가 **0줄**
 - [ ] 각 단계에서 화면 표시가 바뀌면 실패
