@@ -16,6 +16,7 @@
 
 struct TaechangResultRow;
 struct TaechangPriceDto;
+class ISageWorkflowHandler;
 
 struct TaechangWorkflowUiState {
     int nSelectedTaskTab;
@@ -246,6 +247,7 @@ protected:
     void UpdateProgressPercent(int nPercent);
     void SetStatusText(const CString& strStatus);
     int GetSelectedWorkflow() const;
+    ISageWorkflowHandler* FindCurrentHandler() const;
     void UpdateWorkflowLabels();
     BOOL IsInputTabSelected() const;
     BOOL IsResultTab() const;

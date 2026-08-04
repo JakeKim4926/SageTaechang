@@ -619,7 +619,7 @@ void CSageTaechangView::ApplyLabelRoles() {
 
 void CSageTaechangView::ApplyWorkflowTabs() {
 	m_wndTaskTabs.DeleteAllItems();
-	ISageWorkflowHandler* pHandler = SageWorkflowRegistry::FindHandler(GetSelectedWorkflow());
+	ISageWorkflowHandler* pHandler = FindCurrentHandler();
 	if (pHandler == NULL)
 		return;
 	int nTabCount = pHandler->GetTabCount();
@@ -633,7 +633,7 @@ void CSageTaechangView::ApplyResultColumns() {
 	if (!::IsWindow(m_wndResultList.GetSafeHwnd()))
 		return;
 
-	ISageWorkflowHandler* pHandler = SageWorkflowRegistry::FindHandler(GetSelectedWorkflow());
+	ISageWorkflowHandler* pHandler = FindCurrentHandler();
 	if (pHandler == NULL)
 		return;
 
@@ -719,7 +719,7 @@ void CSageTaechangView::UpdateResultColumns() {
 	if (nWidth <= 0)
 		return;
 
-	ISageWorkflowHandler* pHandler = SageWorkflowRegistry::FindHandler(GetSelectedWorkflow());
+	ISageWorkflowHandler* pHandler = FindCurrentHandler();
 	if (pHandler == NULL)
 		return;
 
@@ -1076,9 +1076,12 @@ int CSageTaechangView::GetSelectedWorkflow() const {
 	return m_nCurrentWorkflow;
 }
 
+ISageWorkflowHandler* CSageTaechangView::FindCurrentHandler() const {
+	return SageWorkflowRegistry::FindHandler(GetSelectedWorkflow());
+}
+
 void CSageTaechangView::UpdateWorkflowLabels() {
-	int nWorkflowType = GetSelectedWorkflow();
-	ISageWorkflowHandler* pHandler = SageWorkflowRegistry::FindHandler(nWorkflowType);
+	ISageWorkflowHandler* pHandler = FindCurrentHandler();
 	if (pHandler == NULL)
 		return;
 	m_wndHeaderTitle.SetWindowTextW(pHandler->GetHeaderTitle());
@@ -1108,7 +1111,7 @@ BOOL CSageTaechangView::IsActionTabVisible() const {
 }
 
 int CSageTaechangView::GetTaskTabVisualIndex(int nSemanticTabIndex) const {
-	ISageWorkflowHandler* pHandler = SageWorkflowRegistry::FindHandler(GetSelectedWorkflow());
+	ISageWorkflowHandler* pHandler = FindCurrentHandler();
 	if (pHandler == NULL)
 		return TAECHANG_TAB_INDEX_INPUT;
 	int nTabCount = pHandler->GetTabCount();
@@ -1120,7 +1123,7 @@ int CSageTaechangView::GetTaskTabVisualIndex(int nSemanticTabIndex) const {
 }
 
 int CSageTaechangView::GetTaskTabSemanticIndex(int nVisualTabIndex) const {
-	ISageWorkflowHandler* pHandler = SageWorkflowRegistry::FindHandler(GetSelectedWorkflow());
+	ISageWorkflowHandler* pHandler = FindCurrentHandler();
 	if (pHandler == NULL)
 		return TAECHANG_TAB_INDEX_INPUT;
 	if (nVisualTabIndex < 0 || nVisualTabIndex >= pHandler->GetTabCount())
@@ -1383,7 +1386,7 @@ void CSageTaechangView::ApplyDroppedInputPaths(const CString& strPaths) {
 	if (strPaths.IsEmpty() || m_bRunning)
 		return;
 
-	ISageWorkflowHandler* pHandler = SageWorkflowRegistry::FindHandler(GetSelectedWorkflow());
+	ISageWorkflowHandler* pHandler = FindCurrentHandler();
 	if (pHandler == NULL)
 		return;
 
@@ -1405,7 +1408,7 @@ void CSageTaechangView::ApplyDroppedInputPaths(const CString& strPaths) {
 }
 
 void CSageTaechangView::OnSelectInput() {
-	ISageWorkflowHandler* pHandler = SageWorkflowRegistry::FindHandler(GetSelectedWorkflow());
+	ISageWorkflowHandler* pHandler = FindCurrentHandler();
 	if (pHandler == NULL)
 		return;
 
@@ -1492,7 +1495,7 @@ void CSageTaechangView::OnEstimateOnePage() {
 
 void CSageTaechangView::OnInputReset() {
 	int nWorkflowType = GetSelectedWorkflow();
-	ISageWorkflowHandler* pHandler = SageWorkflowRegistry::FindHandler(nWorkflowType);
+	ISageWorkflowHandler* pHandler = FindCurrentHandler();
 	if (pHandler == NULL || !pHandler->UsesInputTable())
 		return;
 
