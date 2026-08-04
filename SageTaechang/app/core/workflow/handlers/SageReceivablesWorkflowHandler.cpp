@@ -85,3 +85,11 @@ SageWorkflowResultStyle SageReceivablesWorkflowHandler::GetResultStyle(int nTask
 	style.nHighlightCount = TAECHANG_RECEIVABLES_COL_IDX_RECEIVABLE_AMOUNT - TAECHANG_RECEIVABLES_COL_IDX_TOTAL_AMOUNT + 1;
 	return style;
 }
+
+LPCWSTR SageReceivablesWorkflowHandler::GetInputDialogTitle() const {
+	return TAECHANG_UI_SELECT_RECEIVABLES_INPUT_TITLE;
+}
+
+BOOL SageReceivablesWorkflowHandler::UsesInputTable() const {
+	return FALSE;
+}

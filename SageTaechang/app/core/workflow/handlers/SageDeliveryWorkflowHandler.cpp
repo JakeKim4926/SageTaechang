@@ -81,3 +81,11 @@ SageWorkflowResultStyle SageDeliveryWorkflowHandler::GetResultStyle(int nTaskTyp
 	style.bGridLines = TRUE;
 	return style;
 }
+
+LPCWSTR SageDeliveryWorkflowHandler::GetInputDialogTitle() const {
+	return TAECHANG_UI_SELECT_DELIVERY_INPUT_TITLE;
+}
+
+BOOL SageDeliveryWorkflowHandler::UsesInputTable() const {
+	return TRUE;
+}

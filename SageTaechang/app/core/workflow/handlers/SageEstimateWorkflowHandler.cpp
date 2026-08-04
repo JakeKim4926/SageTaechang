@@ -79,3 +79,11 @@ SageWorkflowResultStyle SageEstimateWorkflowHandler::GetResultStyle(int nTaskTyp
 	style.bGridLines = TRUE;
 	return style;
 }
+
+LPCWSTR SageEstimateWorkflowHandler::GetInputDialogTitle() const {
+	return TAECHANG_UI_SELECT_ESTIMATE_INPUT_TITLE;
+}
+
+BOOL SageEstimateWorkflowHandler::UsesInputTable() const {
+	return TRUE;
+}

@@ -18,4 +18,7 @@ public:
     virtual int GetResultColumnCount(int nTaskType) const;
     virtual const SageWorkflowColumn& GetResultColumn(int nTaskType, int nColumnIndex) const;
     virtual SageWorkflowResultStyle GetResultStyle(int nTaskType) const;
+
+    virtual LPCWSTR GetInputDialogTitle() const;
+    virtual BOOL UsesInputTable() const;
 };

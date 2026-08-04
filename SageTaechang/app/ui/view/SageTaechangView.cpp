@@ -1383,7 +1383,10 @@ void CSageTaechangView::ApplyDroppedInputPaths(const CString& strPaths) {
 	if (strPaths.IsEmpty() || m_bRunning)
 		return;
 
-	int nWorkflowType = GetSelectedWorkflow();
+	ISageWorkflowHandler* pHandler = SageWorkflowRegistry::FindHandler(GetSelectedWorkflow());
+	if (pHandler == NULL)
+		return;
+
 	int nIndex = 0;
 	CString strInputPaths = strPaths.Tokenize(L"\r\n", nIndex);
 	strInputPaths.Trim();
@@ -1397,22 +1400,20 @@ void CSageTaechangView::ApplyDroppedInputPaths(const CString& strPaths) {
 		LayoutChildControls();
 	}
 	SetStatusText(L"파일 드롭 수신");
-	if (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY || nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE)
+	if (pHandler->UsesInputTable())
 		RunWorkflowTask(TAECHANG_TASK_LOAD);
 }
 
 void CSageTaechangView::OnSelectInput() {
-	int nWorkflowType = GetSelectedWorkflow();
+	ISageWorkflowHandler* pHandler = SageWorkflowRegistry::FindHandler(GetSelectedWorkflow());
+	if (pHandler == NULL)
+		return;
+
 	CFileDialog dlg(TRUE, L"xls", NULL, OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST, TAECHANG_UI_EXCEL_FILTER, this);
-	if (nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE)
-		dlg.m_ofn.lpstrTitle = TAECHANG_UI_SELECT_ESTIMATE_INPUT_TITLE;
-	else if (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY)
-		dlg.m_ofn.lpstrTitle = TAECHANG_UI_SELECT_DELIVERY_INPUT_TITLE;
-	else
-		dlg.m_ofn.lpstrTitle = TAECHANG_UI_SELECT_RECEIVABLES_INPUT_TITLE;
+	dlg.m_ofn.lpstrTitle = pHandler->GetInputDialogTitle();
 	if (dlg.DoModal() == IDOK) {
 		m_wndInputPath.SetWindowTextW(dlg.GetPathName());
-		if (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY || nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE)
+		if (pHandler->UsesInputTable())
 			RunWorkflowTask(TAECHANG_TASK_LOAD);
 	}
 }
@@ -1491,7 +1492,8 @@ void CSageTaechangView::OnEstimateOnePage() {
 
 void CSageTaechangView::OnInputReset() {
 	int nWorkflowType = GetSelectedWorkflow();
-	if (nWorkflowType != TAECHANG_WORKFLOW_DELIVERY && nWorkflowType != TAECHANG_WORKFLOW_ESTIMATE)
+	ISageWorkflowHandler* pHandler = SageWorkflowRegistry::FindHandler(nWorkflowType);
+	if (pHandler == NULL || !pHandler->UsesInputTable())
 		return;
 
 	m_wndInputPath.SetWindowTextW(CString());
