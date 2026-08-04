@@ -434,3 +434,10 @@
 - **검증**: Debug x64 빌드 성공, 워크플로 5개 + 단가 2개 순회로 표시 무변화 확인
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/93
 - **결과**: merged
+
+## [2026-08-04] refactor/workflow-handler-tabs
+- **목적**: Step 4-3. 워크플로 탭 구성을 핸들러로 이관하고 인덱스 변환 로직 단순화
+- **변경 내용**: `SageWorkflowTab`(semantic 인덱스 + 라벨) 신설, `ApplyWorkflowTabs`와 변환 함수 2개를 배열 조회로 대체, `HasDocumentResultTab` 제거. 계획서 4-3 범위 정정과 DEBT_LOG 2건 등록 포함
+- **검증**: Debug x64 빌드 성공, 워크플로 5개 탭 목록·전환·워크플로 전환 후 탭 유지 확인
+- **PR 링크**: 없음 (사용자 요청으로 develop 직접 머지, `86cc75d`)
+- **결과**: merged
