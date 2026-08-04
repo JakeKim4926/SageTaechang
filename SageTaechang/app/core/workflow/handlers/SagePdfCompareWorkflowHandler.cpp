@@ -13,6 +13,12 @@ const SageWorkflowTab g_tabs[] = {
 
 constexpr int SAGE_PDF_COMPARE_TAB_COUNT = sizeof(g_tabs) / sizeof(g_tabs[0]);
 
+const SageWorkflowColumn g_fileColumn = {
+	TAECHANG_UI_RESULT_FILENAME, SAGE_COLUMN_ALIGN_LEFT, TAECHANG_RESULT_FILE_WIDTH, FALSE
+};
+
+constexpr int SAGE_PDF_COMPARE_PREFIX_COLUMN_COUNT = 1;
+
 }
 
 int SagePdfCompareWorkflowHandler::GetWorkflowType() const {
@@ -41,4 +47,22 @@ int SagePdfCompareWorkflowHandler::GetTabCount() const {
 
 const SageWorkflowTab& SagePdfCompareWorkflowHandler::GetTab(int nVisualTabIndex) const {
 	return g_tabs[nVisualTabIndex];
+}
+
+int SagePdfCompareWorkflowHandler::GetResultColumnCount(int nTaskType) const {
+	UNREFERENCED_PARAMETER(nTaskType);
+	return SAGE_PDF_COMPARE_PREFIX_COLUMN_COUNT + SageWorkflowResultTable::GetGenericColumnCount();
+}
+
+const SageWorkflowColumn& SagePdfCompareWorkflowHandler::GetResultColumn(int nTaskType, int nColumnIndex) const {
+	UNREFERENCED_PARAMETER(nTaskType);
+	if (nColumnIndex < SAGE_PDF_COMPARE_PREFIX_COLUMN_COUNT)
+		return g_fileColumn;
+	return SageWorkflowResultTable::GetGenericColumn(nColumnIndex - SAGE_PDF_COMPARE_PREFIX_COLUMN_COUNT);
+}
+
+SageWorkflowResultStyle SagePdfCompareWorkflowHandler::GetResultStyle(int nTaskType) const {
+	UNREFERENCED_PARAMETER(nTaskType);
+	SageWorkflowResultStyle style;
+	return style;
 }

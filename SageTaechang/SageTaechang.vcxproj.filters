@@ -216,6 +216,9 @@
     <ClCompile Include="app\infra\file\TaechangCompareCsvExportService.cpp">
       <Filter>소스 파일\app\infra\file</Filter>
     </ClCompile>
+    <ClCompile Include="app\core\workflow\SageWorkflowResultTable.cpp">
+      <Filter>소스 파일\app\core\workflow</Filter>
+    </ClCompile>
     <ClCompile Include="app\core\workflow\SageWorkflowRegistry.cpp">
       <Filter>소스 파일\app\core\workflow</Filter>
     </ClCompile>
@@ -447,6 +450,9 @@
       <Filter>헤더 파일\app\infra\file</Filter>
     </ClInclude>
     <ClInclude Include="app\core\workflow\SageWorkflowTab.h">
+      <Filter>헤더 파일\app\core\workflow</Filter>
+    </ClInclude>
+    <ClInclude Include="app\core\workflow\SageWorkflowResultTable.h">
       <Filter>헤더 파일\app\core\workflow</Filter>
     </ClInclude>
     <ClInclude Include="app\core\workflow\ISageWorkflowHandler.h">

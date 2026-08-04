@@ -274,6 +274,7 @@ if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templ
     <ClInclude Include="app\infra\file\TaechangCompareCsvExportService.h" />
     <ClInclude Include="app\core\workflow\TaechangWorkflowResultPresenter.h" />
     <ClInclude Include="app\core\workflow\SageWorkflowTab.h" />
+    <ClInclude Include="app\core\workflow\SageWorkflowResultTable.h" />
     <ClInclude Include="app\core\workflow\ISageWorkflowHandler.h" />
     <ClInclude Include="app\core\workflow\SageWorkflowRegistry.h" />
     <ClInclude Include="app\core\workflow\handlers\SageReceivablesWorkflowHandler.h" />
@@ -323,6 +324,7 @@ if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templ
     <ClCompile Include="app\infra\file\TaechangAppSettingsService.cpp" />
     <ClCompile Include="app\infra\file\TaechangCompareCsvExportService.cpp" />
     <ClCompile Include="app\core\workflow\TaechangWorkflowResultPresenter.cpp" />
+    <ClCompile Include="app\core\workflow\SageWorkflowResultTable.cpp" />
     <ClCompile Include="app\core\workflow\SageWorkflowRegistry.cpp" />
     <ClCompile Include="app\core\workflow\handlers\SageReceivablesWorkflowHandler.cpp" />
     <ClCompile Include="app\core\workflow\handlers\SageDeliveryWorkflowHandler.cpp" />

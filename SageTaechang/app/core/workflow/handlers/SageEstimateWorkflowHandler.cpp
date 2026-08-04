@@ -11,6 +11,24 @@ const SageWorkflowTab g_tabs[] = {
 
 constexpr int SAGE_ESTIMATE_TAB_COUNT = sizeof(g_tabs) / sizeof(g_tabs[0]);
 
+const SageWorkflowColumn g_inputColumns[] = {
+	{ TAECHANG_UI_ESTIMATE_COL_ROW, SAGE_COLUMN_ALIGN_LEFT, TAECHANG_ESTIMATE_ROW_WIDTH, FALSE },
+	{ TAECHANG_UI_ESTIMATE_COL_COMPANY, SAGE_COLUMN_ALIGN_LEFT, TAECHANG_ESTIMATE_COMPANY_WIDTH, FALSE },
+	{ TAECHANG_UI_ESTIMATE_COL_DATE, SAGE_COLUMN_ALIGN_LEFT, TAECHANG_ESTIMATE_DATE_WIDTH, FALSE },
+	{ TAECHANG_UI_ESTIMATE_COL_ITEM, SAGE_COLUMN_ALIGN_LEFT, TAECHANG_ESTIMATE_ITEM_WIDTH, FALSE },
+	{ TAECHANG_UI_ESTIMATE_COL_COPIES, SAGE_COLUMN_ALIGN_RIGHT, TAECHANG_ESTIMATE_COPIES_WIDTH, FALSE },
+	{ TAECHANG_UI_ESTIMATE_COL_PAGES, SAGE_COLUMN_ALIGN_RIGHT, TAECHANG_ESTIMATE_PAGES_WIDTH, FALSE },
+	{ TAECHANG_UI_ESTIMATE_COL_UNIT_PRICE, SAGE_COLUMN_ALIGN_RIGHT, TAECHANG_ESTIMATE_UNIT_PRICE_WIDTH, FALSE },
+	{ TAECHANG_UI_ESTIMATE_COL_COVER, SAGE_COLUMN_ALIGN_RIGHT, TAECHANG_ESTIMATE_COVER_WIDTH, FALSE },
+	{ TAECHANG_UI_ESTIMATE_COL_FREIGHT, SAGE_COLUMN_ALIGN_RIGHT, TAECHANG_ESTIMATE_FREIGHT_WIDTH, FALSE }
+};
+
+constexpr int SAGE_ESTIMATE_INPUT_COLUMN_COUNT = sizeof(g_inputColumns) / sizeof(g_inputColumns[0]);
+
+BOOL HasEstimateInputTable(int nTaskType) {
+	return (nTaskType == TAECHANG_TASK_LOAD) ? TRUE : FALSE;
+}
+
 }
 
 int SageEstimateWorkflowHandler::GetWorkflowType() const {
@@ -39,4 +57,25 @@ int SageEstimateWorkflowHandler::GetTabCount() const {
 
 const SageWorkflowTab& SageEstimateWorkflowHandler::GetTab(int nVisualTabIndex) const {
 	return g_tabs[nVisualTabIndex];
+}
+
+int SageEstimateWorkflowHandler::GetResultColumnCount(int nTaskType) const {
+	if (!HasEstimateInputTable(nTaskType))
+		return SageWorkflowResultTable::GetGenericColumnCount();
+	return SAGE_ESTIMATE_INPUT_COLUMN_COUNT;
+}
+
+const SageWorkflowColumn& SageEstimateWorkflowHandler::GetResultColumn(int nTaskType, int nColumnIndex) const {
+	if (!HasEstimateInputTable(nTaskType))
+		return SageWorkflowResultTable::GetGenericColumn(nColumnIndex);
+	return g_inputColumns[nColumnIndex];
+}
+
+SageWorkflowResultStyle SageEstimateWorkflowHandler::GetResultStyle(int nTaskType) const {
+	SageWorkflowResultStyle style;
+	if (!HasEstimateInputTable(nTaskType))
+		return style;
+	style.bCheckbox = TRUE;
+	style.bGridLines = TRUE;
+	return style;
 }

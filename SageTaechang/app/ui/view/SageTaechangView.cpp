@@ -680,73 +680,31 @@ void CSageTaechangView::ApplyResultColumns() {
 	if (!::IsWindow(m_wndResultList.GetSafeHwnd()))
 		return;
 
-	BOOL bNeedCheckbox = (IsDeliveryInputTable() || IsEstimateInputTable()) ? TRUE : FALSE;
-	BOOL bNeedGridLines = (IsReceivablesResultTable() || IsDeliveryInputTable() || IsEstimateInputTable()) ? TRUE : FALSE;
+	ISageWorkflowHandler* pHandler = SageWorkflowRegistry::FindHandler(GetSelectedWorkflow());
+	if (pHandler == NULL)
+		return;
+
+	SageWorkflowResultStyle resultStyle = pHandler->GetResultStyle(m_nLastTaskType);
 	DWORD dwExtStyle = LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER;
-	if (bNeedCheckbox)
+	if (resultStyle.bCheckbox)
 		dwExtStyle |= LVS_EX_CHECKBOXES;
-	if (bNeedGridLines)
+	if (resultStyle.bGridLines)
 		dwExtStyle |= LVS_EX_GRIDLINES;
 	m_wndResultList.SetExtendedStyle(dwExtStyle);
-	constexpr int nAmountColCount = TAECHANG_RECEIVABLES_COL_IDX_RECEIVABLE_AMOUNT - TAECHANG_RECEIVABLES_COL_IDX_TOTAL_AMOUNT + 1;
-	if (IsReceivablesResultTable())
-		m_wndResultList.SetHighlightColumns(TAECHANG_RECEIVABLES_COL_IDX_TOTAL_AMOUNT, nAmountColCount);
-	else
-		m_wndResultList.SetHighlightColumns(0, 0);
+	m_wndResultList.SetHighlightColumns(resultStyle.nHighlightStart, resultStyle.nHighlightCount);
 
 	m_wndResultList.DeleteAllItems();
 	CHeaderCtrl* pHeader = m_wndResultList.GetHeaderCtrl();
-	int nColumnCount = (pHeader != NULL) ? pHeader->GetItemCount() : 0;
-	for (int i = nColumnCount - 1; i >= 0; --i)
+	int nOldColumnCount = (pHeader != NULL) ? pHeader->GetItemCount() : 0;
+	for (int i = nOldColumnCount - 1; i >= 0; --i)
 		m_wndResultList.DeleteColumn(i);
 
-	BOOL bIsCompare = IsCompareWorkflow(GetSelectedWorkflow());
-	int nIndex = 0;
-	if (bIsCompare)
-		m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RESULT_FILENAME, LVCFMT_LEFT, TAECHANG_RESULT_FILE_WIDTH);
-	if (IsReceivablesResultTable()) {
-		m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RECEIVABLES_COL_COMPANY, LVCFMT_LEFT, TAECHANG_RECEIVABLES_COMPANY_WIDTH);
-		m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RECEIVABLES_COL_MANAGER, LVCFMT_LEFT, TAECHANG_RECEIVABLES_MANAGER_WIDTH);
-		m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RECEIVABLES_COL_ISSUE_DATE, LVCFMT_LEFT, TAECHANG_RECEIVABLES_DATE_WIDTH);
-		m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RECEIVABLES_COL_ITEM, LVCFMT_LEFT, TAECHANG_RECEIVABLES_ITEM_WIDTH);
-		m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RECEIVABLES_COL_ISSUE_TYPE, LVCFMT_LEFT, TAECHANG_RECEIVABLES_TYPE_WIDTH);
-		m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RECEIVABLES_COL_TOTAL_AMOUNT, LVCFMT_RIGHT, TAECHANG_RECEIVABLES_AMOUNT_WIDTH);
-		m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RECEIVABLES_COL_DEPOSIT_AMOUNT, LVCFMT_RIGHT, TAECHANG_RECEIVABLES_AMOUNT_WIDTH);
-		m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RECEIVABLES_COL_RECEIVABLE_AMOUNT, LVCFMT_RIGHT, TAECHANG_RECEIVABLES_AMOUNT_WIDTH);
-		m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RECEIVABLES_COL_BANK, LVCFMT_LEFT, TAECHANG_RECEIVABLES_BANK_WIDTH);
-		m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RECEIVABLES_COL_NOTE, LVCFMT_LEFT, TAECHANG_RECEIVABLES_NOTE_WIDTH);
-		return;
+	int nColumnCount = pHandler->GetResultColumnCount(m_nLastTaskType);
+	for (int i = 0; i < nColumnCount; ++i) {
+		const SageWorkflowColumn& column = pHandler->GetResultColumn(m_nLastTaskType, i);
+		int nFormat = (column.nAlign == SAGE_COLUMN_ALIGN_RIGHT) ? LVCFMT_RIGHT : LVCFMT_LEFT;
+		m_wndResultList.InsertColumn(i, column.pszLabel, nFormat, column.nWidth);
 	}
-	if (IsDeliveryInputTable()) {
-		m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_DELIVERY_COL_ROW, LVCFMT_LEFT, TAECHANG_DELIVERY_ROW_WIDTH);
-		m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_DELIVERY_COL_COMPANY, LVCFMT_LEFT, TAECHANG_DELIVERY_COMPANY_WIDTH);
-		m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_DELIVERY_COL_DEPARTMENT, LVCFMT_LEFT, TAECHANG_DELIVERY_DEPARTMENT_WIDTH);
-		m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_DELIVERY_COL_ORDER_DATE, LVCFMT_LEFT, TAECHANG_DELIVERY_DATE_WIDTH);
-		m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_DELIVERY_COL_DELIVERY_DATE, LVCFMT_LEFT, TAECHANG_DELIVERY_DATE_WIDTH);
-		m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_DELIVERY_COL_DELIVERY_TIME, LVCFMT_LEFT, TAECHANG_DELIVERY_TIME_WIDTH);
-		m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_DELIVERY_COL_ITEM, LVCFMT_LEFT, TAECHANG_DELIVERY_ITEM_WIDTH);
-		m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_DELIVERY_COL_PRODUCT_TYPE, LVCFMT_LEFT, TAECHANG_DELIVERY_TYPE_WIDTH);
-		m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_DELIVERY_COL_COMPANY_COPIES, LVCFMT_RIGHT, TAECHANG_DELIVERY_COPIES_WIDTH);
-		m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_DELIVERY_COL_CORPORATION_COPIES, LVCFMT_RIGHT, TAECHANG_DELIVERY_COPIES_WIDTH);
-		m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_DELIVERY_COL_TOTAL_COPIES, LVCFMT_RIGHT, TAECHANG_DELIVERY_COPIES_WIDTH);
-		return;
-	}
-	if (IsEstimateInputTable()) {
-		m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_ESTIMATE_COL_ROW, LVCFMT_LEFT, TAECHANG_ESTIMATE_ROW_WIDTH);
-		m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_ESTIMATE_COL_COMPANY, LVCFMT_LEFT, TAECHANG_ESTIMATE_COMPANY_WIDTH);
-		m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_ESTIMATE_COL_DATE, LVCFMT_LEFT, TAECHANG_ESTIMATE_DATE_WIDTH);
-		m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_ESTIMATE_COL_ITEM, LVCFMT_LEFT, TAECHANG_ESTIMATE_ITEM_WIDTH);
-		m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_ESTIMATE_COL_COPIES, LVCFMT_RIGHT, TAECHANG_ESTIMATE_COPIES_WIDTH);
-		m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_ESTIMATE_COL_PAGES, LVCFMT_RIGHT, TAECHANG_ESTIMATE_PAGES_WIDTH);
-		m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_ESTIMATE_COL_UNIT_PRICE, LVCFMT_RIGHT, TAECHANG_ESTIMATE_UNIT_PRICE_WIDTH);
-		m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_ESTIMATE_COL_COVER, LVCFMT_RIGHT, TAECHANG_ESTIMATE_COVER_WIDTH);
-		m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_ESTIMATE_COL_FREIGHT, LVCFMT_RIGHT, TAECHANG_ESTIMATE_FREIGHT_WIDTH);
-		return;
-	}
-	m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RESULT_FIELD, LVCFMT_LEFT, TAECHANG_RESULT_FIELD_WIDTH);
-	m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RESULT_VALUE, LVCFMT_LEFT, TAECHANG_RESULT_MIN_VALUE_WIDTH);
-	m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RESULT_STATUS, LVCFMT_LEFT, TAECHANG_RESULT_STATUS_WIDTH);
-	m_wndResultList.InsertColumn(nIndex++, TAECHANG_UI_RESULT_REASON, LVCFMT_LEFT, TAECHANG_RESULT_REASON_WIDTH);
 }
 
 void CSageTaechangView::UpdateTaskTabVisibility() {
@@ -811,60 +769,25 @@ void CSageTaechangView::UpdateResultColumns() {
 	if (nWidth <= 0)
 		return;
 
-	BOOL bIsCompare = IsCompareWorkflow(GetSelectedWorkflow());
-	if (IsReceivablesResultTable()) {
-		m_wndResultList.SetColumnWidth(0, TAECHANG_RECEIVABLES_COMPANY_WIDTH);
-		m_wndResultList.SetColumnWidth(1, TAECHANG_RECEIVABLES_MANAGER_WIDTH);
-		m_wndResultList.SetColumnWidth(2, TAECHANG_RECEIVABLES_DATE_WIDTH);
-		m_wndResultList.SetColumnWidth(3, TAECHANG_RECEIVABLES_ITEM_WIDTH);
-		m_wndResultList.SetColumnWidth(4, TAECHANG_RECEIVABLES_TYPE_WIDTH);
-		m_wndResultList.SetColumnWidth(5, TAECHANG_RECEIVABLES_AMOUNT_WIDTH);
-		m_wndResultList.SetColumnWidth(6, TAECHANG_RECEIVABLES_AMOUNT_WIDTH);
-		m_wndResultList.SetColumnWidth(7, TAECHANG_RECEIVABLES_AMOUNT_WIDTH);
-		m_wndResultList.SetColumnWidth(8, TAECHANG_RECEIVABLES_BANK_WIDTH);
-		m_wndResultList.SetColumnWidth(9, TAECHANG_RECEIVABLES_NOTE_WIDTH);
+	ISageWorkflowHandler* pHandler = SageWorkflowRegistry::FindHandler(GetSelectedWorkflow());
+	if (pHandler == NULL)
 		return;
-	}
-	if (IsDeliveryInputTable()) {
-		m_wndResultList.SetColumnWidth(0, TAECHANG_DELIVERY_ROW_WIDTH);
-		m_wndResultList.SetColumnWidth(1, TAECHANG_DELIVERY_COMPANY_WIDTH);
-		m_wndResultList.SetColumnWidth(2, TAECHANG_DELIVERY_DEPARTMENT_WIDTH);
-		m_wndResultList.SetColumnWidth(3, TAECHANG_DELIVERY_DATE_WIDTH);
-		m_wndResultList.SetColumnWidth(4, TAECHANG_DELIVERY_DATE_WIDTH);
-		m_wndResultList.SetColumnWidth(5, TAECHANG_DELIVERY_TIME_WIDTH);
-		m_wndResultList.SetColumnWidth(6, TAECHANG_DELIVERY_ITEM_WIDTH);
-		m_wndResultList.SetColumnWidth(7, TAECHANG_DELIVERY_TYPE_WIDTH);
-		m_wndResultList.SetColumnWidth(8, TAECHANG_DELIVERY_COPIES_WIDTH);
-		m_wndResultList.SetColumnWidth(9, TAECHANG_DELIVERY_COPIES_WIDTH);
-		m_wndResultList.SetColumnWidth(10, TAECHANG_DELIVERY_COPIES_WIDTH);
-		return;
-	}
-	if (IsEstimateInputTable()) {
-		m_wndResultList.SetColumnWidth(0, TAECHANG_ESTIMATE_ROW_WIDTH);
-		m_wndResultList.SetColumnWidth(1, TAECHANG_ESTIMATE_COMPANY_WIDTH);
-		m_wndResultList.SetColumnWidth(2, TAECHANG_ESTIMATE_DATE_WIDTH);
-		m_wndResultList.SetColumnWidth(3, TAECHANG_ESTIMATE_ITEM_WIDTH);
-		m_wndResultList.SetColumnWidth(4, TAECHANG_ESTIMATE_COPIES_WIDTH);
-		m_wndResultList.SetColumnWidth(5, TAECHANG_ESTIMATE_PAGES_WIDTH);
-		m_wndResultList.SetColumnWidth(6, TAECHANG_ESTIMATE_UNIT_PRICE_WIDTH);
-		m_wndResultList.SetColumnWidth(7, TAECHANG_ESTIMATE_COVER_WIDTH);
-		m_wndResultList.SetColumnWidth(8, TAECHANG_ESTIMATE_FREIGHT_WIDTH);
-		return;
-	}
-	int nFixedWidth = TAECHANG_RESULT_FIELD_WIDTH + TAECHANG_RESULT_STATUS_WIDTH + TAECHANG_RESULT_REASON_WIDTH;
-	if (bIsCompare)
-		nFixedWidth += TAECHANG_RESULT_FILE_WIDTH;
-	int nValueWidth = nWidth - nFixedWidth;
-	if (nValueWidth < TAECHANG_RESULT_MIN_VALUE_WIDTH)
-		nValueWidth = TAECHANG_RESULT_MIN_VALUE_WIDTH;
 
-	int nCol = 0;
-	if (bIsCompare)
-		m_wndResultList.SetColumnWidth(nCol++, TAECHANG_RESULT_FILE_WIDTH);
-	m_wndResultList.SetColumnWidth(nCol++, TAECHANG_RESULT_FIELD_WIDTH);
-	m_wndResultList.SetColumnWidth(nCol++, nValueWidth);
-	m_wndResultList.SetColumnWidth(nCol++, TAECHANG_RESULT_STATUS_WIDTH);
-	m_wndResultList.SetColumnWidth(nCol++, TAECHANG_RESULT_REASON_WIDTH);
+	int nColumnCount = pHandler->GetResultColumnCount(m_nLastTaskType);
+	int nFixedWidth = 0;
+	for (int i = 0; i < nColumnCount; ++i) {
+		const SageWorkflowColumn& column = pHandler->GetResultColumn(m_nLastTaskType, i);
+		if (!column.bStretch)
+			nFixedWidth += column.nWidth;
+	}
+
+	for (int i = 0; i < nColumnCount; ++i) {
+		const SageWorkflowColumn& column = pHandler->GetResultColumn(m_nLastTaskType, i);
+		int nColumnWidth = column.nWidth;
+		if (column.bStretch && nWidth - nFixedWidth > nColumnWidth)
+			nColumnWidth = nWidth - nFixedWidth;
+		m_wndResultList.SetColumnWidth(i, nColumnWidth);
+	}
 }
 
 void CSageTaechangView::OnSize(UINT nType, int cx, int cy) {

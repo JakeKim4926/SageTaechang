@@ -14,4 +14,8 @@ public:
 
     virtual int GetTabCount() const;
     virtual const SageWorkflowTab& GetTab(int nVisualTabIndex) const;
+
+    virtual int GetResultColumnCount(int nTaskType) const;
+    virtual const SageWorkflowColumn& GetResultColumn(int nTaskType, int nColumnIndex) const;
+    virtual SageWorkflowResultStyle GetResultStyle(int nTaskType) const;
 };
