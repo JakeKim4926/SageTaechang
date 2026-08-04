@@ -6,4 +6,9 @@ class SagePdfCompareWorkflowHandler : public ISageWorkflowHandler
 {
 public:
     virtual int GetWorkflowType() const;
+
+    virtual LPCWSTR GetHeaderTitle() const;
+    virtual LPCWSTR GetInputSectionLabel() const;
+    virtual LPCWSTR GetActionButtonLabel() const;
+    virtual LPCWSTR GetDetailSectionLabel() const;
 };
