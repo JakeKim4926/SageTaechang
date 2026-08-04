@@ -333,7 +333,7 @@ app/core/workflow/
 |---|---|---|---|
 | 4-1 | 인터페이스 + 등록부 + 핸들러 5개 골격. **View는 아직 쓰지 않는다** | 무변화 | **완료** `92468e4` (#92) |
 | 4-2 | 라벨 축 — `UpdateWorkflowLabels` | 무변화 | **완료** `8a72d27` (#93) |
-| 4-3 | 탭 축 — `ApplyWorkflowTabs`, `HasDocumentResultTab`, `IsCompareWorkflow` | 무변화 | 다음 |
+| 4-3 | 탭 **구성** 축 — `ApplyWorkflowTabs`, `HasDocumentResultTab`, 인덱스 변환 2개 | 무변화 | **완료** (빌드 확인 대기) |
 | 4-4 | 결과 컬럼 축 — `ApplyResultColumns` + 술어 3개 | 무변화 | 대기 |
 | 4-5 | 입력 축 — `OnSelectInput`, `ApplyDroppedInputPaths`, `OnInputReset` | 무변화 | 대기 |
 | 4-6 | 검증·필터·UI상태 축 — `RunWorkflowTask` 검증, 필터 4개, `GetWorkflowUiState` | 무변화 | 대기 |
@@ -344,7 +344,7 @@ app/core/workflow/
 
 3-A-8의 교훈을 적용한다 — **단계마다 제거할 줄과 새로 쓸 줄을 함께 센다.**
 
-### 4-1·4-2 결과
+### 4-1~4-3 결과
 
 **4-1** (`92468e4`) — 인터페이스·등록부·핸들러 5개 골격. View 미사용이라 화면이 변할 수 없는 단계.
 정적 인스턴스 5개를 익명 네임스페이스 배열에 두고 `FindHandler`가 선형 탐색한다.
@@ -363,8 +363,25 @@ app/core/workflow/
   3-A-8에서 빗나간 이유(제거할 줄만 세고 새로 쓸 줄을 세지 않음)가 해소됐다.
   단 이 단계 단독으로는 손해이며, 회수는 4-3 이후 같은 핸들러에 축이 누적되면서 일어난다
 
-**4-3 착수 시점 사실**: `IsCompareWorkflow`는 View에 18곳에서 쓰인다.
-4-2에서 라벨 용도 1곳만 가져왔고 나머지는 탭·결과 판정이라 4-3 범위다.
+**4-3** — 탭 목록을 `(semantic 인덱스, 라벨)` 순서 배열(`SageWorkflowTab`)로 표현해
+`ApplyWorkflowTabs` · `GetTaskTabVisualIndex` · `GetTaskTabSemanticIndex`가 모두 배열 조회가 됐고,
+`HasDocumentResultTab`은 호출자가 사라져 제거했다.
+
+- 납품·견적만 결과 탭이 없어 **실행 기록이 semantic 2인데 visual 1**이다.
+  인덱스 변환 함수 2개가 존재하는 이유가 이 한 줄이었고, 배열이 그 매핑을 그대로 담는다
+- **계획서의 4-3 범위 기재를 정정한다.** 이전 표기는 `IsCompareWorkflow`를 대상에 넣었으나
+  4-3에서 3곳만 줄어 **15곳이 남는다.** 남은 곳의 소관은 아래와 같다
+
+| 잔존 위치 | 소관 |
+|---|---|
+| `LayoutChildControls` · `LayoutActionSection` · `UpdateTaskTabVisibility` 등 4곳 | 3-B (레이아웃·전환) |
+| `ApplyResultColumns` | 4-4 |
+| `UpdateExportButtonState` · `OnExportCsv` · `m_wndDetail` 본문 | 4-6 |
+| `DisplayResponse` · `InsertResultRow` | 4-7 |
+| `IsResultTab` · `IsDetailTab` · `IsExportTab` | 4-6 (`DEBT_LOG` 상수 충돌 항목과 함께) |
+
+**탭 축은 "구성"과 "판정"이 다른 단계다.** 구성(어떤 탭을 어떤 순서로 그리는가)은 4-3,
+판정(지금 선택된 탭이 결과 탭인가)은 4-6이다. 후자는 상수 값이 우연히 겹쳐 버티고 있다 (`DEBT_LOG`).
 
 ### 조회는 `Find*`다
 

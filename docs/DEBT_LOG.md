@@ -5,6 +5,18 @@
 
 ## 열린 항목
 
+### [2026-08-04] 구조불일치 — 탭 semantic 상수 3쌍이 같은 값이라 분기가 무의미
+- 위치: TaechangDefine.h:115~119,689 / app/ui/view/SageTaechangView.cpp `IsResultTab`, `IsDetailTab`
+- 설명: PREVIEW(1)==DOCUMENT_RESULT(1), RESULT(2)==DOCUMENT_HISTORY(2), DETAIL(3)==DATA_MANAGE(3)이라 두 술어의 워크플로 분기가 실제로는 같은 숫자를 비교한다. Step 4-3에서 탭 구성이 핸들러로 옮겨가 배열만 고치면 되는 구조가 됐는데, 이 술어들은 따라오지 않아 탭 순서를 바꾸면 조용히 어긋난다.
+- 위험도: 중
+- 후속: Step 4-6에서 "결과 탭 / 상세 탭의 semantic 인덱스"를 핸들러가 답하게 한다
+
+### [2026-08-04] 중복로직 — View의 핸들러 조회 + NULL 검사가 축마다 반복된다
+- 위치: app/ui/view/SageTaechangView.cpp `UpdateWorkflowLabels`, `ApplyWorkflowTabs`, `GetTaskTabVisualIndex`, `GetTaskTabSemanticIndex`
+- 설명: `SageWorkflowRegistry::FindHandler(GetSelectedWorkflow())` + NULL 검사가 4곳이며 Step 4-4~4-7에서 축이 늘 때마다 증가한다. 지금 헬퍼를 만들면 선행 일반화라 미뤘다.
+- 위험도: 낮음
+- 후속: Step 4-4 착수 시 호출부 개수를 다시 세고 View 전용 헬퍼 도입 여부를 결정한다
+
 ### [2026-08-02] 기존부채 — m_wndPriceCompanyLabel만 가격 패널에서 배경색이 다름
 - 위치: app/ui/view/SageTaechangView.cpp `OnCtlColor` (1847~1958, 해당 분기 없음)
 - 설명: 가격 데이터 관리 패널의 라벨은 전부 배경 PANEL 분기를 타는데 `m_wndPriceCompanyLabel`만 분기가 없어 맨 끝 `CTLCOLOR_STATIC` 폴백으로 APP 배경이 된다. 3-A-8 4단계 역할 매핑을 뽑다 발견했고 버그로 확인받았다. 4단계에서 같이 고치면 5단계 검증 때 나타난 화면 변화가 의도한 수정인지 이관 실수인지 구분할 수 없어 현행(APP)대로 옮긴다.
