@@ -476,3 +476,10 @@
 - **검증**: Debug x64 빌드 성공. 문서 3종 라벨·탭·결과 표, 입력 선택·초기화, 단가 2종(핸들러 없는 경로) 확인
 - **PR 링크**: 없음 (사용자 요청으로 develop 직접 머지, `e8a0c56`)
 - **결과**: merged
+
+## [2026-08-04] refactor/workflow-handler-validation
+- **목적**: Step 4-6a. 생성 전 선택 행 검증을 핸들러로 이관
+- **변경 내용**: `ValidateSelectedRows(nSelectedCount, bHasSelectedRowNums, bOnePage, strError)` 추가. 진입 조건은 `UsesInputTable()` 재사용. 실패 메시지 2종과 견적 6행 제한이 핸들러로 이동
+- **검증**: Debug x64 빌드 성공. 납품·견적 미선택 메시지, 견적 한 페이지 6행 초과/이하, 납품 무제한, 미수금 생성 확인
+- **PR 링크**: 없음 (사용자 요청으로 develop 직접 머지, `07f043b`)
+- **결과**: merged

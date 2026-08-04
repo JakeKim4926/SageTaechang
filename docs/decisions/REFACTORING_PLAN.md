@@ -338,7 +338,9 @@ app/core/workflow/
 | 4-3 | 탭 **구성** 축 — `ApplyWorkflowTabs`, `HasDocumentResultTab`, 인덱스 변환 2개 | 무변화 | **완료** (빌드 확인 대기) |
 | 4-4 | 결과 컬럼 축 — `ApplyResultColumns` · `UpdateResultColumns` | 무변화 | **완료** `54e51bd` |
 | 4-5 | 입력 축 — `OnSelectInput`, `ApplyDroppedInputPaths`, `OnInputReset` | 무변화 | **완료** `e6b616b` |
-| 4-6 | 검증·필터·UI상태 축 — `RunWorkflowTask` 검증, 필터 4개, `GetWorkflowUiState` | 무변화 | 다음 |
+| 4-6a | 검증 축 — `RunWorkflowTask`의 선택 행 검증 | 무변화 | **완료** `07f043b` |
+| 4-6b | 필터 축 — 기준 목록 + `UsesCustomResultTable` | 무변화 | 다음 |
+| 4-6c | 상태 판정 — `IsDocumentWorkflowStateTarget` 제거 | 무변화 | 대기 |
 | 4-7 | 응답 표시 축 — `DisplayResponse` | 무변화 | 대기 |
 | 4-8 | **실행 축 + infra 역전** — `ISageWorkflowRunner`, infra 3개 구현, View의 infra include 제거 | 무변화 | 대기 |
 
