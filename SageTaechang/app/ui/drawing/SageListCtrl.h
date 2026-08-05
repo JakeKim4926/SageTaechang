@@ -22,6 +22,7 @@ private:
 	void DrawCenteredFirstColumn(int nItem, BOOL bSelected, NMLVCUSTOMDRAW* pCD);
 	void ApplyFixedRowHeight();
 	void DrawRowSeparator(int nItem, NMLVCUSTOMDRAW* pCD);
+	void DrawSelectionAccent(int nItem, NMLVCUSTOMDRAW* pCD);
 
 private:
 	BOOL m_bAlternateRow;

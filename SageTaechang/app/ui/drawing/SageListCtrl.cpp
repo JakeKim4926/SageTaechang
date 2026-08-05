@@ -45,6 +45,15 @@ void CSageListCtrl::DrawRowSeparator(int nItem, NMLVCUSTOMDRAW* pCD) {
 		rcItem.Width(), TAECHANG_LIST_GRID_THICKNESS, TAECHANG_COLOR_LIST_GRID);
 }
 
+void CSageListCtrl::DrawSelectionAccent(int nItem, NMLVCUSTOMDRAW* pCD) {
+	CRect rcItem;
+	if (!GetItemRect(nItem, rcItem, LVIR_BOUNDS))
+		return;
+	CDC* pDC = CDC::FromHandle(pCD->nmcd.hdc);
+	pDC->FillSolidRect(rcItem.left, rcItem.top,
+		TAECHANG_SELECTION_ACCENT_WIDTH, rcItem.Height(), TAECHANG_COLOR_PRIMARY);
+}
+
 void CSageListCtrl::SetAlternateRowColor(BOOL bEnable) {
 	m_bAlternateRow = bEnable;
 	if (::IsWindow(GetSafeHwnd()))
@@ -76,7 +85,7 @@ COLORREF CSageListCtrl::GetRowBackColor(int nItem) const {
 
 void CSageListCtrl::DrawCenteredFirstColumn(int nItem, BOOL bSelected, NMLVCUSTOMDRAW* pCD) {
 	CDC* pDC = CDC::FromHandle(pCD->nmcd.hdc);
-	COLORREF clrBk = bSelected ? ::GetSysColor(COLOR_HIGHLIGHT) : GetRowBackColor(nItem);
+	COLORREF clrBk = bSelected ? TAECHANG_COLOR_LIST_ROW_SELECTED : GetRowBackColor(nItem);
 
 	CRect rcItem;
 	GetSubItemRect(nItem, 0, LVIR_LABEL, rcItem);
@@ -91,7 +100,7 @@ void CSageListCtrl::DrawCenteredFirstColumn(int nItem, BOOL bSelected, NMLVCUSTO
 	lvi.cchTextMax = 63;
 	GetItem(&lvi);
 
-	pDC->SetTextColor(bSelected ? ::GetSysColor(COLOR_HIGHLIGHTTEXT) : TAECHANG_COLOR_TEXT);
+	pDC->SetTextColor(TAECHANG_COLOR_TEXT);
 	pDC->SetBkMode(TRANSPARENT);
 	pDC->DrawText(szText, -1, &rcItem, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
 }
@@ -109,11 +118,14 @@ void CSageListCtrl::OnNMCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
 		{
 			int nItem = static_cast<int>(pCD->nmcd.dwItemSpec);
 			BOOL bSelected = (GetItemState(nItem, LVIS_SELECTED) & LVIS_SELECTED) != 0;
-			if (m_bRowSeparator)
+			if (m_bRowSeparator || bSelected)
 				*pResult |= CDRF_NOTIFYPOSTPAINT;
-			if (bSelected)
-				break;
-			if (m_bAlternateRow) {
+			if (bSelected) {
+				pCD->nmcd.uItemState &= ~(CDIS_SELECTED | CDIS_FOCUS);
+				pCD->clrTextBk = TAECHANG_COLOR_LIST_ROW_SELECTED;
+				pCD->clrText = TAECHANG_COLOR_TEXT;
+				*pResult |= CDRF_NEWFONT;
+			} else if (m_bAlternateRow) {
 				pCD->clrTextBk = GetRowBackColor(nItem);
 				pCD->clrText = TAECHANG_COLOR_TEXT;
 				*pResult |= CDRF_NEWFONT;
@@ -125,9 +137,11 @@ void CSageListCtrl::OnNMCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
 
 		case CDDS_ITEMPOSTPAINT:
 		{
-			if (!m_bRowSeparator)
-				break;
-			DrawRowSeparator(static_cast<int>(pCD->nmcd.dwItemSpec), pCD);
+			int nItem = static_cast<int>(pCD->nmcd.dwItemSpec);
+			if (m_bRowSeparator)
+				DrawRowSeparator(nItem, pCD);
+			if ((GetItemState(nItem, LVIS_SELECTED) & LVIS_SELECTED) != 0)
+				DrawSelectionAccent(nItem, pCD);
 			break;
 		}
 
@@ -136,8 +150,6 @@ void CSageListCtrl::OnNMCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
 			int nItem = static_cast<int>(pCD->nmcd.dwItemSpec);
 			int nSubItem = pCD->iSubItem;
 			BOOL bSelected = (GetItemState(nItem, LVIS_SELECTED) & LVIS_SELECTED) != 0;
-			if (bSelected)
-				break;
 			if (m_nHighlightCount > 0) {
 				pCD->clrText = IsHighlightColumn(nSubItem) ? TAECHANG_COLOR_PRIMARY : TAECHANG_COLOR_TEXT;
 				*pResult = CDRF_NEWFONT;
