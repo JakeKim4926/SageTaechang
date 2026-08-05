@@ -308,7 +308,7 @@ View의 호출 방식은 계산 패널과 동일하게 `ShowWindow` 하나로 �
 패널로 옮기기 전에 결과 표 · 필터 · 응답 표시의 워크플로 분기를 걷어낸다. 상세는 *Step 4* 참조.
 
 - [x] 4-6b 필터 축 — **완료** (2026-08-05)
-- [ ] 4-6c 상태 판정
+- [x] 4-6c 상태 판정 — **완료** (2026-08-05)
 - [ ] 4-7 응답 표시
 
 ### 3-B-4 — `SageWorkflowPanel` + `SageWorkspacePanel` + `SageCompanyOrderPanel`
@@ -387,7 +387,7 @@ Runner 문제인지 가릴 수 없다.
 | # | 내용 | 잔존 분기 | 배치 |
 |---|---|---|---|
 | ~~4-6b~~ | ~~필터 기준 목록, `IsDocumentResultFilterVisible`~~ | **완료** | 3-B-3 |
-| 4-6c | `IsDocumentWorkflowStateTarget` → 핸들러 존재 여부 | 3곳 | 3-B-3 |
+| ~~4-6c~~ | ~~`IsDocumentWorkflowStateTarget` → 핸들러 존재 여부~~ | **완료** | 3-B-3 |
 | 4-7 | `DisplayResponse`, 표 술어 3개 | 11곳 | 3-B-3 |
 | 4-8 | 실행 축 + infra 역전 | 5곳 + include 6줄 | 3-B-6b |
 
@@ -396,9 +396,11 @@ Runner 문제인지 가릴 수 없다.
 결과는 *완료된 작업* 참조. 매핑은 계획대로였다 —
 미수금 = 법인명 → 담당자 → 품목명 / 납품 · 견적 = 품목명 → 법인명, 기본값은 첫 항목.
 
-### 4-6c — 상태 판정
+### 4-6c — 상태 판정 — **완료** (2026-08-05)
 
-- [ ] `IsDocumentWorkflowStateTarget(nType)`을 `FindHandler(nType) != NULL`로 대체하고 함수 제거
+`IsDocumentWorkflowStateTarget`을 제거하고 상태 저장·복원 2곳이 `FindHandler != NULL`로 판정한다.
+세 번째 사용처는 검사 자체가 죽어 있었다 — 바로 위 `IsDocumentResultFilterVisible`이
+이미 핸들러 존재를 보장한다. 워크플로 상수 참조 30 → 27곳.
 
 **범위 밖 — `GetWorkflowUiState`**: 워크플로별 상태 멤버 3개를 고르는 함수다. 핸들러는
 정적 인스턴스 3개짜리 **무상태 싱글턴**이라 화면 상태를 들리면 전역 상태가 된다.
