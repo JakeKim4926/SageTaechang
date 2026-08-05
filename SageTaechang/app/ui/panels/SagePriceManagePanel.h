@@ -6,6 +6,7 @@
 #include "app/ui/drawing/SageComboBox.h"
 #include "app/ui/drawing/SageHeaderCtrl.h"
 #include "app/ui/drawing/SageLabel.h"
+#include "app/ui/drawing/SageEmptyState.h"
 #include "app/ui/drawing/SageListCtrl.h"
 
 class SagePriceManagePanel : public CWnd {
@@ -47,6 +48,7 @@ private:
     void DrawEditBorder(CDC* pDC, CWnd& wnd);
     void ApplyRightPanel();
     void RefreshCopiesList(const CString& strCompanyName);
+    void UpdateEmptyState();
     void UpdateSummaryCard();
     CString GetSelectedCompanyName() const;
     void LoadSelectedCopiesRowToForm();
@@ -61,6 +63,7 @@ private:
     CSageButton m_wndDeleteCompanyBtn;
     CSageHeaderCtrl m_wndCopiesHeader;
     CSageListCtrl m_wndCopiesList;
+    CSageEmptyState m_wndCopiesEmpty;
     CSageLabel m_wndMinCopiesLabel;
     CEdit m_wndMinCopiesEdit;
     CButton m_wndSingleCheck;

@@ -81,6 +81,10 @@ void SagePriceManagePanel::CreateControls() {
 		m_wndCopiesHeader.SetItem(0, &hdi);
 	}
 
+	m_wndCopiesEmpty.Create(NULL, WS_CHILD | SS_OWNERDRAW, r, this);
+	m_wndCopiesEmpty.SetContent(TAECHANG_UI_PRICE_EMPTY_TITLE, TAECHANG_UI_PRICE_EMPTY_DESC);
+	m_wndCopiesEmpty.SetAction(TAECHANG_UI_PRICE_ADD_BTN, ID_PRICE_ADD_BTN);
+
 	m_wndMinCopiesLabel.Create(TAECHANG_UI_PRICE_MIN_COPIES_LABEL, WS_CHILD | SS_LEFT | SS_CENTERIMAGE, r, this);
 	m_wndMinCopiesEdit.Create(WS_CHILD | ES_MULTILINE | ES_NUMBER | ES_AUTOHSCROLL, r, this, ID_PRICE_MIN_COPIES_EDIT);
 	m_wndSingleCheck.Create(TAECHANG_UI_PRICE_SINGLE_LABEL, WS_CHILD | BS_AUTOCHECKBOX, r, this, ID_PRICE_SINGLE_CHECK);
@@ -214,6 +218,7 @@ void SagePriceManagePanel::LayoutChildControls(int nWidth, int nHeight) {
 		nListH = TAECHANG_RESULT_HEADER_HEIGHT + TAECHANG_EDIT_HEIGHT * 4;
 
 	m_wndCopiesList.MoveWindow(nInnerLeft, nY, nLeftW, nListH);
+	m_wndCopiesEmpty.MoveWindow(nInnerLeft, nY, nLeftW, nListH);
 	int nColMinMax = TAECHANG_PRICE_COL_MINMAX_WIDTH;
 	int nColPrice = (nLeftW - nColMinMax * 2) / 2;
 	m_wndCopiesList.SetColumnWidth(0, nColMinMax);
@@ -398,8 +403,10 @@ void SagePriceManagePanel::RefreshCompanyList(const CString& strFilter) {
 	m_wndCopiesList.DeleteAllItems();
 	CStringArray arrNames;
 	CString strError;
-	if (sageDBMgr.GetTaechangPriceService()->LoadAllCompanyNames(arrNames, strError) == FALSE)
+	if (sageDBMgr.GetTaechangPriceService()->LoadAllCompanyNames(arrNames, strError) == FALSE) {
+		UpdateEmptyState();
 		return;
+	}
 	CString strTarget = strFilter;
 	strTarget.Trim();
 	CString strNeedle = strTarget;
@@ -421,15 +428,18 @@ void SagePriceManagePanel::RefreshCompanyList(const CString& strFilter) {
 	if (!strTarget.IsEmpty()) {
 		m_wndCompanyCombo.SetWindowTextW(strTarget);
 		UpdateSummaryCard();
+		UpdateEmptyState();
 		return;
 	}
 	UpdateSummaryCard();
+	UpdateEmptyState();
 }
 
 void SagePriceManagePanel::RefreshCopiesList(const CString& strCompanyName) {
 	m_wndCopiesList.DeleteAllItems();
 	if (strCompanyName.IsEmpty()) {
 		UpdateSummaryCard();
+		UpdateEmptyState();
 		return;
 	}
 
@@ -437,6 +447,7 @@ void SagePriceManagePanel::RefreshCopiesList(const CString& strCompanyName) {
 	CString strError;
 	if (sageDBMgr.GetTaechangPriceService()->LoadByCompany(strCompanyName, arrPrice, strError) == FALSE) {
 		UpdateSummaryCard();
+		UpdateEmptyState();
 		return;
 	}
 
@@ -462,8 +473,17 @@ void SagePriceManagePanel::RefreshCopiesList(const CString& strCompanyName) {
 		m_wndCopiesList.SetItemText(nIndex, 3, strCover);
 	}
 	UpdateSummaryCard();
+	UpdateEmptyState();
 	m_wndCopiesList.SetRedraw(TRUE);
 	m_wndCopiesList.Invalidate();
+}
+
+void SagePriceManagePanel::UpdateEmptyState() {
+	if (!::IsWindow(m_wndCopiesEmpty.GetSafeHwnd()))
+		return;
+	BOOL bEmpty = (m_wndCopiesList.GetItemCount() == 0) ? TRUE : FALSE;
+	m_wndCopiesList.ShowWindow(bEmpty ? SW_HIDE : SW_SHOW);
+	m_wndCopiesEmpty.ShowWindow(bEmpty ? SW_SHOW : SW_HIDE);
 }
 
 void SagePriceManagePanel::UpdateSummaryCard() {

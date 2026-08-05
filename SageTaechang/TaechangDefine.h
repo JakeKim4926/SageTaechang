@@ -62,6 +62,17 @@ constexpr int TAECHANG_INLINE_ICON_STEM_TOP = 4;
 constexpr int TAECHANG_INLINE_ICON_STEM_BOTTOM = 8;
 constexpr int TAECHANG_INLINE_ICON_DOT_TOP = 10;
 constexpr int TAECHANG_INLINE_ICON_DOT_SIZE = 2;
+constexpr int TAECHANG_EMPTY_ICON_BOX_SIZE = 44;
+constexpr int TAECHANG_EMPTY_ICON_BOX_RADIUS = 8;
+constexpr int TAECHANG_EMPTY_ICON_SIZE = 22;
+constexpr int TAECHANG_EMPTY_ICON_INSET_X = 3;
+constexpr int TAECHANG_EMPTY_ICON_INSET_Y = 4;
+constexpr int TAECHANG_EMPTY_ICON_HEADER_OFFSET = 5;
+constexpr int TAECHANG_EMPTY_ICON_DIVIDER_OFFSET = 6;
+constexpr int TAECHANG_EMPTY_BLOCK_GAP = 12;
+constexpr int TAECHANG_EMPTY_TITLE_HEIGHT = 22;
+constexpr int TAECHANG_EMPTY_DESC_MAX_WIDTH = 420;
+constexpr int TAECHANG_EMPTY_ACTION_WIDTH = 110;
 constexpr int TAECHANG_RESULT_MIN_HEIGHT = 160;
 constexpr int TAECHANG_LABEL_VERT_OFFSET = 4;
 constexpr int TAECHANG_LABEL_EDIT_GAP = 4;
@@ -422,6 +433,7 @@ inline BOOL IsPriceWorkflowType(int nWorkflowType)
 }
 
 // ── 가격 관리 컨트롤 ID ──────────────────────────────────────────────────────
+constexpr UINT ID_EMPTY_STATE_ACTION      = 41029;
 constexpr UINT ID_PRICE_COMPANY_EDIT      = 41030;
 constexpr UINT ID_PRICE_ADD_COMPANY_BTN   = 41031;
 constexpr UINT ID_PRICE_COMPANY_LIST      = 41032;
@@ -511,6 +523,8 @@ constexpr int TAECHANG_PRICE_PANEL_SUMMARY     = 0;
 constexpr int TAECHANG_PRICE_PANEL_EDIT_ADD    = 1;
 constexpr int TAECHANG_PRICE_PANEL_EDIT_MODIFY = 2;
 
+constexpr LPCWSTR TAECHANG_UI_PRICE_EMPTY_TITLE            = L"등록된 단가 범위가 없습니다";
+constexpr LPCWSTR TAECHANG_UI_PRICE_EMPTY_DESC             = L"법인을 선택한 뒤 부수 구간별 단가를 추가하세요.\n구간은 겹치지 않아야 하며, 마지막 구간은 「최대부수 없음」으로 둘 수 있습니다.";
 constexpr LPCWSTR TAECHANG_UI_PRICE_SUMMARY_GUIDE          = L"데이터를 선택하여 정보를 조회, 수정, 삭제가 가능합니다.";
 constexpr LPCWSTR TAECHANG_UI_PRICE_SUMMARY_NO_COMPANY     = TAECHANG_UI_PRICE_SUMMARY_GUIDE;
 constexpr LPCWSTR TAECHANG_UI_PRICE_SUMMARY_EMPTY          = L"—";
