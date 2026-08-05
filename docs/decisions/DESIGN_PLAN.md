@@ -98,8 +98,8 @@ D4c까지 develop에 fast-forward 머지했다(2026-08-06, `aa249d4`).
 D5a·D5b까지 develop에 fast-forward 머지했다(2026-08-06, `b21c146`).
 D6은 `feature/icon-set`에 있다.
 **남은 것은 D5c·D7·D8이고 셋 다 `REFACTORING_PLAN` 3-B-4a에 막혀 있다.**
-**3-B-4a는 2026-08-06에 코드가 들어왔고 아직 검증받지 못했다** (`refactor/result-table-panel-wire2`).
-다음 세션은 두 문서를 읽고 **4a 동작 확인부터** 한다. 확인 항목은 `REFACTORING_PLAN` 맨 위에 있다.
+**3-B-4a는 2026-08-06에 develop으로 머지됐으나 빌드만 확인됐고 화면 동작은 미확인이다.**
+다음 세션은 두 문서를 읽고 **4a 동작 확인부터** 한다. 확인 항목 9개는 `REFACTORING_PLAN` 맨 위에 있다.
 확인이 끝나면 D5c → D7 순서다 — 둘 다 배치처가 결과 표 패널이다.
 화면 표시는 사용자 확인을 받았고 빌드는 사용자가 직접 확인했다.
 
