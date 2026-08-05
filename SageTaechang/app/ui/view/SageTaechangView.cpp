@@ -16,6 +16,7 @@
 #include "app/common/TaechangJson.h"
 #include "app/core/workflow/ISageWorkflowHandler.h"
 #include "app/core/workflow/SageWorkflowRegistry.h"
+#include "app/core/workflow/SageWorkflowResultTable.h"
 #include "app/core/workflow/TaechangWorkflowResponse.h"
 #include "app/core/workflow/TaechangWorkflowResultPresenter.h"
 #include "app/core/auth/TaechangAuthSession.h"
@@ -940,14 +941,6 @@ int CSageTaechangView::GetTaskTabSemanticIndex(int nVisualTabIndex) const {
 	return pHandler->GetTab(nVisualTabIndex).nSemanticIndex;
 }
 
-BOOL CSageTaechangView::IsReceivablesResultTable() const {
-	if (m_nLastWorkflowType != TAECHANG_WORKFLOW_RECEIVABLES)
-		return FALSE;
-	if (m_nLastTaskType == TAECHANG_TASK_LOAD)
-		return TRUE;
-	return (m_nLastTaskType == TAECHANG_TASK_GENERATE) ? TRUE : FALSE;
-}
-
 BOOL CSageTaechangView::IsDeliveryInputTable() const {
 	if (m_nLastWorkflowType != TAECHANG_WORKFLOW_DELIVERY)
 		return FALSE;
@@ -1601,57 +1594,29 @@ void CSageTaechangView::DisplayResponse(int nWorkflowType, int nTaskType, const 
 	SaveWorkflowUiState(nWorkflowType);
 }
 
+const SageWorkflowColumn& CSageTaechangView::GetLastResultColumn(int nColumnIndex) const {
+	ISageWorkflowHandler* pHandler = SageWorkflowRegistry::FindHandler(m_nLastWorkflowType);
+	if (pHandler == NULL)
+		return SageWorkflowResultTable::GetGenericColumn(nColumnIndex);
+	return pHandler->GetResultColumn(m_nLastTaskType, nColumnIndex);
+}
+
+int CSageTaechangView::GetLastResultColumnCount() const {
+	ISageWorkflowHandler* pHandler = SageWorkflowRegistry::FindHandler(m_nLastWorkflowType);
+	if (pHandler == NULL)
+		return SageWorkflowResultTable::GetGenericColumnCount();
+	return pHandler->GetResultColumnCount(m_nLastTaskType);
+}
+
 void CSageTaechangView::InsertResultRow(const TaechangResultRow& row) {
 	int nCount = m_wndResultList.GetItemCount();
-	int nCol = 0;
-	int nIndex;
-	if (IsReceivablesResultTable()) {
-		nIndex = m_wndResultList.InsertItem(nCount, row.m_strCompanyName);
-		m_wndResultList.SetItemData(nIndex, static_cast<DWORD_PTR>(row.m_nSourceRowIndex));
-		m_wndResultList.SetItemText(nIndex, 1, row.m_strManager);
-		m_wndResultList.SetItemText(nIndex, 2, row.m_strIssueDate);
-		m_wndResultList.SetItemText(nIndex, 3, row.m_strItemName);
-		m_wndResultList.SetItemText(nIndex, 4, row.m_strIssueType);
-		m_wndResultList.SetItemText(nIndex, 5, row.m_strTotalAmount);
-		m_wndResultList.SetItemText(nIndex, 6, row.m_strDepositAmount);
-		m_wndResultList.SetItemText(nIndex, 7, row.m_strReceivableAmount);
-		m_wndResultList.SetItemText(nIndex, 8, row.m_strBankName);
-		m_wndResultList.SetItemText(nIndex, 9, row.m_strNote);
+	int nColumnCount = GetLastResultColumnCount();
+	if (nColumnCount < 1)
 		return;
-	}
-	if (IsDeliveryInputTable()) {
-		nIndex = m_wndResultList.InsertItem(nCount, row.m_strField);
-		m_wndResultList.SetItemData(nIndex, static_cast<DWORD_PTR>(row.m_nSourceRowIndex));
-		m_wndResultList.SetItemText(nIndex, 1, row.m_strCompanyName);
-		m_wndResultList.SetItemText(nIndex, 2, row.m_strDepartment);
-		m_wndResultList.SetItemText(nIndex, 3, row.m_strOrderDate);
-		m_wndResultList.SetItemText(nIndex, 4, row.m_strDeliveryDate);
-		m_wndResultList.SetItemText(nIndex, 5, row.m_strDeliveryTime);
-		m_wndResultList.SetItemText(nIndex, 6, row.m_strItemName);
-		m_wndResultList.SetItemText(nIndex, 7, row.m_strProductType);
-		m_wndResultList.SetItemText(nIndex, 8, row.m_strCompanyCopies);
-		m_wndResultList.SetItemText(nIndex, 9, row.m_strCorporationCopies);
-		m_wndResultList.SetItemText(nIndex, 10, row.m_strTotalCopies);
-		return;
-	}
-	if (IsEstimateInputTable()) {
-		nIndex = m_wndResultList.InsertItem(nCount, row.m_strField);
-		m_wndResultList.SetItemData(nIndex, static_cast<DWORD_PTR>(row.m_nSourceRowIndex));
-		m_wndResultList.SetItemText(nIndex, 1, row.m_strCompanyName);
-		m_wndResultList.SetItemText(nIndex, 2, row.m_strIssueDate);
-		m_wndResultList.SetItemText(nIndex, 3, row.m_strItemName);
-		m_wndResultList.SetItemText(nIndex, 4, row.m_strCompanyCopies);
-		m_wndResultList.SetItemText(nIndex, 5, row.m_strCorporationCopies);
-		m_wndResultList.SetItemText(nIndex, 6, row.m_strTotalCopies);
-		m_wndResultList.SetItemText(nIndex, 7, row.m_strValue);
-		m_wndResultList.SetItemText(nIndex, 8, row.m_strReason);
-		return;
-	}
-	nIndex = m_wndResultList.InsertItem(nCount, row.m_strField);
-	++nCol;
-	m_wndResultList.SetItemText(nIndex, nCol++, row.m_strValue);
-	m_wndResultList.SetItemText(nIndex, nCol++, row.m_strStatus);
-	m_wndResultList.SetItemText(nIndex, nCol++, row.m_strReason);
+
+	int nIndex = m_wndResultList.InsertItem(nCount, SageWorkflowResultTable::GetRowText(row, GetLastResultColumn(0).nField));
+	for (int nCol = 1; nCol < nColumnCount; ++nCol)
+		m_wndResultList.SetItemText(nIndex, nCol, SageWorkflowResultTable::GetRowText(row, GetLastResultColumn(nCol).nField));
 	m_wndResultList.SetItemData(nIndex, static_cast<DWORD_PTR>(row.m_nSourceRowIndex));
 }
 

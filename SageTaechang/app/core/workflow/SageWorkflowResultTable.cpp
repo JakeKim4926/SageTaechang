@@ -1,14 +1,15 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "app/core/workflow/SageWorkflowResultTable.h"
+#include "app/core/workflow/TaechangWorkflowResultPresenter.h"
 #include "TaechangDefine.h"
 
 namespace {
 
 const SageWorkflowColumn g_genericColumns[] = {
-	{ TAECHANG_UI_RESULT_FIELD, SAGE_COLUMN_ALIGN_LEFT, TAECHANG_RESULT_FIELD_WIDTH, FALSE },
-	{ TAECHANG_UI_RESULT_VALUE, SAGE_COLUMN_ALIGN_LEFT, TAECHANG_RESULT_MIN_VALUE_WIDTH, TRUE },
-	{ TAECHANG_UI_RESULT_STATUS, SAGE_COLUMN_ALIGN_LEFT, TAECHANG_RESULT_STATUS_WIDTH, FALSE },
-	{ TAECHANG_UI_RESULT_REASON, SAGE_COLUMN_ALIGN_LEFT, TAECHANG_RESULT_REASON_WIDTH, FALSE }
+	{ TAECHANG_UI_RESULT_FIELD, SAGE_COLUMN_ALIGN_LEFT, TAECHANG_RESULT_FIELD_WIDTH, FALSE, SAGE_RESULT_FIELD_FIELD },
+	{ TAECHANG_UI_RESULT_VALUE, SAGE_COLUMN_ALIGN_LEFT, TAECHANG_RESULT_MIN_VALUE_WIDTH, TRUE, SAGE_RESULT_FIELD_VALUE },
+	{ TAECHANG_UI_RESULT_STATUS, SAGE_COLUMN_ALIGN_LEFT, TAECHANG_RESULT_STATUS_WIDTH, FALSE, SAGE_RESULT_FIELD_STATUS },
+	{ TAECHANG_UI_RESULT_REASON, SAGE_COLUMN_ALIGN_LEFT, TAECHANG_RESULT_REASON_WIDTH, FALSE, SAGE_RESULT_FIELD_REASON }
 };
 
 constexpr int SAGE_GENERIC_COLUMN_COUNT = sizeof(g_genericColumns) / sizeof(g_genericColumns[0]);
@@ -23,6 +24,33 @@ int GetGenericColumnCount() {
 
 const SageWorkflowColumn& GetGenericColumn(int nColumnIndex) {
 	return g_genericColumns[nColumnIndex];
+}
+
+CString GetRowText(const TaechangResultRow& row, SageResultField nField) {
+	switch (nField) {
+	case SAGE_RESULT_FIELD_VALUE:               return row.m_strValue;
+	case SAGE_RESULT_FIELD_STATUS:              return row.m_strStatus;
+	case SAGE_RESULT_FIELD_REASON:              return row.m_strReason;
+	case SAGE_RESULT_FIELD_COMPANY_NAME:        return row.m_strCompanyName;
+	case SAGE_RESULT_FIELD_DEPARTMENT:          return row.m_strDepartment;
+	case SAGE_RESULT_FIELD_ORDER_DATE:          return row.m_strOrderDate;
+	case SAGE_RESULT_FIELD_DELIVERY_DATE:       return row.m_strDeliveryDate;
+	case SAGE_RESULT_FIELD_DELIVERY_TIME:       return row.m_strDeliveryTime;
+	case SAGE_RESULT_FIELD_MANAGER:             return row.m_strManager;
+	case SAGE_RESULT_FIELD_ISSUE_DATE:          return row.m_strIssueDate;
+	case SAGE_RESULT_FIELD_ITEM_NAME:           return row.m_strItemName;
+	case SAGE_RESULT_FIELD_PRODUCT_TYPE:        return row.m_strProductType;
+	case SAGE_RESULT_FIELD_COMPANY_COPIES:      return row.m_strCompanyCopies;
+	case SAGE_RESULT_FIELD_CORPORATION_COPIES:  return row.m_strCorporationCopies;
+	case SAGE_RESULT_FIELD_TOTAL_COPIES:        return row.m_strTotalCopies;
+	case SAGE_RESULT_FIELD_ISSUE_TYPE:          return row.m_strIssueType;
+	case SAGE_RESULT_FIELD_TOTAL_AMOUNT:        return row.m_strTotalAmount;
+	case SAGE_RESULT_FIELD_DEPOSIT_AMOUNT:      return row.m_strDepositAmount;
+	case SAGE_RESULT_FIELD_RECEIVABLE_AMOUNT:   return row.m_strReceivableAmount;
+	case SAGE_RESULT_FIELD_BANK_NAME:           return row.m_strBankName;
+	case SAGE_RESULT_FIELD_NOTE:                return row.m_strNote;
+	default:                                    return row.m_strField;
+	}
 }
 
 }
