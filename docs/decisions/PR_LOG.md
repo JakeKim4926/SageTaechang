@@ -543,6 +543,18 @@
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/101
 - **결과**: merged
 
+## [2026-08-06] fix/design-tokens
+- **목적**: 색 토큰 · 서체 · 버튼 위계 · 컨트롤 높이 · 표 렌더링을 개선안 기준으로 교체 (D1a · D2 · D3a · D4a · D1b, 커밋 14개)
+- **변경 내용**: C1이 토큰 7개를 D1에서 한꺼번에 추가하도록 적었지만 참조 없는 dead 상수가 되므로 **쓰는 Step에서 추가**하는 쪽으로 바꿨다. **D4a(표)에서 세 번 헛짚었고 원인이 전부 그리기 코드가 아니라 적용 시점과 무효화 범위였다** — 행 높이는 `PreSubclassWindow`(WM_NCCREATE 시점)에서 `LVM_SETIMAGELIST`가 리스트뷰 내부 초기화 전이라 무시되어 `WM_CREATE` 기본 처리 뒤로 옮겼고, 헤더 글씨 뭉개짐은 `SetImageList`를 `CDDS_PREPAINT`에서 호출해 페인트 중 재레이아웃이 일어난 것이었고, 선택 액센트 바가 안 지워지는 것은 1열을 `CDRF_SKIPDEFAULT`로 직접 그리면 3px 구간을 아무도 덮지 않아서였고, 깜빡임은 전체 `Invalidate()`를 해당 행 rect로 축소해 잡았다. **다음 커스텀 드로잉은 그리기 코드보다 적용 시점·무효화 경로를 먼저 확정한다.** 강조 컬럼 색을 카멜로 바꾸자 이후 컬럼(입금 은행·비고)이 색을 물려받는 누수가 드러났다 — 본문색과 같을 때는 보이지 않던 결함이고, **강조가 켜지면 모든 서브아이템에서 색을 명시**해야 한다. `LVS_EX_GRIDLINES`는 가로·세로가 한 묶음이라 "가로만"을 만들 수 없어 커스텀 드로잉으로 하단 1px만 그었다. **D1b(서체)** — 기존 Gmarket 3종의 `AddFontMemResourceEx` 임베드 구조를 그대로 복제했고(폰트 6개가 되어 개별 핸들 멤버를 배열로 교체), 폰트 name 테이블을 직접 확인해 **GDI 패밀리 이름이 굵기마다 다르다**는 것을 확인했다 — GDI는 한 패밀리에 Regular/Bold/Italic/BoldItalic 4종만 담으므로 SemiBold가 자기 패밀리(`Pretendard SemiBold`)를 갖는다. **R1 재결정** — 목업 그대로(본문 13px) 적용하니 기존 앱(14.7px) 대비 체감 낙차가 커서 위계 비율만 유지하고 절대 크기를 한 단계 올렸다(제목 19 · 섹션 15 · 본문 14 · 표 셀 13px). **의도적으로 목업을 벗어난 유일한 지점이며 상수 5개라 되돌리기 쉽다.** `TAECHANG_BUTTON_TEXT_TOP_OFFSET`은 추측하지 않고 폰트 메트릭에서 계산했다 — Gmarket은 `winAsc/winDesc = 800/350`(비대칭)이라 계산값 +1.84로 기존 튜닝값 `2`와 일치해 계산 모델의 검증이 됐고, Pretendard는 `1949/494`로 거의 대칭이라 **0**이 됐다
+- **PR 링크**: 없음 (develop 직접 머지)
+- **결과**: merged
+
+## [2026-08-06] docs/design-plan
+- **목적**: 디자인 개선 계획(D0~D8) 수립과 D0~D4a·D1b 진행 기록 (커밋 4개, 문서 전용)
+- **변경 내용**: Claude Design 개선안의 2·3·4장 전부를 대상으로 `docs/decisions/DESIGN_PLAN.md`를 세웠다. 목업 원문 HTML과 대조해 스킬에 적은 색 17개 중 16개가 실제로 존재함을 확인했고(예외는 앱 배경 `#F8F6F1`, R8 결정), **문서 본문과 목업이 어긋나는 지점을 조사로 확정해 별도 절로 남겼다.** 목업의 `_ds/.../colors_and_type.css`는 **EchoQuant라는 무관한 디자인 시스템**(다크 테마·블루 브랜드·Inter)이어서 가져오지 않았고 팔레트 출처는 목업 자신의 인라인 스타일임을 명시했다. **원본 HTML의 로컬 사본을 리포에 저장했다**(`docs/design/sagetaechang-design-proposal.dc.html`) — D7이 목업 CSS를 계속 실측해야 하고 Claude Design MCP 접근은 세션마다 재인증이 필요하며 원본이 수정될 수도 있어 **이 사본을 기준으로 삼는다**. 계획에 없던 **C9(크기의 동적 대응)** 절과 **D8(DPI 배율)** Step을 추가했다 — 리사이즈는 이미 대응되어 있으나 DPI 배율 대응이 전혀 없다는 것이 조사에서 드러났고, 성격이 달라 디자인 Step과 섞지 않고 분리했다(R11). 개선 전 앱 화면 캡처 19장은 용량·한글 파일명 때문에 git에 넣지 않고 리포 밖 경로를 문서에 적어 참조하기로 했다
+- **PR 링크**: 없음 (develop 직접 머지)
+- **결과**: merged
+
 ## [2026-08-06] design/label-widths
 - **목적**: 폼 라벨 폭을 목업 기준으로 통일하고 금액 표현을 정리 (D3b · D4b)
 - **변경 내용**: **D3b** — `TaechangDefine.h` 상수 5개만 바꿨고 **좌표 코드는 한 줄도 손대지 않았다**. 카드 폭·에디트 폭이 전부 라벨 폭 상수에서 파생되어 자동 전파됐다(단가계산 입력 카드 274→310, 비밀번호 변경 에디트 202→222). 착수 전 결론은 "본문 80 · 다이얼로그 64/96"이었는데 다이얼로그만 보고 낸 판단이었고, `<label style="width:">`를 목업 전체에서 뽑으니 **80은 두 개뿐이고 본문 폼도 64**였다. 폰트 의존 치수는 빌드 없이 PowerShell + `AddFontResourceEx(FR_PRIVATE)` + `GetTextExtentPoint32W`로 실측했다 — GDI+(`System.Drawing.Font`)는 private 폰트를 못 보고 **예외 없이 Microsoft Sans Serif로 폴백**해 8px 과대값을 내놨으므로 `GetTextFaceW`로 선택된 face를 찍어 확인했다. **D4b** — 계획 3항목 중 금액 우측 정렬은 결과 표 3종에 이미 적용돼 있었고(남은 건 `CListCtrl`을 직접 쓰는 단가 2표), Bold는 목업이 **미수금 열 하나만** 굵어 C6의 "금액 컬럼 + Bold"가 과잉이었으며, 음수 표시는 출처가 없어 **범위에서 뺐다**. 대신 계획에 없던 빈 금액 `—` 표시가 나왔다. `CListCtrl`이 0번 열 `LVCFMT`를 무시하므로 `SetCenterFirstColumn(BOOL)`을 `SetFirstColumnAlign(enum)`으로 확장했다. 우측 정렬로 바꾸자 `SagePriceManagePanel` 마지막 열이 남는 폭을 전부 흡수하던 결함이 드러나 균등 분배로 고쳤고, 단가 워크플로 전환 시 미수금 데이터 관리 컨트롤이 남는 버그도 함께 잡았다

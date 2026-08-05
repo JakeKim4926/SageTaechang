@@ -91,12 +91,25 @@ D7(화면별 적용)은 목업 CSS를 계속 실측해야 한다. Claude Design 
 | D7 | 화면별 적용 — 3장 9세트 | 대기 |
 | D8 | DPI 배율 대응 (awareness 전환 + 좌표 스케일링) | 대기 · 디자인 완료 후 |
 
-D0~D4a 커밋 14개는 이 문서에 브랜치명이 적혀 있었으나 실제로는 **`develop`에 직접** 쌓였다.
-D3b·D4b는 작업 브랜치에서 하고 develop에 fast-forward 머지했다(2026-08-06, 커밋 9개 보존).
-**`develop`이 `origin/develop`보다 27개 앞서 있고 아직 푸시·PR을 하지 않았다.**
-D4c까지 develop에 fast-forward 머지했다(2026-08-06, `aa249d4`).
-D5a·D5b까지 develop에 fast-forward 머지했다(2026-08-06, `b21c146`).
-D6은 `feature/icon-set`에 있다.
+**D0~D6은 전부 작업 브랜치에서 하고 `develop`에 fast-forward 머지했다** (2026-08-06, 커밋 전부 보존).
+브랜치명과 머지 지점은 `reflog`로 확인한 값이며 `PR_LOG`에 항목별로 기록돼 있다.
+
+| 브랜치 | Step | develop 도달 |
+|---|---|---|
+| `fix/design-tokens` | D1a · D2 · D3a · D4a · D1b (커밋 14개) | `484e132` |
+| `docs/design-plan` | 계획 수립 · C9 · D8 (문서 전용) | `71ff963` |
+| `design/label-widths` | D3b · D4b | `a9bedff` |
+| `feature/receivables-table-rows` | D4c | `aa249d4` |
+| `feature/dialog-inline-error` | D5a | `a9042bc` |
+| `feature/price-empty-state` | D5b | `b21c146` |
+| `feature/icon-set` | D6 | `1c2735c` |
+
+> **정정(2026-08-06)** — 이 자리에는 "D0~D4a 커밋 14개가 `develop`에 직접 쌓였다"고 적혀 있었다.
+> `reflog`를 보니 **`fix/design-tokens`에서 ff-머지된 것**이고 그 브랜치의 커밋 수가 정확히 14개다.
+> 브랜치를 안 썼다고 오해할 근거가 없었다 — **머지 방식을 기록할 때는 `reflog`를 근거로 쓴다.**
+
+**`develop`은 아직 `origin/develop`에 푸시되지 않았다.** (앞선 커밋 수는 `git rev-list --count origin/develop..develop`로 확인한다 — 문서에 숫자로 적으면 바로 낡는다.)
+
 **남은 것은 D5c·D7·D8이고 셋 다 `REFACTORING_PLAN` 3-B-4a에 막혀 있다.**
 **3-B-4a는 2026-08-06에 develop으로 머지됐으나 빌드만 확인됐고 화면 동작은 미확인이다.**
 다음 세션은 두 문서를 읽고 **4a 동작 확인부터** 한다. 확인 항목 9개는 `REFACTORING_PLAN` 맨 위에 있다.
