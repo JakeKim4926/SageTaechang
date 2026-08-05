@@ -245,6 +245,7 @@ if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templ
     <ClInclude Include="app\core\price\TaechangPriceDto.h" />
     <ClInclude Include="app\infra\db\TaechangPriceRepository.h" />
     <ClInclude Include="app\core\price\TaechangPriceService.h" />
+    <ClInclude Include="app\core\price\SagePriceCalcService.h" />
     <ClInclude Include="app\core\receivable\TaechangReceivableCompanyOrderDto.h" />
     <ClInclude Include="app\infra\db\TaechangReceivableCompanyOrderRepository.h" />
     <ClInclude Include="app\core\receivable\TaechangReceivableCompanyOrderService.h" />
@@ -325,6 +326,7 @@ if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templ
     <ClCompile Include="app\infra\db\SqlInitializer.cpp" />
     <ClCompile Include="app\infra\db\TaechangPriceRepository.cpp" />
     <ClCompile Include="app\core\price\TaechangPriceService.cpp" />
+    <ClCompile Include="app\core\price\SagePriceCalcService.cpp" />
     <ClCompile Include="app\infra\db\TaechangReceivableCompanyOrderRepository.cpp" />
     <ClCompile Include="app\core\receivable\TaechangReceivableCompanyOrderService.cpp" />
     <ClCompile Include="app\infra\db\TaechangUserRepository.cpp" />

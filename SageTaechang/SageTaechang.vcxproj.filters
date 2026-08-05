@@ -237,6 +237,9 @@
     <ClCompile Include="app\core\price\TaechangPriceService.cpp">
       <Filter>소스 파일\app\core\price</Filter>
     </ClCompile>
+    <ClCompile Include="app\core\price\SagePriceCalcService.cpp">
+      <Filter>소스 파일\app\core\price</Filter>
+    </ClCompile>
     <ClCompile Include="app\infra\db\TaechangReceivableCompanyOrderRepository.cpp">
       <Filter>소스 파일\app\infra\db</Filter>
     </ClCompile>
@@ -351,6 +354,9 @@
       <Filter>헤더 파일\app\infra\db</Filter>
     </ClInclude>
     <ClInclude Include="app\core\price\TaechangPriceService.h">
+      <Filter>헤더 파일\app\core\price</Filter>
+    </ClInclude>
+    <ClInclude Include="app\core\price\SagePriceCalcService.h">
       <Filter>헤더 파일\app\core\price</Filter>
     </ClInclude>
     <ClInclude Include="app\core\receivable\TaechangReceivableCompanyOrderDto.h">
