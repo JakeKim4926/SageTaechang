@@ -205,6 +205,7 @@ CSageTaechangView::CSageTaechangView() noexcept
 CSageTaechangView::~CSageTaechangView() {}
 
 BOOL CSageTaechangView::PreCreateWindow(CREATESTRUCT& cs) {
+	cs.style |= WS_CLIPCHILDREN;
 	return CView::PreCreateWindow(cs);
 }
 
