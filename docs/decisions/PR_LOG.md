@@ -534,3 +534,11 @@
 - **검증**: Debug x64 빌드 성공. 미수금 불러오기·체크 후 워크플로 왕복 시 탭·결과·체크 복원, 단가 화면 왕복 후 상태 유지, 견적 한 페이지 체크 유지 확인
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/100
 - **결과**: merged
+
+## [2026-08-05] refactor/workflow-handler-response
+- **목적**: Step 4-7(3-B-3 마지막). 응답 표시·결과 행 삽입의 워크플로 분기 제거와 결과 표 판정 이중화 부채 해소
+- **변경 내용**: (A) SageWorkflowColumn에 데이터 출처 nField를 넣어 InsertResultRow의 3분기 43줄을 루프로. 헤더와 데이터가 같은 배열에서 나오므로 어긋남이 구조적으로 불가능. (B) DisplayResponse의 결과 표 유지·필터 경유·탭 전환·완료 메시지를 UsesInputTable·핸들러 존재·FindGenerateCompletedMessage로 대체. (C) 술어 2개를 IsInputTableVisible·IsOnePageOptionVisible로 교체하고 핸들러에 UsesOnePageOption 추가. 워크플로 상수 참조 34 → 16곳, View.cpp 2,199줄
+- **포함 수정**: WS_CLIPCHILDREN 추가(부모 배경 지우기가 자식을 덮어 클릭할 때까지 안 보이던 문제), 결과 탭의 배치되지 않은 저장 위치 컨트롤 숨김(제 작업 이전부터 있던 결함)
+- **검증**: Debug x64 빌드 성공. 표 컬럼 4종 값 위치, 납품·견적 불러오기/생성 후 탭·메시지·입력 표 유지, 미수금 결과 탭 전환, 전체선택·한 페이지 조건과 7행 경고, 워크플로 왕복 상태 복원, 잔상 해소 확인
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/101
+- **결과**: merged
