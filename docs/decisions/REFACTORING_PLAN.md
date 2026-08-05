@@ -6,6 +6,59 @@
 > **2026-08-05 기준 재정의** — 완료 기준을 줄 수 지표에서 **책임 기준(A~E)**으로 바꿨다.
 > 줄 수는 증상 지표로 내렸고, 같은 기준을 새로 만드는 패널에도 적용한다.
 
+## 다음 세션 시작점 (2026-08-06 이양)
+
+**브랜치 `refactor/result-table-panel-wire`, 커밋 `e4268de` — 빌드 통과 확인됨.**
+`SageResultTablePanel` 666줄이 프로젝트에 들어와 있고 vcxproj에도 등록됐다.
+**아직 아무도 참조하지 않아 화면 변화는 0이다.**
+
+이 패널은 `533ab0d`(폐기된 `refactor/result-table-panel` 브랜치)에서 가져왔다.
+그 커밋은 `813e0c1` 기준이라 **D1a~D6 디자인 39커밋을 몰랐고**, 아래를 되돌릴 뻔했다.
+가져오면서 전부 반영했다.
+
+| 되돌아갈 뻔한 것 | 조치 |
+|---|---|
+| `LVS_EX_GRIDLINES` (D4a에서 세로선 때문에 제거한 플래그) | `SetRowSeparator` |
+| `SetGroupColumn` 없음 → `〃`·SemiBold 소실 | 추가 |
+| 검색·초기화 버튼 아이콘·툴팁 없음 (D6) | 추가 |
+
+### 남은 작업: View 재배선 (원자적)
+
+**절반만 떼면 컴파일되지 않는다.** 임시 분기를 만들었다가 지우는 방식은 이미 기각됐다.
+현재 코드 기준 실측: **컨트롤 10개 · 참조 146곳 · 함수 27개** (`SageTaechangView.cpp` 2,207줄).
+
+| 함수 | 참조 | 처리 |
+|---|---|---|
+| `CreateChildControls` 21 · `LayoutResultSection` 13 · `ApplyControlFonts` 12 | 46 | 재배선 |
+| `UpdateTaskTabVisibility` 9 · `LayoutChildControls` 9 · `OnDraw` 5 | 23 | 재배선 |
+| `RunWorkflowTask` 5 · `DisplayResponse` 4 · `OnInputReset` 3 · `SetRunningState` 2 | 14 | 재배선 |
+| `Save/RestoreWorkflowUiState` 6 · `PreTranslateMessage` 1 · `EnableFileDropForWindow` 1 | 8 | 재배선 |
+| `ApplyResultColumns` · `UpdateResultColumns` · `InsertResultRow` · `GetLastResultColumn(Count)` | | **삭제** |
+| `RefreshDocumentResultFilter` · `PopulateResultFilterCriteria` · `Get(Default\|Effective)FilterCriteria` | | **삭제** |
+| `OnResultSearch` · `OnResultFilterReset` · `OnResultFilterCriteriaChanged` · `OnResultListItemChanged` | | **삭제** |
+| `OnSelectAll` · `OnEstimateOnePage` · `Save/RestoreCheckedRowNums` | | **삭제** |
+
+떼어낼 멤버 10개 (`SageTaechangView.h:74,86,87,91~96,114~116`):
+`m_wndResultSection` · `m_wndResultList` · `m_wndResultHeader` · `m_wndResultFilterCriteria` ·
+`m_wndResultFilter` · `m_wndResultSearchBtn` · `m_wndResultResetBtn` · `m_wndSelectAll` ·
+`m_wndEstimateOnePage` · `m_rectResultFilterBox` (+ `m_strResultFilterKeyword` · `m_nResultFilterCriteria`)
+
+추가할 인스턴스: `m_panelInputTable`(납품·견적 입력 탭) · `m_panelResultTable`(결과 탭).
+ID는 `ID_TAECHANG_INPUT_TABLE_PANEL` · `ID_TAECHANG_RESULT_TABLE_PANEL` (이미 정의됨).
+
+**좌표 계약**: 패널 rect = `CRect(nLeft, nTop - 밴드높이, nLeft + nWidth, nTop + RESULT_HEADER_HEIGHT + nBodyHeight)`,
+밴드높이 = `GetBandHeight()` = `TAECHANG_RESULT_FILTER_TOP_LIFT + TAECHANG_RESULT_FILTER_BOX_PAD`.
+이렇게 해야 표의 절대 위치가 필터 표시 여부와 무관하게 지금과 같다.
+
+**라우팅**: 결과 표는 미수금 LOAD·GENERATE에서만 쓴다. 납품·견적은 LOAD에서 입력 표를 쓰고
+GENERATE에서 유지한다(`bKeepInputTable`). 범용 4컬럼 표는 현재 도달 경로가 없다.
+
+**새 메시지**: `WM_TAECHANG_RESULT_TABLE_CHANGED`(정의됨) → `SaveWorkflowUiState`.
+
+**검증 2회**: 4a(표 분리, 동작 변화 있음) 후 1차, 4b~4d 후 2차.
+
+---
+
 ## Context
 
 `SageTaechangView.cpp`가 **3,822줄, 함수 146개**다. 시작 시점 4,497줄에서 675줄 줄었지만
@@ -120,8 +173,8 @@ SageWorkflowController                실행 상태 전이 · 워커 수명
 | 2 | 잔여 정리 (앱 헤더 DB 의존, `SqlInitializer`) | **완료** |
 | 3-A | 공통 컨트롤 승격 | **완료** |
 | — | 검수 워크플로(PDF·HWP) 제거 | **완료** `b2e8169` |
-| 4 | 워크플로 핸들러 + 등록부 | **진행 중** — 4-1~4-6a 완료 |
-| **3-B** | **화면 패널 분리 (8단계)** | **진행 중** — 3-B-1·3-B-2 완료, 다음은 3-B-3 |
+| 4 | 워크플로 핸들러 + 등록부 | **완료** — 4-7까지 (2026-08-05) |
+| **3-B** | **화면 패널 분리 (8단계)** | **진행 중** — 3-B-1·2·3 완료, **3-B-4a 진행 중** |
 | 4-B | 의존 역전 (core Service ↔ infra Repository) | 대기 |
 | 5 | `Sage` 접두사 전환 (상수 648개) | 대기 |
 
