@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "app/core/workflow/handlers/SageReceivablesWorkflowHandler.h"
 #include "TaechangDefine.h"
 
@@ -28,11 +28,13 @@ const SageWorkflowColumn g_resultColumns[] = {
 
 constexpr int SAGE_RECEIVABLES_RESULT_COLUMN_COUNT = sizeof(g_resultColumns) / sizeof(g_resultColumns[0]);
 
-BOOL HasReceivablesResultTable(int nTaskType) {
-	if (nTaskType == TAECHANG_TASK_LOAD)
-		return TRUE;
-	return (nTaskType == TAECHANG_TASK_GENERATE) ? TRUE : FALSE;
-}
+const SageWorkflowFilterCriteria g_filterCriteria[] = {
+	{ TAECHANG_FILTER_CRITERIA_COMPANY, TAECHANG_UI_FILTER_CRITERIA_COMPANY },
+	{ TAECHANG_FILTER_CRITERIA_MANAGER, TAECHANG_UI_FILTER_CRITERIA_MANAGER },
+	{ TAECHANG_FILTER_CRITERIA_ITEM, TAECHANG_UI_FILTER_CRITERIA_ITEM }
+};
+
+constexpr int SAGE_RECEIVABLES_FILTER_CRITERIA_COUNT = sizeof(g_filterCriteria) / sizeof(g_filterCriteria[0]);
 
 }
 
@@ -65,25 +67,39 @@ const SageWorkflowTab& SageReceivablesWorkflowHandler::GetTab(int nVisualTabInde
 }
 
 int SageReceivablesWorkflowHandler::GetResultColumnCount(int nTaskType) const {
-	if (!HasReceivablesResultTable(nTaskType))
+	if (!UsesCustomResultTable(nTaskType))
 		return SageWorkflowResultTable::GetGenericColumnCount();
 	return SAGE_RECEIVABLES_RESULT_COLUMN_COUNT;
 }
 
 const SageWorkflowColumn& SageReceivablesWorkflowHandler::GetResultColumn(int nTaskType, int nColumnIndex) const {
-	if (!HasReceivablesResultTable(nTaskType))
+	if (!UsesCustomResultTable(nTaskType))
 		return SageWorkflowResultTable::GetGenericColumn(nColumnIndex);
 	return g_resultColumns[nColumnIndex];
 }
 
 SageWorkflowResultStyle SageReceivablesWorkflowHandler::GetResultStyle(int nTaskType) const {
 	SageWorkflowResultStyle style;
-	if (!HasReceivablesResultTable(nTaskType))
+	if (!UsesCustomResultTable(nTaskType))
 		return style;
 	style.bGridLines = TRUE;
 	style.nHighlightStart = TAECHANG_RECEIVABLES_COL_IDX_TOTAL_AMOUNT;
 	style.nHighlightCount = TAECHANG_RECEIVABLES_COL_IDX_RECEIVABLE_AMOUNT - TAECHANG_RECEIVABLES_COL_IDX_TOTAL_AMOUNT + 1;
 	return style;
+}
+
+BOOL SageReceivablesWorkflowHandler::UsesCustomResultTable(int nTaskType) const {
+	if (nTaskType == TAECHANG_TASK_LOAD)
+		return TRUE;
+	return (nTaskType == TAECHANG_TASK_GENERATE) ? TRUE : FALSE;
+}
+
+int SageReceivablesWorkflowHandler::GetFilterCriteriaCount() const {
+	return SAGE_RECEIVABLES_FILTER_CRITERIA_COUNT;
+}
+
+const SageWorkflowFilterCriteria& SageReceivablesWorkflowHandler::GetFilterCriteria(int nIndex) const {
+	return g_filterCriteria[nIndex];
 }
 
 LPCWSTR SageReceivablesWorkflowHandler::GetInputDialogTitle() const {

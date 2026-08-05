@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 enum SageColumnAlign
 {
@@ -12,6 +12,12 @@ struct SageWorkflowColumn
     SageColumnAlign nAlign;
     int nWidth;
     BOOL bStretch;
+};
+
+struct SageWorkflowFilterCriteria
+{
+    int nCriteria;
+    LPCWSTR pszLabel;
 };
 
 struct SageWorkflowResultStyle

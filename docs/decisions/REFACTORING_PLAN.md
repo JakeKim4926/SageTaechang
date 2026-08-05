@@ -167,6 +167,18 @@ PDF · HWP 표지 검수가 실제로 쓰지 않는 기능임이 확인되어 �
 **교훈: 삭제는 단계를 나눠도 중간 커밋이 빌드되지 않을 수 있다.** 조건식을 지울 때 뒤에서 쓰는
 지역변수 선언까지 함께 지웠다. 결국 5커밋을 1커밋으로 squash했다.
 
+**Step 4-6b — 필터 축** (`587683d`~`50d4492`)
+핸들러가 `SageWorkflowFilterCriteria` 순서 배열로 필터 기준을 답하고, `UsesCustomResultTable`로
+전용 표 여부를 답한다. View의 분기 4곳(기본값 · 유효값 · 콤보 채우기 · 필터 표시 조건)이 사라졌고
+핸들러 내부의 파일 지역 술어 `Has*Table`도 같은 함수로 합쳤다. 워크플로 상수 참조 34 → 30곳.
+
+**교훈: 부수 효과 회귀는 한 사례만 고치면 반드시 다시 나온다.**
+3-B-2에서 없어진 `Invalidate(TRUE)`의 첫 피해자는 카드 배경이었고 `SetCardRect`로 좁게 고쳤다.
+같은 부류의 두 번째 사례(`DrawEditBorder`의 컨트롤 바깥 1px 링)를 못 봐서 미수금 결과 화면에
+입력 컨트롤 테두리 잔상이 그대로 남았다. **"부모가 컨트롤 영역 밖에 그리는 것"이라는 부류를**
+**정의하고 나서야** 끝났다 — `InvalidateContentArea`가 레이아웃 재구성 시 작업 영역만 지운다
+(사이드바 제외, 이전 구조는 전체 클라이언트를 두 번 지웠다).
+
 **Step 3-B-2 — `SagePriceManagePanel` 이관** (`8e2fb98`~`e3aac3a`)
 컨트롤 26개 · 메시지맵 14항목 · 전용 함수 25개 · 체크박스 `OnCtlColor` 분기를 패널이 소유한다.
 `View.cpp` 3,079 → 2,233줄, `.h` 318 → 255줄, 컨트롤 멤버 79 → 53, 메시지맵 42 → 28.
@@ -230,7 +242,7 @@ View의 호출 방식은 계산 패널과 동일하게 `ShowWindow` 하나로 �
 | R6 | **notification 라우팅 변경** — `NM_CUSTOMDRAW`는 컨트롤이 리플렉션으로 처리하지만 `TVN_SELCHANGED` · `LVN_ITEMCHANGED` · `CBN_SELCHANGE`는 부모가 받는다. 부모가 View → 패널로 바뀐다 | 핸들러가 안 불리면 선택 · 체크 동작이 죽는다 | 패널 이동 전에 해당 notification 목록을 세고 함께 옮긴다 |
 | R7 | **워커 결과 수신처 변경** — `PostMessage(WM_TAECHANG_WORKFLOW_COMPLETE)` 대상이 View HWND다 | 전환 중 결과가 유실되면 진행바가 95%에서 멈춘 채 남는다 | 3-B-6a에서 한 번에 전환. 그 전까지는 View가 받아 패널로 넘긴다 |
 | R8 | **미수금 데이터 관리 탭의 부모** — 법인 발주는 워크플로 패널의 확장 탭이다 | 독립 패널로 먼저 만들면 부모를 두 번 바꾸게 된다 | 3-B-4에서 워크플로 패널과 함께 처리한다 |
-| R10 | **부모가 직접 칠하는 카드 2개** — `m_rectResultFilterBox` · `m_rectCoCard`는 컨트롤이 아니라 View가 `OnDraw`에서 칠하는 사각형이다 | rect를 바꿀 때 옛 영역을 무효화하지 않으면 잔상이 남는다(3-B-2에서 실제로 발생) | 지금은 `SetCardRect`가 이전 ∪ 새 영역을 무효화한다. 3-B-4·3-B-5에서 각 패널로 옮길 때 같은 규칙을 유지한다 |
+| R10 | **부모가 컨트롤 영역 밖에 그리는 것** — 카드 배경 2개(`m_rectResultFilterBox` · `m_rectCoCard`)와 `DrawEditBorder`의 **컨트롤 바깥 1px 테두리 링**(대상 16개) | 컨트롤을 숨기거나 옮겨도 Windows는 컨트롤 자기 영역만 무효화하므로 링·카드가 남는다. 3-B-2·4-6b에서 두 번 연속 잔상으로 드러났다 | `SetCardRect`(카드 rect 변경 시 이전 ∪ 새 영역) + `InvalidateContentArea`(레이아웃 재구성 시 작업 영역). 패널로 옮길 때도 같은 규칙을 유지한다 |
 | R9 | **헤더 상태 컨트롤 처리 미결정** — `m_wndHeaderStatus`가 표시된 적이 없는데 멤버 2개 · 함수 2개 · 분기 · 상수 3개가 딸려 있다 | 확인 없이 옮기면 죽은 코드가 새 패널로 복제된다 | 3-B-5b 착수 전에 숨김이 의도인지 확인한다. 미완성이면 표시 복구, 불필요하면 관련 코드 일괄 제거 |
 
 열린 기술부채는 `docs/DEBT_LOG.md` 13건.
@@ -295,7 +307,7 @@ View의 호출 방식은 계산 패널과 동일하게 `ShowWindow` 하나로 �
 
 패널로 옮기기 전에 결과 표 · 필터 · 응답 표시의 워크플로 분기를 걷어낸다. 상세는 *Step 4* 참조.
 
-- [ ] 4-6b 필터 축
+- [x] 4-6b 필터 축 — **완료** (2026-08-05)
 - [ ] 4-6c 상태 판정
 - [ ] 4-7 응답 표시
 
@@ -374,20 +386,15 @@ Runner 문제인지 가릴 수 없다.
 
 | # | 내용 | 잔존 분기 | 배치 |
 |---|---|---|---|
-| 4-6b | 필터 기준 목록, `IsDocumentResultFilterVisible` | 7곳 | 3-B-3 |
+| ~~4-6b~~ | ~~필터 기준 목록, `IsDocumentResultFilterVisible`~~ | **완료** | 3-B-3 |
 | 4-6c | `IsDocumentWorkflowStateTarget` → 핸들러 존재 여부 | 3곳 | 3-B-3 |
 | 4-7 | `DisplayResponse`, 표 술어 3개 | 11곳 | 3-B-3 |
 | 4-8 | 실행 축 + infra 역전 | 5곳 + include 6줄 | 3-B-6b |
 
-### 4-6b — 필터 축
+### 4-6b — 필터 축 — **완료** (2026-08-05)
 
-- [ ] `SageWorkflowFilterCriteria { int nCriteria; LPCWSTR pszLabel; }` 순서 배열 도입
-- [ ] `GetDefaultFilterCriteria`(첫 항목) · `GetEffectiveFilterCriteria`(목록에 있는가) ·
-      `PopulateResultFilterCriteria`(목록 순회)를 배열 조회로 대체
-- [ ] `UsesCustomResultTable(nTaskType)` 노출로 `IsDocumentResultFilterVisible` 단순화
-
-**확정된 매핑**: 미수금 = 법인명 → 담당자 → 품목명 / 납품 · 견적 = 품목명 → 법인명.
-기본값은 각 목록의 첫 항목이다.
+결과는 *완료된 작업* 참조. 매핑은 계획대로였다 —
+미수금 = 법인명 → 담당자 → 품목명 / 납품 · 견적 = 품목명 → 법인명, 기본값은 첫 항목.
 
 ### 4-6c — 상태 판정
 

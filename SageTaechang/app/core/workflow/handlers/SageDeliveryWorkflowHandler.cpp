@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "app/core/workflow/handlers/SageDeliveryWorkflowHandler.h"
 #include "TaechangDefine.h"
 
@@ -27,9 +27,12 @@ const SageWorkflowColumn g_inputColumns[] = {
 
 constexpr int SAGE_DELIVERY_INPUT_COLUMN_COUNT = sizeof(g_inputColumns) / sizeof(g_inputColumns[0]);
 
-BOOL HasDeliveryInputTable(int nTaskType) {
-	return (nTaskType == TAECHANG_TASK_LOAD) ? TRUE : FALSE;
-}
+const SageWorkflowFilterCriteria g_filterCriteria[] = {
+	{ TAECHANG_FILTER_CRITERIA_ITEM, TAECHANG_UI_FILTER_CRITERIA_ITEM },
+	{ TAECHANG_FILTER_CRITERIA_COMPANY, TAECHANG_UI_FILTER_CRITERIA_COMPANY }
+};
+
+constexpr int SAGE_DELIVERY_FILTER_CRITERIA_COUNT = sizeof(g_filterCriteria) / sizeof(g_filterCriteria[0]);
 
 }
 
@@ -62,24 +65,36 @@ const SageWorkflowTab& SageDeliveryWorkflowHandler::GetTab(int nVisualTabIndex) 
 }
 
 int SageDeliveryWorkflowHandler::GetResultColumnCount(int nTaskType) const {
-	if (!HasDeliveryInputTable(nTaskType))
+	if (!UsesCustomResultTable(nTaskType))
 		return SageWorkflowResultTable::GetGenericColumnCount();
 	return SAGE_DELIVERY_INPUT_COLUMN_COUNT;
 }
 
 const SageWorkflowColumn& SageDeliveryWorkflowHandler::GetResultColumn(int nTaskType, int nColumnIndex) const {
-	if (!HasDeliveryInputTable(nTaskType))
+	if (!UsesCustomResultTable(nTaskType))
 		return SageWorkflowResultTable::GetGenericColumn(nColumnIndex);
 	return g_inputColumns[nColumnIndex];
 }
 
 SageWorkflowResultStyle SageDeliveryWorkflowHandler::GetResultStyle(int nTaskType) const {
 	SageWorkflowResultStyle style;
-	if (!HasDeliveryInputTable(nTaskType))
+	if (!UsesCustomResultTable(nTaskType))
 		return style;
 	style.bCheckbox = TRUE;
 	style.bGridLines = TRUE;
 	return style;
+}
+
+BOOL SageDeliveryWorkflowHandler::UsesCustomResultTable(int nTaskType) const {
+	return (nTaskType == TAECHANG_TASK_LOAD) ? TRUE : FALSE;
+}
+
+int SageDeliveryWorkflowHandler::GetFilterCriteriaCount() const {
+	return SAGE_DELIVERY_FILTER_CRITERIA_COUNT;
+}
+
+const SageWorkflowFilterCriteria& SageDeliveryWorkflowHandler::GetFilterCriteria(int nIndex) const {
+	return g_filterCriteria[nIndex];
 }
 
 LPCWSTR SageDeliveryWorkflowHandler::GetInputDialogTitle() const {

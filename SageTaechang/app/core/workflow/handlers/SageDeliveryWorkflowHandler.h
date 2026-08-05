@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "app/core/workflow/ISageWorkflowHandler.h"
 
@@ -18,6 +18,10 @@ public:
     virtual int GetResultColumnCount(int nTaskType) const;
     virtual const SageWorkflowColumn& GetResultColumn(int nTaskType, int nColumnIndex) const;
     virtual SageWorkflowResultStyle GetResultStyle(int nTaskType) const;
+    virtual BOOL UsesCustomResultTable(int nTaskType) const;
+
+    virtual int GetFilterCriteriaCount() const;
+    virtual const SageWorkflowFilterCriteria& GetFilterCriteria(int nIndex) const;
 
     virtual LPCWSTR GetInputDialogTitle() const;
     virtual BOOL UsesInputTable() const;

@@ -519,3 +519,11 @@
 - **검증**: Debug x64 빌드 성공. 목록·카드·컬럼 폭, 콤보 자동 매칭, 행 선택 시 편집 폼, 체크박스 배경·경고, CRUD 4종, Tab 이동, 법인 변경 후 계산 콤보 반영, 창 크기 변경, 잔상 해소 확인
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/98
 - **결과**: merged
+
+## [2026-08-05] refactor/workflow-handler-filter
+- **목적**: Step 4-6b(3-B-3의 첫 단계). 문서 워크플로를 패널로 옮기기 전에 결과 필터의 워크플로 분기를 핸들러로 이관
+- **변경 내용**: ISageWorkflowHandler에 UsesCustomResultTable · GetFilterCriteriaCount · GetFilterCriteria 추가. SageWorkflowFilterCriteria 순서 배열이 콤보 순서이고 첫 항목이 기본값(미수금 3개 / 납품·견적 2개). View 분기 4곳 제거, 핸들러 내부의 파일 지역 술어 Has*Table을 UsesCustomResultTable로 합침. 워크플로 상수 참조 34 → 30곳
+- **회귀 수정**: DrawEditBorder가 컨트롤 바깥 1px에 그리는 테두리 링이 컨트롤을 숨겨도 남아 미수금 결과 화면에 입력 컨트롤 잔상이 생겼다. LayoutChildControls 호출부 8곳 중 배경을 지우던 곳이 하나뿐이었다. InvalidateContentArea로 사이드바 제외 작업 영역만 무효화
+- **검증**: Debug x64 빌드 성공. 콤보 항목·기본값·기준별 필터·전환 후 복원·카드 표시 조건, 잔상 해소(결과 표시·생성 완료·입력 초기화·드롭·탭 왕복·창 크기 변경) 확인
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/99
+- **결과**: merged
