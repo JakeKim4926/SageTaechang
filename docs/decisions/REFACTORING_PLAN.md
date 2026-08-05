@@ -6,6 +6,34 @@
 > **2026-08-05 기준 재정의** — 완료 기준을 줄 수 지표에서 **책임 기준(A~E)**으로 바꿨다.
 > 줄 수는 증상 지표로 내렸고, 같은 기준을 새로 만드는 패널에도 적용한다.
 
+## 다음 세션 시작점 (2026-08-05 이양)
+
+**브랜치 `refactor/result-table-panel`, 커밋 `533ab0d` — `SageResultTablePanel` 688줄 신설.
+아무도 참조하지 않아 동작 변화 0이고 빌드도 영향 없다.** develop은 `813e0c1`(4-7 머지)로 정상이다.
+
+**첫 작업: 패널을 View에 연결한다 (3-B-4a 후반).** 이 작업은 **원자적**이다 —
+컨트롤 9개를 절반만 떼면 컴파일되지 않는다. "결과 표만 먼저" 방식은 8개 함수에
+"패널이냐 구 컨트롤이냐" 임시 분기를 만들고 바로 다시 지워야 하므로 택하지 않았다.
+
+| 할 일 | 대상 |
+|---|---|
+| View 컨트롤 제거 | `m_wndResultSection` · `m_wndResultList` · `m_wndResultHeader` · `m_wndResultFilterCriteria` · `m_wndResultFilter` · `m_wndResultSearchBtn` · `m_wndResultResetBtn` · `m_wndSelectAll` · `m_wndEstimateOnePage` · `m_rectResultFilterBox` |
+| 인스턴스 추가 | `m_panelInputTable`(납품·견적 입력 탭) · `m_panelResultTable`(결과 탭) |
+| 함수 17개 삭제 | `ApplyResultColumns` · `UpdateResultColumns` · `InsertResultRow` · `GetLastResultColumn(Count)` · `RefreshDocumentResultFilter` · `PopulateResultFilterCriteria` · `Get(Default\|Effective)FilterCriteria` · `OnResultSearch` · `OnResultFilterReset` · `OnResultFilterCriteriaChanged` · `OnResultListItemChanged` · `OnSelectAll` · `OnEstimateOnePage` · `Save/RestoreCheckedRowNums` |
+| 함수 11개 재배선 | `CreateChildControls`(18곳) · `LayoutResultSection`(13) · `ApplyControlFonts`(12) · `UpdateTaskTabVisibility`(9) · `LayoutChildControls`(9) · `Save/RestoreWorkflowUiState`(12) · `OnDraw` · `RunWorkflowTask` · `DisplayResponse` · `OnInputReset` · `SetRunningState` |
+| 새 메시지 핸들러 | `WM_TAECHANG_RESULT_TABLE_CHANGED` → `SaveWorkflowUiState` |
+
+**좌표 계약**: 패널 rect는 `CRect(nLeft, nTop - 밴드높이, nLeft + nWidth, nTop + RESULT_HEADER_HEIGHT + nBodyHeight)`이고
+밴드높이 = `TAECHANG_RESULT_FILTER_TOP_LIFT + TAECHANG_RESULT_FILTER_BOX_PAD`
+(`GetBandHeight()`). 이렇게 하면 표의 절대 위치가 필터 표시 여부와 무관하게 지금과 같다.
+
+**라우팅**: 결과 표는 미수금 LOAD·GENERATE에서만 쓰인다. 납품·견적은 LOAD에서 입력 표를 쓰고
+GENERATE에서는 입력 표를 유지한다(`bKeepInputTable`). 범용 4컬럼 표는 현재 도달 경로가 없다.
+
+**검증 지점 2회로 합의**: 4a(표 분리, 동작 변화 있음) 후 1차, 4b~4d(패널 이관) 후 2차.
+
+---
+
 ## Context
 
 `SageTaechangView.cpp`가 **3,822줄, 함수 146개**다. 시작 시점 4,497줄에서 675줄 줄었지만
