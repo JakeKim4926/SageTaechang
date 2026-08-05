@@ -333,7 +333,9 @@ View의 호출 방식은 계산 패널과 동일하게 `ShowWindow` 하나로 �
 
 - [x] 4-6b 필터 축 — **완료** (2026-08-05)
 - [x] 4-6c 상태 판정 — **완료** (2026-08-05)
-- [ ] 4-7 응답 표시
+- [x] 4-7 응답 표시 — **완료** (2026-08-05)
+
+**3-B-3 완료.** 결과 표·필터·응답 표시의 워크플로 분기가 전부 핸들러 질의로 바뀌었다.
 
 ### 3-B-4 — 탭당 패널 (4단계)
 
@@ -438,7 +440,7 @@ Runner 문제인지 가릴 수 없다.
 |---|---|---|---|
 | ~~4-6b~~ | ~~필터 기준 목록, `IsDocumentResultFilterVisible`~~ | **완료** | 3-B-3 |
 | ~~4-6c~~ | ~~`IsDocumentWorkflowStateTarget` → 핸들러 존재 여부~~ | **완료** | 3-B-3 |
-| 4-7 | `DisplayResponse`, 표 술어 3개 | 11곳 | 3-B-3 |
+| ~~4-7~~ | ~~`DisplayResponse`, 표 술어 3개~~ | **완료** | 3-B-3 |
 | 4-8 | 실행 축 + infra 역전 | 5곳 + include 6줄 | 3-B-6b |
 
 ### 4-6b — 필터 축 — **완료** (2026-08-05)
@@ -456,11 +458,22 @@ Runner 문제인지 가릴 수 없다.
 정적 인스턴스 3개짜리 **무상태 싱글턴**이라 화면 상태를 들리면 전역 상태가 된다.
 상태 보관은 3-B-6a에서 컨트롤러/패널로 간다.
 
-### 4-7 — 응답 표시
+### 4-7 — 응답 표시 — **완료** (2026-08-05)
 
-- [ ] `DisplayResponse`의 워크플로 분기 8곳을 핸들러로
-- [ ] View의 표 술어 3개(`IsReceivablesResultTable` · `IsDeliveryInputTable` · `IsEstimateInputTable`) 제거
-      → `DEBT_LOG`의 *결과 표 판정 규칙 이중화* 해소
+세 커밋으로 나눠 진행했다.
+
+- **A** (`b2c4dc9`) `SageWorkflowColumn`에 데이터 출처(`SageResultField`)를 넣어 `InsertResultRow`의
+  워크플로 3분기 43줄을 컬럼 수만큼 도는 루프로. **헤더와 데이터가 어긋날 수 없는 구조**가 됐다
+- **B** (`3ef777c`) `DisplayResponse` — 결과 표 유지 조건 · 필터 경유 · 탭 전환 3분기 · 완료 메시지를
+  `UsesInputTable` · 핸들러 존재 · `FindGenerateCompletedMessage`로 대체
+- **C** (`842eccf`) 술어 3개 제거. `IsInputTableVisible` · `IsOnePageOptionVisible`이 핸들러에 묻는다
+  (핸들러에 `UsesOnePageOption` 추가, 견적만 TRUE)
+
+`DEBT_LOG`의 *결과 표 판정 규칙 이중화* 해소. 워크플로 상수 참조 34 → 16곳.
+
+**옮기면서 드러난 것**: 견적 입력 표의 컬럼 3개(단가·표지·운임)가 행 구조의 범용 멤버
+(`m_strTotalCopies` · `m_strValue` · `m_strReason`)를 빌려 쓴다. 현행 그대로 옮겼고 핸들러 배열에
+명시돼 눈에는 보이게 됐다. Presenter 쪽 네이밍 문제이므로 `DEBT_LOG`에 남긴다.
 
 ### 4-8 — 실행 축 + infra 역전
 

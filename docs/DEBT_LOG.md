@@ -17,11 +17,11 @@
 - 위험도: 낮음
 - 후속: Step 4-B 의존 역전에서 서비스 획득 경로를 정할 때 통일한다
 
-### [2026-08-04] 중복로직 — 결과 표 판정 규칙이 핸들러와 View 양쪽에 있다
-- 위치: app/core/workflow/handlers/ 내 `HasReceivablesResultTable` / `HasDeliveryInputTable` / `HasEstimateInputTable` ↔ app/ui/view/SageTaechangView.cpp `IsReceivablesResultTable` / `IsDeliveryInputTable` / `IsEstimateInputTable`
-- 설명: Step 4-4로 "이 태스크에 전용 표가 있는가" 판정이 핸들러에 생겼지만, View의 술어 3개도 같은 규칙(워크플로 + 태스크 조합)을 그대로 들고 있다. View 쪽은 행 삽입·필터·버튼 표시에서 아직 20곳 넘게 쓰여 지울 수 없었다. 한쪽 규칙만 바뀌면 컬럼과 행 내용이 어긋난다.
-- 위험도: 중
-- 후속: Step 4-7(응답 표시 축)에서 행 삽입이 핸들러로 넘어갈 때 View 술어를 제거한다
+### [2026-08-05] 구조불일치 — 견적 입력 표가 행 구조의 범용 멤버를 빌려 쓴다
+- 위치: app/core/workflow/handlers/SageEstimateWorkflowHandler.cpp `g_inputColumns` ↔ app/core/workflow/TaechangWorkflowResultPresenter.cpp `AddEstimateInputRows`
+- 설명: 견적 입력 표의 단가·표지·운임 컬럼이 각각 `m_strTotalCopies` · `m_strValue` · `m_strReason`에서 값을 가져온다. Presenter가 견적 값을 범용 멤버에 실어 보내기 때문이다. Step 4-7 A에서 컬럼 배열에 데이터 출처를 명시하면서 드러났다. 동작은 정상이고 이제 눈에는 보이지만, 이름과 내용이 어긋나 다음 사람이 오해한다.
+- 위험도: 낮음
+- 후속: Presenter에 견적 전용 필드(`m_strUnitPrice` · `m_strCoverPrice` · `m_strFreight`)를 추가하고 컬럼 배열을 그쪽으로 돌린다. 화면 변화는 없다
 
 ### [2026-08-02] 기존부채 — m_wndPriceCompanyLabel만 가격 패널에서 배경색이 다름
 - 위치: app/ui/view/SageTaechangView.cpp `OnCtlColor` (1847~1958, 해당 분기 없음)
@@ -96,6 +96,11 @@
 - 후속: Step 4에서 core Service 경유로 전환
 
 ## 해결됨
+
+### [2026-08-04] 해결 — 결과 표 판정 규칙이 핸들러와 View 양쪽에 있었다
+- 등록: 2026-08-04 (Step 4-4) / 해결: 2026-08-05 (`b2c4dc9`~`842eccf`, Step 4-7)
+- 내용: "이 태스크에 전용 표가 있는가" 판정이 핸들러(`Has*Table`)와 View(`Is*Table` 술어 3개)에 이중으로 있었다. 한쪽만 바뀌면 컬럼과 행 내용이 어긋난다.
+- 해결: 판정을 핸들러의 `UsesCustomResultTable` 하나로 합쳤다(4-6b). View 술어 3개는 4-7에서 제거 — 행 삽입은 컬럼 배열의 `nField`가 답하고, 입력 표·한 페이지 여부는 `IsInputTableVisible` · `IsOnePageOptionVisible`이 핸들러에 묻는다. 헤더와 데이터가 같은 배열에서 나오므로 어긋남이 구조적으로 불가능해졌다.
 
 ### [2026-08-04] 해결 — View의 핸들러 조회 + NULL 검사가 축마다 반복된다
 - 등록: 2026-08-04 (Step 4-4) / 해결: 2026-08-04 (`e8a0c56`)
