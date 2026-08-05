@@ -5,6 +5,18 @@
 
 ## 열린 항목
 
+### [2026-08-06] 기존부채 — 헤더 가운데 정렬 강제 코드가 무의미해졌다
+- 위치: `app/ui/panels/SagePriceManagePanel.cpp` `CreateControls` (헤더 서브클래싱 직후 `HDITEM` 5줄)
+- 설명: 단가 범위 표 헤더 0번 항목에 `HDF_CENTER`를 직접 넣는 코드다. `CListCtrl`이 0번 열 헤더를 좌측으로 두는 것을 보정하려던 것으로 보인다. **D4b에서 `CSageHeaderCtrl::OnPaint`가 `fmt`를 아예 보지 않고 항상 `DT_CENTER`로 그리게 바뀌어 이 5줄은 아무 효과가 없다.** 제거 후보였으나 사용자 판단으로 두었다 — 지금 지우면 D4b 커밋에 무관한 변경이 섞인다.
+- 위험도: 낮음
+- 후속: **D7-3(단가 데이터 관리 화면)에서 이 파일을 손댈 때 함께 제거한다.** 그 전에 헤더 정렬 방침이 다시 바뀌면 이 코드가 되살아날 수 있으니 먼저 `sagetaechang-ui`의 *헤더 정렬* 절을 확인한다
+
+### [2026-08-06] 미완 — 단가 범위 표가 목업 비율·「관리」 열과 다르다
+- 위치: `app/ui/panels/SagePriceManagePanel.cpp` `LayoutChildControls` 컬럼 폭 계산
+- 설명: D4b에서 표지 단가 열만 남는 폭을 흡수하던 문제를 고쳐 두 단가 열을 균등 분배했다. 다만 목업 3-3의 실제 비율은 `1fr 1fr 1.2fr 1.2fr 88px`이고 5번째 「관리」 열(행내 「수정」 버튼)이 있다. 현재는 최소/최대가 80 고정이라 비율이 다르고 「관리」 열이 없다.
+- 위험도: 낮음
+- 후속: **D7-3에서 「관리」 열을 추가할 때 4열 비율을 목업대로 다시 배분한다.** 열이 하나 늘면 폭 계산이 어차피 바뀐다
+
 ### [2026-08-06] 구조불일치 — 폼 라벨 정렬이 화면마다 다르고 목업과도 어긋난다
 - 위치: `app/ui/panels/SagePriceCalcPanel.cpp:50,53,55,64,66,68,70,75` (`SS_RIGHT`) ↔ `app/ui/panels/SagePriceManagePanel.cpp:84,87,91,93` (`SS_LEFT`)
 - 설명: 단가 계산 패널 라벨은 전부 우측 정렬인데 단가 관리 상세 폼은 좌측 정렬이다. 목업은 「페이지」 하나만 `text-align:right`이고 나머지 라벨은 전부 좌측 정렬이므로 **양쪽 다 목업과 완전히 맞지는 않는다.** D3b는 "라벨 폭 통일"이 범위라 정렬은 손대지 않았다. 폭이 46→64로 커지면서 `SS_RIGHT` 쪽은 라벨 텍스트가 필드에 더 가까이 붙었다(간격 4px).
@@ -27,13 +39,13 @@
 - 위치: `app/ui/drawing/SageListCtrl.cpp`, 개선안 3장 3-1 · 3-3
 - 설명: 목업은 금액을 `font-variant-numeric:tabular-nums` + Bold로, 선택 행을 Bold로 표시한다. GDI `DrawText`는 OpenType `tnum`을 못 켜고, Bold는 볼드 폰트 리소스가 필요하다. 지금 Gmarket 볼드로 맞추면 Pretendard 전환 때 다시 재야 한다. 또 목업 자체가 불일치한다 — 3-3 선택 행은 전 셀 weight 700인데 3-1 선택 행은 합계·입금 셀에 굵기가 없다.
 - 위험도: 낮음
-- 후속: `DESIGN_PLAN` **D4b**에서 서체 전환(D1b) 직후에 처리한다. tabular는 문서 지시대로 우측 정렬 + Bold로 대체한다
+- 후속: **D4b에서 절반 해결됐다.** 금액 Bold는 `SAGE_FONT_LIST_BOLD`를 만들어 적용했고(미수금 열 한정 — 목업 3-1 실측), tabular는 R4대로 우측 정렬로 대체했다. **선택 행 전체 Bold는 하지 않았다** — 목업 3-1과 3-3이 서로 다르고, 3-1 기준으로는 선택 행에 굵기가 없다. **D7-3에서 3-3 화면을 볼 때 판단한다**
 
 ### [2026-08-05] 기존부채 — 참조 없는 상수 2개
 - 위치: `TaechangDefine.h` `TAECHANG_LABEL_WIDTH`(=90) · `TAECHANG_RECEIVABLES_COL_IDX_DEPOSIT_AMOUNT`(=6)
 - 설명: 둘 다 정의만 있고 참조가 0곳이다. `git grep HEAD`로 **내 변경 이전부터** 참조가 없었음을 확인했다(내 변경이 고아로 만든 `..._COL_IDX_TOTAL_AMOUNT`는 규칙대로 제거함). `TAECHANG_LABEL_WIDTH`는 계획서에 90→80으로 적혀 있었으나 죽은 상수라 바꿔도 효과가 없다. D3b에서 원인을 확인했다 — 이 상수를 쓸 「입력 파일」·「저장 위치」 라벨(`m_wndInputLabel`·`m_wndOutputLabel`)이 생성 후 `ShowWindow(SW_HIDE)`만 되고 `MoveWindow`가 한 번도 불리지 않는다(`SageTaechangView.cpp:270,490`). 계획서 C4에서 이 항목을 「변경 없음」으로 정정했다.
 - 위험도: 낮음
-- 후속: `DEPOSIT_AMOUNT`는 **D4b**가 금액 3열 우측 정렬에서 다시 쓸 가능성이 있어 그때 판단한다. `TAECHANG_LABEL_WIDTH`는 Step 5 접두사 전환 때 함께 정리한다
+- 후속: `DEPOSIT_AMOUNT`는 **D4b에서 쓰이지 않았다** — 우측 정렬이 핸들러의 `SAGE_COLUMN_ALIGN_RIGHT`로 이미 되어 있어 열 인덱스 상수가 필요 없었다. 여전히 죽은 상수다. 둘 다 Step 5 접두사 전환 때 함께 정리한다
 
 ### [2026-08-05] 기존부채 — INPUT_PANEL_HEIGHT가 파생값이 아니라 매직넘버다
 - 위치: `TaechangDefine.h` `TAECHANG_INPUT_PANEL_HEIGHT`
