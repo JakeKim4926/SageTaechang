@@ -3,8 +3,16 @@
 #include "TaechangDefine.h"
 
 BEGIN_MESSAGE_MAP(CSageListCtrl, CListCtrl)
+	ON_WM_CREATE()
 	ON_NOTIFY_REFLECT(NM_CUSTOMDRAW, &CSageListCtrl::OnNMCustomDraw)
 END_MESSAGE_MAP()
+
+int CSageListCtrl::OnCreate(LPCREATESTRUCT lpCreateStruct) {
+	if (CListCtrl::OnCreate(lpCreateStruct) == -1)
+		return -1;
+	ApplyFixedRowHeight();
+	return 0;
+}
 
 CSageListCtrl::CSageListCtrl()
 	: m_bAlternateRow(FALSE)
@@ -94,7 +102,6 @@ void CSageListCtrl::OnNMCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
 
 	switch (pCD->nmcd.dwDrawStage) {
 		case CDDS_PREPAINT:
-			ApplyFixedRowHeight();
 			*pResult = CDRF_NOTIFYITEMDRAW;
 			break;
 

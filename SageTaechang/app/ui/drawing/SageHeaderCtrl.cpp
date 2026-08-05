@@ -4,7 +4,19 @@
 
 BEGIN_MESSAGE_MAP(CSageHeaderCtrl, CHeaderCtrl)
 	ON_WM_PAINT()
+	ON_MESSAGE(HDM_LAYOUT, &CSageHeaderCtrl::OnHeaderLayout)
 END_MESSAGE_MAP()
+
+LRESULT CSageHeaderCtrl::OnHeaderLayout(WPARAM wParam, LPARAM lParam) {
+	UNREFERENCED_PARAMETER(wParam);
+	LRESULT lResult = Default();
+	HD_LAYOUT* pLayout = reinterpret_cast<HD_LAYOUT*>(lParam);
+	if (pLayout == NULL || pLayout->pwpos == NULL || pLayout->prc == NULL)
+		return lResult;
+	pLayout->pwpos->cy = TAECHANG_LIST_HEADER_HEIGHT;
+	pLayout->prc->top = TAECHANG_LIST_HEADER_HEIGHT;
+	return lResult;
+}
 
 void CSageHeaderCtrl::OnPaint() {
 	CPaintDC dc(this);

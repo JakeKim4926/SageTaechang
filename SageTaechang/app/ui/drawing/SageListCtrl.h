@@ -13,6 +13,7 @@ public:
 	void SetRowSeparator(BOOL bEnable);
 
 protected:
+	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnNMCustomDraw(NMHDR* pNMHDR, LRESULT* pResult);
 
 private:
