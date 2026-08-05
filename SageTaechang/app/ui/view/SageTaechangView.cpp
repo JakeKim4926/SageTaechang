@@ -379,9 +379,9 @@ void CSageTaechangView::ApplyControlFonts() {
 	m_wndSelectAll.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndEstimateOnePage.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndInputReset.SetFont(SageUiResources::GetFont(SAGE_FONT_HEADER));
-	m_wndResultList.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
+	m_wndResultList.SetFont(SageUiResources::GetFont(SAGE_FONT_LIST));
 	if (::IsWindow(m_wndResultHeader.GetSafeHwnd()))
-		m_wndResultHeader.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
+		m_wndResultHeader.SetFont(SageUiResources::GetFont(SAGE_FONT_LIST));
 	m_wndResultFilterCriteria.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndResultFilterCriteria.SetItemHeight(-1, TAECHANG_RESULT_CRITERIA_ITEM_HEIGHT);
 	m_wndResultFilterCriteria.SetItemHeight(0, TAECHANG_RESULT_CRITERIA_ITEM_HEIGHT);
@@ -402,15 +402,15 @@ void CSageTaechangView::ApplyControlFonts() {
 	m_wndCoSearchBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndCoOrderEdit.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndCoCompanyEdit.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndCoList.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
+	m_wndCoList.SetFont(SageUiResources::GetFont(SAGE_FONT_LIST));
 	if (::IsWindow(m_wndCoListHeader.GetSafeHwnd()))
-		m_wndCoListHeader.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
+		m_wndCoListHeader.SetFont(SageUiResources::GetFont(SAGE_FONT_LIST));
 }
 
 void CSageTaechangView::ApplyLabelRoles() {
 	m_wndTitle.SetTextColorRole(SAGE_TEXT_SIDEBAR);
 	m_wndTitle.SetBackgroundRole(SAGE_BG_SIDEBAR);
-	m_wndTitle.SetFontRole(SAGE_FONT_TITLE);
+	m_wndTitle.SetFontRole(SAGE_FONT_LOGO);
 
 	m_wndSidebarTitle.SetTextColorRole(SAGE_TEXT_SIDEBAR_CATEGORY);
 	m_wndSidebarTitle.SetBackgroundRole(SAGE_BG_SIDEBAR);

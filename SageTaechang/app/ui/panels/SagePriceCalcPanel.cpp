@@ -121,9 +121,9 @@ void SagePriceCalcPanel::ApplyControlFonts() {
 	m_wndCalcResetBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndFreightEdit.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndHistorySection.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndHistoryList.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
+	m_wndHistoryList.SetFont(SageUiResources::GetFont(SAGE_FONT_LIST));
 	if (::IsWindow(m_wndHistoryHeader.GetSafeHwnd()))
-		m_wndHistoryHeader.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
+		m_wndHistoryHeader.SetFont(SageUiResources::GetFont(SAGE_FONT_LIST));
 }
 
 void SagePriceCalcPanel::ApplyLabelRoles() {

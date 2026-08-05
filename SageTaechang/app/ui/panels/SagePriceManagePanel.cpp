@@ -120,9 +120,9 @@ void SagePriceManagePanel::ApplyControlFonts() {
 	m_wndAddCompanyBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndRenameCompanyBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndDeleteCompanyBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndCopiesList.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
+	m_wndCopiesList.SetFont(SageUiResources::GetFont(SAGE_FONT_LIST));
 	if (::IsWindow(m_wndCopiesHeader.GetSafeHwnd()))
-		m_wndCopiesHeader.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
+		m_wndCopiesHeader.SetFont(SageUiResources::GetFont(SAGE_FONT_LIST));
 	m_wndMinCopiesEdit.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndSingleCheck.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndMaxCopiesEdit.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
