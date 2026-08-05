@@ -38,7 +38,7 @@ int CSageListCtrl::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 
 CSageListCtrl::CSageListCtrl()
 	: m_bAlternateRow(FALSE)
-	, m_bCenterFirstColumn(FALSE)
+	, m_nFirstColumnAlign(SAGE_LIST_FIRST_COLUMN_DEFAULT)
 	, m_nHighlightFirst(0)
 	, m_nHighlightCount(0)
 	, m_bRowSeparator(FALSE) {
@@ -82,8 +82,8 @@ void CSageListCtrl::SetAlternateRowColor(BOOL bEnable) {
 		Invalidate();
 }
 
-void CSageListCtrl::SetCenterFirstColumn(BOOL bEnable) {
-	m_bCenterFirstColumn = bEnable;
+void CSageListCtrl::SetFirstColumnAlign(SageListFirstColumnAlign nAlign) {
+	m_nFirstColumnAlign = nAlign;
 	if (::IsWindow(GetSafeHwnd()))
 		Invalidate();
 }
@@ -105,7 +105,7 @@ COLORREF CSageListCtrl::GetRowBackColor(int nItem) const {
 	return (nItem % 2 == 1) ? TAECHANG_COLOR_LIST_ROW_ALT : TAECHANG_COLOR_PANEL;
 }
 
-void CSageListCtrl::DrawCenteredFirstColumn(int nItem, BOOL bSelected, NMLVCUSTOMDRAW* pCD) {
+void CSageListCtrl::DrawFirstColumn(int nItem, BOOL bSelected, NMLVCUSTOMDRAW* pCD) {
 	CDC* pDC = CDC::FromHandle(pCD->nmcd.hdc);
 	COLORREF clrBk = bSelected ? TAECHANG_COLOR_LIST_ROW_SELECTED : GetRowBackColor(nItem);
 
@@ -113,18 +113,16 @@ void CSageListCtrl::DrawCenteredFirstColumn(int nItem, BOOL bSelected, NMLVCUSTO
 	GetSubItemRect(nItem, 0, LVIR_LABEL, rcItem);
 	pDC->FillSolidRect(&rcItem, clrBk);
 
-	wchar_t szText[64] = {};
-	LVITEM lvi = {};
-	lvi.mask = LVIF_TEXT;
-	lvi.iItem = nItem;
-	lvi.iSubItem = 0;
-	lvi.pszText = szText;
-	lvi.cchTextMax = 63;
-	GetItem(&lvi);
+	UINT nAlignFormat = DT_CENTER;
+	if (m_nFirstColumnAlign == SAGE_LIST_FIRST_COLUMN_RIGHT) {
+		nAlignFormat = DT_RIGHT;
+		rcItem.right -= TAECHANG_LIST_CELL_RIGHT_PAD;
+	}
 
 	pDC->SetTextColor(TAECHANG_COLOR_TEXT);
 	pDC->SetBkMode(TRANSPARENT);
-	pDC->DrawText(szText, -1, &rcItem, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
+	pDC->DrawText(GetItemText(nItem, 0), &rcItem,
+		nAlignFormat | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
 }
 
 void CSageListCtrl::OnNMCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
@@ -152,7 +150,7 @@ void CSageListCtrl::OnNMCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
 				pCD->clrText = TAECHANG_COLOR_TEXT;
 				*pResult |= CDRF_NEWFONT;
 			}
-			if (m_nHighlightCount > 0 || m_bCenterFirstColumn)
+			if (m_nHighlightCount > 0 || m_nFirstColumnAlign != SAGE_LIST_FIRST_COLUMN_DEFAULT)
 				*pResult |= CDRF_NOTIFYSUBITEMDRAW;
 			break;
 		}
@@ -180,8 +178,8 @@ void CSageListCtrl::OnNMCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
 					bHighlight ? SAGE_FONT_LIST_BOLD : SAGE_FONT_LIST));
 				*pResult = CDRF_NEWFONT;
 			}
-			if (m_bCenterFirstColumn && nSubItem == 0) {
-				DrawCenteredFirstColumn(nItem, bSelected, pCD);
+			if (m_nFirstColumnAlign != SAGE_LIST_FIRST_COLUMN_DEFAULT && nSubItem == 0) {
+				DrawFirstColumn(nItem, bSelected, pCD);
 				*pResult = CDRF_SKIPDEFAULT;
 			}
 			break;
