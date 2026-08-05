@@ -47,6 +47,7 @@ struct SageWorkflowFilterCriteria
 {
     int nCriteria;
     LPCWSTR pszLabel;
+    SageResultField nField;
 };
 
 struct SageWorkflowResultStyle
