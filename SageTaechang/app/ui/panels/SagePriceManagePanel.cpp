@@ -58,11 +58,9 @@ void SagePriceManagePanel::CreateControls() {
 	m_wndCompanyLabel.Create(TAECHANG_UI_PRICE_COMPANY_LABEL, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
 	m_wndCompanyCombo.Create(WS_CHILD | WS_VISIBLE | CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL, r, this, ID_PRICE_COMPANY_EDIT);
 	m_wndAddCompanyBtn.Create(TAECHANG_UI_PRICE_ADD_COMPANY_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_PRICE_ADD_COMPANY_BTN);
-	m_wndAddCompanyBtn.SetVariant(SAGE_BUTTON_PRIMARY);
 	m_wndRenameCompanyBtn.Create(TAECHANG_UI_PRICE_RENAME_COMPANY_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_PRICE_RENAME_COMPANY_BTN);
-	m_wndRenameCompanyBtn.SetVariant(SAGE_BUTTON_PRIMARY);
 	m_wndDeleteCompanyBtn.Create(TAECHANG_UI_PRICE_DELETE_COMPANY_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_PRICE_DELETE_COMPANY_BTN);
-	m_wndDeleteCompanyBtn.SetVariant(SAGE_BUTTON_PRIMARY);
+	m_wndDeleteCompanyBtn.SetVariant(SAGE_BUTTON_DANGER);
 
 	m_wndCopiesList.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS, r, this, ID_PRICE_COPIES_LIST);
 	m_wndCopiesList.SetAlternateRowColor(TRUE);
@@ -97,8 +95,8 @@ void SagePriceManagePanel::CreateControls() {
 	m_wndAddBtn.Create(TAECHANG_UI_PRICE_ADD_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_PRICE_ADD_BTN);
 	m_wndAddBtn.SetVariant(SAGE_BUTTON_PRIMARY);
 	m_wndModifyBtn.Create(TAECHANG_UI_PRICE_SAVE_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_PRICE_MODIFY_BTN);
-	m_wndModifyBtn.SetVariant(SAGE_BUTTON_PRIMARY);
 	m_wndDeleteBtn.Create(TAECHANG_UI_PRICE_REMOVE_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_PRICE_DELETE_BTN);
+	m_wndDeleteBtn.SetVariant(SAGE_BUTTON_DANGER);
 	m_wndCancelBtn.Create(TAECHANG_UI_PRICE_CANCEL_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_PRICE_CANCEL_BTN);
 
 	m_wndDetailHeader.Create(TAECHANG_UI_PRICE_DETAIL_HEADER, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, r, this);

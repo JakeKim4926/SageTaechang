@@ -274,12 +274,13 @@ void CSageTaechangView::CreateChildControls() {
 	m_wndSelectInput.Create(TAECHANG_UI_INPUT_BUTTON, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_SELECT_INPUT);
 	m_wndSelectOutput.Create(TAECHANG_UI_OUTPUT_BUTTON, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_SELECT_OUTPUT);
 	m_wndLoad.Create(TAECHANG_UI_LOAD_BUTTON, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_LOAD_WORKFLOW);
-	m_wndLoad.SetVariant(SAGE_BUTTON_PRIMARY);
 	m_wndGenerate.Create(TAECHANG_UI_RECEIVABLES_GENERATE_BUTTON, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_GENERATE_WORKFLOW);
 	m_wndGenerate.SetVariant(SAGE_BUTTON_PRIMARY);
 	m_wndSelectAll.Create(TAECHANG_UI_SELECT_ALL_BUTTON, WS_CHILD | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_SELECT_ALL);
 	m_wndEstimateOnePage.Create(TAECHANG_UI_ESTIMATE_ONE_PAGE_CHECK, WS_CHILD | BS_AUTOCHECKBOX, rectEmpty, this, ID_TAECHANG_ESTIMATE_ONE_PAGE);
 	m_wndInputReset.Create(TAECHANG_UI_INPUT_RESET_BTN, WS_CHILD | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_INPUT_RESET_BTN);
+	m_wndInputReset.SetVariant(SAGE_BUTTON_GHOST);
+	m_wndInputReset.SetSurfaceColor(TAECHANG_COLOR_APP_BACKGROUND);
 	m_wndProgress.Create(WS_CHILD | WS_VISIBLE | PBS_MARQUEE, rectEmpty, this, ID_TAECHANG_PROGRESS);
 	m_wndProgressText.Create(L"", WS_CHILD | WS_VISIBLE | SS_RIGHT, rectEmpty, this);
 	m_wndResultList.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SINGLESEL, rectEmpty, this, ID_TAECHANG_RESULT_LIST);
@@ -294,15 +295,14 @@ void CSageTaechangView::CreateChildControls() {
 	m_wndResultFilterCriteria.Create(WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | CBS_OWNERDRAWFIXED | CBS_HASSTRINGS | WS_VSCROLL, rectEmpty, this, ID_TAECHANG_RESULT_FILTER_CRITERIA);
 	m_wndResultFilter.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOHSCROLL, rectEmpty, this, ID_TAECHANG_RESULT_FILTER_EDIT);
 	m_wndResultSearchBtn.Create(TAECHANG_UI_RESULT_SEARCH_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_RESULT_SEARCH_BTN);
-	m_wndResultSearchBtn.SetVariant(SAGE_BUTTON_PRIMARY);
 	m_wndResultSearchBtn.SetIcon(SAGE_BUTTON_ICON_SEARCH);
 	m_wndResultResetBtn.Create(TAECHANG_UI_RESULT_RESET_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_RESULT_RESET_BTN);
+	m_wndResultResetBtn.SetVariant(SAGE_BUTTON_GHOST);
 	m_wndDetail.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | WS_VSCROLL, rectEmpty, this, ID_TAECHANG_DETAIL_EDIT);
 	m_wndEmptyStateHint.Create(TAECHANG_UI_EMPTY_STATE_HINT, WS_CHILD | WS_VISIBLE | SS_CENTER | SS_CENTERIMAGE, rectEmpty, this);
 	m_wndActionStatus.Create(L"", WS_CHILD | SS_LEFT | SS_CENTERIMAGE, rectEmpty, this);
 
 	m_wndLoginBtn.Create(TAECHANG_UI_LOGIN_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_LOGIN_BTN);
-	m_wndLoginBtn.SetVariant(SAGE_BUTTON_PRIMARY);
 	m_wndLogoutBtn.Create(TAECHANG_UI_LOGOUT_BTN, WS_CHILD | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_LOGOUT_BTN);
 	m_wndUserLabel.Create(L"", WS_CHILD | SS_CENTERIMAGE | SS_NOPREFIX, rectEmpty, this, ID_TAECHANG_USER_LABEL);
 
@@ -1814,11 +1814,11 @@ void CSageTaechangView::CreateCompanyOrderPanel() {
 	m_wndCoAddBtn.SetVariant(SAGE_BUTTON_PRIMARY);
 	m_wndCoModifyBtn.Create(TAECHANG_UI_CO_MODIFY_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_COORDER_MODIFY_BTN);
 	m_wndCoDeleteBtn.Create(TAECHANG_UI_CO_DELETE_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_COORDER_DELETE_BTN);
+	m_wndCoDeleteBtn.SetVariant(SAGE_BUTTON_DANGER);
 	m_wndCoCancelBtn.Create(TAECHANG_UI_CO_CANCEL_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_COORDER_CANCEL_BTN);
 	m_wndCoSearchLabel.Create(TAECHANG_UI_CO_SEARCH_LABEL, WS_CHILD | SS_LEFT | SS_CENTERIMAGE, r, this);
 	m_wndCoSearchEdit.Create(WS_CHILD | ES_MULTILINE | ES_AUTOHSCROLL, r, this, ID_COORDER_SEARCH_EDIT);
 	m_wndCoSearchBtn.Create(L"", WS_CHILD | BS_OWNERDRAW, r, this, ID_COORDER_SEARCH_BTN);
-	m_wndCoSearchBtn.SetVariant(SAGE_BUTTON_PRIMARY);
 	m_wndCoSearchBtn.SetIcon(SAGE_BUTTON_ICON_SEARCH);
 	m_wndCoOrderLabel.Create(TAECHANG_UI_CO_ORDER_LABEL, WS_CHILD | SS_LEFT | SS_CENTERIMAGE, r, this);
 	m_wndCoOrderEdit.Create(WS_CHILD | ES_MULTILINE | ES_NUMBER, r, this, ID_COORDER_ORDER_EDIT);

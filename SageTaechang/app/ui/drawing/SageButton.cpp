@@ -4,7 +4,14 @@
 
 CSageButton::CSageButton()
 	: m_nVariant(SAGE_BUTTON_SECONDARY)
-	, m_nIcon(SAGE_BUTTON_ICON_NONE) {
+	, m_nIcon(SAGE_BUTTON_ICON_NONE)
+	, m_clrSurface(TAECHANG_COLOR_PANEL) {
+}
+
+void CSageButton::SetSurfaceColor(COLORREF clrSurface) {
+	m_clrSurface = clrSurface;
+	if (::IsWindow(GetSafeHwnd()))
+		Invalidate();
 }
 
 void CSageButton::SetVariant(SageButtonVariant nVariant) {
@@ -30,12 +37,20 @@ void CSageButton::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 			: bPressed ? TAECHANG_COLOR_PRIMARY_PRESS : TAECHANG_COLOR_PRIMARY;
 		pDC->FillSolidRect(rect, clrBg);
 		pDC->SetTextColor(bDisabled ? TAECHANG_COLOR_SECONDARY_TEXT : TAECHANG_COLOR_BUTTON_TEXT);
+	} else if (m_nVariant == SAGE_BUTTON_GHOST) {
+		pDC->FillSolidRect(rect, bPressed ? TAECHANG_COLOR_LIST_HEADER : m_clrSurface);
+		pDC->SetTextColor(bDisabled ? TAECHANG_COLOR_BORDER : TAECHANG_COLOR_TEXT_MUTED);
 	} else {
-		pDC->FillSolidRect(rect, bDisabled ? TAECHANG_COLOR_APP_BACKGROUND : TAECHANG_COLOR_PANEL);
+		COLORREF clrBorder = (m_nVariant == SAGE_BUTTON_DANGER)
+			? TAECHANG_COLOR_DANGER_BORDER : TAECHANG_COLOR_BUTTON_BORDER;
+		COLORREF clrLabel = (m_nVariant == SAGE_BUTTON_DANGER)
+			? TAECHANG_COLOR_ERROR : TAECHANG_COLOR_TEXT;
+		pDC->FillSolidRect(rect, bDisabled || bPressed
+			? TAECHANG_COLOR_APP_BACKGROUND : TAECHANG_COLOR_PANEL);
 		CBrush brBorder;
-		brBorder.CreateSolidBrush(bDisabled ? TAECHANG_COLOR_BORDER : TAECHANG_COLOR_PRIMARY);
+		brBorder.CreateSolidBrush(bDisabled ? TAECHANG_COLOR_BORDER : clrBorder);
 		pDC->FrameRect(rect, &brBorder);
-		pDC->SetTextColor(bDisabled ? TAECHANG_COLOR_SECONDARY_TEXT : TAECHANG_COLOR_PRIMARY);
+		pDC->SetTextColor(bDisabled ? TAECHANG_COLOR_SECONDARY_TEXT : clrLabel);
 	}
 
 	pDC->SetBkMode(TRANSPARENT);

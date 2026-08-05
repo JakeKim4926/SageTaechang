@@ -2,7 +2,9 @@
 
 enum SageButtonVariant {
 	SAGE_BUTTON_SECONDARY,
-	SAGE_BUTTON_PRIMARY
+	SAGE_BUTTON_PRIMARY,
+	SAGE_BUTTON_GHOST,
+	SAGE_BUTTON_DANGER
 };
 
 enum SageButtonIcon {
@@ -19,6 +21,7 @@ public:
 
 	void SetVariant(SageButtonVariant nVariant);
 	void SetIcon(SageButtonIcon nIcon);
+	void SetSurfaceColor(COLORREF clrSurface);
 
 	virtual void DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct);
 
@@ -30,4 +33,5 @@ private:
 private:
 	SageButtonVariant m_nVariant;
 	SageButtonIcon m_nIcon;
+	COLORREF m_clrSurface;
 };

@@ -58,6 +58,7 @@ void SagePriceCalcPanel::CreateControls() {
 	m_wndCalcBtn.SetVariant(SAGE_BUTTON_PRIMARY);
 	m_wndCalcBtn.SetIcon(SAGE_BUTTON_ICON_CALCULATE);
 	m_wndCalcResetBtn.Create(L"", WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_CALC_RESET_BTN);
+	m_wndCalcResetBtn.SetVariant(SAGE_BUTTON_GHOST);
 	m_wndCalcResetBtn.SetIcon(SAGE_BUTTON_ICON_RESET);
 
 	m_wndPrintLabel.Create(TAECHANG_UI_CALC_PRINT_LABEL, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
