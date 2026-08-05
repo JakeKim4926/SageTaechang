@@ -85,7 +85,7 @@ D7(화면별 적용)은 목업 CSS를 계속 실측해야 한다. Claude Design 
 | D4b | 금액 우측 정렬 · Bold · 빈 금액 `—` | **완료** · 확인받음 |
 | D4c | 반복 법인명 `〃` · 그룹 시작 행 SemiBold | **완료** · 확인받음 |
 | D5a | 인라인 에러 + 다이얼로그 7종 검증 이관 (④) | **완료** · 확인받음 |
-| D5b | 빈 상태 → `SagePriceManagePanel` (④) | 대기 |
+| D5b | 빈 상태 → `SagePriceManagePanel` (④) | **완료** · 확인받음 |
 | D5c | 요약 바 · 선택 바 — **3-B-4a 대기**, D7과 함께 | 보류 |
 | D6 | 아이콘 세트 (⑤) | 대기 |
 | D7 | 화면별 적용 — 3장 9세트 | 대기 |
@@ -297,6 +297,18 @@ C7은 `CSageSummaryBar`가 4곳에 쓰인다고 적었는데 실제로는 **1곳
 `nGap` vs `nBtnGap`). 붙여넣기 전에 **그 파일의 변수 선언을 확인한다.**
 사후에는 함수 본문의 식별자 사용/선언을 기계적으로 대조하면 한 번에 잡힌다.
 
+### D5b — 빈 상태
+
+**교훈 21 — 계획서의 상수명을 코드에 있다고 믿지 않는다.**
+`TAECHANG_COLOR_SURFACE_MUTED`를 쓰다 빌드가 깨졌다. **존재한 적이 없는 이름이다.**
+C1의 「신규 상수」 표는 *만들 것*의 목록이었는데 D1a가 기존 `TAECHANG_COLOR_LIST_HEADER`의
+값만 바꾸는 쪽을 택했고, 그 결정이 표에 반영되지 않았다. 스킬 색상표도 같은 이름을 적고 있었다.
+전수 조사하니 신규 7개 중 **2개가 실체 없는 이름**이었다(`SURFACE_MUTED`, `SIDEBAR_ACCENT_WIDTH`).
+
+이건 교훈 8(스킬이 코드와 어긋나 있었다)과 같은 뿌리다. 다만 그때는 **값**이 틀렸고
+이번엔 **이름**이 틀렸다. 값이 틀리면 화면이 이상해지고, 이름이 틀리면 빌드가 깨진다 —
+**빌드가 깨지는 쪽이 낫다.** 조용히 틀리는 항목을 찾는 것이 더 어렵다.
+
 ### Step 간 의존
 
 ```
@@ -375,7 +387,7 @@ D7의 각 화면은 "여기 규격을 배치한다"만 한다.
 
 | 상수 | 값 | 용도 |
 |---|---|---|
-| `TAECHANG_COLOR_SURFACE_MUTED` | `RGB(242,238,231)` | 표 헤더 · 툴바 배경 (문서 2장이 한 항목으로 묶었으므로 상수 하나를 공유) |
+| ~~`TAECHANG_COLOR_SURFACE_MUTED`~~ | `RGB(242,238,231)` | **만들지 않았다.** D1a가 기존 `TAECHANG_COLOR_LIST_HEADER`의 값을 바꾸는 것으로 끝냈다 — 표 헤더·툴바·빈 상태 아이콘 박스는 **`TAECHANG_COLOR_LIST_HEADER`를 쓴다** |
 | `TAECHANG_COLOR_TEXT_MUTED` | `RGB(110,101,91)` | 표 헤더 텍스트 · 폼 라벨 · Ghost 버튼 텍스트 (`#6E655B`) |
 | `TAECHANG_COLOR_LIST_GRID` | `RGB(237,232,224)` | 표 가로 hairline (`#EDE8E0`) |
 | `TAECHANG_COLOR_BUTTON_BORDER` | `RGB(201,191,177)` | Secondary 버튼 중성 테두리 (`#C9BFB1`) |
@@ -392,10 +404,14 @@ D7의 각 화면은 "여기 규격을 배치한다"만 한다.
 `INLINE_*` 4개와 `TEXT_PLACEHOLDER`는 **D5a에서 도입됐다.** `PILL_BG`는 D7-5 소관이라 아직이다.
 
 **배지 색은 아이콘과 에디트 테두리에만 쓴다.** 12px 글자에 `#B85C4A`를 쓰면 흰 배경에서 읽히지 않는다.
-| `TAECHANG_SIDEBAR_ACCENT_WIDTH` | `3` | 사이드바 선택 항목 좌측 액센트 바 폭 |
+| ~~`TAECHANG_SIDEBAR_ACCENT_WIDTH`~~ | `3` | **만들지 않았다.** 표 선택 행과 폭이 같아 기존 **`TAECHANG_SELECTION_ACCENT_WIDTH`를 공유**한다 |
 | `TAECHANG_LIST_ROW_HEIGHT` | `34` | 표 행 높이 |
 
 사이드바 액센트 바 색은 `TAECHANG_COLOR_PRIMARY`를 재사용한다 (문서 지정값 `RGB(154,107,63)`과 동일).
+
+**위 두 줄은 D5b에서 빌드 오류로 드러났다.** 이 표는 "만들 것"의 목록이었는데 D1a가 기존 상수를
+재사용하는 쪽을 택했고, 그 결정이 표에 반영되지 않아 **문서에만 있는 상수명**이 남았다.
+스킬의 색상 표도 같은 이름을 적고 있었다. **상수를 쓰기 전에 코드에 있는지 확인한다** — 교훈 21.
 
 ### 제거하는 상수
 
@@ -513,7 +529,7 @@ TTF는 프로젝트에 동봉하고 `AddFontResourceEx(..., FR_PRIVATE, 0)`로 �
   선택 행에서도 미수금 열 카멜 강조를 유지한다 (목업 3-1 확인).
   **이 항목은 최초 계획에 빠져 있었다** — 스킬의 사용량 규칙에는 "표의 선택된 행"이 있었는데 Step에 옮기지 않았다
 - 가로 hairline `LIST_GRID` 1px만. **세로선 없음** (R5)
-- 헤더: 배경 `SURFACE_MUTED`, 텍스트 `TEXT_MUTED`, 세로 구분선 없음
+- 헤더: 배경 `LIST_HEADER`, 텍스트 `TEXT_MUTED`, 세로 구분선 없음
 - **헤더 텍스트는 열 정렬과 무관하게 항상 가운데** (D4b 결정). 목업은 숫자 열 헤더를 우측에 두지만
   Win32에서 `LVCFMT_RIGHT`가 헤더·셀에 동시에 걸려 표가 오른쪽으로 쏠려 보였다. **의도적 이탈이다**
 - 교대 행 배경(`LIST_ROW_ALT`)은 **유지**한다. 문서가 제거를 지시하지 않았고 가로선과 역할이 다르다
@@ -714,7 +730,7 @@ DPI awareness 전환 자체는 **Step D8**로 분리한다 (아래).
 - [ ] C3 서체 상수 3개 (변경 2 · 신규 1)
 - [ ] C2 타입 스케일 — 기존 4개 갱신 + 표 셀·캡션 2개 신규, `SageUiResources.cpp`에 폰트 2개 추가
 - [ ] C1 색 토큰 — 변경 2 · 신규 7 · 제거 3
-- [ ] `SageHeaderCtrl.cpp:13,20,26,36` — 배경 `SURFACE_MUTED`, 텍스트 `TEXT_MUTED`, 세로 구분선 제거
+- [ ] `SageHeaderCtrl.cpp:13,20,26,36` — 배경 `LIST_HEADER`, 텍스트 `TEXT_MUTED`, 세로 구분선 제거
 - [ ] `SageListCtrl.cpp:99-103` — 금액 컬럼 배경칠 제거. `SetHighlightColumns`는 **의미를 바꿔 재사용**한다(배경 → 텍스트 색 강조). 호출부 2곳(`SageTaechangView.cpp:467` · `SageResultTablePanel.cpp:236`)은 인자를 미수금 열 1개로 좁힌다
 - [ ] `SageSidebarTree.cpp` — 선택 배경 `RGB(58,49,41)` + 좌측 3px 액센트 바
 - [ ] 제거한 3개 상수를 참조하는 곳이 남지 않았는지 확인
@@ -817,12 +833,21 @@ C2가 세운 "참조 없는 dead 상수를 미리 만들지 않는다"와 어긋
 - 에러가 떠도 버튼 위치가 움직이지 않는다
 - 값이 비면 에러 줄이 보이지 않는다
 
-## D5b — `CSageEmptyState`
+## D5b — `CSageEmptyState` (완료)
 
-- [ ] `CSageEmptyState` + 22px 빈 표 아이콘
-- [ ] `SagePriceManagePanel`에 배치 (진단 8 — 40행짜리 빈 격자 제거)
+- [x] `CSageEmptyState` + 22px 빈 표 아이콘
+- [x] `SagePriceManagePanel`에 배치 (진단 8 — 40행짜리 빈 격자 제거)
 
 완료 기준: 법인 미선택·단가 0건에서 빈 격자가 보이지 않는다
+
+**목록을 숨기고 그 자리에 놓는다** — 헤더만 남기지 않는다. skill의
+*"데이터가 없으면 표 **대신** `CSageEmptyState`를 보여준다"*를 그대로 따랐다.
+
+**액션 버튼은 컨트롤이 소유하고 클릭을 부모로 올린다.** `SetAction(라벨, 명령 ID)`로 받은 ID를
+`WM_COMMAND`로 부모에 보내므로 패널의 기존 `ON_BN_CLICKED(ID_PRICE_ADD_BTN, ...)`이 그대로 처리한다.
+화면에 새 핸들러를 만들지 않는다.
+
+갱신 지점은 목록이 바뀌는 6개 경로 전부다 — 한 곳이라도 빠지면 표와 빈 상태가 동시에 보이거나 둘 다 사라진다.
 
 ## D5c — `CSageSummaryBar` · `CSageSelectionBar` (3-B-4a 이후)
 
