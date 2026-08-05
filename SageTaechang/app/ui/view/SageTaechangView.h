@@ -4,9 +4,9 @@
 #include "TaechangDefine.h"
 #include "app/core/receivable/TaechangReceivableCompanyOrderDto.h"
 #include "app/ui/panels/SagePriceCalcPanel.h"
+#include "app/ui/panels/SagePriceManagePanel.h"
 #include "app/ui/drawing/SageHeaderCtrl.h"
 #include "app/ui/drawing/SageTabCtrl.h"
-#include "app/ui/drawing/SageComboBox.h"
 #include "app/ui/drawing/SageFilterComboBox.h"
 #include "app/ui/drawing/SageButton.h"
 #include "app/ui/drawing/SageSectionLabel.h"
@@ -16,7 +16,6 @@
 #include "app/ui/drawing/SageSidebarTree.h"
 
 struct TaechangResultRow;
-struct TaechangPriceDto;
 class ISageWorkflowHandler;
 
 struct TaechangWorkflowUiState {
@@ -123,41 +122,8 @@ protected:
     CSageLabel m_wndUserLabel;
     int m_nAuthDividerX;
 
-    // ── 가격 데이터 관리 패널 ────────────────────────────────────────────────
-    CSageLabel          m_wndPriceCompanyLabel;
-    CSageComboBox   m_wndPriceCompanyCombo;
-    CSageButton         m_wndPriceAddCompanyBtn;
-    CSageButton         m_wndPriceRenameCompanyBtn;
-    CSageButton         m_wndPriceDeleteCompanyBtn;
-    CSageHeaderCtrl m_wndPriceCopiesHeader;
-    CSageListCtrl       m_wndPriceCopiesList;
-    CSageLabel          m_wndPriceMinCopiesLabel;
-    CEdit               m_wndPriceMinCopiesEdit;
-    CButton             m_wndPriceSingleCheck;
-    CSageLabel          m_wndPriceMaxCopiesLabel;
-    CEdit               m_wndPriceMaxCopiesEdit;
-    CButton             m_wndPriceNoMaxCheck;
-    CSageLabel          m_wndPricePrintLabel;
-    CEdit               m_wndPricePrintEdit;
-    CSageLabel          m_wndPriceCoverLabel;
-    CEdit               m_wndPriceCoverEdit;
-    CSageButton         m_wndPriceAddBtn;
-    CSageButton         m_wndPriceModifyBtn;
-    CSageButton         m_wndPriceDeleteBtn;
-    CSageButton         m_wndPriceCancelBtn;
-    CSageLabel          m_wndPriceDetailHeader;
-    CSageLabel          m_wndPriceDetailDivider;
-    CSageLabel          m_wndPriceSummaryTitle;
-    CSageLabel          m_wndPriceSummaryCount;
-    CSageLabel          m_wndPriceSummaryRange;
-    CRect               m_rectPriceSummaryCard;
-
+    SagePriceManagePanel m_panelPriceManage;
     SagePriceCalcPanel m_panelPriceCalc;
-
-    // ── 가격 관리 내부 상태 ─────────────────────────────────────────────────
-    int  m_nPricePanelState;
-    BOOL m_bFormattingPricePrint;
-    BOOL m_bFormattingPriceCover;
 
     // ── 법인 순서 데이터 관리 패널 ───────────────────────────────────────────
     CSageButton         m_wndCoAddBtn;
@@ -222,6 +188,7 @@ protected:
     COLORREF ResolveStatusColor(const CString& strStatus) const;
     SageBackgroundRole ResolveStatusBgRole(const CString& strStatus) const;
     void DrawEditBorder(CDC* pDC, CWnd& wnd);
+    void SetCardRect(CRect& rectCard, const CRect& rectNew);
     BOOL ValidateInputPath(CString& strInputPath);
     BOOL ValidateOutputFolder(CString& strOutputFolder);
     void EnableFileDropForWindow(CWnd& wnd);
@@ -235,19 +202,6 @@ protected:
     int GetDefaultFilterCriteria() const;
     void AppendExecutionHistory(int nWorkflowType, int nTaskType, const CString& strResponseJson, BOOL bSuccess);
     CString BuildExecutionHistoryLine(int nWorkflowType, int nTaskType, const CString& strResponseJson, BOOL bSuccess) const;
-
-    // ── 가격 관리 패널 ───────────────────────────────────────────────────────
-    void CreatePriceManagePanel();
-    void LayoutPriceManagePanel(int nLeft, int nTop, int nWidth, int nHeight);
-    void ShowPriceManagePanel(BOOL bShow);
-    void ApplyPriceRightPanel();
-    void RefreshPriceCompanyList(const CString& strFilter = CString());
-    void RefreshPriceCopiesList(const CString& strCompanyName);
-    void UpdatePriceSummaryCard();
-    void LoadSelectedCopiesRowToForm();
-    void ClearPriceForm();
-    BOOL ReadPriceFormToDto(TaechangPriceDto& dto, CString& strError);
-    CString GetSelectedCompanyName() const;
 
     // ── 법인 순서 데이터 관리 패널 ───────────────────────────────────────────
     void CreateCompanyOrderPanel();
@@ -279,22 +233,6 @@ protected:
     afx_msg void OnResultListItemChanged(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnLogin();
     afx_msg void OnLogout();
-
-    // ── 가격 데이터 관리 이벤트 ─────────────────────────────────────────────
-    afx_msg void OnPriceCompanySelChanged();
-    afx_msg void OnPriceCompanyEditChanged();
-    afx_msg void OnPriceAddCompany();
-    afx_msg void OnPriceRenameCompany();
-    afx_msg void OnPriceDeleteCompany();
-    afx_msg void OnPriceCopiesSelChanged(NMHDR* pNMHDR, LRESULT* pResult);
-    afx_msg void OnPriceNoMaxCheck();
-    afx_msg void OnPriceSingleCheck();
-    afx_msg void OnPricePrintChanged();
-    afx_msg void OnPriceCoverChanged();
-    afx_msg void OnPriceAdd();
-    afx_msg void OnPriceModify();
-    afx_msg void OnPriceDelete();
-    afx_msg void OnPriceCancel();
 
     // ── 법인 순서 데이터 관리 이벤트 ─────────────────────────────────────────
     afx_msg void OnCoAdd();

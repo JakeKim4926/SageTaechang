@@ -100,7 +100,7 @@ SageWorkflowController               실행 상태 전이 · 워커 수명
 | 3-A | 공통 컨트롤 승격 | **완료** |
 | — | 검수 워크플로(PDF·HWP) 제거 | **완료** `b2e8169` |
 | 4 | 워크플로 핸들러 + 등록부 | **진행 중** — 4-1~4-6a 완료 |
-| **3-B** | **화면 패널 분리 (8단계)** | **진행 중** — 3-B-1 완료, 다음은 3-B-2 |
+| **3-B** | **화면 패널 분리 (8단계)** | **진행 중** — 3-B-1·3-B-2 완료, 다음은 3-B-3 |
 | 4-B | 의존 역전 (core Service ↔ infra Repository) | 대기 |
 | 5 | `Sage` 접두사 전환 (상수 648개) | 대기 |
 
@@ -167,6 +167,22 @@ PDF · HWP 표지 검수가 실제로 쓰지 않는 기능임이 확인되어 �
 **교훈: 삭제는 단계를 나눠도 중간 커밋이 빌드되지 않을 수 있다.** 조건식을 지울 때 뒤에서 쓰는
 지역변수 선언까지 함께 지웠다. 결국 5커밋을 1커밋으로 squash했다.
 
+**Step 3-B-2 — `SagePriceManagePanel` 이관** (`8e2fb98`~`e3aac3a`)
+컨트롤 26개 · 메시지맵 14항목 · 전용 함수 25개 · 체크박스 `OnCtlColor` 분기를 패널이 소유한다.
+`View.cpp` 3,079 → 2,233줄, `.h` 318 → 255줄, 컨트롤 멤버 79 → 53, 메시지맵 42 → 28.
+표시 전환은 `WM_SHOWWINDOW`로 받아 우측 패널(요약/편집) 적용과 상태 초기화를 패널이 한다 —
+View의 호출 방식은 계산 패널과 동일하게 `ShowWindow` 하나로 유지된다.
+**패널 간 참조를 만들지 않았다**: 법인 추가·이름변경 뒤 계산 콤보를 즉시 갱신하던 호출 2곳을
+지웠다. `OnWorkflowChanged`가 계산 화면 진입마다 갱신하므로 결과가 같다.
+
+**교훈: 부수 효과에 기대던 코드를 걷어낼 때 그 효과도 함께 사라진다.**
+`m_rectResultFilterBox` · `m_rectCoCard`는 `OnDraw`에서만 그리는 카드인데,
+`ShowPrice*Panel(FALSE)`가 매 레이아웃마다 부르던 `Invalidate(TRUE)` 덕에 전체가 다시 그려지고
+있었다. 패널이 스스로 숨는 구조로 바꾸자 그 호출이 사라져 문서 화면에 **잔상**이 남았다.
+전체 무효화로 되돌리면 레이아웃마다 깜빡이므로, rect를 바꾸는 지점을 `SetCardRect`로 모아
+**이전 ∪ 새 영역만** 무효화했다. rect가 그대로면 아무 것도 하지 않으므로 이전보다 다시 그리는 양이 적다.
+컨트롤은 `MoveWindow`가 옛 자리를 지워주지만 **부모가 직접 칠하는 사각형은 아무도 지워주지 않는다.**
+
 **Step 3-B-1b — `SagePriceCalcPanel` 이관** (`8e9a71d`)
 컨트롤 25개 · 메시지맵 8항목 · 전용 함수 18개 · 레이아웃 · 카드 그리기 · Tab 포커스 이동을
 패널이 소유한다. View는 **패널 멤버 1개와 호출 4곳**(`Create` · `Layout` · `ShowWindow` ·
@@ -214,6 +230,7 @@ PDF · HWP 표지 검수가 실제로 쓰지 않는 기능임이 확인되어 �
 | R6 | **notification 라우팅 변경** — `NM_CUSTOMDRAW`는 컨트롤이 리플렉션으로 처리하지만 `TVN_SELCHANGED` · `LVN_ITEMCHANGED` · `CBN_SELCHANGE`는 부모가 받는다. 부모가 View → 패널로 바뀐다 | 핸들러가 안 불리면 선택 · 체크 동작이 죽는다 | 패널 이동 전에 해당 notification 목록을 세고 함께 옮긴다 |
 | R7 | **워커 결과 수신처 변경** — `PostMessage(WM_TAECHANG_WORKFLOW_COMPLETE)` 대상이 View HWND다 | 전환 중 결과가 유실되면 진행바가 95%에서 멈춘 채 남는다 | 3-B-6a에서 한 번에 전환. 그 전까지는 View가 받아 패널로 넘긴다 |
 | R8 | **미수금 데이터 관리 탭의 부모** — 법인 발주는 워크플로 패널의 확장 탭이다 | 독립 패널로 먼저 만들면 부모를 두 번 바꾸게 된다 | 3-B-4에서 워크플로 패널과 함께 처리한다 |
+| R10 | **부모가 직접 칠하는 카드 2개** — `m_rectResultFilterBox` · `m_rectCoCard`는 컨트롤이 아니라 View가 `OnDraw`에서 칠하는 사각형이다 | rect를 바꿀 때 옛 영역을 무효화하지 않으면 잔상이 남는다(3-B-2에서 실제로 발생) | 지금은 `SetCardRect`가 이전 ∪ 새 영역을 무효화한다. 3-B-4·3-B-5에서 각 패널로 옮길 때 같은 규칙을 유지한다 |
 | R9 | **헤더 상태 컨트롤 처리 미결정** — `m_wndHeaderStatus`가 표시된 적이 없는데 멤버 2개 · 함수 2개 · 분기 · 상수 3개가 딸려 있다 | 확인 없이 옮기면 죽은 코드가 새 패널로 복제된다 | 3-B-5b 착수 전에 숨김이 의도인지 확인한다. 미완성이면 표시 복구, 불필요하면 관련 코드 일괄 제거 |
 
 열린 기술부채는 `docs/DEBT_LOG.md` 13건.
@@ -269,21 +286,10 @@ PDF · HWP 표지 검수가 실제로 쓰지 않는 기능임이 확인되어 �
 - **표시 전환**: 자식을 `WS_VISIBLE`로 만들고 **패널만** `ShowWindow`로 토글
 - **`OnCtlColor`**: 전용 분기 없이 일반 폴백 2개(`CSageLabel` 조기 반환 · `CTLCOLOR_EDIT`→PANEL)만 재현
 
-### 3-B-2 — `SagePriceManagePanel`
+### 3-B-2 — `SagePriceManagePanel` — **완료** (2026-08-05)
 
-브랜치: `refactor/price-manage-panel`
-
-- [ ] 3-B-1b에서 확정된 패턴 3개(좌표계 · 표시 전환 · `OnCtlColor` 폴백) 그대로 적용
-- [ ] `PriceTextToInt` 복제(`TaechangPriceSimpleDlg.cpp:60`)를 `SageNumberFormat`으로 통일
-- [ ] `m_wndPriceNoMaxCheck` · `m_wndPriceSingleCheck`의 `OnCtlColor` 전용 분기도 함께 이동
-      (계산 패널과 달리 이 패널은 체크박스 분기가 있다)
-- [ ] `LayoutPriceManagePanel`(119줄) 포함 이동
-- [ ] 기준 A 점검
-- [ ] 화면 확인: 단가 데이터 관리 목록 · 추가 · 수정 · 삭제 · 범위/간편 다이얼로그
-
-**마주칠 부채 — `m_wndPriceCompanyLabel` 배경색.** 이 패널의 라벨 중 이것만 `OnCtlColor` 분기가
-없어 APP 배경으로 그려진다(버그로 확인됨, `DEBT_LOG` 기록됨). **이관은 현행(APP)대로 재현하고,**
-`SetBackgroundRole(SAGE_BG_PANEL)` 수정은 화면이 바뀌는 변경이라 별도 커밋으로 분리한다.
+결과는 *완료된 작업* 참조. `PriceTextToInt` 복제(`TaechangPriceSimpleDlg.cpp:60`) 통일과
+`m_wndPriceCompanyLabel` 배경색 수정은 범위 밖으로 남겼다(`DEBT_LOG`).
 
 ### 3-B-3 — 워크플로 축 마무리 (Step 4 잔여 삽입)
 

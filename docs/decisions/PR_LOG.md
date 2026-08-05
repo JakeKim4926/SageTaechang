@@ -511,3 +511,11 @@
 - **검증**: Debug x64 빌드 성공. 카드/테두리 위치, 법인 선택, 즉시 미리보기, 운임 콤마+합계, Tab 이동, 견적 저장 후 내역 추가, 업무 전환 후 복귀, 단가 관리 법인 추가 시 콤보 반영 확인
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/97
 - **결과**: merged
+
+## [2026-08-05] refactor/price-manage-panel
+- **목적**: Step 3-B-2. 단가 데이터 관리 화면을 패널로 이관. R6(notification 라우팅) 첫 실제 검증
+- **변경 내용**: SagePriceManagePanel 신설(960줄) — 컨트롤 26개·메시지맵 14항목·전용 함수 25개·체크박스 OnCtlColor 분기 소유. 표시 전환은 WM_SHOWWINDOW로 받아 요약/편집 적용과 상태 초기화를 패널이 한다. 법인 변경 후 계산 콤보 즉시 갱신 호출 2곳 제거(패널 간 참조 없음). View.cpp 3,079 → 2,233줄, 컨트롤 멤버 79 → 53, 메시지맵 42 → 28
+- **회귀 수정**: 카드 2개(검색 기준·법인 발주)가 OnDraw 전용이라 ShowPrice*Panel의 Invalidate(TRUE) 부수 효과에 의존하고 있었다. SetCardRect로 모아 이전 ∪ 새 영역만 무효화 (전체 무효화 시 레이아웃마다 깜빡임)
+- **검증**: Debug x64 빌드 성공. 목록·카드·컬럼 폭, 콤보 자동 매칭, 행 선택 시 편집 폼, 체크박스 배경·경고, CRUD 4종, Tab 이동, 법인 변경 후 계산 콤보 반영, 창 크기 변경, 잔상 해소 확인
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/98
+- **결과**: merged

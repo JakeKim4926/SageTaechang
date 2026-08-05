@@ -5,6 +5,12 @@
 
 ## 열린 항목
 
+### [2026-08-05] 중복로직 — DrawEditBorder가 View와 패널에 각각 있다
+- 위치: app/ui/view/SageTaechangView.cpp `DrawEditBorder` / app/ui/panels/SagePriceCalcPanel.cpp `DrawEditBorder`
+- 설명: 컨트롤 바깥 1px에 테두리를 그리는 같은 8줄이 두 곳에 있다. Step 3-B-1b에서 계산 패널이 자기 영역을 그리게 되면서 생겼다. 패널을 하나 만들 때마다 한 벌씩 늘어난다(3-B-2·3-B-4에서 3벌·4벌).
+- 위험도: 낮음
+- 후속: 기존 부채 *입력 컨트롤 테두리 방식이 View와 다이얼로그에서 다름*과 같은 뿌리다. `CSageEdit` 승격(`WS_BORDER` + `SetWindowTheme` 전환) 때 한 번에 없앤다
+
 ### [2026-08-05] 구조불일치 — core 서비스 인스턴스 획득 방식이 두 가지다
 - 위치: app/ui/view/SageTaechangView.cpp `UpdateCalcPreview` / `UpdateCalcTotal`
 - 설명: 기존 서비스 6개는 `SageDBMgr`이 보유하고 `Get*`으로 노출하는데, `SagePriceCalcService`만 호출 지점에서 스택 생성한다(2곳). 무상태라 동작 문제는 없지만 다음 core 서비스를 만들 때 어느 쪽을 따를지 근거가 없다. Step 3-B-1a에서 `SageDBMgr`을 고치지 않는 쪽을 택한 결과다.
@@ -72,7 +78,7 @@
 - 후속: 클래스당 파일로 분리하고 파일명을 클래스명에 맞춤
 
 ### [2026-07-31] 구조불일치 — UI 계층이 infra를 직접 호출
-- 위치: app/ui/view/SageTaechangView.cpp, app/ui/dialogs/{TaechangLoginDlg, TaechangPasswordChangeDlg, TaechangCalcEstimateDlg}.cpp
+- 위치: app/ui/view/SageTaechangView.cpp, app/ui/panels/SagePriceCalcPanel.cpp, app/ui/dialogs/{TaechangLoginDlg, TaechangPasswordChangeDlg, TaechangCalcEstimateDlg}.cpp
 - 설명: coding-design의 의존 방향(ui → core ← infra)을 어기고 SageDBMgr/Repository를 직접 참조한다.
 - 위험도: 중
 - 후속: View 경로는 **3-B-6b**(`ISageWorkflowRunner` 도입, infra include 6줄 제거), 다이얼로그 3개는 **Step 4-B**로 갈렸다
