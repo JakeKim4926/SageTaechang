@@ -141,7 +141,10 @@ void CSageListCtrl::DrawFirstColumn(int nItem, BOOL bSelected, NMLVCUSTOMDRAW* p
 BOOL CSageListCtrl::IsGroupStartRow(int nItem) const {
 	if (nItem <= 0)
 		return TRUE;
-	return (GetItemText(nItem, m_nGroupColumn) != GetItemText(nItem - 1, m_nGroupColumn)) ? TRUE : FALSE;
+	CString strText = GetItemText(nItem, m_nGroupColumn);
+	if (strText == TAECHANG_UI_SEPARATOR_MARK)
+		return TRUE;
+	return (strText != GetItemText(nItem - 1, m_nGroupColumn)) ? TRUE : FALSE;
 }
 
 void CSageListCtrl::DrawGroupColumn(int nItem, BOOL bSelected, NMLVCUSTOMDRAW* pCD) {

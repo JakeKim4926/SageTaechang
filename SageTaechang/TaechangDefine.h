@@ -211,6 +211,7 @@ constexpr LPCWSTR TAECHANG_UI_PREPARING_SUFFIX = L" (준비 중)";
 constexpr LPCWSTR TAECHANG_UI_EXCEL_FILTER = L"Excel Files (*.xls;*.xlsx)|*.xls;*.xlsx|All Files (*.*)|*.*||";
 constexpr LPCWSTR TAECHANG_UI_AMOUNT_EMPTY_MARK = L"—";
 constexpr LPCWSTR TAECHANG_UI_REPEAT_MARK = L"〃";
+constexpr LPCWSTR TAECHANG_UI_SEPARATOR_MARK = L"-";
 constexpr LPCWSTR TAECHANG_UI_RESULT_RESULT_LABEL = L"Result";
 constexpr LPCWSTR TAECHANG_UI_RESULT_TOTAL_LABEL = L"Total";
 constexpr LPCWSTR TAECHANG_RESULT_STATUS_SUMMARY = L"summary";
