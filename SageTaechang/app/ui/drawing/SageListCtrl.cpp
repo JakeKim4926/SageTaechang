@@ -13,8 +13,19 @@ BOOL CSageListCtrl::OnSelectionChanged(NMHDR* pNMHDR, LRESULT* pResult) {
 	*pResult = 0;
 	if ((pNM->uChanged & LVIF_STATE) != 0
 		&& ((pNM->uOldState ^ pNM->uNewState) & LVIS_SELECTED) != 0)
-		Invalidate();
+		InvalidateItemRow(pNM->iItem);
 	return FALSE;
+}
+
+void CSageListCtrl::InvalidateItemRow(int nItem) {
+	if (nItem == TAECHANG_LIST_NO_ITEM) {
+		Invalidate();
+		return;
+	}
+	CRect rcItem;
+	if (!GetItemRect(nItem, rcItem, LVIR_BOUNDS))
+		return;
+	InvalidateRect(rcItem);
 }
 
 int CSageListCtrl::OnCreate(LPCREATESTRUCT lpCreateStruct) {

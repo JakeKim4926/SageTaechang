@@ -24,6 +24,7 @@ private:
 	void ApplyFixedRowHeight();
 	void DrawRowSeparator(int nItem, NMLVCUSTOMDRAW* pCD);
 	void DrawSelectionAccent(int nItem, NMLVCUSTOMDRAW* pCD);
+	void InvalidateItemRow(int nItem);
 
 private:
 	BOOL m_bAlternateRow;
