@@ -5,9 +5,9 @@
 #include "app/core/receivable/TaechangReceivableCompanyOrderDto.h"
 #include "app/ui/panels/SagePriceCalcPanel.h"
 #include "app/ui/panels/SagePriceManagePanel.h"
+#include "app/ui/panels/SageResultTablePanel.h"
 #include "app/ui/drawing/SageHeaderCtrl.h"
 #include "app/ui/drawing/SageTabCtrl.h"
-#include "app/ui/drawing/SageFilterComboBox.h"
 #include "app/ui/drawing/SageButton.h"
 #include "app/ui/drawing/SageSectionLabel.h"
 #include "app/ui/drawing/SageLabel.h"
@@ -71,7 +71,6 @@ protected:
     CSageTabCtrl m_wndTaskTabs;
     CSageSectionLabel m_wndInputSection;
     CSageSectionLabel m_wndOutputSection;
-    CSageSectionLabel m_wndResultSection;
     CSageSectionLabel m_wndDetailSection;
     CSageLabel m_wndTitle;
     CSageLabel m_wndWorkflowLabel;
@@ -83,17 +82,9 @@ protected:
     CSageButton m_wndSelectOutput;
     CSageButton m_wndLoad;
     CSageButton m_wndGenerate;
-    CSageButton m_wndSelectAll;
-    CButton m_wndEstimateOnePage;
     CSageButton m_wndInputReset;
     CProgressCtrl m_wndProgress;
     CSageLabel m_wndProgressText;
-    CSageHeaderCtrl m_wndResultHeader;
-    CSageListCtrl m_wndResultList;
-    CSageFilterComboBox m_wndResultFilterCriteria;
-    CEdit m_wndResultFilter;
-    CSageButton m_wndResultSearchBtn;
-    CSageButton m_wndResultResetBtn;
     CEdit m_wndDetail;
     CSageLabel m_wndEmptyStateHint;
     CStatic m_wndActionStatus;
@@ -111,9 +102,6 @@ protected:
     CString m_strLastResponseJson;
     CString m_strExecutionHistory;
     CString m_strRunningInputPath;
-    CString m_strResultFilterKeyword;
-    int m_nResultFilterCriteria;
-    CRect m_rectResultFilterBox;
     TaechangWorkflowUiState m_stateReceivables;
     TaechangWorkflowUiState m_stateDelivery;
     TaechangWorkflowUiState m_stateEstimate;
@@ -125,6 +113,8 @@ protected:
 
     SagePriceManagePanel m_panelPriceManage;
     SagePriceCalcPanel m_panelPriceCalc;
+    SageResultTablePanel m_panelInputTable;
+    SageResultTablePanel m_panelResultTable;
 
     // ── 법인 순서 데이터 관리 패널 ───────────────────────────────────────────
     CSageButton         m_wndCoAddBtn;
@@ -154,9 +144,7 @@ protected:
     void ApplyControlFonts();
     void ApplyLabelRoles();
     void ApplyWorkflowTabs();
-    void ApplyResultColumns();
     void UpdateTaskTabVisibility();
-    void UpdateResultColumns();
     void LayoutChildControls();
     void LayoutInputSection(int nLeft, int nTop, int nWidth, BOOL bShowOutput);
     void LayoutActionSection(int nLeft, int nTop, int nWidth);
@@ -181,9 +169,12 @@ protected:
     TaechangWorkflowUiState& GetWorkflowUiState(int nWorkflowType);
     void SaveWorkflowUiState(int nWorkflowType);
     void RestoreWorkflowUiState(int nWorkflowType);
-    void SaveCheckedRowNums(TaechangWorkflowUiState& state);
-    void RestoreCheckedRowNums(const TaechangWorkflowUiState& state);
     void RebuildCurrentWorkflowResultList();
+    SageResultTablePanel* FindResultTablePanel(ISageWorkflowHandler* pHandler);
+    SageResultTablePanel* FindVisibleResultTablePanel();
+    void ApplyResultTableSchema();
+    void SetResultTableRows(const std::vector<TaechangResultRow>& arrRows);
+    void RefreshResultTableRows();
     COLORREF ResolveStatusColor(const CString& strStatus) const;
     SageBackgroundRole ResolveStatusBgRole(const CString& strStatus) const;
     void DrawEditBorder(CDC* pDC, CWnd& wnd);
@@ -195,13 +186,6 @@ protected:
     void ApplyDroppedInputPaths(const CString& strPaths);
     void RunWorkflowTask(int nTaskType);
     void DisplayResponse(int nWorkflowType, int nTaskType, const CString& strResponseJson);
-    const SageWorkflowColumn& GetLastResultColumn(int nColumnIndex) const;
-    int GetLastResultColumnCount() const;
-    void InsertResultRow(const TaechangResultRow& row);
-    void RefreshDocumentResultFilter();
-    void PopulateResultFilterCriteria();
-    int GetEffectiveFilterCriteria() const;
-    int GetDefaultFilterCriteria() const;
     void AppendExecutionHistory(int nWorkflowType, int nTaskType, const CString& strResponseJson, BOOL bSuccess);
     CString BuildExecutionHistoryLine(int nWorkflowType, int nTaskType, const CString& strResponseJson, BOOL bSuccess) const;
 
@@ -227,12 +211,10 @@ protected:
     afx_msg void OnSelectOutput();
     afx_msg void OnLoadWorkflow();
     afx_msg void OnGenerateWorkflow();
-    afx_msg void OnSelectAll();
-    afx_msg void OnEstimateOnePage();
     afx_msg void OnInputReset();
     afx_msg LRESULT OnWorkflowComplete(WPARAM wParam, LPARAM lParam);
+    afx_msg LRESULT OnResultTableChanged(WPARAM wParam, LPARAM lParam);
     afx_msg void OnDropFiles(HDROP hDropInfo);
-    afx_msg void OnResultListItemChanged(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnLogin();
     afx_msg void OnLogout();
 
@@ -243,10 +225,6 @@ protected:
     afx_msg void OnCoCancel();
     afx_msg void OnCoSearch();
     afx_msg void OnCoListSelChanged(NMHDR* pNMHDR, LRESULT* pResult);
-
-    afx_msg void OnResultSearch();
-    afx_msg void OnResultFilterReset();
-    afx_msg void OnResultFilterCriteriaChanged();
 
     DECLARE_MESSAGE_MAP()
 };

@@ -26,9 +26,35 @@ SageResultTablePanel::SageResultTablePanel()
 	, m_bFilterVisible(FALSE) {
 }
 
+static void AcceptDroppedFiles(CWnd& wnd) {
+	HWND hWnd = wnd.GetSafeHwnd();
+	if (hWnd == NULL || !::IsWindow(hWnd))
+		return;
+
+	::DragAcceptFiles(hWnd, TRUE);
+	::ChangeWindowMessageFilterEx(hWnd, WM_DROPFILES, MSGFLT_ALLOW, NULL);
+	::ChangeWindowMessageFilterEx(hWnd, WM_COPYDATA, MSGFLT_ALLOW, NULL);
+	::ChangeWindowMessageFilterEx(hWnd, WM_TAECHANG_COPYGLOBALDATA, MSGFLT_ALLOW, NULL);
+}
+
 BOOL SageResultTablePanel::Create(CWnd* pParent, UINT nId) {
 	CRect rectEmpty(0, 0, 0, 0);
 	return CWnd::CreateEx(0, AfxRegisterWndClass(0), NULL, WS_CHILD | WS_CLIPCHILDREN, rectEmpty, pParent, nId);
+}
+
+BOOL SageResultTablePanel::PreTranslateMessage(MSG* pMsg) {
+	if (pMsg != NULL && pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_RETURN &&
+		pMsg->hwnd == m_wndFilter.GetSafeHwnd()) {
+		OnSearch();
+		return TRUE;
+	}
+	return CWnd::PreTranslateMessage(pMsg);
+}
+
+void SageResultTablePanel::EnableFileDrop() {
+	AcceptDroppedFiles(*this);
+	AcceptDroppedFiles(m_wndTitle);
+	AcceptDroppedFiles(m_wndList);
 }
 
 int SageResultTablePanel::OnCreate(LPCREATESTRUCT lpCreateStruct) {
@@ -45,12 +71,11 @@ void SageResultTablePanel::CreateControls() {
 	m_wndTitle.Create(TAECHANG_UI_SECTION_RESULT, WS_CHILD | SS_OWNERDRAW, r, this, ID_TAECHANG_RESULT_SECTION);
 	m_wndSelectAll.Create(TAECHANG_UI_SELECT_ALL_BUTTON, WS_CHILD | BS_OWNERDRAW, r, this, ID_TAECHANG_SELECT_ALL);
 	m_wndOnePage.Create(TAECHANG_UI_ESTIMATE_ONE_PAGE_CHECK, WS_CHILD | BS_AUTOCHECKBOX, r, this, ID_TAECHANG_ESTIMATE_ONE_PAGE);
-	SetWindowTheme(m_wndOnePage.GetSafeHwnd(), L"", L"");
 
 	m_wndCriteria.Create(WS_CHILD | CBS_DROPDOWNLIST | CBS_OWNERDRAWFIXED | CBS_HASSTRINGS | WS_VSCROLL, r, this, ID_TAECHANG_RESULT_FILTER_CRITERIA);
 	m_wndFilter.Create(WS_CHILD | ES_MULTILINE | ES_AUTOHSCROLL, r, this, ID_TAECHANG_RESULT_FILTER_EDIT);
+	m_wndFilter.LimitText(TAECHANG_RESULT_FILTER_MAX_LENGTH);
 	m_wndSearchBtn.Create(TAECHANG_UI_RESULT_SEARCH_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_TAECHANG_RESULT_SEARCH_BTN);
-	m_wndSearchBtn.SetVariant(SAGE_BUTTON_PRIMARY);
 	m_wndSearchBtn.SetIcon(SAGE_BUTTON_ICON_SEARCH);
 	m_wndSearchBtn.SetTooltip(TAECHANG_UI_TIP_SEARCH);
 	m_wndResetBtn.Create(TAECHANG_UI_RESULT_RESET_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_TAECHANG_RESULT_RESET_BTN);
@@ -72,12 +97,14 @@ void SageResultTablePanel::ApplyControlFonts() {
 	m_wndSelectAll.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndOnePage.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndCriteria.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
+	m_wndCriteria.SetItemHeight(-1, TAECHANG_RESULT_CRITERIA_ITEM_HEIGHT);
+	m_wndCriteria.SetItemHeight(0, TAECHANG_RESULT_CRITERIA_ITEM_HEIGHT);
 	m_wndFilter.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndSearchBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndResetBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndList.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
+	m_wndResetBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_HEADER));
+	m_wndList.SetFont(SageUiResources::GetFont(SAGE_FONT_LIST));
 	if (::IsWindow(m_wndHeader.GetSafeHwnd()))
-		m_wndHeader.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
+		m_wndHeader.SetFont(SageUiResources::GetFont(SAGE_FONT_LIST));
 }
 
 int SageResultTablePanel::GetBandHeight() const {
@@ -120,10 +147,17 @@ void SageResultTablePanel::ShowFilter(BOOL bShow) {
 	InvalidateRect(rectStale, TRUE);
 }
 
+void SageResultTablePanel::EnableSelectionControls(BOOL bEnable) {
+	m_wndSelectAll.EnableWindow(bEnable);
+	m_wndOnePage.EnableWindow(bEnable);
+}
+
 BOOL SageResultTablePanel::IsOnePageChecked() const {
-	if (!m_bOnePageVisible)
-		return FALSE;
 	return (m_wndOnePage.GetCheck() == BST_CHECKED) ? TRUE : FALSE;
+}
+
+void SageResultTablePanel::SetOnePageChecked(BOOL bChecked) {
+	m_wndOnePage.SetCheck(bChecked ? BST_CHECKED : BST_UNCHECKED);
 }
 
 void SageResultTablePanel::Layout(const CRect& rectPanel) {

@@ -14,8 +14,12 @@ public:
     SageResultTablePanel();
 
 public:
+    virtual BOOL PreTranslateMessage(MSG* pMsg);
+
+public:
     BOOL Create(CWnd* pParent, UINT nId);
     void Layout(const CRect& rectPanel);
+    void EnableFileDrop();
     int  GetBandHeight() const;
 
 public:
@@ -23,7 +27,9 @@ public:
     void ShowSelectAll(BOOL bShow);
     void ShowOnePageOption(BOOL bShow);
     void ShowFilter(BOOL bShow);
+    void EnableSelectionControls(BOOL bEnable);
     BOOL IsOnePageChecked() const;
+    void SetOnePageChecked(BOOL bChecked);
 
     void SetColumns(const std::vector<SageWorkflowColumn>& arrColumns, const SageWorkflowResultStyle& style);
     void SetFilterCriteria(const std::vector<SageWorkflowFilterCriteria>& arrCriteria);
