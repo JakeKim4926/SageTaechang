@@ -5,6 +5,36 @@
 
 ## 열린 항목
 
+### [2026-08-06] 기존부채 — 미수금 내역서 생성이 서식 복사를 클립보드로 9번 왕복한다
+- 위치: `tools/generate-receivables-form.ps1` `Copy-RowFormat`(:214) ← `Apply-OutputFormats`(:320)
+- 설명: `Rows.Copy()` + `PasteSpecial` + `CutCopyMode=$false`로 Excel 클립보드를 왕복한다. 전체 범위 1회 + **구분 행(`-`)마다 1회**라 19건·구분 8개인 파일에서 9회 돈다. 좀비 Excel을 정리한 깨끗한 상태에서 생성이 **4.0초**, 로드는 같은 파일에 **2.7초** — 차이의 상당 부분이 이 왕복이다.
+- 위험도: 낮음 — 느리지만 결과는 정확하다. 행이 늘면 구분 행도 늘어 선형으로 커진다
+- 후속: 구분 행 서식을 개별 복사하지 않고 **한 번에 처리**하거나(연속 구간 묶기), `Copy/PasteSpecial` 대신 서식 속성을 직접 지정한다. 성능 작업이므로 D 시리즈와 섞지 않고 별도 브랜치로 한다
+
+### [2026-08-06] 검증누락 — Excel 프로세스 종료를 스크립트 5개에서 실행 확인하지 못했다
+- 위치: `tools/excel-process.ps1` `Stop-OwnedExcelProcess` ← 워크플로 스크립트 7개
+- 설명: 자기가 띄운 Excel PID만 종료하는 수정을 7개에 동일하게 넣었으나, **실제 실행으로 확인한 것은 미수금 생성·로드 2개뿐**이다(리빌드 후 생성 3회 연속 4초대 유지 확인). 납품·견적·단가 경로 5개는 문법 검사와 코드 동일성만 확인했다. Claude 세션은 `Stop-Process`가 Access denied라 종료 자체를 검증할 수 없었다.
+- 위험도: 낮음 — `try/catch`로 감싸 실패해도 동작에 영향이 없다
+- 후속: 납품서·견적서 생성을 실제로 돌릴 때 `Get-Process EXCEL | Where-Object { $_.Handles -gt 0 }`로 살아있는 인스턴스가 남지 않는지 확인한다. **핸들 0개 항목은 이미 죽은 껍데기이므로 개수로 판정하지 않는다**
+
+### [2026-08-06] 미완 — 미수금 결과의 「내보내기」 버튼과 아이콘 2종이 아직 없다
+- 위치: `DESIGN_PLAN` D7-1 표 · D6 아이콘 목록(내보내기 15 · 성공 18)
+- 설명: D7-1 착수 시 사용자 결정으로 **만들지 않았다.** 결과 표를 파일로 내보내는 기능이 코드에 없어, 버튼만 두면 D7-4의 *없는 기능을 안내하지 않는다* 원칙을 어긴다. D6이 D7-1로 넘긴 아이콘 2종도 그대로 **참조 0곳**이다.
+- 위험도: 낮음
+- 후속: 내보내기의 동작(결과 표를 엑셀로 저장 vs 저장 폴더 열기)을 먼저 정하고, 정해지면 버튼과 아이콘 2종을 함께 넣는다. **D5 공통 완료 기준**(참조 0곳인 컨트롤을 남기지 않는다)이 아이콘에도 걸려 있다
+
+### [2026-08-06] 구조불일치 — 요약 바의 「기타 처리 법인」만 필터와 연동되지 않는다
+- 위치: `app/core/workflow/handlers/SageReceivablesWorkflowHandler.cpp` `BuildResultSummary`
+- 설명: 총 건수와 미수금 합계는 **보이는 행 기준**으로 갱신되지만(사용자 결정), 기타 처리 법인 건수는 응답 JSON의 `missingCompanies` 배열 길이라 **필터와 무관하게 전체 기준**이다. 행 데이터에 "이 행이 기타 처리인가" 플래그가 없어서 행에서 셀 수 없다.
+- 위험도: 낮음 — 필터를 걸면 세 항목 중 하나만 안 바뀌어 오해할 수 있다
+- 후속: 행 기준으로 세려면 프리젠터가 `missingCompanies`와 법인명을 대조해 행에 플래그를 담아야 한다. **D7-1 2단계나 그 이후에 필요해지면 한다** — 지금은 목업(총 24건 · 합계 · 기타 처리 2건)과 표시가 일치한다
+
+### [2026-08-06] 기존부채 — `TAECHANG_UI_RECEIVABLES_PREVIEW_TOTAL`이 참조 0곳이다
+- 위치: `TaechangDefine.h:276`
+- 설명: `L"미리보기 건수"`. D7-1이 이 상수를 소비할 것으로 계획서에 적혀 있었으나, 목업 3-1의 라벨은 「총」이라 `TAECHANG_UI_RECEIVABLES_SUMMARY_TOTAL`을 새로 만들었다. 이 상수는 여전히 아무도 쓰지 않는다(기존 죽은 코드라 삭제하지 않았다).
+- 위험도: 낮음
+- 후속: D7 전체가 끝난 뒤 죽은 UI 상수를 한 번에 정리할 때 함께 제거한다
+
 ### [2026-08-06] 중복로직 — 파일 드롭 허용 코드가 View와 패널에 각각 있다
 - 위치: `app/ui/view/SageTaechangView.cpp` `EnableFileDropForWindow` ↔ `app/ui/panels/SageResultTablePanel.cpp` `AcceptDroppedFiles`(static)
 - 설명: 3-B-4a에서 결과 표가 패널 안으로 들어가면서 `EnableFileDropForWindow(m_wndResultSection)` · `(m_wndResultList)` 두 줄이 갈 곳이 없어졌다. **드롭 대상은 HWND별로 지정해야 하고 상위 창으로 버블링되지 않으므로** 패널이 자기 자식에게 직접 걸어야 한다. `DragAcceptFiles` + `ChangeWindowMessageFilterEx` 3줄이 두 파일에 생겼다.
