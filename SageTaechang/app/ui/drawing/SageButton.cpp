@@ -26,6 +26,26 @@ void CSageButton::SetIcon(SageButtonIcon nIcon) {
 		Invalidate();
 }
 
+void CSageButton::SetTooltip(const CString& strTooltip) {
+	if (!::IsWindow(GetSafeHwnd()))
+		return;
+
+	if (m_toolTip.GetSafeHwnd() == NULL) {
+		if (!m_toolTip.Create(this))
+			return;
+		m_toolTip.AddTool(this, strTooltip);
+		m_toolTip.Activate(TRUE);
+		return;
+	}
+	m_toolTip.UpdateTipText(strTooltip, this);
+}
+
+BOOL CSageButton::PreTranslateMessage(MSG* pMsg) {
+	if (m_toolTip.GetSafeHwnd() != NULL)
+		m_toolTip.RelayEvent(pMsg);
+	return CButton::PreTranslateMessage(pMsg);
+}
+
 void CSageButton::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 	CDC* pDC = CDC::FromHandle(lpDrawItemStruct->hDC);
 	CRect rect = lpDrawItemStruct->rcItem;
@@ -55,48 +75,91 @@ void CSageButton::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 
 	pDC->SetBkMode(TRANSPARENT);
 
-	if (m_nIcon != SAGE_BUTTON_ICON_NONE) {
-		COLORREF clrIcon = pDC->GetTextColor();
-		if (m_nIcon == SAGE_BUTTON_ICON_SEARCH)
-			DrawSearchIcon(*pDC, rect, clrIcon);
-		else if (m_nIcon == SAGE_BUTTON_ICON_CALCULATE)
-			DrawCalculateIcon(*pDC, rect, clrIcon);
-		else
-			DrawResetIcon(*pDC, rect, clrIcon);
-		return;
-	}
-
+	COLORREF clrIcon = pDC->GetTextColor();
 	CString strText;
 	GetWindowText(strText);
 
+	if (m_nIcon != SAGE_BUTTON_ICON_NONE && strText.IsEmpty()) {
+		DrawIconAt(*pDC, rect.CenterPoint(), clrIcon);
+		return;
+	}
+
 	CFont* pOldFont = pDC->SelectObject(GetFont());
-	rect.OffsetRect(0, TAECHANG_BUTTON_TEXT_TOP_OFFSET);
-	pDC->DrawText(strText, rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+
+	if (m_nIcon == SAGE_BUTTON_ICON_NONE) {
+		rect.OffsetRect(0, TAECHANG_BUTTON_TEXT_TOP_OFFSET);
+		pDC->DrawText(strText, rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+		if (pOldFont)
+			pDC->SelectObject(pOldFont);
+		return;
+	}
+
+	int nIconSize = GetIconSize();
+	CSize sizeText = pDC->GetTextExtent(strText);
+	int nGroupWidth = nIconSize + TAECHANG_ICON_TEXT_GAP + sizeText.cx;
+	int nGroupLeft = rect.left + (rect.Width() - nGroupWidth) / 2;
+
+	DrawIconAt(*pDC, CPoint(nGroupLeft + nIconSize / 2, rect.CenterPoint().y), clrIcon);
+
+	CRect rectText(nGroupLeft + nIconSize + TAECHANG_ICON_TEXT_GAP, rect.top,
+		rect.right, rect.bottom);
+	rectText.OffsetRect(0, TAECHANG_BUTTON_TEXT_TOP_OFFSET);
+	pDC->DrawText(strText, rectText, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
+
 	if (pOldFont)
 		pDC->SelectObject(pOldFont);
 }
 
-void CSageButton::DrawSearchIcon(CDC& dc, const CRect& rect, COLORREF clrIcon) {
-	CPen pen(PS_SOLID, 2, clrIcon);
+int CSageButton::GetIconSize() const {
+	return (m_nIcon == SAGE_BUTTON_ICON_ADD) ? TAECHANG_ICON_ADD_SIZE : TAECHANG_ICON_SIZE;
+}
+
+void CSageButton::DrawIconAt(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon) {
+	if (m_nIcon == SAGE_BUTTON_ICON_SEARCH)
+		DrawSearchIcon(dc, ptCenter, clrIcon);
+	else if (m_nIcon == SAGE_BUTTON_ICON_CALCULATE)
+		DrawCalculateIcon(dc, ptCenter, clrIcon);
+	else if (m_nIcon == SAGE_BUTTON_ICON_ADD)
+		DrawAddIcon(dc, ptCenter, clrIcon);
+	else
+		DrawResetIcon(dc, ptCenter, clrIcon);
+}
+
+void CSageButton::DrawSearchIcon(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon) {
+	CPen pen(PS_SOLID, TAECHANG_ICON_STROKE, clrIcon);
 	CPen* pOldPen = dc.SelectObject(&pen);
 	CBrush* pOldBrush = (CBrush*)dc.SelectStockObject(NULL_BRUSH);
-	int nCx = rect.CenterPoint().x - 2;
-	int nCy = rect.CenterPoint().y - 2;
-	dc.Ellipse(nCx - 6, nCy - 6, nCx + 7, nCy + 7);
-	dc.MoveTo(nCx + 5, nCy + 5);
-	dc.LineTo(nCx + 11, nCy + 11);
+
+	int nLensCx = ptCenter.x - TAECHANG_ICON_SEARCH_HANDLE / 2;
+	int nLensCy = ptCenter.y - TAECHANG_ICON_SEARCH_HANDLE / 2;
+	dc.Ellipse(nLensCx - TAECHANG_ICON_SEARCH_RADIUS, nLensCy - TAECHANG_ICON_SEARCH_RADIUS,
+		nLensCx + TAECHANG_ICON_SEARCH_RADIUS, nLensCy + TAECHANG_ICON_SEARCH_RADIUS);
+	dc.MoveTo(nLensCx + TAECHANG_ICON_SEARCH_RADIUS - 1, nLensCy + TAECHANG_ICON_SEARCH_RADIUS - 1);
+	dc.LineTo(nLensCx + TAECHANG_ICON_SEARCH_RADIUS + TAECHANG_ICON_SEARCH_HANDLE,
+		nLensCy + TAECHANG_ICON_SEARCH_RADIUS + TAECHANG_ICON_SEARCH_HANDLE);
+
 	if (pOldBrush)
 		dc.SelectObject(pOldBrush);
 	if (pOldPen)
 		dc.SelectObject(pOldPen);
 }
 
-void CSageButton::DrawCalculateIcon(CDC& dc, const CRect& rect, COLORREF clrIcon) {
+void CSageButton::DrawAddIcon(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon) {
+	int nHalfSpan = TAECHANG_ICON_ADD_SPAN / 2;
+	int nHalfStroke = TAECHANG_ICON_STROKE / 2;
+
+	dc.FillSolidRect(ptCenter.x - nHalfSpan, ptCenter.y - nHalfStroke,
+		TAECHANG_ICON_ADD_SPAN, TAECHANG_ICON_STROKE, clrIcon);
+	dc.FillSolidRect(ptCenter.x - nHalfStroke, ptCenter.y - nHalfSpan,
+		TAECHANG_ICON_STROKE, TAECHANG_ICON_ADD_SPAN, clrIcon);
+}
+
+void CSageButton::DrawCalculateIcon(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon) {
 	CPen pen(PS_SOLID, 1, clrIcon);
 	CPen* pOldPen = dc.SelectObject(&pen);
 	CBrush* pOldBrush = (CBrush*)dc.SelectStockObject(NULL_BRUSH);
-	int cx = rect.CenterPoint().x;
-	int cy = rect.CenterPoint().y;
+	int cx = ptCenter.x;
+	int cy = ptCenter.y;
 	int dw = 6, dh = 7, fc = 3;
 	POINT pts[] = {
 		{cx - dw,      cy - dh},
@@ -117,30 +180,23 @@ void CSageButton::DrawCalculateIcon(CDC& dc, const CRect& rect, COLORREF clrIcon
 	if (pOldPen)   dc.SelectObject(pOldPen);
 }
 
-void CSageButton::DrawResetIcon(CDC& dc, const CRect& rect, COLORREF clrIcon) {
-	CPen pen(PS_SOLID, 2, clrIcon);
+void CSageButton::DrawResetIcon(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon) {
+	CPen pen(PS_SOLID, TAECHANG_ICON_STROKE, clrIcon);
 	CPen* pOldPen = dc.SelectObject(&pen);
 	CBrush* pOldBrush = (CBrush*)dc.SelectStockObject(NULL_BRUSH);
-	int cx = rect.CenterPoint().x;
-	int cy = rect.CenterPoint().y;
-	POINT arcPts[] = {
-		{cx + 6, cy + 2},
-		{cx + 5, cy + 3},
-		{cx + 3, cy + 5},
-		{cx,     cy + 6},
-		{cx - 3, cy + 5},
-		{cx - 5, cy + 3},
-		{cx - 6, cy},
-		{cx - 5, cy - 3},
-		{cx - 3, cy - 5},
-		{cx,     cy - 6},
-		{cx + 3, cy - 5},
-	};
-	dc.Polyline(arcPts, 11);
+
+	int nRadius = TAECHANG_ICON_RESET_RADIUS;
+	int nArrow = TAECHANG_ICON_RESET_ARROW;
+	int cx = ptCenter.x;
+	int cy = ptCenter.y;
+
+	CRect rectArc(cx - nRadius, cy - nRadius, cx + nRadius + 1, cy + nRadius + 1);
+	dc.Arc(rectArc, CPoint(cx + nArrow, cy - nRadius), CPoint(cx + nRadius, cy + nArrow));
+
 	POINT arrow[] = {
-		{cx + 3 - 2, cy - 5 - 3},
-		{cx + 3,     cy - 5},
-		{cx + 3 + 3, cy - 5 + 2},
+		{cx,              cy - nRadius - nArrow},
+		{cx + nArrow,     cy - nRadius},
+		{cx + nArrow * 2, cy - nRadius + nArrow},
 	};
 	dc.Polyline(arrow, 3);
 	if (pOldBrush) dc.SelectObject(pOldBrush);

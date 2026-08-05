@@ -50,6 +50,8 @@ void SagePriceCalcPanel::CreateControls() {
 	m_wndCompanyLabel.Create(TAECHANG_UI_CALC_COMPANY_LABEL, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
 	m_wndCompanyCombo.Create(WS_CHILD | WS_VISIBLE | CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL, r, this, ID_CALC_COMPANY_COMBO);
 	m_wndCompanyPickBtn.Create(TAECHANG_UI_CALC_COMPANY_PICK_LABEL, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_CALC_COMPANY_PICK_BTN);
+	m_wndCompanyPickBtn.SetIcon(SAGE_BUTTON_ICON_SEARCH);
+	m_wndCompanyPickBtn.SetTooltip(TAECHANG_UI_TIP_PICK_COMPANY);
 	m_wndCopiesLabel.Create(TAECHANG_UI_CALC_COPIES_LABEL, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
 	m_wndCopiesEdit.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_NUMBER | ES_RIGHT | ES_AUTOHSCROLL, r, this, ID_CALC_COPIES_EDIT);
 	m_wndPagesLabel.Create(TAECHANG_UI_CALC_PAGES_LABEL, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
@@ -60,6 +62,7 @@ void SagePriceCalcPanel::CreateControls() {
 	m_wndCalcResetBtn.Create(L"", WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_CALC_RESET_BTN);
 	m_wndCalcResetBtn.SetVariant(SAGE_BUTTON_GHOST);
 	m_wndCalcResetBtn.SetIcon(SAGE_BUTTON_ICON_RESET);
+	m_wndCalcResetBtn.SetTooltip(TAECHANG_UI_TIP_RESET);
 
 	m_wndPrintLabel.Create(TAECHANG_UI_CALC_PRINT_LABEL, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
 	m_wndPrintValue.Create(TAECHANG_UI_PRICE_SUMMARY_EMPTY, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);

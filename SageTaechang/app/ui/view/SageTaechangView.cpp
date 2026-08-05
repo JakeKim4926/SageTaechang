@@ -279,6 +279,8 @@ void CSageTaechangView::CreateChildControls() {
 	m_wndSelectAll.Create(TAECHANG_UI_SELECT_ALL_BUTTON, WS_CHILD | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_SELECT_ALL);
 	m_wndEstimateOnePage.Create(TAECHANG_UI_ESTIMATE_ONE_PAGE_CHECK, WS_CHILD | BS_AUTOCHECKBOX, rectEmpty, this, ID_TAECHANG_ESTIMATE_ONE_PAGE);
 	m_wndInputReset.Create(TAECHANG_UI_INPUT_RESET_BTN, WS_CHILD | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_INPUT_RESET_BTN);
+	m_wndInputReset.SetIcon(SAGE_BUTTON_ICON_RESET);
+	m_wndInputReset.SetTooltip(TAECHANG_UI_TIP_RESET);
 	m_wndInputReset.SetVariant(SAGE_BUTTON_GHOST);
 	m_wndInputReset.SetSurfaceColor(TAECHANG_COLOR_APP_BACKGROUND);
 	m_wndProgress.Create(WS_CHILD | WS_VISIBLE | PBS_MARQUEE, rectEmpty, this, ID_TAECHANG_PROGRESS);
@@ -296,8 +298,11 @@ void CSageTaechangView::CreateChildControls() {
 	m_wndResultFilter.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOHSCROLL, rectEmpty, this, ID_TAECHANG_RESULT_FILTER_EDIT);
 	m_wndResultSearchBtn.Create(TAECHANG_UI_RESULT_SEARCH_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_RESULT_SEARCH_BTN);
 	m_wndResultSearchBtn.SetIcon(SAGE_BUTTON_ICON_SEARCH);
+	m_wndResultSearchBtn.SetTooltip(TAECHANG_UI_TIP_SEARCH);
 	m_wndResultResetBtn.Create(TAECHANG_UI_RESULT_RESET_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_RESULT_RESET_BTN);
 	m_wndResultResetBtn.SetVariant(SAGE_BUTTON_GHOST);
+	m_wndResultResetBtn.SetIcon(SAGE_BUTTON_ICON_RESET);
+	m_wndResultResetBtn.SetTooltip(TAECHANG_UI_TIP_RESET);
 	m_wndDetail.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | WS_VSCROLL, rectEmpty, this, ID_TAECHANG_DETAIL_EDIT);
 	m_wndEmptyStateHint.Create(TAECHANG_UI_EMPTY_STATE_HINT, WS_CHILD | WS_VISIBLE | SS_CENTER | SS_CENTERIMAGE, rectEmpty, this);
 	m_wndActionStatus.Create(L"", WS_CHILD | SS_LEFT | SS_CENTERIMAGE, rectEmpty, this);
@@ -1821,6 +1826,7 @@ void CSageTaechangView::CreateCompanyOrderPanel() {
 	m_wndCoSearchEdit.Create(WS_CHILD | ES_MULTILINE | ES_AUTOHSCROLL, r, this, ID_COORDER_SEARCH_EDIT);
 	m_wndCoSearchBtn.Create(L"", WS_CHILD | BS_OWNERDRAW, r, this, ID_COORDER_SEARCH_BTN);
 	m_wndCoSearchBtn.SetIcon(SAGE_BUTTON_ICON_SEARCH);
+	m_wndCoSearchBtn.SetTooltip(TAECHANG_UI_TIP_SEARCH);
 	m_wndCoOrderLabel.Create(TAECHANG_UI_CO_ORDER_LABEL, WS_CHILD | SS_LEFT | SS_CENTERIMAGE, r, this);
 	m_wndCoOrderEdit.Create(WS_CHILD | ES_MULTILINE | ES_NUMBER, r, this, ID_COORDER_ORDER_EDIT);
 	m_wndCoOrderEdit.LimitText(6);
