@@ -1,6 +1,9 @@
 ﻿# SageTaechang 디자인 개선 계획
 
 > 작성·갱신 규칙은 `sagetaechang-plan` skill을 따른다.
+> **브랜치 이름은 이 문서에서 정하지 않는다.** 브랜치·커밋·PR은 `git-workflow` skill 단독 소관이다.
+> 예전에는 Step마다 `design/...` 이름을 적어두었는데, skill의 브랜치 표에 없는 접두사여서
+> 그대로 따르면 규칙 위반이 됐다. 규칙이 두 문서에 나뉘어 있으면 또 어긋난다.
 > Step 완료 시 체크박스와 상태 표를 갱신하고, 상세 체크리스트는 지우고 결과·교훈만 남긴다.
 > **구조 리팩토링 계획(`REFACTORING_PLAN.md`)과 별 문서로 둔다.** 검증 기준이 정반대다 —
 > 리팩토링은 "화면 표시가 바뀌면 실패", 디자인은 "화면 표시가 바뀌어야 성공"이다.
@@ -82,8 +85,9 @@ D7(화면별 적용)은 목업 CSS를 계속 실측해야 한다. Claude Design 
 | D7 | 화면별 적용 — 3장 9세트 | 대기 |
 | D8 | DPI 배율 대응 (awareness 전환 + 좌표 스케일링) | 대기 · 디자인 완료 후 |
 
-D0~D4a 커밋 14개는 이 문서에 `fix/design-tokens`로 적혀 있었으나, 실제로는 **`develop`에 직접** 쌓였다
-(그 이름의 브랜치는 존재하지 않는다). D3b부터는 develop에서 `design/label-widths`를 파서 작업했다. **푸시·PR 안 함.**
+D0~D4a 커밋 14개는 이 문서에 브랜치명이 적혀 있었으나 실제로는 **`develop`에 직접** 쌓였다.
+D3b·D4b는 작업 브랜치에서 하고 develop에 fast-forward 머지했다(2026-08-06, 커밋 9개 보존).
+**`develop`이 `origin/develop`보다 27개 앞서 있고 아직 푸시·PR을 하지 않았다.**
 다음 세션은 이 문서를 먼저 읽고 **D4c**부터 이어간다.
 화면 표시는 사용자 확인을 받았고 빌드는 사용자가 직접 확인했다.
 
@@ -497,7 +501,6 @@ DPI awareness 전환 자체는 **Step D8**로 분리한다 (아래).
 
 # Step D0 — `sagetaechang-ui` skill 개정
 
-브랜치: `design/ui-skill-revision`
 규칙 출처: `sagetaechang-plan` > *규칙을 고친 뒤에는 계획을 재점검한다*
 
 이 계획이 스킬과 정면으로 충돌하는 항목이 있다. 스킬을 먼저 고치지 않으면 D1의 첫 줄이 규칙 위반이 된다.
@@ -537,7 +540,6 @@ DPI awareness 전환 자체는 **Step D8**로 분리한다 (아래).
 
 # Step D1 — 토큰 · 서체 (우선순위 ①)
 
-브랜치: `design/tokens-and-font`
 전제: R1(타입 스케일) 결정 완료
 
 - [ ] Pretendard TTF를 프로젝트에 추가하고 `AddFontResourceEx(FR_PRIVATE)` 로드·해제 (배치는 `coding-design`)
@@ -563,8 +565,6 @@ DPI awareness 전환 자체는 **Step D8**로 분리한다 (아래).
 
 # Step D2 — 버튼 위계 (우선순위 ②)
 
-브랜치: `design/button-hierarchy`
-
 - [ ] `SageButton.h` — `SageButtonVariant`에 `SAGE_BUTTON_GHOST` · `SAGE_BUTTON_DANGER` 추가
 - [ ] `SageButton.cpp:28-39` — Secondary 재정의(중성 테두리 + 본문색 텍스트) + 신규 2변형 그리기
 - [ ] disabled·pressed 표현을 4변형 전부에 정의 (현재는 2변형 기준)
@@ -584,8 +584,6 @@ DPI awareness 전환 자체는 **Step D8**로 분리한다 (아래).
 
 # Step D3 — 컨트롤 높이 · 라벨 폭 (우선순위 ③)
 
-브랜치: `design/control-metrics`
-
 - [x] C4 상수 변경 — 높이 3개(D3a) · 라벨 폭 5개(D3b). `TAECHANG_LABEL_WIDTH`는 죽은 상수라 제외
 - [x] 높이 28→32 · 24→32에 따라 세로 좌표 재계산 (`LayoutChildControls` · 각 패널·다이얼로그 `LayoutControls`)
 - [x] `TAECHANG_BUTTON_TEXT_TOP_OFFSET = 2`는 Gmarket ascent 보정값이다. **Pretendard 기준으로 다시 재야 한다** → 0
@@ -604,8 +602,6 @@ DPI awareness 전환 자체는 **Step D8**로 분리한다 (아래).
 ---
 
 # Step D4 — 표 렌더링
-
-브랜치: `design/list-rendering`
 
 - [x] `CSageListCtrl` — 1×34 이미지리스트로 행 높이 고정 (R6)
 - [x] `LVS_EX_GRIDLINES` 4곳 제거 (R5) + `CDDS_ITEMPOSTPAINT`로 하단 1px hairline
@@ -628,8 +624,6 @@ DPI awareness 전환 자체는 **Step D8**로 분리한다 (아래).
 
 # Step D5 — 공통 신규 요소 (우선순위 ④)
 
-브랜치: `design/common-elements`
-
 - [ ] `CSageSummaryBar` · `CSageEmptyState` · `CSageInlineError` · `CSageSelectionBar` 4종 (배치는 `coding-design`)
 - [ ] 다이얼로그 6종에 `CSageInlineError` 배치, 입력 검증 `AfxMessageBox`를 인라인으로 이관 (R7 — 검증분만)
 - [ ] `sagetaechang-ui` 공통 컨트롤 목록에 4종 등재
@@ -643,8 +637,6 @@ DPI awareness 전환 자체는 **Step D8**로 분리한다 (아래).
 
 # Step D6 — 아이콘 세트 (우선순위 ⑤)
 
-브랜치: `design/icon-set`
-
 - [ ] C8의 6종을 16px · 1.5px로 통일
 - [ ] `TAECHANG_UI_RESULT_RESET_BTN = L"↺"` · `TAECHANG_UI_INPUT_RESET_BTN` · `TAECHANG_UI_CALC_COMPANY_PICK_LABEL = L"…"` 글리프를 아이콘으로 교체
 - [ ] 아이콘 단독 버튼에 툴팁 부착
@@ -656,7 +648,7 @@ DPI awareness 전환 자체는 **Step D8**로 분리한다 (아래).
 
 # Step D7 — 화면별 적용 (문서 3장)
 
-브랜치: 화면군별로 분리 — `design/screen-receivables` · `design/screen-price` · `design/screen-delivery-estimate` · `design/screen-dialogs`
+화면군별로 나눠 진행한다 — 미수금 · 단가 · 납품/견적 · 다이얼로그.
 
 전제: D1~D6 완료 + `REFACTORING_PLAN` 3-B-4a(패널 View 연결) 완료
 
@@ -831,7 +823,6 @@ DPI awareness 전환 자체는 **Step D8**로 분리한다 (아래).
 
 # Step D8 — DPI 배율 대응
 
-브랜치: `feature/dpi-awareness`
 전제: D1~D7 완료. **디자인이 96dpi에서 확정된 뒤에 한다**
 
 디자인 작업과 섞지 않는 이유: 둘 다 화면 크기를 바꾸는 작업이다. 동시에 하면
