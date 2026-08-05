@@ -216,8 +216,6 @@ void SagePriceManagePanel::LayoutChildControls(int nWidth, int nHeight) {
 	m_wndCopiesList.MoveWindow(nInnerLeft, nY, nLeftW, nListH);
 	int nColMinMax = TAECHANG_PRICE_COL_MINMAX_WIDTH;
 	int nColPrice = (nLeftW - nColMinMax * 2) / 2;
-	if (nColPrice > TAECHANG_PRICE_COL_PRICE_MAX_WIDTH)
-		nColPrice = TAECHANG_PRICE_COL_PRICE_MAX_WIDTH;
 	m_wndCopiesList.SetColumnWidth(0, nColMinMax);
 	m_wndCopiesList.SetColumnWidth(1, nColMinMax);
 	m_wndCopiesList.SetColumnWidth(2, nColPrice);

@@ -39,22 +39,12 @@ void CSageHeaderCtrl::OnPaint() {
 
 		HDITEM hdItem = {};
 		wchar_t szText[256] = {};
-		hdItem.mask = HDI_TEXT | HDI_FORMAT;
+		hdItem.mask = HDI_TEXT;
 		hdItem.pszText = szText;
 		hdItem.cchTextMax = 255;
 		GetItem(i, &hdItem);
 
-		UINT uFormat = DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS;
-		if (hdItem.fmt & HDF_RIGHT) {
-			rcItem.right -= 8;
-			uFormat |= DT_RIGHT;
-		} else if (hdItem.fmt & HDF_CENTER) {
-			uFormat |= DT_CENTER;
-		} else {
-			rcItem.left += 8;
-			uFormat |= DT_LEFT;
-		}
-		dc.DrawText(szText, rcItem, uFormat);
+		dc.DrawText(szText, rcItem, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
 	}
 
 	if (pOldFont)
