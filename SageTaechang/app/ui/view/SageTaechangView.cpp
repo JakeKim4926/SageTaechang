@@ -620,6 +620,8 @@ void CSageTaechangView::LayoutChildControls() {
 	m_wndHeaderStatus.MoveWindow(0, 0, 0, 0);
 	nContentTop += TAECHANG_HEADER_HEIGHT;
 
+	InvalidateContentArea();
+
 	// 가격 워크플로우: 기존 탭/패널을 숨기고 전용 패널 표시
 	m_panelPriceManage.ShowWindow(SW_HIDE);
 	m_panelPriceCalc.ShowWindow(SW_HIDE);
@@ -843,6 +845,13 @@ void CSageTaechangView::OnDraw(CDC* pDC) {
 		int nDivTop = (TAECHANG_TOP_BAR_HEIGHT - TAECHANG_BUTTON_HEIGHT) / 2;
 		pDC->FillSolidRect(m_nAuthDividerX, nDivTop, 1, TAECHANG_BUTTON_HEIGHT, TAECHANG_COLOR_BORDER);
 	}
+}
+
+void CSageTaechangView::InvalidateContentArea() {
+	CRect rectContent;
+	GetClientRect(&rectContent);
+	rectContent.left += TAECHANG_SIDEBAR_WIDTH;
+	InvalidateRect(rectContent, TRUE);
 }
 
 void CSageTaechangView::SetCardRect(CRect& rectCard, const CRect& rectNew) {

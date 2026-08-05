@@ -189,6 +189,7 @@ protected:
     SageBackgroundRole ResolveStatusBgRole(const CString& strStatus) const;
     void DrawEditBorder(CDC* pDC, CWnd& wnd);
     void SetCardRect(CRect& rectCard, const CRect& rectNew);
+    void InvalidateContentArea();
     BOOL ValidateInputPath(CString& strInputPath);
     BOOL ValidateOutputFolder(CString& strOutputFolder);
     void EnableFileDropForWindow(CWnd& wnd);
