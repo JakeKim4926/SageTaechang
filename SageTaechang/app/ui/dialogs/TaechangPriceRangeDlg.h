@@ -1,6 +1,9 @@
 ﻿#pragma once
 
 #include "app/ui/drawing/SageButton.h"
+#include "app/ui/drawing/SageEdit.h"
+#include "app/ui/drawing/SageInlineError.h"
+#include "app/ui/dialogs/SageDialogSizer.h"
 
 #include "pch.h"
 
@@ -34,10 +37,12 @@ protected:
 
 private:
     void CreateControls();
-    void LayoutControls();
+    int LayoutControls();
     void ApplyFont();
     void ApplyEditTextRect(CEdit& edit);
     void FormatPriceEditText(CEdit& edit, BOOL& bFormatting);
+    void ShowInputError(CSageEdit& edit, const CString& strMessage);
+    void ClearInputError();
     BOOL IsCopiesRangeOverlap(int nMinA, BOOL bHasMaxA, int nMaxA, int nMinB, BOOL bHasMaxB, int nMaxB) const;
     BOOL IsOverlappingExistingRange(int nMinCopies, BOOL bHasMaxCopies, int nMaxCopies) const;
     BYTE* BuildDialogTemplate();
@@ -56,15 +61,16 @@ private:
     CArray<int, int> m_arrExistingMaxCopies;
 
     CStatic m_wndMinLabel;
-    CEdit m_wndMinEdit;
+    CSageEdit m_wndMinEdit;
     CButton m_wndSingleCheck;
     CStatic m_wndMaxLabel;
-    CEdit m_wndMaxEdit;
+    CSageEdit m_wndMaxEdit;
     CButton m_wndNoMaxCheck;
     CStatic m_wndPrintLabel;
-    CEdit m_wndPrintEdit;
+    CSageEdit m_wndPrintEdit;
     CStatic m_wndCoverLabel;
-    CEdit m_wndCoverEdit;
+    CSageEdit m_wndCoverEdit;
+    CSageInlineError m_wndError;
     CSageButton m_wndOkBtn;
     CSageButton m_wndCancelBtn;
 

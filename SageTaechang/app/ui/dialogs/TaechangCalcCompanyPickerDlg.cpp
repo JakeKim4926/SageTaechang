@@ -131,6 +131,7 @@ void TaechangCalcCompanyPickerDlg::CreateControls() {
         rectEmpty, this, ID_PICKER_DLG_SEARCH_EDIT);
     m_wndNameList.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | WS_VSCROLL | LBS_NOTIFY | LBS_NOINTEGRALHEIGHT,
         rectEmpty, this, ID_PICKER_DLG_LIST);
+    m_wndError.Create(NULL, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, rectEmpty, this);
     m_wndOkBtn.Create(TAECHANG_UI_PICKER_DLG_OK,
         WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, IDOK);
     m_wndCancelBtn.Create(TAECHANG_UI_PICKER_DLG_CANCEL,
@@ -152,12 +153,14 @@ void TaechangCalcCompanyPickerDlg::LayoutControls() {
     int nSearchTop = nM;
     int nListTop = nSearchTop + nEditH + nGap;
     int nBtnTop = nClientH - nM - nBtnH;
-    int nListH = nBtnTop - nListTop - nGap;
+    int nErrorTop = nBtnTop - TAECHANG_INLINE_MSG_HEIGHT;
+    int nListH = nErrorTop - nListTop - nGap;
     if (nListH < nEditH * 4)
         nListH = nEditH * 4;
 
     m_wndSearchEdit.MoveWindow(nM, nSearchTop, nContentW, nEditH);
     m_wndNameList.MoveWindow(nM, nListTop, nContentW, nListH);
+    m_wndError.MoveWindow(nM, nErrorTop, nContentW, TAECHANG_INLINE_MSG_HEIGHT);
 
     int nBtnRight = nClientW - nM;
     m_wndCancelBtn.MoveWindow(nBtnRight - nBtnW, nBtnTop, nBtnW, nBtnH);
@@ -208,9 +211,12 @@ void TaechangCalcCompanyPickerDlg::OnListDblClick() {
 }
 
 void TaechangCalcCompanyPickerDlg::OnOK() {
+    m_wndError.ClearMessage();
+
     int nSel = m_wndNameList.GetCurSel();
     if (nSel == LB_ERR) {
-        AfxMessageBox(TAECHANG_UI_PICKER_SELECT_REQUIRED, MB_ICONWARNING);
+        m_wndError.SetMessage(TAECHANG_UI_PICKER_SELECT_REQUIRED, SAGE_INLINE_ERROR);
+        m_wndNameList.SetFocus();
         return;
     }
     m_wndNameList.GetText(nSel, m_strSelectedName);

@@ -84,23 +84,13 @@ BOOL TaechangCalcEstimateDlg::OnInitDialog() {
     CDialog::OnInitDialog();
     SetWindowText(TAECHANG_UI_CALC_ESTIMATE_DLG_TITLE);
 
-    CRect rectClient, rectWindow;
-    GetClientRect(&rectClient);
-    GetWindowRect(&rectWindow);
-    int nFrameW = rectWindow.Width() - rectClient.Width();
-    int nFrameH = rectWindow.Height() - rectClient.Height();
-    SetWindowPos(NULL, 0, 0,
-        TAECHANG_CALC_ESTIMATE_DLG_WIDTH + nFrameW,
-        TAECHANG_CALC_ESTIMATE_DLG_HEIGHT + nFrameH,
-        SWP_NOMOVE | SWP_NOZORDER);
-
     m_brushBackground.CreateSolidBrush(TAECHANG_COLOR_APP_BACKGROUND);
     m_brushPanel.CreateSolidBrush(TAECHANG_COLOR_PANEL);
     m_brushDivider.CreateSolidBrush(TAECHANG_COLOR_BORDER);
 
     CreateControls();
     ApplyFont();
-    LayoutControls();
+    SageDialogSizer::SizeToClient(*this, TAECHANG_CALC_ESTIMATE_DLG_WIDTH, LayoutControls());
 
     m_wndYearEdit.SetFocus();
     return FALSE;
@@ -131,6 +121,7 @@ void TaechangCalcEstimateDlg::CreateControls() {
     m_wndItemEdit.Create(
         WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOHSCROLL,
         r, this, ID_CALC_ESTIMATE_DLG_ITEM_EDIT);
+    m_wndError.Create(NULL, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, r, this);
     m_wndOkBtn.Create(TAECHANG_UI_CALC_ESTIMATE_OK,
         WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, IDOK);
     m_wndCancelBtn.Create(TAECHANG_UI_CALC_ESTIMATE_CANCEL,
@@ -173,7 +164,7 @@ void TaechangCalcEstimateDlg::ApplyEditTextRect(CEdit& edit) {
     edit.SendMessage(EM_SETRECTNP, 0, reinterpret_cast<LPARAM>(&rc));
 }
 
-void TaechangCalcEstimateDlg::LayoutControls() {
+int TaechangCalcEstimateDlg::LayoutControls() {
     int nM         = TAECHANG_MARGIN;
     int nEditH     = TAECHANG_EDIT_HEIGHT;
     int nBtnW      = TAECHANG_LOGIN_DLG_BTN_WIDTH;
@@ -220,12 +211,17 @@ void TaechangCalcEstimateDlg::LayoutControls() {
 
     m_wndItemEdit.MoveWindow(nM, nY, nContentW, nEditH);
     ApplyEditTextRect(m_wndItemEdit);
+    nY += nEditH;
 
-    // 버튼
-    int nBtnTop   = TAECHANG_CALC_ESTIMATE_DLG_HEIGHT - nM - nBtnH;
+    m_wndError.MoveWindow(nM, nY, nContentW, TAECHANG_INLINE_MSG_HEIGHT);
+    nY += TAECHANG_INLINE_MSG_HEIGHT + nBtnGap;
+
+    int nBtnTop   = nY;
     int nBtnRight = nClientW - nM;
     m_wndCancelBtn.MoveWindow(nBtnRight - nBtnW, nBtnTop, nBtnW, nBtnH);
     m_wndOkBtn.MoveWindow(nBtnRight - nBtnW * 2 - nBtnGap, nBtnTop, nBtnW, nBtnH);
+
+    return nBtnTop + nBtnH + nM;
 }
 
 BOOL TaechangCalcEstimateDlg::PreTranslateMessage(MSG* pMsg) {
@@ -259,7 +255,19 @@ BOOL TaechangCalcEstimateDlg::PreTranslateMessage(MSG* pMsg) {
     return CDialog::PreTranslateMessage(pMsg);
 }
 
+void TaechangCalcEstimateDlg::ShowInputError(CSageEdit& edit, const CString& strMessage) {
+    m_wndError.SetMessage(strMessage, SAGE_INLINE_ERROR);
+    edit.SetState(SAGE_EDIT_ERROR);
+    edit.SetFocus();
+}
+
 BOOL TaechangCalcEstimateDlg::ValidateInputs() {
+    m_wndError.ClearMessage();
+    m_wndYearEdit.SetState(SAGE_EDIT_NORMAL);
+    m_wndMonthEdit.SetState(SAGE_EDIT_NORMAL);
+    m_wndDayEdit.SetState(SAGE_EDIT_NORMAL);
+    m_wndItemEdit.SetState(SAGE_EDIT_NORMAL);
+
     CString strYear, strMonth, strDay;
     m_wndYearEdit.GetWindowText(strYear);
     m_wndMonthEdit.GetWindowText(strMonth);
@@ -267,8 +275,7 @@ BOOL TaechangCalcEstimateDlg::ValidateInputs() {
     strYear.Trim(); strMonth.Trim(); strDay.Trim();
 
     if (strYear.IsEmpty() || strMonth.IsEmpty() || strDay.IsEmpty()) {
-        AfxMessageBox(TAECHANG_UI_CALC_ESTIMATE_DATE_REQUIRED, MB_ICONWARNING);
-        m_wndYearEdit.SetFocus();
+        ShowInputError(m_wndYearEdit, TAECHANG_UI_CALC_ESTIMATE_DATE_REQUIRED);
         return FALSE;
     }
 
@@ -279,8 +286,7 @@ BOOL TaechangCalcEstimateDlg::ValidateInputs() {
                 && (nMonth >= 1 && nMonth <= 12)
                 && (nDay >= 1 && nDay <= 31);
     if (!bDateOk) {
-        AfxMessageBox(TAECHANG_UI_CALC_ESTIMATE_DATE_INVALID, MB_ICONWARNING);
-        m_wndYearEdit.SetFocus();
+        ShowInputError(m_wndYearEdit, TAECHANG_UI_CALC_ESTIMATE_DATE_INVALID);
         return FALSE;
     }
 
@@ -288,13 +294,11 @@ BOOL TaechangCalcEstimateDlg::ValidateInputs() {
     m_wndItemEdit.GetWindowText(strItem);
     strItem.Trim();
     if (strItem.IsEmpty()) {
-        AfxMessageBox(TAECHANG_UI_CALC_ESTIMATE_ITEM_REQUIRED, MB_ICONWARNING);
-        m_wndItemEdit.SetFocus();
+        ShowInputError(m_wndItemEdit, TAECHANG_UI_CALC_ESTIMATE_ITEM_REQUIRED);
         return FALSE;
     }
     if (strItem.GetLength() > TAECHANG_CALC_ITEM_MAX_LEN) {
-        AfxMessageBox(TAECHANG_UI_CALC_ESTIMATE_ITEM_TOO_LONG, MB_ICONWARNING);
-        m_wndItemEdit.SetFocus();
+        ShowInputError(m_wndItemEdit, TAECHANG_UI_CALC_ESTIMATE_ITEM_TOO_LONG);
         return FALSE;
     }
 

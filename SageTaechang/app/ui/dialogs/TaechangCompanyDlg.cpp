@@ -70,24 +70,12 @@ BOOL TaechangCompanyDlg::OnInitDialog() {
 
     SetWindowText(TAECHANG_UI_PRICE_COMPANY_DLG_TITLE);
 
-    CRect rectClient;
-    GetClientRect(&rectClient);
-
-    CRect rectWindow;
-    GetWindowRect(&rectWindow);
-    int nFrameW = rectWindow.Width() - rectClient.Width();
-    int nFrameH = rectWindow.Height() - rectClient.Height();
-    SetWindowPos(NULL, 0, 0,
-        TAECHANG_PRICE_COMPANY_DLG_WIDTH + nFrameW,
-        TAECHANG_PRICE_COMPANY_DLG_HEIGHT + nFrameH,
-        SWP_NOMOVE | SWP_NOZORDER);
-
     m_brushBackground.CreateSolidBrush(TAECHANG_COLOR_APP_BACKGROUND);
     m_brushPanel.CreateSolidBrush(TAECHANG_COLOR_PANEL);
 
     CreateControls();
     ApplyFont();
-    LayoutControls();
+    SageDialogSizer::SizeToClient(*this, TAECHANG_PRICE_COMPANY_DLG_WIDTH, LayoutControls());
 
     m_wndCompanyEdit.SetFocus();
 
@@ -111,6 +99,7 @@ void TaechangCompanyDlg::CreateControls() {
         WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, rectEmpty, this);
     m_wndCompanyEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOHSCROLL,
         rectEmpty, this, ID_PRICE_COMPANY_DLG_EDIT);
+    m_wndError.Create(NULL, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, rectEmpty, this);
     m_wndOkBtn.Create(TAECHANG_UI_PRICE_COMPANY_DLG_OK,
         WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, IDOK);
     m_wndCancelBtn.Create(TAECHANG_UI_PRICE_COMPANY_DLG_CANCEL,
@@ -119,7 +108,7 @@ void TaechangCompanyDlg::CreateControls() {
     m_wndCompanyEdit.SetLimitText(TAECHANG_PRICE_COMPANY_MAX_LEN);
 }
 
-void TaechangCompanyDlg::LayoutControls() {
+int TaechangCompanyDlg::LayoutControls() {
     int nM = TAECHANG_MARGIN;
     int nEditH = TAECHANG_EDIT_HEIGHT;
     int nBtnW = TAECHANG_LOGIN_DLG_BTN_WIDTH;
@@ -130,10 +119,12 @@ void TaechangCompanyDlg::LayoutControls() {
 
     int nLabelTop = nM;
     int nEditTop = nLabelTop + nEditH;
-    int nBtnTop = nEditTop + nEditH + nM;
+    int nErrorTop = nEditTop + nEditH;
+    int nBtnTop = nErrorTop + TAECHANG_INLINE_MSG_HEIGHT + nGap;
 
     m_wndLabel.MoveWindow(nM, nLabelTop, nEditW, nEditH);
     m_wndCompanyEdit.MoveWindow(nM, nEditTop, nEditW, nEditH);
+    m_wndError.MoveWindow(nM, nErrorTop, nEditW, TAECHANG_INLINE_MSG_HEIGHT);
     CRect rectEdit;
     m_wndCompanyEdit.GetClientRect(&rectEdit);
     rectEdit.left += 2;
@@ -145,6 +136,8 @@ void TaechangCompanyDlg::LayoutControls() {
     int nBtnRight = nClientW - nM;
     m_wndCancelBtn.MoveWindow(nBtnRight - nBtnW, nBtnTop, nBtnW, nBtnH);
     m_wndOkBtn.MoveWindow(nBtnRight - nBtnW * 2 - nGap, nBtnTop, nBtnW, nBtnH);
+
+    return nBtnTop + nBtnH + nM;
 }
 
 void TaechangCompanyDlg::ApplyFont() {
@@ -157,21 +150,28 @@ void TaechangCompanyDlg::ApplyFont() {
     m_wndCancelBtn.SetFont(&m_font);
 }
 
+void TaechangCompanyDlg::ShowInputError(const CString& strMessage) {
+    m_wndError.SetMessage(strMessage, SAGE_INLINE_ERROR);
+    m_wndCompanyEdit.SetState(SAGE_EDIT_ERROR);
+    m_wndCompanyEdit.SetFocus();
+}
+
 void TaechangCompanyDlg::OnOK() {
+    m_wndError.ClearMessage();
+    m_wndCompanyEdit.SetState(SAGE_EDIT_NORMAL);
+
     CString strName;
     m_wndCompanyEdit.GetWindowText(strName);
     strName.Trim();
 
     if (strName.IsEmpty()) {
-        AfxMessageBox(TAECHANG_UI_PRICE_COMPANY_REQUIRED, MB_ICONWARNING);
-        m_wndCompanyEdit.SetFocus();
+        ShowInputError(TAECHANG_UI_PRICE_COMPANY_REQUIRED);
         return;
     }
 
     if (strName.GetLength() > TAECHANG_PRICE_COMPANY_MAX_LEN) {
-        AfxMessageBox(TAECHANG_UI_PRICE_COMPANY_TOO_LONG, MB_ICONWARNING);
+        ShowInputError(TAECHANG_UI_PRICE_COMPANY_TOO_LONG);
         m_wndCompanyEdit.SetSel(0, -1);
-        m_wndCompanyEdit.SetFocus();
         return;
     }
 

@@ -1,6 +1,9 @@
 ﻿#pragma once
 
 #include "app/ui/drawing/SageButton.h"
+#include "app/ui/drawing/SageEdit.h"
+#include "app/ui/drawing/SageInlineError.h"
+#include "app/ui/dialogs/SageDialogSizer.h"
 
 #include "pch.h"
 
@@ -25,16 +28,18 @@ protected:
 
 private:
     void CreateControls();
-    void LayoutControls();
+    int LayoutControls();
     void ApplyFont();
     void ApplyEditTextRect();
+    void ShowInputError(const CString& strMessage);
     BYTE* BuildDialogTemplate();
 
 private:
     CWnd* m_pDlgParent;
     CString m_strCompanyName;
     CStatic m_wndLabel;
-    CEdit m_wndEdit;
+    CSageEdit m_wndEdit;
+    CSageInlineError m_wndError;
     CSageButton m_wndOkBtn;
     CSageButton m_wndCancelBtn;
     CFont m_font;
@@ -64,10 +69,11 @@ protected:
 
 private:
     void CreateControls();
-    void LayoutControls();
+    int LayoutControls();
     void ApplyFont();
     void ApplyEditTextRect();
     void FormatPriceEditText();
+    void ShowInputError(const CString& strMessage);
     BYTE* BuildDialogTemplate();
 
 private:
@@ -75,7 +81,8 @@ private:
     int m_nCoverPrice;
     BOOL m_bFormattingCoverPrice;
     CStatic m_wndLabel;
-    CEdit m_wndEdit;
+    CSageEdit m_wndEdit;
+    CSageInlineError m_wndError;
     CSageButton m_wndOkBtn;
     CSageButton m_wndCancelBtn;
     CFont m_font;

@@ -126,23 +126,12 @@ BOOL TaechangPriceRangeDlg::OnInitDialog() {
     CDialog::OnInitDialog();
     SetWindowText(TAECHANG_UI_PRICE_RANGE_DLG_TITLE);
 
-    CRect rectClient;
-    GetClientRect(&rectClient);
-    CRect rectWindow;
-    GetWindowRect(&rectWindow);
-    int nFrameW = rectWindow.Width() - rectClient.Width();
-    int nFrameH = rectWindow.Height() - rectClient.Height();
-    SetWindowPos(NULL, 0, 0,
-        TAECHANG_PRICE_RANGE_DLG_WIDTH + nFrameW,
-        TAECHANG_PRICE_RANGE_DLG_HEIGHT + nFrameH,
-        SWP_NOMOVE | SWP_NOZORDER);
-
     m_brushBackground.CreateSolidBrush(TAECHANG_COLOR_APP_BACKGROUND);
     m_brushPanel.CreateSolidBrush(TAECHANG_COLOR_PANEL);
 
     CreateControls();
     ApplyFont();
-    LayoutControls();
+    SageDialogSizer::SizeToClient(*this, TAECHANG_PRICE_RANGE_DLG_WIDTH, LayoutControls());
 
     m_wndMinEdit.SetFocus();
     return FALSE;
@@ -184,6 +173,7 @@ void TaechangPriceRangeDlg::CreateControls() {
         WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, rectEmpty, this);
     m_wndCoverEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOHSCROLL,
         rectEmpty, this, ID_PRICE_RANGE_DLG_COVER_EDIT);
+    m_wndError.Create(NULL, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, rectEmpty, this);
     m_wndOkBtn.Create(TAECHANG_UI_PRICE_RANGE_DLG_OK,
         WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, IDOK);
     m_wndCancelBtn.Create(TAECHANG_UI_PRICE_COMPANY_DLG_CANCEL,
@@ -195,7 +185,7 @@ void TaechangPriceRangeDlg::CreateControls() {
     m_wndCoverEdit.SetLimitText(10);
 }
 
-void TaechangPriceRangeDlg::LayoutControls() {
+int TaechangPriceRangeDlg::LayoutControls() {
     int nM = TAECHANG_MARGIN;
     int nEditH = TAECHANG_EDIT_HEIGHT;
     int nBtnW = TAECHANG_LOGIN_DLG_BTN_WIDTH;
@@ -230,11 +220,16 @@ void TaechangPriceRangeDlg::LayoutControls() {
     nY += nEditH;
     m_wndCoverEdit.MoveWindow(nM, nY, nEditW, nEditH);
     ApplyEditTextRect(m_wndCoverEdit);
-    nY += nEditH + nM;
+    nY += nEditH;
+
+    m_wndError.MoveWindow(nM, nY, nEditW, TAECHANG_INLINE_MSG_HEIGHT);
+    nY += TAECHANG_INLINE_MSG_HEIGHT + nGap;
 
     int nBtnRight = nClientW - nM;
     m_wndCancelBtn.MoveWindow(nBtnRight - nBtnW, nY, nBtnW, nBtnH);
     m_wndOkBtn.MoveWindow(nBtnRight - nBtnW * 2 - nGap, nY, nBtnW, nBtnH);
+
+    return nY + nBtnH + nM;
 }
 
 void TaechangPriceRangeDlg::ApplyFont() {
@@ -265,13 +260,28 @@ void TaechangPriceRangeDlg::ApplyEditTextRect(CEdit& edit) {
     edit.SendMessage(EM_SETRECTNP, 0, reinterpret_cast<LPARAM>(&rectEdit));
 }
 
+void TaechangPriceRangeDlg::ShowInputError(CSageEdit& edit, const CString& strMessage) {
+    m_wndError.SetMessage(strMessage, SAGE_INLINE_ERROR);
+    edit.SetState(SAGE_EDIT_ERROR);
+    edit.SetFocus();
+}
+
+void TaechangPriceRangeDlg::ClearInputError() {
+    m_wndError.ClearMessage();
+    m_wndMinEdit.SetState(SAGE_EDIT_NORMAL);
+    m_wndMaxEdit.SetState(SAGE_EDIT_NORMAL);
+    m_wndPrintEdit.SetState(SAGE_EDIT_NORMAL);
+    m_wndCoverEdit.SetState(SAGE_EDIT_NORMAL);
+}
+
 void TaechangPriceRangeDlg::OnNoMaxCheck() {
     BOOL bNoMax = (m_wndNoMaxCheck.GetCheck() == BST_CHECKED);
     if (bNoMax && m_wndSingleCheck.GetCheck() == BST_CHECKED) {
-        AfxMessageBox(TAECHANG_UI_PRICE_SINGLE_AND_NO_MAX_CONFLICT, MB_ICONWARNING);
+        m_wndError.SetMessage(TAECHANG_UI_PRICE_SINGLE_AND_NO_MAX_CONFLICT, SAGE_INLINE_WARNING);
         m_wndNoMaxCheck.SetCheck(BST_UNCHECKED);
         return;
     }
+    m_wndError.ClearMessage();
     m_wndMaxEdit.EnableWindow(!bNoMax);
     if (bNoMax)
         m_wndMaxEdit.SetWindowTextW(L"");
@@ -280,10 +290,11 @@ void TaechangPriceRangeDlg::OnNoMaxCheck() {
 void TaechangPriceRangeDlg::OnSingleCheck() {
     BOOL bSingle = (m_wndSingleCheck.GetCheck() == BST_CHECKED);
     if (bSingle && m_wndNoMaxCheck.GetCheck() == BST_CHECKED) {
-        AfxMessageBox(TAECHANG_UI_PRICE_SINGLE_AND_NO_MAX_CONFLICT, MB_ICONWARNING);
+        m_wndError.SetMessage(TAECHANG_UI_PRICE_SINGLE_AND_NO_MAX_CONFLICT, SAGE_INLINE_WARNING);
         m_wndSingleCheck.SetCheck(BST_UNCHECKED);
         return;
     }
+    m_wndError.ClearMessage();
     m_wndMaxEdit.EnableWindow(!bSingle);
     if (bSingle)
         m_wndMaxEdit.SetWindowTextW(L"");
@@ -347,6 +358,8 @@ BOOL TaechangPriceRangeDlg::IsOverlappingExistingRange(int nMinCopies, BOOL bHas
 }
 
 void TaechangPriceRangeDlg::OnOK() {
+    ClearInputError();
+
     CString strMin, strMax, strPrint, strCover;
     m_wndMinEdit.GetWindowText(strMin);
     m_wndMaxEdit.GetWindowText(strMax);
@@ -356,9 +369,8 @@ void TaechangPriceRangeDlg::OnOK() {
 
     int nMin = strMin.IsEmpty() ? 0 : _wtoi(strMin);
     if (nMin < 1 || nMin > TAECHANG_PRICE_COPIES_MAX) {
-        AfxMessageBox(TAECHANG_UI_PRICE_COPIES_OUT_OF_RANGE, MB_ICONWARNING);
+        ShowInputError(m_wndMinEdit, TAECHANG_UI_PRICE_COPIES_OUT_OF_RANGE);
         m_wndMinEdit.SetSel(0, -1);
-        m_wndMinEdit.SetFocus();
         return;
     }
 
@@ -370,37 +382,34 @@ void TaechangPriceRangeDlg::OnOK() {
     } else if (bHasMax) {
         nMax = strMax.IsEmpty() ? 0 : _wtoi(strMax);
         if (nMax < 1 || nMax > TAECHANG_PRICE_COPIES_MAX) {
-            AfxMessageBox(TAECHANG_UI_PRICE_COPIES_OUT_OF_RANGE, MB_ICONWARNING);
+            ShowInputError(m_wndMaxEdit, TAECHANG_UI_PRICE_COPIES_OUT_OF_RANGE);
             m_wndMaxEdit.SetSel(0, -1);
-            m_wndMaxEdit.SetFocus();
             return;
         }
         if (nMin >= nMax) {
-            AfxMessageBox(TAECHANG_UI_PRICE_MIN_LESS_THAN_MAX, MB_ICONWARNING);
+            ShowInputError(m_wndMaxEdit, TAECHANG_UI_PRICE_MIN_LESS_THAN_MAX);
             m_wndMaxEdit.SetSel(0, -1);
-            m_wndMaxEdit.SetFocus();
             return;
         }
     }
 
     int nPrint = strPrint.IsEmpty() ? -1 : PriceTextToInt(strPrint);
     if (nPrint < 0 || nPrint > TAECHANG_PRICE_AMOUNT_MAX) {
-        AfxMessageBox(TAECHANG_UI_PRICE_AMOUNT_OUT_OF_RANGE, MB_ICONWARNING);
+        ShowInputError(m_wndPrintEdit, TAECHANG_UI_PRICE_AMOUNT_OUT_OF_RANGE);
         m_wndPrintEdit.SetSel(0, -1);
-        m_wndPrintEdit.SetFocus();
         return;
     }
 
     int nCover = strCover.IsEmpty() ? -1 : PriceTextToInt(strCover);
     if (nCover < 0 || nCover > TAECHANG_PRICE_AMOUNT_MAX) {
-        AfxMessageBox(TAECHANG_UI_PRICE_AMOUNT_OUT_OF_RANGE, MB_ICONWARNING);
+        ShowInputError(m_wndCoverEdit, TAECHANG_UI_PRICE_AMOUNT_OUT_OF_RANGE);
         m_wndCoverEdit.SetSel(0, -1);
-        m_wndCoverEdit.SetFocus();
         return;
     }
 
     if (IsOverlappingExistingRange(nMin, bHasMax, nMax)) {
-        AfxMessageBox(TAECHANG_UI_PRICE_RANGE_OVERLAP, MB_ICONWARNING);
+        m_wndError.SetMessage(TAECHANG_UI_PRICE_RANGE_OVERLAP, SAGE_INLINE_WARNING);
+        m_wndMinEdit.SetState(SAGE_EDIT_ERROR);
         m_wndMinEdit.SetSel(0, -1);
         m_wndMinEdit.SetFocus();
         return;

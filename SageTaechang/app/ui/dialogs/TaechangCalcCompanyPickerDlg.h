@@ -1,6 +1,8 @@
 ﻿#pragma once
 
 #include "app/ui/drawing/SageButton.h"
+#include "app/ui/drawing/SageEdit.h"
+#include "app/ui/drawing/SageInlineError.h"
 
 #include "pch.h"
 
@@ -39,8 +41,9 @@ private:
     CString m_strInitialName;
     CString m_strSelectedName;
 
-    CEdit m_wndSearchEdit;
+    CSageEdit m_wndSearchEdit;
     CListBox m_wndNameList;
+    CSageInlineError m_wndError;
     CSageButton m_wndOkBtn;
     CSageButton m_wndCancelBtn;
 

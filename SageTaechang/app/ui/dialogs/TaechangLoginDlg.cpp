@@ -68,25 +68,12 @@ BOOL TaechangLoginDlg::OnInitDialog() {
 
     SetWindowText(TAECHANG_UI_LOGIN_DLG_TITLE);
 
-    CRect rectClient;
-    GetClientRect(&rectClient);
-
-    int nNewWidth = TAECHANG_LOGIN_DLG_WIDTH;
-    int nNewHeight = TAECHANG_LOGIN_DLG_HEIGHT;
-
-    CRect rectWindow;
-    GetWindowRect(&rectWindow);
-    int nFrameW = rectWindow.Width() - rectClient.Width();
-    int nFrameH = rectWindow.Height() - rectClient.Height();
-    SetWindowPos(NULL, 0, 0, nNewWidth + nFrameW, nNewHeight + nFrameH,
-                 SWP_NOMOVE | SWP_NOZORDER);
-
     m_brushBackground.CreateSolidBrush(TAECHANG_COLOR_APP_BACKGROUND);
     m_brushPanel.CreateSolidBrush(TAECHANG_COLOR_PANEL);
 
     CreateControls();
     ApplyFont();
-    LayoutControls();
+    SageDialogSizer::SizeToClient(*this, TAECHANG_LOGIN_DLG_WIDTH, LayoutControls());
 
     m_wndIdEdit.SetFocus();
 
@@ -126,13 +113,15 @@ void TaechangLoginDlg::CreateControls() {
         rectEmpty, this, ID_TAECHANG_LOGIN_PW_EDIT);
     m_wndPwEdit.SetPasswordChar(L'*');
 
+    m_wndError.Create(NULL, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, rectEmpty, this);
+
     m_wndOkBtn.Create(TAECHANG_UI_LOGIN_OK,
         WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, IDOK);
     m_wndCancelBtn.Create(TAECHANG_UI_LOGIN_CANCEL,
         WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, IDCANCEL);
 }
 
-void TaechangLoginDlg::LayoutControls() {
+int TaechangLoginDlg::LayoutControls() {
     int nM = TAECHANG_MARGIN;
     int nLabelW = TAECHANG_LOGIN_DLG_LABEL_WIDTH;
     int nEditH = TAECHANG_EDIT_HEIGHT;
@@ -144,7 +133,8 @@ void TaechangLoginDlg::LayoutControls() {
 
     int nRow1Top = nM;
     int nRow2Top = nRow1Top + nEditH + nGap;
-    int nBtnTop = nRow2Top + nEditH + nM;
+    int nErrorTop = nRow2Top + nEditH;
+    int nBtnTop = nErrorTop + TAECHANG_INLINE_MSG_HEIGHT + nGap;
 
     m_wndIdLabel.MoveWindow(nM, nRow1Top + TAECHANG_LABEL_VERT_OFFSET, nLabelW, nEditH);
     m_wndIdEdit.MoveWindow(nM + nLabelW + nGap, nRow1Top, nEditW, nEditH);
@@ -154,9 +144,13 @@ void TaechangLoginDlg::LayoutControls() {
     m_wndPwEdit.MoveWindow(nM + nLabelW + nGap, nRow2Top, nEditW, nEditH);
     ApplyEditTextRect(m_wndPwEdit);
 
+    m_wndError.MoveWindow(nM + nLabelW + nGap, nErrorTop, nEditW, TAECHANG_INLINE_MSG_HEIGHT);
+
     int nBtnRight = nClientW - nM;
     m_wndCancelBtn.MoveWindow(nBtnRight - nBtnW, nBtnTop, nBtnW, nBtnH);
     m_wndOkBtn.MoveWindow(nBtnRight - nBtnW * 2 - nGap, nBtnTop, nBtnW, nBtnH);
+
+    return nBtnTop + nBtnH + nM;
 }
 
 void TaechangLoginDlg::ApplyFont() {
@@ -181,10 +175,20 @@ void TaechangLoginDlg::ApplyEditTextRect(CEdit& edit) {
     edit.SendMessage(EM_SETRECTNP, 0, reinterpret_cast<LPARAM>(&rc));
 }
 
+void TaechangLoginDlg::ShowInputError(CSageEdit& edit, const CString& strMessage) {
+    m_wndError.SetMessage(strMessage, SAGE_INLINE_ERROR);
+    edit.SetState(SAGE_EDIT_ERROR);
+    edit.SetFocus();
+}
+
 void TaechangLoginDlg::OnOK() {
     CString strId;
     CString strPw;
     CString strError;
+
+    m_wndError.ClearMessage();
+    m_wndIdEdit.SetState(SAGE_EDIT_NORMAL);
+    m_wndPwEdit.SetState(SAGE_EDIT_NORMAL);
 
     m_wndIdEdit.GetWindowText(strId);
     m_wndPwEdit.GetWindowText(strPw);
@@ -192,14 +196,12 @@ void TaechangLoginDlg::OnOK() {
     strId.Trim();
 
     if (strId.IsEmpty()) {
-        AfxMessageBox(TAECHANG_UI_LOGIN_EMPTY_ID, MB_ICONWARNING);
-        m_wndIdEdit.SetFocus();
+        ShowInputError(m_wndIdEdit, TAECHANG_UI_LOGIN_EMPTY_ID);
         return;
     }
 
     if (strPw.IsEmpty()) {
-        AfxMessageBox(TAECHANG_UI_LOGIN_EMPTY_PW, MB_ICONWARNING);
-        m_wndPwEdit.SetFocus();
+        ShowInputError(m_wndPwEdit, TAECHANG_UI_LOGIN_EMPTY_PW);
         return;
     }
 
@@ -212,9 +214,8 @@ void TaechangLoginDlg::OnOK() {
     }
 
     if (bSuccess == FALSE) {
-        AfxMessageBox(TAECHANG_UI_LOGIN_FAILED, MB_ICONWARNING);
+        ShowInputError(m_wndPwEdit, TAECHANG_UI_LOGIN_FAILED);
         m_wndPwEdit.SetSel(0, -1);
-        m_wndPwEdit.SetFocus();
         return;
     }
 

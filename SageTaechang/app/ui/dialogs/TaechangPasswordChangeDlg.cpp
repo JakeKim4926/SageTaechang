@@ -69,24 +69,12 @@ BOOL TaechangPasswordChangeDlg::OnInitDialog() {
 
     SetWindowText(TAECHANG_UI_CHANGE_PW_TITLE);
 
-    CRect rectClient;
-    GetClientRect(&rectClient);
-
-    CRect rectWindow;
-    GetWindowRect(&rectWindow);
-    int nFrameW = rectWindow.Width() - rectClient.Width();
-    int nFrameH = rectWindow.Height() - rectClient.Height();
-    SetWindowPos(NULL, 0, 0,
-        TAECHANG_PASSWORD_DLG_WIDTH + nFrameW,
-        TAECHANG_PASSWORD_DLG_HEIGHT + nFrameH,
-        SWP_NOMOVE | SWP_NOZORDER);
-
     m_brushBackground.CreateSolidBrush(TAECHANG_COLOR_APP_BACKGROUND);
     m_brushPanel.CreateSolidBrush(TAECHANG_COLOR_PANEL);
 
     CreateControls();
     ApplyFont();
-    LayoutControls();
+    SageDialogSizer::SizeToClient(*this, TAECHANG_PASSWORD_DLG_WIDTH, LayoutControls());
 
     m_wndCurrentEdit.SetFocus();
     return FALSE;
@@ -133,11 +121,13 @@ void TaechangPasswordChangeDlg::CreateControls() {
     m_wndNewEdit.SetLimitText(TAECHANG_USER_PW_MAX_LEN);
     m_wndConfirmEdit.SetLimitText(TAECHANG_USER_PW_MAX_LEN);
 
+    m_wndError.Create(NULL, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, r, this);
+
     m_wndOkBtn.Create(TAECHANG_UI_CHANGE_PW_OK, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, IDOK);
     m_wndCancelBtn.Create(TAECHANG_UI_CHANGE_PW_CANCEL, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, IDCANCEL);
 }
 
-void TaechangPasswordChangeDlg::LayoutControls() {
+int TaechangPasswordChangeDlg::LayoutControls() {
     int nM = TAECHANG_MARGIN;
     int nLabelW = TAECHANG_PASSWORD_DLG_LABEL_WIDTH;
     int nEditH = TAECHANG_EDIT_HEIGHT;
@@ -164,10 +154,15 @@ void TaechangPasswordChangeDlg::LayoutControls() {
     m_wndConfirmEdit.MoveWindow(nEditLeft, nRowTop, nEditW, nEditH);
     ApplyEditTextRect(m_wndConfirmEdit);
 
-    int nBtnTop = nRowTop + nEditH + nM;
+    int nErrorTop = nRowTop + nEditH;
+    m_wndError.MoveWindow(nEditLeft, nErrorTop, nEditW, TAECHANG_INLINE_MSG_HEIGHT);
+
+    int nBtnTop = nErrorTop + TAECHANG_INLINE_MSG_HEIGHT + nGap;
     int nBtnRight = nClientW - nM;
     m_wndCancelBtn.MoveWindow(nBtnRight - nBtnW, nBtnTop, nBtnW, nBtnH);
     m_wndOkBtn.MoveWindow(nBtnRight - nBtnW * 2 - nGap, nBtnTop, nBtnW, nBtnH);
+
+    return nBtnTop + nBtnH + nM;
 }
 
 void TaechangPasswordChangeDlg::ApplyFont() {
@@ -194,35 +189,42 @@ void TaechangPasswordChangeDlg::ApplyEditTextRect(CEdit& edit) {
     edit.SendMessage(EM_SETRECTNP, 0, reinterpret_cast<LPARAM>(&rc));
 }
 
+void TaechangPasswordChangeDlg::ShowInputError(CSageEdit& edit, const CString& strMessage) {
+    m_wndError.SetMessage(strMessage, SAGE_INLINE_ERROR);
+    edit.SetState(SAGE_EDIT_ERROR);
+    edit.SetFocus();
+}
+
 void TaechangPasswordChangeDlg::OnOK() {
     CString strCurrent;
     CString strNew;
     CString strConfirm;
     CString strError;
 
+    m_wndError.ClearMessage();
+    m_wndCurrentEdit.SetState(SAGE_EDIT_NORMAL);
+    m_wndNewEdit.SetState(SAGE_EDIT_NORMAL);
+    m_wndConfirmEdit.SetState(SAGE_EDIT_NORMAL);
+
     m_wndCurrentEdit.GetWindowText(strCurrent);
     m_wndNewEdit.GetWindowText(strNew);
     m_wndConfirmEdit.GetWindowText(strConfirm);
 
     if (strCurrent.IsEmpty()) {
-        AfxMessageBox(TAECHANG_UI_CHANGE_PW_EMPTY_CURRENT, MB_ICONWARNING);
-        m_wndCurrentEdit.SetFocus();
+        ShowInputError(m_wndCurrentEdit, TAECHANG_UI_CHANGE_PW_EMPTY_CURRENT);
         return;
     }
     if (strNew.IsEmpty()) {
-        AfxMessageBox(TAECHANG_UI_CHANGE_PW_EMPTY_NEW, MB_ICONWARNING);
-        m_wndNewEdit.SetFocus();
+        ShowInputError(m_wndNewEdit, TAECHANG_UI_CHANGE_PW_EMPTY_NEW);
         return;
     }
     if (strConfirm.IsEmpty()) {
-        AfxMessageBox(TAECHANG_UI_CHANGE_PW_EMPTY_CONFIRM, MB_ICONWARNING);
-        m_wndConfirmEdit.SetFocus();
+        ShowInputError(m_wndConfirmEdit, TAECHANG_UI_CHANGE_PW_EMPTY_CONFIRM);
         return;
     }
     if (strNew != strConfirm) {
-        AfxMessageBox(TAECHANG_UI_CHANGE_PW_MISMATCH, MB_ICONWARNING);
-        m_wndNewEdit.SetSel(0, -1);
-        m_wndNewEdit.SetFocus();
+        ShowInputError(m_wndConfirmEdit, TAECHANG_UI_CHANGE_PW_MISMATCH);
+        m_wndConfirmEdit.SetSel(0, -1);
         return;
     }
 
@@ -234,16 +236,14 @@ void TaechangPasswordChangeDlg::OnOK() {
         return;
     }
     if (bSuccess == FALSE) {
-        AfxMessageBox(TAECHANG_UI_CHANGE_PW_CURRENT_INVALID, MB_ICONWARNING);
+        ShowInputError(m_wndCurrentEdit, TAECHANG_UI_CHANGE_PW_CURRENT_INVALID);
         m_wndCurrentEdit.SetSel(0, -1);
-        m_wndCurrentEdit.SetFocus();
         return;
     }
 
     if (sageDBMgr.GetUserService()->ChangePassword(currentUser.nUserId, strNew, strError) == FALSE) {
-        AfxMessageBox(strError, MB_ICONWARNING);
+        ShowInputError(m_wndNewEdit, strError);
         m_wndNewEdit.SetSel(0, -1);
-        m_wndNewEdit.SetFocus();
         return;
     }
 

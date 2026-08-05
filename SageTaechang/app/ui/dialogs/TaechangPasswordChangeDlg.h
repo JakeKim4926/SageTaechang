@@ -1,6 +1,9 @@
 ﻿#pragma once
 
 #include "app/ui/drawing/SageButton.h"
+#include "app/ui/drawing/SageEdit.h"
+#include "app/ui/drawing/SageInlineError.h"
+#include "app/ui/dialogs/SageDialogSizer.h"
 
 class TaechangPasswordChangeDlg : public CDialog {
 public:
@@ -22,18 +25,20 @@ protected:
 private:
     BYTE* BuildDialogTemplate();
     void CreateControls();
-    void LayoutControls();
+    int LayoutControls();
     void ApplyFont();
     void ApplyEditTextRect(CEdit& edit);
+    void ShowInputError(CSageEdit& edit, const CString& strMessage);
 
 private:
     CWnd* m_pDlgParent;
     CStatic m_wndCurrentLabel;
     CStatic m_wndNewLabel;
     CStatic m_wndConfirmLabel;
-    CEdit m_wndCurrentEdit;
-    CEdit m_wndNewEdit;
-    CEdit m_wndConfirmEdit;
+    CSageEdit m_wndCurrentEdit;
+    CSageEdit m_wndNewEdit;
+    CSageEdit m_wndConfirmEdit;
+    CSageInlineError m_wndError;
     CSageButton m_wndOkBtn;
     CSageButton m_wndCancelBtn;
     CFont m_font;
