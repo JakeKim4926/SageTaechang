@@ -192,10 +192,10 @@ void SagePriceCalcPanel::LayoutChildControls(int nWidth, int nHeight) {
 	auto ApplyCalcEditTextRect = [](CEdit& edit) {
 		CRect rc;
 		edit.GetClientRect(&rc);
-		rc.left += TAECHANG_CALC_EDIT_TEXT_SIDE_PAD;
-		rc.top += TAECHANG_CALC_EDIT_TEXT_TOP_PAD;
-		rc.right -= TAECHANG_CALC_EDIT_TEXT_SIDE_PAD;
-		rc.bottom -= TAECHANG_CALC_EDIT_TEXT_SIDE_PAD;
+		rc.left += TAECHANG_FORM_EDIT_TEXT_SIDE_PAD;
+		rc.top += TAECHANG_FORM_EDIT_TEXT_TOP_PAD;
+		rc.right -= TAECHANG_FORM_EDIT_TEXT_SIDE_PAD;
+		rc.bottom -= TAECHANG_FORM_EDIT_TEXT_SIDE_PAD;
 		edit.SendMessage(EM_SETRECTNP, 0, reinterpret_cast<LPARAM>(&rc));
 	};
 
@@ -218,10 +218,10 @@ void SagePriceCalcPanel::LayoutChildControls(int nWidth, int nHeight) {
 	if (m_wndCompanyCombo.GetComboBoxInfo(&cbiCompany) && ::IsWindow(cbiCompany.hwndItem)) {
 		CRect rcComboEdit;
 		::GetClientRect(cbiCompany.hwndItem, &rcComboEdit);
-		rcComboEdit.left += TAECHANG_CALC_EDIT_TEXT_SIDE_PAD;
-		rcComboEdit.top += TAECHANG_CALC_EDIT_TEXT_TOP_PAD;
-		rcComboEdit.right -= TAECHANG_CALC_EDIT_TEXT_SIDE_PAD;
-		rcComboEdit.bottom -= TAECHANG_CALC_EDIT_TEXT_SIDE_PAD;
+		rcComboEdit.left += TAECHANG_FORM_EDIT_TEXT_SIDE_PAD;
+		rcComboEdit.top += TAECHANG_FORM_EDIT_TEXT_TOP_PAD;
+		rcComboEdit.right -= TAECHANG_FORM_EDIT_TEXT_SIDE_PAD;
+		rcComboEdit.bottom -= TAECHANG_FORM_EDIT_TEXT_SIDE_PAD;
 		::SendMessage(cbiCompany.hwndItem, EM_SETRECTNP, 0, reinterpret_cast<LPARAM>(&rcComboEdit));
 	}
 	nCY += TAECHANG_EDIT_HEIGHT + TAECHANG_ROW_GAP;
