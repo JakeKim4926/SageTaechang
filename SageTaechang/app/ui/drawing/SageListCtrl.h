@@ -15,6 +15,7 @@ public:
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnNMCustomDraw(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg BOOL OnSelectionChanged(NMHDR* pNMHDR, LRESULT* pResult);
 
 private:
 	BOOL IsHighlightColumn(int nSubItem) const;

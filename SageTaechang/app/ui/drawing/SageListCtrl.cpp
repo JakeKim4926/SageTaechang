@@ -5,7 +5,17 @@
 BEGIN_MESSAGE_MAP(CSageListCtrl, CListCtrl)
 	ON_WM_CREATE()
 	ON_NOTIFY_REFLECT(NM_CUSTOMDRAW, &CSageListCtrl::OnNMCustomDraw)
+	ON_NOTIFY_REFLECT_EX(LVN_ITEMCHANGED, &CSageListCtrl::OnSelectionChanged)
 END_MESSAGE_MAP()
+
+BOOL CSageListCtrl::OnSelectionChanged(NMHDR* pNMHDR, LRESULT* pResult) {
+	NMLISTVIEW* pNM = reinterpret_cast<NMLISTVIEW*>(pNMHDR);
+	*pResult = 0;
+	if ((pNM->uChanged & LVIF_STATE) != 0
+		&& ((pNM->uOldState ^ pNM->uNewState) & LVIS_SELECTED) != 0)
+		Invalidate();
+	return FALSE;
+}
 
 int CSageListCtrl::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	if (CListCtrl::OnCreate(lpCreateStruct) == -1)
