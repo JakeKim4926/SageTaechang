@@ -5,6 +5,12 @@
 
 ## 열린 항목
 
+### [2026-08-06] 미완 — 패널·View의 입력 검증이 아직 모달이다
+- 위치: `app/ui/panels/SagePriceManagePanel.cpp`(22곳) · `app/ui/view/SageTaechangView.cpp`(18곳) · `app/ui/panels/SagePriceCalcPanel.cpp`(11곳)
+- 설명: D5a에서 다이얼로그 7종의 검증 22곳을 `CSageInlineError`로 옮겼다. **패널·View의 51곳은 그대로 모달이다.** 계획 R7과 D5a가 "다이얼로그 6종"으로 범위를 잡았기 때문인데, 사용자에게는 같은 경험이다 — 단가 데이터 관리에서 법인 미선택으로 「단가 추가」를 누르면 여전히 `AfxMessageBox`가 뜬다.
+- 위험도: 낮음
+- 후속: **디자인 근거가 아직 없다.** 목업 3-3에는 인라인 오류 자리가 없고(빈 상태와 상세 카드뿐), 「법인을 선택하세요」는 입력값 오류가 아니라 선택 누락이라 성격도 다르다. **D7-3에서 단가 데이터 관리 화면을 설계할 때 자리와 형태를 함께 정한다.** 51곳 전부가 대상은 아니다 — 완료 알림과 서비스 오류는 모달이 맞다
+
 ### [2026-08-06] 기존부채 — 헤더 가운데 정렬 강제 코드가 무의미해졌다
 - 위치: `app/ui/panels/SagePriceManagePanel.cpp` `CreateControls` (헤더 서브클래싱 직후 `HDITEM` 5줄)
 - 설명: 단가 범위 표 헤더 0번 항목에 `HDF_CENTER`를 직접 넣는 코드다. `CListCtrl`이 0번 열 헤더를 좌측으로 두는 것을 보정하려던 것으로 보인다. **D4b에서 `CSageHeaderCtrl::OnPaint`가 `fmt`를 아예 보지 않고 항상 `DT_CENTER`로 그리게 바뀌어 이 5줄은 아무 효과가 없다.** 제거 후보였으나 사용자 판단으로 두었다 — 지금 지우면 D4b 커밋에 무관한 변경이 섞인다.
@@ -63,7 +69,7 @@
 - 위치: app/ui/view/SageTaechangView.cpp `DrawEditBorder` / app/ui/panels/SagePriceCalcPanel.cpp `DrawEditBorder`
 - 설명: 컨트롤 바깥 1px에 테두리를 그리는 같은 8줄이 두 곳에 있다. Step 3-B-1b에서 계산 패널이 자기 영역을 그리게 되면서 생겼다. 패널을 하나 만들 때마다 한 벌씩 늘어난다(3-B-2·3-B-4에서 3벌·4벌).
 - 위험도: 낮음
-- 후속: 기존 부채 *입력 컨트롤 테두리 방식이 View와 다이얼로그에서 다름*과 같은 뿌리다. `CSageEdit` 승격(`WS_BORDER` + `SetWindowTheme` 전환) 때 한 번에 없앤다
+- 후속: 기존 부채 *입력 컨트롤 테두리 방식이 View와 다이얼로그에서 다름*과 같은 뿌리다. `CSageEdit` 승격 때 한 번에 없앤다. **`CSageEdit`은 D5a에서 만들어졌고 다이얼로그에만 적용됐다** — 패널·View로 넓힐 때 이 중복도 사라진다
 
 ### [2026-08-05] 구조불일치 — core 서비스 인스턴스 획득 방식이 두 가지다
 - 위치: app/ui/view/SageTaechangView.cpp `UpdateCalcPreview` / `UpdateCalcTotal`
@@ -117,7 +123,8 @@
 - 위치: app/ui/view/SageTaechangView.cpp `DrawEditBorder` / app/ui/dialogs/*.cpp
 - 설명: View는 `WS_BORDER` 없이 부모 `OnDraw`에서 `DrawEditBorder`로 **컨트롤 바깥 1px**에 그린다(대상 16개, 콤보박스 3개 포함). 다이얼로그는 `WS_BORDER`로 시스템이 그린다. 3-A-4에서 컨트롤 승격을 검토했으나, 테두리가 컨트롤 영역 밖이라 리플렉션으로 옮기면 픽셀 위치가 1px 이동한다. 3-A의 완료 기준이 화면 무변화이므로 **현행 유지로 결정**했다.
 - 위험도: 낮음
-- 후속: 현행 유지. 향후 테마·디자인 변경 시 `WS_BORDER` + `SetWindowTheme` 전환을 별도로 검토한다. 검토 시 화면 변화 검증이 필요하다
+- **[2026-08-06 D5a] 다이얼로그 쪽은 해소됐다.** 7종의 `CEdit`을 `CSageEdit`으로 교체했다. `WS_BORDER`를 제거하고 `WM_NCCALCSIZE`로 1px을 확보한 뒤 `WM_NCPAINT`에서 직접 그린다(+`SetWindowTheme`으로 테마 차단). 테두리가 원래 NC 영역 **안쪽**이었으므로 픽셀 위치가 이동하지 않는다 — 위 보류 사유는 패널·View에만 해당한다
+- 후속: **패널·View 16곳은 그대로 남아 있다.** 부모가 컨트롤 바깥에 그리므로 옮기면 1px 이동한다. 옮기려면 좌표 보정과 화면 변화 검증이 함께 필요하다. `DrawEditBorder` 중복(2026-08-05 항목)도 이때 같이 없앤다
 
 ### [2026-07-31] 기존부채 — TaechangCoverPriceDlg 호출부 없음
 - 위치: app/ui/dialogs/TaechangPriceSimpleDlg.h:44 및 대응 .cpp
