@@ -83,8 +83,8 @@ SageWorkflowResultStyle SageReceivablesWorkflowHandler::GetResultStyle(int nTask
 	if (!UsesCustomResultTable(nTaskType))
 		return style;
 	style.bGridLines = TRUE;
-	style.nHighlightStart = TAECHANG_RECEIVABLES_COL_IDX_TOTAL_AMOUNT;
-	style.nHighlightCount = TAECHANG_RECEIVABLES_COL_IDX_RECEIVABLE_AMOUNT - TAECHANG_RECEIVABLES_COL_IDX_TOTAL_AMOUNT + 1;
+	style.nHighlightStart = TAECHANG_RECEIVABLES_COL_IDX_RECEIVABLE_AMOUNT;
+	style.nHighlightCount = TAECHANG_RECEIVABLES_HIGHLIGHT_COL_COUNT;
 	return style;
 }
 

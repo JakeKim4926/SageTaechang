@@ -36,7 +36,7 @@ void CSageSidebarTree::OnNMCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
 			if (pCD->nmcd.uItemState & CDIS_SELECTED) {
 				CDC* pItemDC = CDC::FromHandle(pCD->nmcd.hdc);
 				CRect rcItem(pCD->nmcd.rc);
-				pItemDC->FillSolidRect(rcItem.left, rcItem.top, 3, rcItem.Height(), TAECHANG_COLOR_PRIMARY);
+				pItemDC->FillSolidRect(rcItem.left, rcItem.top, TAECHANG_SIDEBAR_ACCENT_WIDTH, rcItem.Height(), TAECHANG_COLOR_PRIMARY);
 			}
 			break;
 		}

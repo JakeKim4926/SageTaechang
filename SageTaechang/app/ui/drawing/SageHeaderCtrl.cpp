@@ -10,14 +10,14 @@ void CSageHeaderCtrl::OnPaint() {
 	CPaintDC dc(this);
 	CRect rectClient;
 	GetClientRect(&rectClient);
-	dc.FillSolidRect(rectClient, TAECHANG_COLOR_PANEL);
+	dc.FillSolidRect(rectClient, TAECHANG_COLOR_LIST_HEADER);
 
 	int nCount = GetItemCount();
 
 	CFont* pFont = GetFont();
 	CFont* pOldFont = pFont ? dc.SelectObject(pFont) : NULL;
 	dc.SetBkMode(TRANSPARENT);
-	dc.SetTextColor(TAECHANG_COLOR_BUTTON_TEXT);
+	dc.SetTextColor(TAECHANG_COLOR_TEXT_MUTED);
 
 	for (int i = 0; i < nCount; ++i) {
 		CRect rcItem;
@@ -31,9 +31,6 @@ void CSageHeaderCtrl::OnPaint() {
 		hdItem.pszText = szText;
 		hdItem.cchTextMax = 255;
 		GetItem(i, &hdItem);
-
-		if (i < nCount - 1)
-			dc.FillSolidRect(rcItem.right - 1, rcItem.top + 4, 1, rcItem.Height() - 8, TAECHANG_COLOR_LIST_HEADER_DIVIDER);
 
 		UINT uFormat = DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS;
 		if (hdItem.fmt & HDF_RIGHT) {

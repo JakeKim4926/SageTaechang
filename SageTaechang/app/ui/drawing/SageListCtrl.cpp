@@ -97,8 +97,7 @@ void CSageListCtrl::OnNMCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
 			if (bSelected)
 				break;
 			if (IsHighlightColumn(nSubItem)) {
-				pCD->clrTextBk = (nItem % 2 == 1) ? TAECHANG_COLOR_LIST_AMOUNT_COL_ALT : TAECHANG_COLOR_LIST_AMOUNT_COL;
-				pCD->clrText = TAECHANG_COLOR_TEXT;
+				pCD->clrText = TAECHANG_COLOR_PRIMARY;
 				*pResult = CDRF_NEWFONT;
 			}
 			if (m_bCenterFirstColumn && nSubItem == 0) {
