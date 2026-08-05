@@ -5,6 +5,18 @@
 
 ## 열린 항목
 
+### [2026-08-06] 구조불일치 — 폼 라벨 정렬이 화면마다 다르고 목업과도 어긋난다
+- 위치: `app/ui/panels/SagePriceCalcPanel.cpp:50,53,55,64,66,68,70,75` (`SS_RIGHT`) ↔ `app/ui/panels/SagePriceManagePanel.cpp:84,87,91,93` (`SS_LEFT`)
+- 설명: 단가 계산 패널 라벨은 전부 우측 정렬인데 단가 관리 상세 폼은 좌측 정렬이다. 목업은 「페이지」 하나만 `text-align:right`이고 나머지 라벨은 전부 좌측 정렬이므로 **양쪽 다 목업과 완전히 맞지는 않는다.** D3b는 "라벨 폭 통일"이 범위라 정렬은 손대지 않았다. 폭이 46→64로 커지면서 `SS_RIGHT` 쪽은 라벨 텍스트가 필드에 더 가까이 붙었다(간격 4px).
+- 위험도: 낮음
+- 후속: **D7**에서 화면별로 목업과 대조할 때 정렬까지 함께 정한다. 정렬을 바꾸면 라벨 텍스트 위치가 눈에 띄게 이동하므로 폭 변경과 같은 커밋에 섞지 않는다
+
+### [2026-08-06] 기존부채 — 단가 계산 입력 라벨에 6px 수동 보정이 남아 있다
+- 위치: `TaechangDefine.h` `TAECHANG_CALC_INPUT_LABEL_SHIFT`(=6), `app/ui/panels/SagePriceCalcPanel.cpp:231,236`
+- 설명: 「부수」·「페이지」 라벨만 좌표를 6px 왼쪽으로 당긴다. `SS_RIGHT`와 겹쳐서 1행 「법인명」과 텍스트 끝선이 6px 어긋난다. 라벨 폭이 46이던 시절에 눈으로 맞춘 보정값으로 보이며, D3b에서 폭을 64로 올렸어도 그대로 두었다(기존 코드 · 화면 확인 결과 문제없음). `SagePriceManagePanel.cpp:198`의 `TAECHANG_PRICE_COMPANY_LABEL_SHIFT`(=4)도 같은 성격이다.
+- 위험도: 낮음
+- 후속: 위 정렬 항목과 한 뿌리다. **D7**에서 정렬을 확정할 때 두 SHIFT 상수가 여전히 필요한지 다시 본다. 불필요하면 상수와 참조를 함께 제거한다
+
 ### [2026-08-05] 머지위험 — refactor/result-table-panel에 디자인 적용이 누락된다
 - 위치: `app/ui/panels/SageResultTablePanel.cpp` (브랜치 `refactor/result-table-panel`, 커밋 `533ab0d`)
 - 설명: `fix/design-tokens`는 develop 기준이라 그 패널 파일이 없다. 패널이 머지되면 **디자인 적용이 안 된 표가 하나 생긴다** — `SetHighlightColumns` 인자(3열 → 미수금 1열), `LVS_EX_GRIDLINES` 제거 + `SetRowSeparator`, 그 패널이 만드는 버튼 변형이 대상이다.
@@ -19,7 +31,7 @@
 
 ### [2026-08-05] 기존부채 — 참조 없는 상수 2개
 - 위치: `TaechangDefine.h` `TAECHANG_LABEL_WIDTH`(=90) · `TAECHANG_RECEIVABLES_COL_IDX_DEPOSIT_AMOUNT`(=6)
-- 설명: 둘 다 정의만 있고 참조가 0곳이다. `git grep HEAD`로 **내 변경 이전부터** 참조가 없었음을 확인했다(내 변경이 고아로 만든 `..._COL_IDX_TOTAL_AMOUNT`는 규칙대로 제거함). `TAECHANG_LABEL_WIDTH`는 계획서에 90→80으로 적혀 있으나 죽은 상수라 바꿔도 효과가 없다.
+- 설명: 둘 다 정의만 있고 참조가 0곳이다. `git grep HEAD`로 **내 변경 이전부터** 참조가 없었음을 확인했다(내 변경이 고아로 만든 `..._COL_IDX_TOTAL_AMOUNT`는 규칙대로 제거함). `TAECHANG_LABEL_WIDTH`는 계획서에 90→80으로 적혀 있었으나 죽은 상수라 바꿔도 효과가 없다. D3b에서 원인을 확인했다 — 이 상수를 쓸 「입력 파일」·「저장 위치」 라벨(`m_wndInputLabel`·`m_wndOutputLabel`)이 생성 후 `ShowWindow(SW_HIDE)`만 되고 `MoveWindow`가 한 번도 불리지 않는다(`SageTaechangView.cpp:270,490`). 계획서 C4에서 이 항목을 「변경 없음」으로 정정했다.
 - 위험도: 낮음
 - 후속: `DEPOSIT_AMOUNT`는 **D4b**가 금액 3열 우측 정렬에서 다시 쓸 가능성이 있어 그때 판단한다. `TAECHANG_LABEL_WIDTH`는 Step 5 접두사 전환 때 함께 정리한다
 
