@@ -483,3 +483,10 @@
 - **검증**: Debug x64 빌드 성공. 납품·견적 미선택 메시지, 견적 한 페이지 6행 초과/이하, 납품 무제한, 미수금 생성 확인
 - **PR 링크**: 없음 (사용자 요청으로 develop 직접 머지, `07f043b`)
 - **결과**: merged
+
+## [2026-08-05] docs/plan-responsibility-criteria
+- **목적**: 완료 기준이 줄 수 지표로 쓰여 있어 짐을 패널로 옮기기만 해도 통과할 수 있었다. 목표를 책임 과중 해소로 되돌린다
+- **변경 내용**: 도달 기준을 책임 기준 A~E로 재작성, 줄 수·멤버 수·메시지맵 항목은 증상 지표로 강등. 3-B 공통 절차에 패널 생성 직후 기준 A 점검 추가. 3-B-4에 SageWorkflowPanel 분할 재판단 블록 추가. 스킬 2개(coding-design·sagetaechang-ui)도 같은 방향으로 수정(gitignore 대상)
+- **검증**: 문서 변경. BOM + CRLF 유지 확인
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/94
+- **결과**: merged
