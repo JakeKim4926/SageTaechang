@@ -80,6 +80,7 @@ SageWorkflowResultStyle SageEstimateWorkflowHandler::GetResultStyle(int nTaskTyp
 		return style;
 	style.bCheckbox = TRUE;
 	style.bGridLines = TRUE;
+	style.nGroupColumn = TAECHANG_ESTIMATE_COL_IDX_COMPANY;
 	return style;
 }
 

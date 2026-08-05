@@ -39,6 +39,7 @@ int CSageListCtrl::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 CSageListCtrl::CSageListCtrl()
 	: m_bAlternateRow(FALSE)
 	, m_nFirstColumnAlign(SAGE_LIST_FIRST_COLUMN_DEFAULT)
+	, m_nGroupColumn(TAECHANG_LIST_NO_GROUP_COLUMN)
 	, m_nHighlightFirst(0)
 	, m_nHighlightCount(0)
 	, m_bRowSeparator(FALSE) {
@@ -88,6 +89,12 @@ void CSageListCtrl::SetFirstColumnAlign(SageListFirstColumnAlign nAlign) {
 		Invalidate();
 }
 
+void CSageListCtrl::SetGroupColumn(int nColumn) {
+	m_nGroupColumn = nColumn;
+	if (::IsWindow(GetSafeHwnd()))
+		Invalidate();
+}
+
 void CSageListCtrl::SetHighlightColumns(int nFirst, int nCount) {
 	m_nHighlightFirst = nFirst;
 	m_nHighlightCount = nCount;
@@ -131,6 +138,36 @@ void CSageListCtrl::DrawFirstColumn(int nItem, BOOL bSelected, NMLVCUSTOMDRAW* p
 		nAlignFormat | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
 }
 
+BOOL CSageListCtrl::IsGroupStartRow(int nItem) const {
+	if (nItem <= 0)
+		return TRUE;
+	return (GetItemText(nItem, m_nGroupColumn) != GetItemText(nItem - 1, m_nGroupColumn)) ? TRUE : FALSE;
+}
+
+void CSageListCtrl::DrawGroupColumn(int nItem, BOOL bSelected, NMLVCUSTOMDRAW* pCD) {
+	CDC* pDC = CDC::FromHandle(pCD->nmcd.hdc);
+	COLORREF clrBk = bSelected ? TAECHANG_COLOR_LIST_ROW_SELECTED : GetRowBackColor(nItem);
+
+	CRect rcItem;
+	GetSubItemRect(nItem, m_nGroupColumn, LVIR_LABEL, rcItem);
+	pDC->FillSolidRect(&rcItem, clrBk);
+	rcItem.left += TAECHANG_LIST_CELL_LEFT_PAD;
+
+	BOOL bGroupStart = IsGroupStartRow(nItem);
+	CFont* pOldFont = pDC->SelectObject(SageUiResources::GetFont(
+		bGroupStart ? SAGE_FONT_LIST_SEMIBOLD : SAGE_FONT_LIST));
+	COLORREF clrOldText = pDC->SetTextColor(
+		bGroupStart ? TAECHANG_COLOR_TEXT : TAECHANG_COLOR_TEXT_PLACEHOLDER);
+	int nOldBkMode = pDC->SetBkMode(TRANSPARENT);
+
+	pDC->DrawText(bGroupStart ? GetItemText(nItem, m_nGroupColumn) : CString(TAECHANG_UI_REPEAT_MARK),
+		&rcItem, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
+
+	pDC->SetBkMode(nOldBkMode);
+	pDC->SetTextColor(clrOldText);
+	pDC->SelectObject(pOldFont);
+}
+
 void CSageListCtrl::OnNMCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
 	NMLVCUSTOMDRAW* pCD = reinterpret_cast<NMLVCUSTOMDRAW*>(pNMHDR);
 	*pResult = CDRF_DODEFAULT;
@@ -156,7 +193,8 @@ void CSageListCtrl::OnNMCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
 				pCD->clrText = TAECHANG_COLOR_TEXT;
 				*pResult |= CDRF_NEWFONT;
 			}
-			if (m_nHighlightCount > 0 || m_nFirstColumnAlign != SAGE_LIST_FIRST_COLUMN_DEFAULT)
+			if (m_nHighlightCount > 0 || m_nFirstColumnAlign != SAGE_LIST_FIRST_COLUMN_DEFAULT
+				|| m_nGroupColumn != TAECHANG_LIST_NO_GROUP_COLUMN)
 				*pResult |= CDRF_NOTIFYSUBITEMDRAW;
 			break;
 		}
@@ -186,6 +224,10 @@ void CSageListCtrl::OnNMCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
 			}
 			if (m_nFirstColumnAlign != SAGE_LIST_FIRST_COLUMN_DEFAULT && nSubItem == 0) {
 				DrawFirstColumn(nItem, bSelected, pCD);
+				*pResult = CDRF_SKIPDEFAULT;
+			}
+			if (nSubItem == m_nGroupColumn) {
+				DrawGroupColumn(nItem, bSelected, pCD);
 				*pResult = CDRF_SKIPDEFAULT;
 			}
 			break;

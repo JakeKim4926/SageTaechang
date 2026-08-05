@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "TaechangDefine.h"
+
 struct TaechangResultRow;
 
 enum SageColumnAlign
@@ -55,12 +57,14 @@ struct SageWorkflowResultStyle
     BOOL bGridLines;
     int nHighlightStart;
     int nHighlightCount;
+    int nGroupColumn;
 
     SageWorkflowResultStyle() {
         bCheckbox = FALSE;
         bGridLines = FALSE;
         nHighlightStart = 0;
         nHighlightCount = 0;
+        nGroupColumn = TAECHANG_LIST_NO_GROUP_COLUMN;
     }
 };
 

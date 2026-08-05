@@ -464,6 +464,7 @@ void CSageTaechangView::ApplyResultColumns() {
 	m_wndResultList.SetExtendedStyle(dwExtStyle);
 	m_wndResultList.SetRowSeparator(resultStyle.bGridLines);
 	m_wndResultList.SetHighlightColumns(resultStyle.nHighlightStart, resultStyle.nHighlightCount);
+	m_wndResultList.SetGroupColumn(resultStyle.nGroupColumn);
 
 	m_wndResultList.DeleteAllItems();
 	CHeaderCtrl* pHeader = m_wndResultList.GetHeaderCtrl();
