@@ -482,7 +482,7 @@ void CSageTaechangView::ApplyResultColumns() {
 
 void CSageTaechangView::UpdateTaskTabVisibility() {
 	BOOL bShowInput = IsInputTabSelected();
-	BOOL bShowOutput = (bShowInput || IsResultTab()) ? TRUE : FALSE;
+	BOOL bShowOutput = bShowInput;
 	BOOL bShowAction = IsActionTabVisible();
 	BOOL bShowResult = IsResultTab() || (IsInputTabSelected() && (IsDeliveryInputTable() || IsEstimateInputTable()));
 	BOOL bShowDetail = IsDetailTab();
