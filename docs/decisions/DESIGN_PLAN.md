@@ -11,6 +11,15 @@
 Claude Design 프로젝트 `d4a524f6-c20a-4550-879c-772ca9fbb521`
 파일 `SageTaechang 디자인 개선안.dc.html` (1,208줄, 목업 9세트 + 다이얼로그 6종).
 
+**로컬 사본: `docs/design/sagetaechang-design-proposal.dc.html`**
+D7(화면별 적용)은 목업 CSS를 계속 실측해야 한다. Claude Design MCP 접근은 세션마다
+재인증이 필요할 수 있고 원본이 수정될 수도 있으므로 **이 사본을 기준으로 삼는다.**
+치수·색은 인라인 `style` 속성에 들어 있어 이 파일 하나로 전부 측정된다.
+
+주의: 원본 프로젝트에 첨부된 `_ds/.../colors_and_type.css`는 **EchoQuant**라는
+무관한 디자인 시스템(다크 테마·블루 브랜드·Inter 서체)이다. 우리 토큰의 출처가 아니므로
+가져오지 않았다. 팔레트의 출처는 목업 자신의 인라인 스타일이다.
+
 문서 구성: 1장 진단 10개 · 2장 토큰 재정의 · 3장 수정안 화면 9세트 · 4장 MFC 적용 가이드.
 이 계획은 **2·3·4장 전부**를 대상으로 한다.
 
@@ -56,7 +65,7 @@ Claude Design 프로젝트 `d4a524f6-c20a-4550-879c-772ca9fbb521`
 |---|---|---|
 | D0 | `sagetaechang-ui` skill 개정 | **완료** |
 | D1a | 색 토큰 (표 헤더 · 금액 컬럼 · 사이드바 선택) | **완료** · 확인받음 |
-| D1b | 서체 전환 (Pretendard) | **대기 — TTF 필요** |
+| D1b | 서체 전환 (Pretendard) | **완료** · 확인받음 |
 | D2 | 버튼 위계 4변형 (②) | **완료** · 확인받음 |
 | D3a | 컨트롤 높이 32 통일 | **완료** · 확인받음 |
 | D3b | 라벨 폭 통일 (80 / 64 / 96) | 대기 · **D1b 이후** |
@@ -68,7 +77,8 @@ Claude Design 프로젝트 `d4a524f6-c20a-4550-879c-772ca9fbb521`
 | D7 | 화면별 적용 — 3장 9세트 | 대기 |
 | D8 | DPI 배율 대응 (awareness 전환 + 좌표 스케일링) | 대기 · 디자인 완료 후 |
 
-브랜치 `fix/design-tokens` (develop 기준), 커밋 9개. **푸시·PR 안 함.**
+브랜치 `fix/design-tokens` (develop 기준), 커밋 14개. **푸시·PR 안 함.**
+다음 세션은 이 문서를 먼저 읽고 **D4b** 또는 **D3b** 또는 **D4c**부터 이어간다.
 화면 표시는 사용자 확인을 받았고 빌드는 사용자가 직접 확인했다.
 
 ## 완료된 작업과 교훈
@@ -97,6 +107,39 @@ D4a에서 세 번 헛짚었다. 원인이 전부 그리기 코드가 아니라 *
 **교훈 2 — 색을 바꾸면 숨어 있던 누수가 드러난다.**
 강조 컬럼 `clrText`를 강조 열에서만 지정하던 기존 코드는 색이 본문색과 같아서 누수가 안 보였다.
 카멜로 바꾸자 이후 컬럼(입금 은행·비고)이 물려받았다. 강조가 켜지면 **모든 서브아이템에서 색을 명시**해야 한다.
+
+### D1b — 서체 전환 (Pretendard)
+
+기존에 이미 `AddFontMemResourceEx` 임베드 폰트 구조가 있었다(Gmarket 3종). 그 패턴을 그대로 복제했다 —
+`resources/` 평탄 배치 → `.rc`의 `TTF` 리소스 → `Resource.h` ID → `LoadPrivateFonts()`.
+폰트가 6개가 되어 개별 핸들 멤버를 배열로 교체했다.
+
+**GDI 패밀리 이름이 굵기마다 다르다** (폰트 name 테이블 직접 확인):
+
+| 파일 | GDI Family | Subfamily |
+|---|---|---|
+| `PretendardRegular.ttf` | `Pretendard` | Regular |
+| `PretendardBold.ttf` | `Pretendard` | **Bold** |
+| `PretendardSemiBold.ttf` | **`Pretendard SemiBold`** | Regular |
+
+GDI는 한 패밀리에 Regular/Bold/Italic/BoldItalic 4종만 담으므로 SemiBold는 자기 패밀리를 갖는다.
+그래서 `TAECHANG_TITLE_FONT_FACE = L"Pretendard SemiBold"`가 맞다.
+
+**`CreateFontIndirect` 전환은 D4b로 미뤘다.** 두 서체 모두 패밀리 이름만으로 지정되므로
+`FW_BOLD`가 실제로 필요한 시점(금액 Bold)까지 `CreatePointFont`로 충분하다.
+폰트를 임베드했으므로 **맑은 고딕 폴백도 불필요**해졌다 (R2 해소).
+
+**R1 재결정 — 목업 대비 +1px로 확정.**
+목업 그대로(본문 13px) 적용해보니 기존 앱(14.7px) 대비 체감 낙차가 컸다.
+위계 비율은 유지하고 절대 크기만 한 단계 올렸다 — 제목 19 · 섹션 15 · 본문 14 · 표 셀 13px.
+**의도적으로 목업을 벗어난 유일한 지점이다.** 상수 5개라 되돌리기 쉽다.
+
+**교훈 5 — 폰트 의존 상수는 계산으로 검증할 수 있다.**
+`TAECHANG_BUTTON_TEXT_TOP_OFFSET`은 서체 ascent 보정값이라 추측하지 않고 메트릭에서 계산했다.
+Gmarket은 `winAsc/winDesc = 800/350`(비대칭)이라 계산값 +1.84 → 기존 튜닝값 `2`와 일치했고,
+이것이 계산 모델의 검증이 됐다. Pretendard는 `1949/494`로 거의 대칭이라 계산값 −0.02 → **0**.
+같은 방식으로 `TAECHANG_EDIT_TEXT_TOP_PAD`의 적정값은 8이나(현재 9), 확인받은 화면을
+1px 때문에 흔들지 않으려고 두었다.
 
 **교훈 3 — 헤더 높이와 행 높이는 다른 메커니즘이다.**
 행은 이미지리스트, 헤더는 `HDM_LAYOUT`. 행만 키우면 헤더는 그대로다.
