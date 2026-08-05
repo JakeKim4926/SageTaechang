@@ -2,6 +2,7 @@
 #pragma once
 
 #include "TaechangDefine.h"
+#include "app/core/price/SagePriceCalcService.h"
 #include "app/core/receivable/TaechangReceivableCompanyOrderDto.h"
 #include "app/ui/drawing/SageHeaderCtrl.h"
 #include "app/ui/drawing/SageTabCtrl.h"
@@ -199,9 +200,7 @@ protected:
     CArray<CalcHistoryEntry, CalcHistoryEntry&> m_arrCalcHistory;
 
     // ── 가격 관리 내부 상태 ─────────────────────────────────────────────────
-    LONGLONG m_nCalcPrintPrice;
-    int  m_nCalcCoverPrice;
-    int  m_nCalcUnitPrice;
+    SagePriceCalcResult m_calcResult;
     int  m_nPricePanelState;
     BOOL m_bFormattingCalcFreight;
     BOOL m_bFormattingPricePrint;
@@ -315,6 +314,7 @@ protected:
     void ClearCalcInputAndResult();
     void ClearCalcResult();
     BOOL UpdateCalcPreview(BOOL bShowMessage);
+    void ShowCalcFailureMessage(SagePriceCalcFailure nFailure, const CString& strError) const;
     void UpdateCalcTotal();
     void AddCalcHistory(const CString& strCompany, int nCopies, int nPages, const CString& strItemName, const CString& strDate, LONGLONG nPrintPrice, int nCoverPrice, int nFreight, LONGLONG nTotal);
     void RefreshCalcHistoryList();
