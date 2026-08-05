@@ -527,3 +527,10 @@
 - **검증**: Debug x64 빌드 성공. 콤보 항목·기본값·기준별 필터·전환 후 복원·카드 표시 조건, 잔상 해소(결과 표시·생성 완료·입력 초기화·드롭·탭 왕복·창 크기 변경) 확인
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/99
 - **결과**: merged
+
+## [2026-08-05] refactor/workflow-state-target
+- **목적**: Step 4-6c. "문서 워크플로인가" 판정을 상수 나열에서 핸들러 등록 여부로 바꿔 워크플로 추가 시 고칠 목록을 줄인다
+- **변경 내용**: IsDocumentWorkflowStateTarget 제거. SaveWorkflowUiState·RestoreWorkflowUiState가 FindHandler != NULL로 판정. RebuildCurrentWorkflowResultList의 세 번째 사용처는 IsDocumentResultFilterVisible이 이미 핸들러 존재를 보장하므로 검사 자체를 삭제. 워크플로 상수 참조 30 → 27곳
+- **검증**: Debug x64 빌드 성공. 미수금 불러오기·체크 후 워크플로 왕복 시 탭·결과·체크 복원, 단가 화면 왕복 후 상태 유지, 견적 한 페이지 체크 유지 확인
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/100
+- **결과**: merged
