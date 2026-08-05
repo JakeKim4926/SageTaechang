@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "app/core/workflow/handlers/SageEstimateWorkflowHandler.h"
+#include "app/core/workflow/TaechangWorkflowResultPresenter.h"
 #include "TaechangDefine.h"
 
 namespace {
@@ -86,6 +87,18 @@ SageWorkflowResultStyle SageEstimateWorkflowHandler::GetResultStyle(int nTaskTyp
 
 BOOL SageEstimateWorkflowHandler::UsesCustomResultTable(int nTaskType) const {
 	return (nTaskType == TAECHANG_TASK_LOAD) ? TRUE : FALSE;
+}
+
+BOOL SageEstimateWorkflowHandler::BuildResultSummary(
+	int nTaskType,
+	const std::vector<TaechangResultRow>& arrVisibleRows,
+	const CString& strResponseJson,
+	std::vector<SageResultSummaryItem>& outItems) const {
+	UNREFERENCED_PARAMETER(nTaskType);
+	UNREFERENCED_PARAMETER(arrVisibleRows);
+	UNREFERENCED_PARAMETER(strResponseJson);
+	outItems.clear();
+	return FALSE;
 }
 
 int SageEstimateWorkflowHandler::GetFilterCriteriaCount() const {

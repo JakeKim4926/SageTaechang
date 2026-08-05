@@ -9,6 +9,7 @@ CFont g_fontContent;
 CFont g_fontTitle;
 CFont g_fontHeader;
 CFont g_fontCaption;
+CFont g_fontSummary;
 CFont g_fontList;
 CFont g_fontListSemiBold;
 CFont g_fontListBold;
@@ -57,6 +58,7 @@ void Create() {
 	g_fontTitle.CreatePointFont(TAECHANG_TITLE_FONT_POINT_SIZE, TAECHANG_TITLE_FONT_FACE);
 	g_fontHeader.CreatePointFont(TAECHANG_HEADER_FONT_POINT_SIZE, TAECHANG_TITLE_FONT_FACE);
 	g_fontCaption.CreatePointFont(TAECHANG_CAPTION_FONT_POINT_SIZE, TAECHANG_CONTROL_FONT_FACE);
+	g_fontSummary.CreatePointFont(TAECHANG_SUMMARY_FONT_POINT_SIZE, TAECHANG_TITLE_FONT_FACE);
 	g_fontList.CreatePointFont(TAECHANG_LIST_FONT_POINT_SIZE, TAECHANG_CONTROL_FONT_FACE);
 	g_fontListSemiBold.CreatePointFont(TAECHANG_LIST_FONT_POINT_SIZE, TAECHANG_TITLE_FONT_FACE);
 	g_fontLogo.CreatePointFont(TAECHANG_TITLE_FONT_POINT_SIZE, TAECHANG_LOGO_FONT_FACE);
@@ -72,6 +74,7 @@ void Destroy() {
 	g_fontTitle.DeleteObject();
 	g_fontHeader.DeleteObject();
 	g_fontCaption.DeleteObject();
+	g_fontSummary.DeleteObject();
 	g_fontList.DeleteObject();
 	g_fontListSemiBold.DeleteObject();
 	g_fontListBold.DeleteObject();
@@ -87,6 +90,7 @@ CFont* GetFont(SageFontRole nRole) {
 		case SAGE_FONT_TITLE:   return &g_fontTitle;
 		case SAGE_FONT_HEADER:  return &g_fontHeader;
 		case SAGE_FONT_CAPTION:       return &g_fontCaption;
+		case SAGE_FONT_SUMMARY:       return &g_fontSummary;
 		case SAGE_FONT_LIST:          return &g_fontList;
 		case SAGE_FONT_LIST_SEMIBOLD: return &g_fontListSemiBold;
 		case SAGE_FONT_LIST_BOLD:     return &g_fontListBold;

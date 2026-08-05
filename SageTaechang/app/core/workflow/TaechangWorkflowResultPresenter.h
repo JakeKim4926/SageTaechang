@@ -27,6 +27,10 @@ struct TaechangResultRow
     CString m_strReceivableAmount;
     CString m_strBankName;
     CString m_strNote;
+
+    __int64 m_nTotalAmount;
+    __int64 m_nDepositAmount;
+    __int64 m_nReceivableAmount;
 };
 
 class TaechangWorkflowResultPresenter

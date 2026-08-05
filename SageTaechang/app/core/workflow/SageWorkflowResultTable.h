@@ -52,6 +52,18 @@ struct SageWorkflowFilterCriteria
     SageResultField nField;
 };
 
+struct SageResultSummaryItem
+{
+    SageResultSummaryItem() {
+        bHighlight = FALSE;
+    }
+
+    CString strLabel;
+    CString strValue;
+    CString strUnit;
+    BOOL bHighlight;
+};
+
 struct SageWorkflowResultStyle
 {
     BOOL bCheckbox;
@@ -74,5 +86,6 @@ namespace SageWorkflowResultTable {
 int GetGenericColumnCount();
 const SageWorkflowColumn& GetGenericColumn(int nColumnIndex);
 CString GetRowText(const TaechangResultRow& row, SageResultField nField);
+CString FormatAmountNumber(__int64 nAmount);
 
 }

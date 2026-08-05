@@ -83,6 +83,8 @@ void SageResultTablePanel::CreateControls() {
 	m_wndResetBtn.SetIcon(SAGE_BUTTON_ICON_RESET);
 	m_wndResetBtn.SetTooltip(TAECHANG_UI_TIP_RESET);
 
+	m_wndSummaryBar.Create(L"", WS_CHILD | SS_OWNERDRAW, r, this, ID_TAECHANG_RESULT_SUMMARY_BAR);
+
 	m_wndList.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SINGLESEL, r, this, ID_TAECHANG_RESULT_LIST);
 	m_wndList.SetAlternateRowColor(TRUE);
 	CHeaderCtrl* pHeader = m_wndList.GetHeaderCtrl();
@@ -165,7 +167,6 @@ void SageResultTablePanel::Layout(const CRect& rectPanel) {
 
 	int nBandTop = TAECHANG_RESULT_FILTER_TOP_LIFT + TAECHANG_RESULT_FILTER_BOX_PAD;
 	int nWidth = rectPanel.Width();
-	int nHeight = rectPanel.Height();
 	int nFilterTotalW = TAECHANG_RESULT_CRITERIA_WIDTH + TAECHANG_ACTION_GAP
 		+ TAECHANG_RESULT_FILTER_WIDTH + TAECHANG_ACTION_GAP
 		+ TAECHANG_RESULT_SEARCH_WIDTH + TAECHANG_ACTION_GAP + TAECHANG_RESULT_RESET_WIDTH;
@@ -208,7 +209,26 @@ void SageResultTablePanel::Layout(const CRect& rectPanel) {
 			nFilterTop + TAECHANG_EDIT_HEIGHT + TAECHANG_RESULT_FILTER_BOX_PAD);
 	}
 
-	int nListTop = nBandTop + TAECHANG_RESULT_HEADER_HEIGHT;
+	LayoutTableArea();
+}
+
+void SageResultTablePanel::LayoutTableArea() {
+	if (!::IsWindow(m_wndList.GetSafeHwnd()))
+		return;
+
+	CRect rectClient;
+	GetClientRect(&rectClient);
+	int nWidth = rectClient.Width();
+	int nHeight = rectClient.Height();
+	if (nWidth <= 0)
+		return;
+
+	int nListTop = GetBandHeight() + TAECHANG_RESULT_HEADER_HEIGHT;
+	if (m_wndSummaryBar.HasItems()) {
+		m_wndSummaryBar.MoveWindow(0, nListTop, nWidth, TAECHANG_SUMMARY_BAR_HEIGHT);
+		nListTop += TAECHANG_SUMMARY_BAR_HEIGHT + TAECHANG_ROW_GAP;
+	}
+
 	int nListHeight = nHeight - nListTop;
 	if (nListHeight < TAECHANG_RESULT_MIN_HEIGHT)
 		nListHeight = TAECHANG_RESULT_MIN_HEIGHT;
@@ -381,8 +401,35 @@ void SageResultTablePanel::SetRows(const std::vector<TaechangResultRow>& arrRows
 
 void SageResultTablePanel::ClearRows() {
 	m_arrRows.clear();
+	m_arrVisibleRows.clear();
 	if (::IsWindow(m_wndList.GetSafeHwnd()))
 		m_wndList.DeleteAllItems();
+}
+
+const std::vector<TaechangResultRow>& SageResultTablePanel::GetVisibleRows() const {
+	return m_arrVisibleRows;
+}
+
+void SageResultTablePanel::SetSummaryItems(const std::vector<SageResultSummaryItem>& arrItems) {
+	std::vector<SageSummaryBarItem> arrBarItems;
+	for (int i = 0; i < static_cast<int>(arrItems.size()); ++i) {
+		SageSummaryBarItem barItem;
+		barItem.strLabel = arrItems[i].strLabel;
+		barItem.strValue = arrItems[i].strValue;
+		barItem.strUnit = arrItems[i].strUnit;
+		barItem.bHighlight = arrItems[i].bHighlight;
+		arrBarItems.push_back(barItem);
+	}
+
+	m_wndSummaryBar.SetItems(arrBarItems);
+	m_wndSummaryBar.ShowWindow(arrBarItems.empty() ? SW_HIDE : SW_SHOW);
+	LayoutTableArea();
+}
+
+void SageResultTablePanel::ClearSummary() {
+	m_wndSummaryBar.SetItems(std::vector<SageSummaryBarItem>());
+	m_wndSummaryBar.ShowWindow(SW_HIDE);
+	LayoutTableArea();
 }
 
 void SageResultTablePanel::RefreshRows() {
@@ -407,6 +454,7 @@ void SageResultTablePanel::RefreshRows() {
 
 	m_wndList.SetRedraw(FALSE);
 	m_wndList.DeleteAllItems();
+	m_arrVisibleRows.clear();
 	for (int i = 0; i < static_cast<int>(m_arrRows.size()); ++i) {
 		if (!strKeywordLower.IsEmpty()) {
 			CString strTargetLower = SageWorkflowResultTable::GetRowText(m_arrRows[i], nFilterField);
@@ -423,6 +471,7 @@ void SageResultTablePanel::RefreshRows() {
 		for (int nCol = 1; nCol < nColumnCount; ++nCol)
 			m_wndList.SetItemText(nIndex, nCol, SageWorkflowResultTable::GetRowText(m_arrRows[i], m_arrColumns[nCol].nField));
 		m_wndList.SetItemData(nIndex, static_cast<DWORD_PTR>(m_arrRows[i].m_nSourceRowIndex));
+		m_arrVisibleRows.push_back(m_arrRows[i]);
 	}
 	m_wndList.SetRedraw(TRUE);
 	m_wndList.Invalidate();

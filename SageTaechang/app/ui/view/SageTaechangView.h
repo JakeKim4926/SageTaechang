@@ -175,6 +175,7 @@ protected:
     void ApplyResultTableSchema();
     void SetResultTableRows(const std::vector<TaechangResultRow>& arrRows);
     void RefreshResultTableRows();
+    void UpdateResultSummary();
     COLORREF ResolveStatusColor(const CString& strStatus) const;
     SageBackgroundRole ResolveStatusBgRole(const CString& strStatus) const;
     void DrawEditBorder(CDC* pDC, CWnd& wnd);

@@ -449,6 +449,22 @@ void CSageTaechangView::SetResultTableRows(const std::vector<TaechangResultRow>&
 	if (pPanel == NULL)
 		return;
 	pPanel->SetRows(arrRows);
+	UpdateResultSummary();
+}
+
+void CSageTaechangView::UpdateResultSummary() {
+	ISageWorkflowHandler* pHandler = FindCurrentHandler();
+	SageResultTablePanel* pPanel = FindResultTablePanel(pHandler);
+	if (pPanel == NULL)
+		return;
+
+	std::vector<SageResultSummaryItem> arrItems;
+	if (pHandler->GetWorkflowType() != m_nLastWorkflowType ||
+		!pHandler->BuildResultSummary(m_nLastTaskType, pPanel->GetVisibleRows(), m_strLastResponseJson, arrItems)) {
+		pPanel->ClearSummary();
+		return;
+	}
+	pPanel->SetSummaryItems(arrItems);
 }
 
 void CSageTaechangView::RefreshResultTableRows() {
@@ -1367,6 +1383,7 @@ LRESULT CSageTaechangView::OnResultTableChanged(WPARAM wParam, LPARAM lParam) {
 	UNREFERENCED_PARAMETER(wParam);
 	UNREFERENCED_PARAMETER(lParam);
 	SaveWorkflowUiState(GetSelectedWorkflow());
+	UpdateResultSummary();
 	return 0;
 }
 

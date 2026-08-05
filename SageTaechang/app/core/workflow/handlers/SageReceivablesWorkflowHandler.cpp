@@ -1,5 +1,7 @@
 ﻿#include "pch.h"
 #include "app/core/workflow/handlers/SageReceivablesWorkflowHandler.h"
+#include "app/core/workflow/TaechangWorkflowResultPresenter.h"
+#include "app/common/TaechangJson.h"
 #include "TaechangDefine.h"
 
 namespace {
@@ -35,6 +37,26 @@ const SageWorkflowFilterCriteria g_filterCriteria[] = {
 };
 
 constexpr int SAGE_RECEIVABLES_FILTER_CRITERIA_COUNT = sizeof(g_filterCriteria) / sizeof(g_filterCriteria[0]);
+
+CString FormatCountText(int nCount) {
+	CString strCount;
+	strCount.Format(TAECHANG_UI_SUMMARY_COUNT_FORMAT, nCount);
+	return strCount;
+}
+
+void AddSummaryItem(
+	std::vector<SageResultSummaryItem>& outItems,
+	LPCWSTR pszLabel,
+	const CString& strValue,
+	LPCWSTR pszUnit,
+	BOOL bHighlight) {
+	SageResultSummaryItem item;
+	item.strLabel = pszLabel;
+	item.strValue = strValue;
+	item.strUnit = pszUnit;
+	item.bHighlight = bHighlight;
+	outItems.push_back(item);
+}
 
 }
 
@@ -93,6 +115,38 @@ BOOL SageReceivablesWorkflowHandler::UsesCustomResultTable(int nTaskType) const 
 	if (nTaskType == TAECHANG_TASK_LOAD)
 		return TRUE;
 	return (nTaskType == TAECHANG_TASK_GENERATE) ? TRUE : FALSE;
+}
+
+BOOL SageReceivablesWorkflowHandler::BuildResultSummary(
+	int nTaskType,
+	const std::vector<TaechangResultRow>& arrVisibleRows,
+	const CString& strResponseJson,
+	std::vector<SageResultSummaryItem>& outItems) const {
+	outItems.clear();
+	if (!UsesCustomResultTable(nTaskType))
+		return FALSE;
+
+	int nRowCount = 0;
+	__int64 nReceivableTotal = 0;
+	for (int i = 0; i < static_cast<int>(arrVisibleRows.size()); ++i) {
+		if (arrVisibleRows[i].m_strCompanyName == TAECHANG_UI_SEPARATOR_MARK)
+			continue;
+		++nRowCount;
+		nReceivableTotal += arrVisibleRows[i].m_nReceivableAmount;
+	}
+
+	std::vector<CString> arrMissingCompanies;
+	JsonSplitStringArray(
+		JsonExtractArray(strResponseJson, TAECHANG_JSON_KEY_MISSING_COMPANIES),
+		arrMissingCompanies);
+
+	AddSummaryItem(outItems, TAECHANG_UI_RECEIVABLES_SUMMARY_TOTAL,
+		FormatCountText(nRowCount), TAECHANG_UI_SUMMARY_UNIT_COUNT, FALSE);
+	AddSummaryItem(outItems, TAECHANG_UI_RECEIVABLES_SUMMARY_RECEIVABLE,
+		SageWorkflowResultTable::FormatAmountNumber(nReceivableTotal), TAECHANG_UI_SUMMARY_UNIT_AMOUNT, TRUE);
+	AddSummaryItem(outItems, TAECHANG_UI_RECEIVABLES_MISSING_COMPANIES,
+		FormatCountText(static_cast<int>(arrMissingCompanies.size())), TAECHANG_UI_SUMMARY_UNIT_COUNT, FALSE);
+	return TRUE;
 }
 
 int SageReceivablesWorkflowHandler::GetFilterCriteriaCount() const {

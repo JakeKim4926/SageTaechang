@@ -19,6 +19,11 @@ public:
     virtual const SageWorkflowColumn& GetResultColumn(int nTaskType, int nColumnIndex) const;
     virtual SageWorkflowResultStyle GetResultStyle(int nTaskType) const;
     virtual BOOL UsesCustomResultTable(int nTaskType) const;
+    virtual BOOL BuildResultSummary(
+        int nTaskType,
+        const std::vector<TaechangResultRow>& arrVisibleRows,
+        const CString& strResponseJson,
+        std::vector<SageResultSummaryItem>& outItems) const;
 
     virtual int GetFilterCriteriaCount() const;
     virtual const SageWorkflowFilterCriteria& GetFilterCriteria(int nIndex) const;

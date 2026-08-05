@@ -8,6 +8,7 @@
 #include "app/ui/drawing/SageHeaderCtrl.h"
 #include "app/ui/drawing/SageListCtrl.h"
 #include "app/ui/drawing/SageSectionLabel.h"
+#include "app/ui/drawing/SageSummaryBar.h"
 
 class SageResultTablePanel : public CWnd {
 public:
@@ -35,6 +36,10 @@ public:
     void SetFilterCriteria(const std::vector<SageWorkflowFilterCriteria>& arrCriteria);
     void SetRows(const std::vector<TaechangResultRow>& arrRows);
     void ClearRows();
+    const std::vector<TaechangResultRow>& GetVisibleRows() const;
+
+    void SetSummaryItems(const std::vector<SageResultSummaryItem>& arrItems);
+    void ClearSummary();
 
     int  GetRowCount() const;
     BOOL IsRowChecked(int nRow) const;
@@ -62,6 +67,7 @@ protected:
 private:
     void CreateControls();
     void ApplyControlFonts();
+    void LayoutTableArea();
     void DrawEditBorder(CDC* pDC, CWnd& wnd);
     void RefreshRows();
     void UpdateColumnWidths();
@@ -79,6 +85,7 @@ private:
     CEdit m_wndFilter;
     CSageButton m_wndSearchBtn;
     CSageButton m_wndResetBtn;
+    CSageSummaryBar m_wndSummaryBar;
     CSageHeaderCtrl m_wndHeader;
     CSageListCtrl m_wndList;
 
@@ -86,6 +93,7 @@ private:
     std::vector<SageWorkflowColumn> m_arrColumns;
     std::vector<SageWorkflowFilterCriteria> m_arrCriteria;
     std::vector<TaechangResultRow> m_arrRows;
+    std::vector<TaechangResultRow> m_arrVisibleRows;
     SageWorkflowResultStyle m_style;
     CRect m_rectFilterCard;
     CString m_strKeyword;

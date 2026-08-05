@@ -53,4 +53,15 @@ CString GetRowText(const TaechangResultRow& row, SageResultField nField) {
 	}
 }
 
+CString FormatAmountNumber(__int64 nAmount) {
+	BOOL bNegative = (nAmount < 0) ? TRUE : FALSE;
+	CString strDigits;
+	strDigits.Format(TAECHANG_UI_SUMMARY_AMOUNT_FORMAT, bNegative ? -nAmount : nAmount);
+
+	for (int i = strDigits.GetLength() - TAECHANG_AMOUNT_GROUP_DIGITS; i > 0; i -= TAECHANG_AMOUNT_GROUP_DIGITS)
+		strDigits.Insert(i, TAECHANG_UI_AMOUNT_GROUP_SEPARATOR);
+
+	return bNegative ? CString(TAECHANG_UI_AMOUNT_NEGATIVE_MARK) + strDigits : strDigits;
+}
+
 }
