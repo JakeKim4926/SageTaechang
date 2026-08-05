@@ -490,3 +490,10 @@
 - **검증**: 문서 변경. BOM + CRLF 유지 확인
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/94
 - **결과**: merged
+
+## [2026-08-05] docs/plan-substep-split
+- **목적**: 스킬(완료 기준 → 책임 기준) 수정 후 sagetaechang-plan 규칙에 따른 계획 전체 재점검
+- **변경 내용**: 새 기준이 만든 모순 2건 해소 — 3-B-5를 5a(사이드바)/5b(헤더)로, 3-B-6을 6a(컨트롤러+워커 수신처)/6b(Runner+infra 역전)로 분할. 순서 결정 근거를 부피에서 R5 좌표계 검증으로 교체. 3-B-1·3-B-2에 마주칠 부채와 현행 재현 지침 추가, R9 등록. DEBT_LOG 4건의 후속 Step 번호를 코드 확인 후 갱신
+- **검증**: 문서 변경. 불필요해진 Step·순서 뒤집힘·네이밍 불일치는 없음을 확인
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/95
+- **결과**: merged
