@@ -103,6 +103,10 @@ BOOL SageEstimateWorkflowHandler::UsesInputTable() const {
 	return TRUE;
 }
 
+LPCWSTR SageEstimateWorkflowHandler::FindGenerateCompletedMessage() const {
+	return TAECHANG_UI_ESTIMATE_GENERATE_COMPLETED;
+}
+
 BOOL SageEstimateWorkflowHandler::ValidateSelectedRows(int nSelectedCount, BOOL bHasSelectedRowNums, BOOL bOnePage, CString& strError) const {
 	if (!bHasSelectedRowNums) {
 		strError = TAECHANG_UI_ESTIMATE_SELECT_ROW_REQUIRED;

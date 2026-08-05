@@ -25,6 +25,7 @@ public:
 
     virtual LPCWSTR GetInputDialogTitle() const;
     virtual BOOL UsesInputTable() const;
+    virtual LPCWSTR FindGenerateCompletedMessage() const;
 
     virtual BOOL ValidateSelectedRows(int nSelectedCount, BOOL bHasSelectedRowNums, BOOL bOnePage, CString& strError) const;
 };

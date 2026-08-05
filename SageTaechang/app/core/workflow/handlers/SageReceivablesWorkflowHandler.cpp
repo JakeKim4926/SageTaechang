@@ -110,6 +110,10 @@ BOOL SageReceivablesWorkflowHandler::UsesInputTable() const {
 	return FALSE;
 }
 
+LPCWSTR SageReceivablesWorkflowHandler::FindGenerateCompletedMessage() const {
+	return NULL;
+}
+
 BOOL SageReceivablesWorkflowHandler::ValidateSelectedRows(int nSelectedCount, BOOL bHasSelectedRowNums, BOOL bOnePage, CString& strError) const {
 	UNREFERENCED_PARAMETER(nSelectedCount);
 	UNREFERENCED_PARAMETER(bHasSelectedRowNums);

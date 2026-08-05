@@ -105,6 +105,10 @@ BOOL SageDeliveryWorkflowHandler::UsesInputTable() const {
 	return TRUE;
 }
 
+LPCWSTR SageDeliveryWorkflowHandler::FindGenerateCompletedMessage() const {
+	return TAECHANG_UI_DELIVERY_GENERATE_COMPLETED;
+}
+
 BOOL SageDeliveryWorkflowHandler::ValidateSelectedRows(int nSelectedCount, BOOL bHasSelectedRowNums, BOOL bOnePage, CString& strError) const {
 	UNREFERENCED_PARAMETER(nSelectedCount);
 	UNREFERENCED_PARAMETER(bOnePage);
