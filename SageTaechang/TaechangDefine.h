@@ -599,6 +599,7 @@ constexpr int TAECHANG_PRICE_ACTION_BUTTON_COUNT      = 4;
 constexpr int TAECHANG_FORM_EDIT_TEXT_SIDE_PAD        = 2;
 constexpr int TAECHANG_FORM_EDIT_TEXT_TOP_PAD         = 4;
 constexpr LPCWSTR TAECHANG_UI_COPIES_FORMAT           = L"%d";
+constexpr int TAECHANG_CARD_REPAINT_MARGIN            = 1;
 
 // ── 부수 계산 레이아웃 치수 ─────────────────────────────────────────────────
 constexpr int TAECHANG_CALC_COMBO_WIDTH            = 200;

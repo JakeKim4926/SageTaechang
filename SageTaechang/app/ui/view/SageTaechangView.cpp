@@ -517,7 +517,7 @@ void CSageTaechangView::UpdateTaskTabVisibility() {
 	if (bShowResultFilter)
 		PopulateResultFilterCriteria();
 	else
-		m_rectResultFilterBox.SetRectEmpty();
+		SetCardRect(m_rectResultFilterBox, CRect(0, 0, 0, 0));
 	m_wndResultFilter.ShowWindow(bShowResultFilter ? SW_SHOW : SW_HIDE);
 	m_wndResultSearchBtn.ShowWindow(bShowResultFilter ? SW_SHOW : SW_HIDE);
 	m_wndResultResetBtn.ShowWindow(bShowResultFilter ? SW_SHOW : SW_HIDE);
@@ -646,7 +646,7 @@ void CSageTaechangView::LayoutChildControls() {
 		m_wndResultFilter.ShowWindow(SW_HIDE);
 		m_wndResultSearchBtn.ShowWindow(SW_HIDE);
 		m_wndResultResetBtn.ShowWindow(SW_HIDE);
-		m_rectResultFilterBox.SetRectEmpty();
+		SetCardRect(m_rectResultFilterBox, CRect(0, 0, 0, 0));
 		m_wndDetailSection.ShowWindow(SW_HIDE);
 		m_wndDetail.ShowWindow(SW_HIDE);
 		m_wndEmptyStateHint.ShowWindow(SW_HIDE);
@@ -794,13 +794,13 @@ void CSageTaechangView::LayoutResultSection(int nLeft, int nTop, int nWidth, int
 			m_wndResultSearchBtn.MoveWindow(nSearchLeft, nFilterTop, TAECHANG_RESULT_SEARCH_WIDTH, TAECHANG_BUTTON_HEIGHT);
 			int nResetLeft = nSearchLeft + TAECHANG_RESULT_SEARCH_WIDTH + TAECHANG_ACTION_GAP;
 			m_wndResultResetBtn.MoveWindow(nResetLeft, nFilterTop, TAECHANG_RESULT_RESET_WIDTH, TAECHANG_BUTTON_HEIGHT);
-			m_rectResultFilterBox.SetRect(
+			SetCardRect(m_rectResultFilterBox, CRect(
 				nFilterLeft - TAECHANG_RESULT_FILTER_BOX_PAD,
 				nFilterTop - TAECHANG_RESULT_FILTER_BOX_PAD,
 				nResetLeft + TAECHANG_RESULT_RESET_WIDTH + TAECHANG_RESULT_FILTER_BOX_PAD,
-				nFilterTop + TAECHANG_EDIT_HEIGHT + TAECHANG_RESULT_FILTER_BOX_PAD);
+				nFilterTop + TAECHANG_EDIT_HEIGHT + TAECHANG_RESULT_FILTER_BOX_PAD));
 		} else {
-			m_rectResultFilterBox.SetRectEmpty();
+			SetCardRect(m_rectResultFilterBox, CRect(0, 0, 0, 0));
 		}
 		m_wndResultList.MoveWindow(nLeft, nTop + TAECHANG_RESULT_HEADER_HEIGHT, nWidth, nBodyHeight);
 		UpdateResultColumns();
@@ -843,6 +843,20 @@ void CSageTaechangView::OnDraw(CDC* pDC) {
 		int nDivTop = (TAECHANG_TOP_BAR_HEIGHT - TAECHANG_BUTTON_HEIGHT) / 2;
 		pDC->FillSolidRect(m_nAuthDividerX, nDivTop, 1, TAECHANG_BUTTON_HEIGHT, TAECHANG_COLOR_BORDER);
 	}
+}
+
+void CSageTaechangView::SetCardRect(CRect& rectCard, const CRect& rectNew) {
+	if (rectCard == rectNew)
+		return;
+
+	CRect rectStale;
+	rectStale.UnionRect(rectCard, rectNew);
+	rectCard = rectNew;
+	if (rectStale.IsRectEmpty())
+		return;
+
+	rectStale.InflateRect(TAECHANG_CARD_REPAINT_MARGIN, TAECHANG_CARD_REPAINT_MARGIN);
+	InvalidateRect(rectStale, TRUE);
 }
 
 void CSageTaechangView::DrawEditBorder(CDC* pDC, CWnd& wnd) {
@@ -1929,7 +1943,7 @@ void CSageTaechangView::LayoutCompanyOrderPanel(int nLeft, int nTop, int nWidth,
 	m_wndCoDeleteBtn.MoveWindow(nX, nBtnTop, TAECHANG_CO_SMALL_BTN_WIDTH, TAECHANG_BUTTON_HEIGHT);
 
 	int nCardHeight = nPad + TAECHANG_EDIT_HEIGHT + TAECHANG_ROW_GAP + TAECHANG_BUTTON_HEIGHT + nPad;
-	m_rectCoCard = CRect(nLeft, nCardTop, nLeft + TAECHANG_CO_LIST_WIDTH, nCardTop + nCardHeight);
+	SetCardRect(m_rectCoCard, CRect(nLeft, nCardTop, nLeft + TAECHANG_CO_LIST_WIDTH, nCardTop + nCardHeight));
 
 	int nListSectionTop = nCardTop + nCardHeight + TAECHANG_PANEL_GAP;
 	int nListWidth = TAECHANG_CO_LIST_WIDTH - TAECHANG_MARGIN;
@@ -1981,7 +1995,7 @@ void CSageTaechangView::ShowCompanyOrderPanel(BOOL bShow) {
 	m_wndCoList.ShowWindow(nCmdShow);
 	if (!bShow) {
 		m_nCoPanelState = TAECHANG_CO_PANEL_IDLE;
-		m_rectCoCard.SetRectEmpty();
+		SetCardRect(m_rectCoCard, CRect(0, 0, 0, 0));
 	}
 	else {
 		UpdateCoPanelState();

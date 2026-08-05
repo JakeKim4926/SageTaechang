@@ -188,6 +188,7 @@ protected:
     COLORREF ResolveStatusColor(const CString& strStatus) const;
     SageBackgroundRole ResolveStatusBgRole(const CString& strStatus) const;
     void DrawEditBorder(CDC* pDC, CWnd& wnd);
+    void SetCardRect(CRect& rectCard, const CRect& rectNew);
     BOOL ValidateInputPath(CString& strInputPath);
     BOOL ValidateOutputFolder(CString& strOutputFolder);
     void EnableFileDropForWindow(CWnd& wnd);
