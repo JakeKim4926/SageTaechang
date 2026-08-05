@@ -15,13 +15,13 @@
 - 위치: app/ui/view/SageTaechangView.cpp `OnCtlColor` (1847~1958, 해당 분기 없음)
 - 설명: 가격 데이터 관리 패널의 라벨은 전부 배경 PANEL 분기를 타는데 `m_wndPriceCompanyLabel`만 분기가 없어 맨 끝 `CTLCOLOR_STATIC` 폴백으로 APP 배경이 된다. 3-A-8 4단계 역할 매핑을 뽑다 발견했고 버그로 확인받았다. 4단계에서 같이 고치면 5단계 검증 때 나타난 화면 변화가 의도한 수정인지 이관 실수인지 구분할 수 없어 현행(APP)대로 옮긴다.
 - 위험도: 낮음
-- 후속: 3-A-8 완료 후 별도 커밋으로 `SetBackgroundRole(SAGE_BG_PANEL)` 한 줄. 화면이 실제로 바뀌는 수정이라 눈으로 확인이 필요하다
+- 후속: **3-B-2(`SagePriceManagePanel`) 소관.** `LayoutPriceManagePanel`(:2270)이 배치하므로 패널과 함께 이동한다. 이관은 현행(APP)대로 재현하고, `SetBackgroundRole(SAGE_BG_PANEL)` 한 줄은 그 뒤 별도 커밋으로 분리한다. 화면이 실제로 바뀌는 수정이라 눈으로 확인이 필요하다
 
 ### [2026-08-01] 기존부채 — 헤더 상태 표시 기능이 통째로 동작하지 않음
 - 위치: app/ui/view/SageTaechangView.cpp:372 `m_wndHeaderStatus.Create`, :841 `MoveWindow(0,0,0,0)`
 - 설명: `m_wndHeaderStatus`가 `WS_CHILD | SS_RIGHT`로만 생성되어 **`WS_VISIBLE`이 없고**, `ShowWindow` 호출도 없으며 레이아웃에서 크기를 `0,0,0,0`으로 준다. 즉 화면에 표시된 적이 없다. 그런데 이 컨트롤을 위해 멤버 2개(`m_colorHeaderStatus`/`m_nHeaderStatusBgRole`), 함수 2개(`ResolveStatusColor`/`ResolveStatusBgRole`), `OnCtlColor` 분기 5줄, 상수 3개(`TAECHANG_COLOR_STATUS_BG_SUCCESS`/`WARNING`/`ERROR` — 다른 사용처 없음)가 유지되고 있다. `SetStatusText`가 같이 호출하는 `pFrame->SetMessageText`(창 하단 상태바)는 정상 동작하므로 상태 표시 자체가 안 되는 것은 아니다. PR_LOG의 상태별 색 기능(PR #15)에서 도입됐고 컨트롤을 보이게 하는 단계가 빠진 것으로 보인다. 3-A-8 2단계에서 브러시를 이관하다 발견했다.
 - 위험도: 낮음
-- 후속: **숨긴 것이 의도인지 미완성인지 확인이 필요하다.** 미완성이면 `WS_VISIBLE` 추가와 `MoveWindow` 좌표 부여, 불필요하면 관련 멤버·함수·분기·상수를 함께 제거
+- 후속: **3-B-5b(`SageHeaderPanel`) 착수 전에 결정한다 (계획의 R9).** 숨긴 것이 의도인지 미완성인지 확인이 필요하다. 미완성이면 `WS_VISIBLE` 추가와 `MoveWindow` 좌표 부여, 불필요하면 관련 멤버·함수·분기·상수를 함께 제거. 확인 없이 패널로 옮기면 죽은 코드를 새 패널로 복제한다
 
 ### [2026-08-01] 기존부채 — m_brushListHeader가 생성만 되고 쓰이지 않음
 - 위치: app/ui/view/SageTaechangView.cpp:277 (생성자)
@@ -45,7 +45,7 @@
 - 위치: app/ui/view/SageTaechangView.cpp 메시지맵 / `OnListCustomDraw`
 - 설명: `OnListCustomDraw`에 `ID_CALC_HISTORY_LIST` 분기가 있으나 메시지맵에 `ON_NOTIFY(NM_CUSTOMDRAW, ID_CALC_HISTORY_LIST, ...)` 등록이 없어 실행된 적이 없다. 그래서 계산 내역 리스트만 짝수/홀수 배경색과 첫 컬럼 가운데 정렬이 적용되지 않는다. 3-A-5에서 `CSageListCtrl` 승격 중 발견했고, 승격 시 자동으로 적용되면 화면 변경이므로 OFF로 현재 동작을 재현했다.
 - 위험도: 낮음
-- 후속: 계산 내역 리스트에 다른 리스트와 같은 스타일을 적용할지 UI 결정 필요. 적용하기로 하면 `SetAlternateRowColor(TRUE)` / `SetCenterFirstColumn(TRUE)` 두 줄이면 된다
+- 후속: **3-B-1(`SagePriceCalcPanel`)에서 반드시 마주친다.** `m_wndCalcHistoryList`는 `LayoutPriceCalcPanel`(:2510)이 배치하므로 단가 계산 패널로 함께 이동한다. 옮기면서 메시지맵에 등록하면 화면이 바뀌므로 **미등록 상태를 그대로 재현한다.** 적용 여부는 UI 결정 사항이고, 적용하기로 하면 `SetAlternateRowColor(TRUE)` / `SetCenterFirstColumn(TRUE)` 두 줄이면 된다
 
 ### [2026-07-31] 구조불일치 — 입력 컨트롤 테두리 방식이 View와 다이얼로그에서 다름
 - 위치: app/ui/view/SageTaechangView.cpp `DrawEditBorder` / app/ui/dialogs/*.cpp
@@ -69,7 +69,7 @@
 - 위치: app/ui/view/SageTaechangView.cpp, app/ui/dialogs/{TaechangLoginDlg, TaechangPasswordChangeDlg, TaechangCalcEstimateDlg}.cpp
 - 설명: coding-design의 의존 방향(ui → core ← infra)을 어기고 SageDBMgr/Repository를 직접 참조한다.
 - 위험도: 중
-- 후속: Step 4 워크플로 핸들러 도입 시 core 경유로 전환
+- 후속: View 경로는 **3-B-6b**(`ISageWorkflowRunner` 도입, infra include 6줄 제거), 다이얼로그 3개는 **Step 4-B**로 갈렸다
 
 ### [2026-07-31] 구조불일치 — core Service 헤더가 infra Repository 헤더에 컴파일 의존
 - 위치: app/core/auth/TaechangUserService.h:5, app/core/price/TaechangPriceService.h:5, app/core/receivable/TaechangReceivableCompanyOrderService.h:5
