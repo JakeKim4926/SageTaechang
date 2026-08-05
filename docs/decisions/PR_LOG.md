@@ -504,3 +504,10 @@
 - **검증**: Debug x64 빌드 성공. 실패 메시지 8종(아이콘 포함), 정상 계산 3항목 + 합계, 운임 변경, 견적 저장 후 내역 추가 확인
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/96
 - **결과**: merged
+
+## [2026-08-05] refactor/price-calc-panel
+- **목적**: Step 3-B-1b. 패널 분리 1호로 단가 계산 화면을 옮겨 패턴과 R5(좌표계 전환)를 검증
+- **변경 내용**: SagePriceCalcPanel 신설(808줄) — 컨트롤 25개·메시지맵 8항목·전용 함수 18개·레이아웃·카드 그리기·Tab 이동 소유. View.cpp 3,798 → 3,079줄, View.h 389 → 318줄, 컨트롤 멤버 104 → 79, 메시지맵 50 → 42. 위임 스텁 0개. 금액 포맷 유틸 4개를 app/common/SageNumberFormat으로 승격. ShowWindow 35줄 → 1줄, 그리기 4벌 → 1곳, 워크플로 상수 참조 1곳 감소
+- **검증**: Debug x64 빌드 성공. 카드/테두리 위치, 법인 선택, 즉시 미리보기, 운임 콤마+합계, Tab 이동, 견적 저장 후 내역 추가, 업무 전환 후 복귀, 단가 관리 법인 추가 시 콤보 반영 확인
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/97
+- **결과**: merged
