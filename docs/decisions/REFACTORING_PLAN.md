@@ -100,7 +100,7 @@ SageWorkflowController               실행 상태 전이 · 워커 수명
 | 3-A | 공통 컨트롤 승격 | **완료** |
 | — | 검수 워크플로(PDF·HWP) 제거 | **완료** `b2e8169` |
 | 4 | 워크플로 핸들러 + 등록부 | **진행 중** — 4-1~4-6a 완료 |
-| **3-B** | **화면 패널 분리 (8단계)** | **진행 중** — 3-B-1a 완료, 다음은 1b |
+| **3-B** | **화면 패널 분리 (8단계)** | **진행 중** — 3-B-1 완료, 다음은 3-B-2 |
 | 4-B | 의존 역전 (core Service ↔ infra Repository) | 대기 |
 | 5 | `Sage` 접두사 전환 (상수 648개) | 대기 |
 
@@ -166,6 +166,29 @@ PDF · HWP 표지 검수가 실제로 쓰지 않는 기능임이 확인되어 �
 화면 변화가 없었다. `IsCompareWorkflow` 15곳 소멸, 탭 상수 값 충돌 부채 해소.
 **교훈: 삭제는 단계를 나눠도 중간 커밋이 빌드되지 않을 수 있다.** 조건식을 지울 때 뒤에서 쓰는
 지역변수 선언까지 함께 지웠다. 결국 5커밋을 1커밋으로 squash했다.
+
+**Step 3-B-1b — `SagePriceCalcPanel` 이관** (`8e9a71d`)
+컨트롤 25개 · 메시지맵 8항목 · 전용 함수 18개 · 레이아웃 · 카드 그리기 · Tab 포커스 이동을
+패널이 소유한다. View는 **패널 멤버 1개와 호출 4곳**(`Create` · `Layout` · `ShowWindow` ·
+`RefreshCompanyCombo`)만 남았고 위임 스텁은 0개다. `View.cpp` 3,798 → 3,079줄, `.h` 389 → 318줄.
+금액 포맷 유틸 4개는 `app/common/SageNumberFormat`으로 승격했다(3-B-2도 쓴다).
+
+**R5 결론 — 좌표계 전환은 대입으로 끝났다.** `nX = nLeft + MARGIN`이 패널 안에서 `nX = MARGIN`,
+`nListH`가 `nTop + nHeight - …` → `nHeight - …`로 바뀐 것뿐이고 나머지 수식은 그대로다.
+나머지 패널도 같은 방식으로 옮길 수 있다.
+
+**부수 효과 3개**: ① `ShowWindow` 24줄이 패널 하나 토글로 접혀 35줄이 1줄이 됐다
+② `OnDraw`/`OnEraseBkgnd`에 4벌로 흩어져 있던 그리기가 패널 `OnEraseBkgnd` 한 곳으로 모였다
+(첫 벌은 카드 채우기에 덮여 무효였음을 확인하고 뺐다) ③ `PreTranslateMessage`의
+`GetSelectedWorkflow() == TAECHANG_WORKFLOW_PRICE_CALC` 가드가 불필요해져 워크플로 상수 참조가 1곳 줄었다.
+
+**기준 A 재점검**: 이 패널이 열리는 이유는 "계산 화면 배치·표시가 바뀔 때" 하나다.
+계산 규칙은 1a에서 core로 나갔고, 내역 보관은 화면에 보이는 개수에 종속된 화면 상태라 같은 이유에 속한다.
+**분할하지 않는다.**
+
+**교훈: 커밋을 목적별로 쪼개려 해도 파일이 엉키면 나눌 수 없다.** 유틸 승격과 패널 이관을
+2커밋으로 계획했지만 두 변경이 `View.cpp` · `TaechangDefine.h` · `vcxproj`를 함께 건드려,
+쪼개면 빌드되지 않는 중간 커밋이 생겼다. 한 커밋으로 합치고 본문에 두 부분을 적었다.
 
 **Step 3-B-1a — 단가 계산 서비스 추출** (`8bcd967`~`a36f03e`)
 `SagePriceCalcService`(core)가 부수·페이지 범위 검증 · 단가 조회 · 인쇄비·소계·합계 · 운임 클램프를
@@ -238,38 +261,22 @@ PDF · HWP 표지 검수가 실제로 쓰지 않는 기능임이 확인되어 �
 
 결과는 *완료된 작업* 참조.
 
-### 3-B-1b — `SagePriceCalcPanel` 이관
+### 3-B-1b — `SagePriceCalcPanel` 이관 — **완료** (2026-08-05)
 
-브랜치: `refactor/price-calc-panel`
+결과는 *완료된 작업* 참조. 다음 패널이 재사용할 패턴 3개를 여기서 확정했다.
 
-- [ ] `SagePriceCalcPanel` 생성 — `CWnd` 파생 + 자체 메시지맵 8항목
-- [ ] 컨트롤 25개 · 전용 함수 18개 · 공유 함수 잔재 81줄 이동
-- [ ] `FormatPrice`(`View.cpp:2094`) · `PriceTextToInt`(`:2110`)를 `app/common/SageNumberFormat`으로 승격
-      (3-B-2의 단가 관리 패널도 쓴다)
-- [ ] View는 패널 생성과 `Layout(rect)`만 유지
-- [ ] 기준 A 재점검 — 이 패널을 고치게 만드는 변경 원인이 하나인가
-- [ ] 화면 확인: 단가 계산 진입 · 법인 선택 · 계산 · 미리보기 · 견적 저장 · 계산 내역
-
-**패널이 재현할 것**: `OnCtlColor`는 계산 패널 전용 분기가 **0개**이고 일반 폴백
-(`CSageLabel` 조기 반환 · `CTLCOLOR_EDIT`→PANEL)만 필요하다. `PreTranslateMessage`는
-MFC가 `WalkPreTranslateTree`로 대상 창에서 부모 방향으로 호출하므로 패널이 View보다 먼저 받는다.
-
-**마주칠 부채 — 계산 내역 리스트 커스텀드로우.** `m_wndCalcHistoryList`는 메시지맵 등록이 없어
-스타일이 적용된 적이 없다(`DEBT_LOG` 기록됨). 패널로 옮기면서 등록하면 짝수/홀수 배경색과
-첫 컬럼 정렬이 새로 적용되어 **화면이 바뀐다. 미등록 상태를 그대로 재현한다.**
-
-**마주칠 중복 — 에디트 테두리 4벌.** 계산 에디트 4개의 `DrawEditBorder` 호출이 `OnDraw`에 2벌
-(`:1029`, `:1052`), `OnEraseBkgnd`에 2벌(`:1665`, `:1684`) 있다. `:1029` 벌은 이후 카드
-`FillSolidRect`에 덮여 무효다. 이관 시 rect 포함 관계를 확인하고 필요한 벌만 옮긴다.
-
-**완료 기준**: View에서 단가 계산 컨트롤 멤버 0개, 관련 메시지맵 0항목, 화면 무변화.
+- **좌표계**: `Layout(const CRect&)`가 `MoveWindow` 후 패널 클라이언트 기준(0,0)으로 자식을 배치
+- **표시 전환**: 자식을 `WS_VISIBLE`로 만들고 **패널만** `ShowWindow`로 토글
+- **`OnCtlColor`**: 전용 분기 없이 일반 폴백 2개(`CSageLabel` 조기 반환 · `CTLCOLOR_EDIT`→PANEL)만 재현
 
 ### 3-B-2 — `SagePriceManagePanel`
 
 브랜치: `refactor/price-manage-panel`
 
-- [ ] 3-B-1b에서 확정된 패턴 그대로 적용
+- [ ] 3-B-1b에서 확정된 패턴 3개(좌표계 · 표시 전환 · `OnCtlColor` 폴백) 그대로 적용
 - [ ] `PriceTextToInt` 복제(`TaechangPriceSimpleDlg.cpp:60`)를 `SageNumberFormat`으로 통일
+- [ ] `m_wndPriceNoMaxCheck` · `m_wndPriceSingleCheck`의 `OnCtlColor` 전용 분기도 함께 이동
+      (계산 패널과 달리 이 패널은 체크박스 분기가 있다)
 - [ ] `LayoutPriceManagePanel`(119줄) 포함 이동
 - [ ] 기준 A 점검
 - [ ] 화면 확인: 단가 데이터 관리 목록 · 추가 · 수정 · 삭제 · 범위/간편 다이얼로그
