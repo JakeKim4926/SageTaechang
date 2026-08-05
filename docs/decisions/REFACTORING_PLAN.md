@@ -206,32 +206,76 @@ PDF · HWP 표지 검수가 실제로 쓰지 않는 기능임이 확인되어 �
       둘 이상이면 분할 여부를 그 자리에서 판단한다 (View가 얇아진 것은 완료 근거가 아니다)
 - [ ] 7. 빌드 → 화면 확인 → 머지
 
-### 3-B-1 — `SagePriceCalcPanel` (1호, 패턴 검증)
+### 3-B-1 — 단가 계산 화면 (1호, 패턴 검증)
+
+**1호로 고른 이유**: 워크플로 전환에서 조기 반환으로 갈려 있어 문서 업무에 영향이 없다.
+집계에서 계산 함수의 워크플로 상수 참조가 **0곳**임을 확인했다. 실패해도 반경이 이 화면 하나이고,
+새 패널 패턴(생성 · 레이아웃 · 메시지맵 · 좌표계)을 전부 검증한다.
+
+**집계 결과** (2026-08-05, `SageTaechangView` 기준)
+
+| 항목 | 수량 |
+|---|---|
+| 컨트롤 멤버 | 25 (View 104 중) |
+| 비컨트롤 상태 멤버 | 7 — `CRect` 2 · 내역 배열 1 · 금액 3 · 포맷 가드 1 |
+| 메시지맵 항목 | 8 (View 50 중) |
+| 전용 함수 | 18개 / 561줄 |
+| 공유 함수 잔재 | 81줄 — `ApplyLabelRoles` 30 · `OnDraw` 15 · `OnEraseBkgnd` 14 · `ApplyControlFonts` 11 · `PreTranslateMessage` 7 · 생성·배치 4 |
+
+**기준 A로 센 변경 이유는 3개였고 하나가 화면 소관이 아니다** — `UpdateCalcPreview`(86줄)가
+단가 조회(`sageDBMgr` 직접 호출 2곳)와 금액 계산을 함께 한다. 그래서 1a / 1b로 나눈다.
+
+### 3-B-1a — `SagePriceCalcService` 추출
+
+브랜치: `refactor/price-calc-service`
+
+- [ ] `app/core/price/SagePriceCalcService.h/.cpp` 신설 + vcxproj · filters 등록
+- [ ] 부수·페이지 범위 검증, 단가 조회, 인쇄비·소계·합계, 운임 클램프를 서비스로
+- [ ] View 멤버 3개(`m_nCalcPrintPrice` · `m_nCalcCoverPrice` · `m_nCalcUnitPrice`) → `SagePriceCalcResult` 1개
+- [ ] 화면 확인: 실패 5종의 **메시지와 아이콘** 동일, 정상 계산 3항목 + 합계, 운임 변경, 견적 저장 후 내역 추가
+
+**실패를 `BOOL` + `outFailure` enum으로 나눈 이유**: 실패마다 아이콘이 다르다
+(범위 초과 `MB_ICONWARNING` / 조회 실패 `MB_ICONERROR`). `strError` 하나로 합치면 아이콘이
+통일되어 화면이 바뀐다. 문자열·아이콘 매핑은 화면 소관이므로 UI에 남긴다.
+
+**헤더는 `TaechangPriceService` 전방 선언만 둔다.** `TaechangPriceService.h`가 infra Repository
+헤더를 물고 있어(기존 부채) include하면 그 사슬이 번진다.
+
+**범위 밖**: 입력 파싱(빈 문자열 · 숫자 변환)과 메시지·아이콘 매핑은 UI에 남긴다.
+`sageDBMgr` include는 서비스 인스턴스를 얻는 경로라 남는다 — 앱 전체 패턴이므로 4-B · 3-B-6b 소관.
+
+### 3-B-1b — `SagePriceCalcPanel` 이관
 
 브랜치: `refactor/price-calc-panel`
 
-- [ ] 대상 집계 (컨트롤 · 메시지맵 · 함수 · notification)
-- [ ] `SagePriceCalcPanel` 생성 — `CWnd` 파생 + 자체 메시지맵
-- [ ] 컨트롤 · 생성 · `LayoutPriceCalcPanel`(161줄) · 핸들러 이동
+- [ ] `SagePriceCalcPanel` 생성 — `CWnd` 파생 + 자체 메시지맵 8항목
+- [ ] 컨트롤 25개 · 전용 함수 18개 · 공유 함수 잔재 81줄 이동
+- [ ] `FormatPrice`(`View.cpp:2094`) · `PriceTextToInt`(`:2110`)를 `app/common/SageNumberFormat`으로 승격
+      (3-B-2의 단가 관리 패널도 쓴다)
 - [ ] View는 패널 생성과 `Layout(rect)`만 유지
-- [ ] 기준 A 점검 — 이 패널을 고치게 만드는 변경 원인이 하나인가
+- [ ] 기준 A 재점검 — 이 패널을 고치게 만드는 변경 원인이 하나인가
 - [ ] 화면 확인: 단가 계산 진입 · 법인 선택 · 계산 · 미리보기 · 견적 저장 · 계산 내역
 
-**마주칠 부채 — 계산 내역 리스트 커스텀드로우.** `m_wndCalcHistoryList`는 `ID_CALC_HISTORY_LIST`
-분기가 `OnListCustomDraw`에 있으나 메시지맵 등록이 없어 실행된 적이 없다(`DEBT_LOG` 기록됨).
-패널로 옮기면서 등록하면 짝수/홀수 배경색과 첫 컬럼 정렬이 새로 적용되어 **화면이 바뀐다.**
-**미등록 상태를 그대로 재현한다.** 적용 여부는 UI 결정 사항이므로 별도로 다룬다.
+**패널이 재현할 것**: `OnCtlColor`는 계산 패널 전용 분기가 **0개**이고 일반 폴백
+(`CSageLabel` 조기 반환 · `CTLCOLOR_EDIT`→PANEL)만 필요하다. `PreTranslateMessage`는
+MFC가 `WalkPreTranslateTree`로 대상 창에서 부모 방향으로 호출하므로 패널이 View보다 먼저 받는다.
+
+**마주칠 부채 — 계산 내역 리스트 커스텀드로우.** `m_wndCalcHistoryList`는 메시지맵 등록이 없어
+스타일이 적용된 적이 없다(`DEBT_LOG` 기록됨). 패널로 옮기면서 등록하면 짝수/홀수 배경색과
+첫 컬럼 정렬이 새로 적용되어 **화면이 바뀐다. 미등록 상태를 그대로 재현한다.**
+
+**마주칠 중복 — 에디트 테두리 4벌.** 계산 에디트 4개의 `DrawEditBorder` 호출이 `OnDraw`에 2벌
+(`:1029`, `:1052`), `OnEraseBkgnd`에 2벌(`:1665`, `:1684`) 있다. `:1029` 벌은 이후 카드
+`FillSolidRect`에 덮여 무효다. 이관 시 rect 포함 관계를 확인하고 필요한 벌만 옮긴다.
 
 **완료 기준**: View에서 단가 계산 컨트롤 멤버 0개, 관련 메시지맵 0항목, 화면 무변화.
-
-**1호로 고른 이유**: 워크플로 전환에서 조기 반환으로 갈려 있어 문서 업무에 영향이 없다.
-실패해도 반경이 이 패널 하나이고, 새 패널 패턴(생성 · 레이아웃 · 메시지맵 · 좌표계)을 전부 검증한다.
 
 ### 3-B-2 — `SagePriceManagePanel`
 
 브랜치: `refactor/price-manage-panel`
 
-- [ ] 3-B-1에서 확정된 패턴 그대로 적용
+- [ ] 3-B-1b에서 확정된 패턴 그대로 적용
+- [ ] `PriceTextToInt` 복제(`TaechangPriceSimpleDlg.cpp:60`)를 `SageNumberFormat`으로 통일
 - [ ] `LayoutPriceManagePanel`(119줄) 포함 이동
 - [ ] 기준 A 점검
 - [ ] 화면 확인: 단가 데이터 관리 목록 · 추가 · 수정 · 삭제 · 범위/간편 다이얼로그
