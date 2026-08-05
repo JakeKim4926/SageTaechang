@@ -28,6 +28,8 @@ public:
 
     virtual LPCWSTR GetInputDialogTitle() const = 0;
     virtual BOOL UsesInputTable() const = 0;
+    virtual BOOL UsesOnePageOption() const = 0;
+    virtual LPCWSTR FindGenerateCompletedMessage() const = 0;
 
     virtual BOOL ValidateSelectedRows(int nSelectedCount, BOOL bHasSelectedRowNums, BOOL bOnePage, CString& strError) const = 0;
 };

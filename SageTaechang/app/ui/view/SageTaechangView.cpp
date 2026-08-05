@@ -16,6 +16,7 @@
 #include "app/common/TaechangJson.h"
 #include "app/core/workflow/ISageWorkflowHandler.h"
 #include "app/core/workflow/SageWorkflowRegistry.h"
+#include "app/core/workflow/SageWorkflowResultTable.h"
 #include "app/core/workflow/TaechangWorkflowResponse.h"
 #include "app/core/workflow/TaechangWorkflowResultPresenter.h"
 #include "app/core/auth/TaechangAuthSession.h"
@@ -204,6 +205,7 @@ CSageTaechangView::CSageTaechangView() noexcept
 CSageTaechangView::~CSageTaechangView() {}
 
 BOOL CSageTaechangView::PreCreateWindow(CREATESTRUCT& cs) {
+	cs.style |= WS_CLIPCHILDREN;
 	return CView::PreCreateWindow(cs);
 }
 
@@ -480,9 +482,9 @@ void CSageTaechangView::ApplyResultColumns() {
 
 void CSageTaechangView::UpdateTaskTabVisibility() {
 	BOOL bShowInput = IsInputTabSelected();
-	BOOL bShowOutput = (bShowInput || IsResultTab()) ? TRUE : FALSE;
+	BOOL bShowOutput = bShowInput;
 	BOOL bShowAction = IsActionTabVisible();
-	BOOL bShowResult = IsResultTab() || (IsInputTabSelected() && (IsDeliveryInputTable() || IsEstimateInputTable()));
+	BOOL bShowResult = IsResultTab() || (IsInputTabSelected() && IsInputTableVisible());
 	BOOL bShowDetail = IsDetailTab();
 
 	m_wndInputSection.ShowWindow(bShowInput ? SW_SHOW : SW_HIDE);
@@ -501,9 +503,9 @@ void CSageTaechangView::UpdateTaskTabVisibility() {
 	m_wndGenerate.ShowWindow(bShowAction ? SW_SHOW : SW_HIDE);
 	BOOL bShowInputReset = (bShowAction && IsInputResetVisible()) ? TRUE : FALSE;
 	m_wndInputReset.ShowWindow(bShowInputReset ? SW_SHOW : SW_HIDE);
-	BOOL bShowSelectAll = (bShowAction && (IsDeliveryInputTable() || IsEstimateInputTable())) ? TRUE : FALSE;
+	BOOL bShowSelectAll = (bShowAction && IsInputTableVisible()) ? TRUE : FALSE;
 	m_wndSelectAll.ShowWindow(bShowSelectAll ? SW_SHOW : SW_HIDE);
-	BOOL bShowEstimateOnePage = (bShowAction && IsEstimateInputTable()) ? TRUE : FALSE;
+	BOOL bShowEstimateOnePage = (bShowAction && IsOnePageOptionVisible()) ? TRUE : FALSE;
 	m_wndEstimateOnePage.ShowWindow(bShowEstimateOnePage ? SW_SHOW : SW_HIDE);
 	BOOL bShowActionStatus = (bShowAction && !m_bRunning && m_nLastTaskType != 0 && !bShowInputReset) ? TRUE : FALSE;
 	m_wndProgress.ShowWindow((bShowAction && m_bRunning) ? SW_SHOW : SW_HIDE);
@@ -758,8 +760,8 @@ void CSageTaechangView::LayoutActionSection(int nLeft, int nTop, int nWidth) {
 
 void CSageTaechangView::LayoutResultSection(int nLeft, int nTop, int nWidth, int nHeight) {
 	int nBodyHeight = max(TAECHANG_RESULT_MIN_HEIGHT, nHeight - TAECHANG_RESULT_HEADER_HEIGHT);
-	if (IsResultTab() || (IsInputTabSelected() && (IsDeliveryInputTable() || IsEstimateInputTable()))) {
-		BOOL bShowSelectAll = IsInputTabSelected() && (IsDeliveryInputTable() || IsEstimateInputTable());
+	if (IsResultTab() || (IsInputTabSelected() && IsInputTableVisible())) {
+		BOOL bShowSelectAll = IsInputTabSelected() && IsInputTableVisible();
 		BOOL bShowResultFilter = IsDocumentResultFilterVisible();
 		int nFilterTotalW = TAECHANG_RESULT_CRITERIA_WIDTH + TAECHANG_ACTION_GAP
 			+ TAECHANG_RESULT_FILTER_WIDTH + TAECHANG_ACTION_GAP
@@ -774,7 +776,7 @@ void CSageTaechangView::LayoutResultSection(int nLeft, int nTop, int nWidth, int
 		if (bShowSelectAll) {
 			m_wndResultSection.MoveWindow(0, 0, 0, 0);
 			m_wndSelectAll.MoveWindow(nLeft, nTop - TAECHANG_BUTTON_VERT_ADJUST, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
-			if (IsEstimateInputTable()) {
+			if (IsOnePageOptionVisible()) {
 				int nOnePageLeft = nLeft + TAECHANG_BUTTON_WIDTH + TAECHANG_ACTION_GAP;
 				m_wndEstimateOnePage.MoveWindow(nOnePageLeft, nTop - TAECHANG_BUTTON_VERT_ADJUST, TAECHANG_ESTIMATE_ONE_PAGE_WIDTH, TAECHANG_BUTTON_HEIGHT);
 			}
@@ -940,30 +942,26 @@ int CSageTaechangView::GetTaskTabSemanticIndex(int nVisualTabIndex) const {
 	return pHandler->GetTab(nVisualTabIndex).nSemanticIndex;
 }
 
-BOOL CSageTaechangView::IsReceivablesResultTable() const {
-	if (m_nLastWorkflowType != TAECHANG_WORKFLOW_RECEIVABLES)
+BOOL CSageTaechangView::IsInputTableVisible() const {
+	ISageWorkflowHandler* pHandler = FindCurrentHandler();
+	if (pHandler == NULL || !pHandler->UsesInputTable())
 		return FALSE;
-	if (m_nLastTaskType == TAECHANG_TASK_LOAD)
-		return TRUE;
-	return (m_nLastTaskType == TAECHANG_TASK_GENERATE) ? TRUE : FALSE;
+	if (m_nLastWorkflowType != pHandler->GetWorkflowType())
+		return FALSE;
+	return pHandler->UsesCustomResultTable(m_nLastTaskType);
 }
 
-BOOL CSageTaechangView::IsDeliveryInputTable() const {
-	if (m_nLastWorkflowType != TAECHANG_WORKFLOW_DELIVERY)
+BOOL CSageTaechangView::IsOnePageOptionVisible() const {
+	ISageWorkflowHandler* pHandler = FindCurrentHandler();
+	if (pHandler == NULL || !pHandler->UsesOnePageOption())
 		return FALSE;
-	return (m_nLastTaskType == TAECHANG_TASK_LOAD) ? TRUE : FALSE;
-}
-
-BOOL CSageTaechangView::IsEstimateInputTable() const {
-	if (m_nLastWorkflowType != TAECHANG_WORKFLOW_ESTIMATE)
-		return FALSE;
-	return (m_nLastTaskType == TAECHANG_TASK_LOAD) ? TRUE : FALSE;
+	return IsInputTableVisible();
 }
 
 BOOL CSageTaechangView::IsInputResetVisible() const {
 	if (m_bRunning || !IsInputTabSelected())
 		return FALSE;
-	return (IsDeliveryInputTable() || IsEstimateInputTable()) ? TRUE : FALSE;
+	return IsInputTableVisible();
 }
 
 BOOL CSageTaechangView::IsDataManageTab() const {
@@ -1046,7 +1044,7 @@ void CSageTaechangView::SaveCheckedRowNums(TaechangWorkflowUiState& state) {
 	state.strCheckedRowNums.Empty();
 	if (!::IsWindow(m_wndResultList.GetSafeHwnd()))
 		return;
-	if (!IsDeliveryInputTable() && !IsEstimateInputTable())
+	if (!IsInputTableVisible())
 		return;
 
 	int nListCount = m_wndResultList.GetItemCount();
@@ -1067,7 +1065,7 @@ void CSageTaechangView::SaveCheckedRowNums(TaechangWorkflowUiState& state) {
 void CSageTaechangView::RestoreCheckedRowNums(const TaechangWorkflowUiState& state) {
 	if (state.strCheckedRowNums.IsEmpty() || !::IsWindow(m_wndResultList.GetSafeHwnd()))
 		return;
-	if (!IsDeliveryInputTable() && !IsEstimateInputTable())
+	if (!IsInputTableVisible())
 		return;
 
 	int nListCount = m_wndResultList.GetItemCount();
@@ -1267,7 +1265,7 @@ void CSageTaechangView::OnSelectAll() {
 		}
 	}
 	BOOL bCheck = bAllChecked ? FALSE : TRUE;
-	if (bCheck && IsEstimateInputTable() && m_wndEstimateOnePage.GetCheck() == BST_CHECKED && nCount > TAECHANG_ESTIMATE_ONE_PAGE_MAX_ROWS) {
+	if (bCheck && IsOnePageOptionVisible() && m_wndEstimateOnePage.GetCheck() == BST_CHECKED && nCount > TAECHANG_ESTIMATE_ONE_PAGE_MAX_ROWS) {
 		for (int i = 0; i < nCount; ++i)
 			m_wndResultList.SetCheck(i, i < TAECHANG_ESTIMATE_ONE_PAGE_MAX_ROWS ? TRUE : FALSE);
 		AfxMessageBox(TAECHANG_UI_ESTIMATE_ONE_PAGE_LIMIT, MB_ICONWARNING);
@@ -1278,7 +1276,7 @@ void CSageTaechangView::OnSelectAll() {
 }
 
 void CSageTaechangView::OnEstimateOnePage() {
-	if (!IsEstimateInputTable() || m_wndEstimateOnePage.GetCheck() != BST_CHECKED)
+	if (!IsOnePageOptionVisible() || m_wndEstimateOnePage.GetCheck() != BST_CHECKED)
 		return;
 
 	int nCheckedCount = 0;
@@ -1532,18 +1530,16 @@ LRESULT CSageTaechangView::OnWorkflowComplete(WPARAM wParam, LPARAM lParam) {
 }
 
 void CSageTaechangView::DisplayResponse(int nWorkflowType, int nTaskType, const CString& strResponseJson) {
-	BOOL bDocumentGenerateNoResult =
-		(nTaskType == TAECHANG_TASK_GENERATE &&
-		 (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY || nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE))
+	ISageWorkflowHandler* pHandler = SageWorkflowRegistry::FindHandler(nWorkflowType);
+	BOOL bKeepInputTable =
+		(nTaskType == TAECHANG_TASK_GENERATE && pHandler != NULL && pHandler->UsesInputTable())
 		? TRUE : FALSE;
-	if (!bDocumentGenerateNoResult)
+	if (!bKeepInputTable)
 		m_wndResultList.DeleteAllItems();
 	m_nLastWorkflowType = nWorkflowType;
-	if (!bDocumentGenerateNoResult)
+	if (!bKeepInputTable) {
 		m_nLastTaskType = nTaskType;
-	if (!bDocumentGenerateNoResult)
 		m_strLastResponseJson = strResponseJson;
-	if (!bDocumentGenerateNoResult) {
 		ApplyResultColumns();
 		UpdateResultColumns();
 	}
@@ -1554,10 +1550,8 @@ void CSageTaechangView::DisplayResponse(int nWorkflowType, int nTaskType, const 
 	AppendExecutionHistory(nWorkflowType, nTaskType, strResponseJson, bSuccess);
 	m_wndDetail.SetWindowTextW(m_strExecutionHistory);
 
-	if (!bDocumentGenerateNoResult) {
-		if (nWorkflowType == TAECHANG_WORKFLOW_RECEIVABLES ||
-			nWorkflowType == TAECHANG_WORKFLOW_DELIVERY ||
-			nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE)
+	if (!bKeepInputTable) {
+		if (pHandler != NULL)
 			RefreshDocumentResultFilter();
 		else {
 			m_wndResultList.SetRedraw(FALSE);
@@ -1568,30 +1562,18 @@ void CSageTaechangView::DisplayResponse(int nWorkflowType, int nTaskType, const 
 		}
 	}
 
-	if ((nWorkflowType == TAECHANG_WORKFLOW_DELIVERY || nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE) && nTaskType == TAECHANG_TASK_LOAD) {
-		m_nSelectedTaskTab = TAECHANG_TAB_INDEX_INPUT;
+	if (pHandler != NULL && (nTaskType == TAECHANG_TASK_LOAD || nTaskType == TAECHANG_TASK_GENERATE)) {
+		m_nSelectedTaskTab = pHandler->UsesInputTable()
+			? TAECHANG_TAB_INDEX_INPUT
+			: TAECHANG_TAB_INDEX_DOCUMENT_RESULT;
 		m_wndTaskTabs.SetCurSel(GetTaskTabVisualIndex(m_nSelectedTaskTab));
 		UpdateTaskTabVisibility();
 		LayoutChildControls();
-	} else if ((nWorkflowType == TAECHANG_WORKFLOW_DELIVERY || nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE) &&
-			   nTaskType == TAECHANG_TASK_GENERATE) {
-		m_nSelectedTaskTab = TAECHANG_TAB_INDEX_INPUT;
-		m_wndTaskTabs.SetCurSel(GetTaskTabVisualIndex(m_nSelectedTaskTab));
-		UpdateTaskTabVisibility();
-		LayoutChildControls();
-		if (bSuccess) {
-			AfxMessageBox(
-				nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE
-				? TAECHANG_UI_ESTIMATE_GENERATE_COMPLETED
-				: TAECHANG_UI_DELIVERY_GENERATE_COMPLETED,
-				MB_ICONINFORMATION);
+		if (nTaskType == TAECHANG_TASK_GENERATE && bSuccess) {
+			LPCWSTR pszCompleted = pHandler->FindGenerateCompletedMessage();
+			if (pszCompleted != NULL)
+				AfxMessageBox(pszCompleted, MB_ICONINFORMATION);
 		}
-	} else if ((nWorkflowType == TAECHANG_WORKFLOW_RECEIVABLES && nTaskType == TAECHANG_TASK_GENERATE) ||
-			   nTaskType == TAECHANG_TASK_LOAD) {
-		m_nSelectedTaskTab = TAECHANG_TAB_INDEX_DOCUMENT_RESULT;
-		m_wndTaskTabs.SetCurSel(GetTaskTabVisualIndex(m_nSelectedTaskTab));
-		UpdateTaskTabVisibility();
-		LayoutChildControls();
 	}
 
 	m_bLastTaskSuccess = bSuccess;
@@ -1601,57 +1583,29 @@ void CSageTaechangView::DisplayResponse(int nWorkflowType, int nTaskType, const 
 	SaveWorkflowUiState(nWorkflowType);
 }
 
+const SageWorkflowColumn& CSageTaechangView::GetLastResultColumn(int nColumnIndex) const {
+	ISageWorkflowHandler* pHandler = SageWorkflowRegistry::FindHandler(m_nLastWorkflowType);
+	if (pHandler == NULL)
+		return SageWorkflowResultTable::GetGenericColumn(nColumnIndex);
+	return pHandler->GetResultColumn(m_nLastTaskType, nColumnIndex);
+}
+
+int CSageTaechangView::GetLastResultColumnCount() const {
+	ISageWorkflowHandler* pHandler = SageWorkflowRegistry::FindHandler(m_nLastWorkflowType);
+	if (pHandler == NULL)
+		return SageWorkflowResultTable::GetGenericColumnCount();
+	return pHandler->GetResultColumnCount(m_nLastTaskType);
+}
+
 void CSageTaechangView::InsertResultRow(const TaechangResultRow& row) {
 	int nCount = m_wndResultList.GetItemCount();
-	int nCol = 0;
-	int nIndex;
-	if (IsReceivablesResultTable()) {
-		nIndex = m_wndResultList.InsertItem(nCount, row.m_strCompanyName);
-		m_wndResultList.SetItemData(nIndex, static_cast<DWORD_PTR>(row.m_nSourceRowIndex));
-		m_wndResultList.SetItemText(nIndex, 1, row.m_strManager);
-		m_wndResultList.SetItemText(nIndex, 2, row.m_strIssueDate);
-		m_wndResultList.SetItemText(nIndex, 3, row.m_strItemName);
-		m_wndResultList.SetItemText(nIndex, 4, row.m_strIssueType);
-		m_wndResultList.SetItemText(nIndex, 5, row.m_strTotalAmount);
-		m_wndResultList.SetItemText(nIndex, 6, row.m_strDepositAmount);
-		m_wndResultList.SetItemText(nIndex, 7, row.m_strReceivableAmount);
-		m_wndResultList.SetItemText(nIndex, 8, row.m_strBankName);
-		m_wndResultList.SetItemText(nIndex, 9, row.m_strNote);
+	int nColumnCount = GetLastResultColumnCount();
+	if (nColumnCount < 1)
 		return;
-	}
-	if (IsDeliveryInputTable()) {
-		nIndex = m_wndResultList.InsertItem(nCount, row.m_strField);
-		m_wndResultList.SetItemData(nIndex, static_cast<DWORD_PTR>(row.m_nSourceRowIndex));
-		m_wndResultList.SetItemText(nIndex, 1, row.m_strCompanyName);
-		m_wndResultList.SetItemText(nIndex, 2, row.m_strDepartment);
-		m_wndResultList.SetItemText(nIndex, 3, row.m_strOrderDate);
-		m_wndResultList.SetItemText(nIndex, 4, row.m_strDeliveryDate);
-		m_wndResultList.SetItemText(nIndex, 5, row.m_strDeliveryTime);
-		m_wndResultList.SetItemText(nIndex, 6, row.m_strItemName);
-		m_wndResultList.SetItemText(nIndex, 7, row.m_strProductType);
-		m_wndResultList.SetItemText(nIndex, 8, row.m_strCompanyCopies);
-		m_wndResultList.SetItemText(nIndex, 9, row.m_strCorporationCopies);
-		m_wndResultList.SetItemText(nIndex, 10, row.m_strTotalCopies);
-		return;
-	}
-	if (IsEstimateInputTable()) {
-		nIndex = m_wndResultList.InsertItem(nCount, row.m_strField);
-		m_wndResultList.SetItemData(nIndex, static_cast<DWORD_PTR>(row.m_nSourceRowIndex));
-		m_wndResultList.SetItemText(nIndex, 1, row.m_strCompanyName);
-		m_wndResultList.SetItemText(nIndex, 2, row.m_strIssueDate);
-		m_wndResultList.SetItemText(nIndex, 3, row.m_strItemName);
-		m_wndResultList.SetItemText(nIndex, 4, row.m_strCompanyCopies);
-		m_wndResultList.SetItemText(nIndex, 5, row.m_strCorporationCopies);
-		m_wndResultList.SetItemText(nIndex, 6, row.m_strTotalCopies);
-		m_wndResultList.SetItemText(nIndex, 7, row.m_strValue);
-		m_wndResultList.SetItemText(nIndex, 8, row.m_strReason);
-		return;
-	}
-	nIndex = m_wndResultList.InsertItem(nCount, row.m_strField);
-	++nCol;
-	m_wndResultList.SetItemText(nIndex, nCol++, row.m_strValue);
-	m_wndResultList.SetItemText(nIndex, nCol++, row.m_strStatus);
-	m_wndResultList.SetItemText(nIndex, nCol++, row.m_strReason);
+
+	int nIndex = m_wndResultList.InsertItem(nCount, SageWorkflowResultTable::GetRowText(row, GetLastResultColumn(0).nField));
+	for (int nCol = 1; nCol < nColumnCount; ++nCol)
+		m_wndResultList.SetItemText(nIndex, nCol, SageWorkflowResultTable::GetRowText(row, GetLastResultColumn(nCol).nField));
 	m_wndResultList.SetItemData(nIndex, static_cast<DWORD_PTR>(row.m_nSourceRowIndex));
 }
 
@@ -1827,7 +1781,7 @@ CString CSageTaechangView::BuildExecutionHistoryLine(int nWorkflowType, int nTas
 
 void CSageTaechangView::OnResultListItemChanged(NMHDR* pNMHDR, LRESULT* pResult) {
 	*pResult = 0;
-	if (!IsEstimateInputTable() || m_wndEstimateOnePage.GetCheck() != BST_CHECKED)
+	if (!IsOnePageOptionVisible() || m_wndEstimateOnePage.GetCheck() != BST_CHECKED)
 		return;
 
 	NM_LISTVIEW* pList = reinterpret_cast<NM_LISTVIEW*>(pNMHDR);

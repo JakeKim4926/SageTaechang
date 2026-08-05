@@ -36,18 +36,39 @@
 ## 목표 상태
 
 ```
-CSageTaechangView                    조립 · 최상위 rect 배분 · 활성 패널 교체 · 앱 이벤트 연결
-  ├ SageSidebarPanel                 업무 탐색
-  ├ SageHeaderPanel                  제목 · 상태 · 인증 표시
-  └ SageWorkspacePanel               탭 + 활성 업무 패널 교체
-       ├ SageWorkflowPanel           문서 워크플로 공용 + 확장 탭 host
-       │    └ SageCompanyOrderPanel  미수금 확장 탭
-       ├ SagePriceManagePanel
-       └ SagePriceCalcPanel
+CSageTaechangView                     조립 · 최상위 rect 배분 · 활성 패널 교체 · 앱 이벤트 연결
+  ├ SageSidebarPanel                  업무 탐색
+  ├ SageHeaderPanel                   제목 · 상태 · 인증 표시
+  └ SageWorkspacePanel                탭 + 활성 탭 패널 교체
+       ├ SageWorkflowInputPanel       입력 · 저장 위치 · 실행 · 진행바 · 전체선택 · 한 페이지
+       │    └ SageResultTablePanel      (납품·견적) 입력 표 + 필터
+       ├ SageWorkflowResultPanel
+       │    └ SageResultTablePanel      결과 표 + 필터
+       ├ SageWorkflowHistoryPanel     실행 기록
+       ├ SageCompanyOrderPanel        미수금 데이터 관리 탭
+       ├ SagePriceManagePanel         (완료)
+       └ SagePriceCalcPanel           (완료)
 
-app/core/workflow/                   핸들러 · 등록부 (Step 4)
-SageWorkflowController               실행 상태 전이 · 워커 수명
+app/core/workflow/                    핸들러 · 등록부 (Step 4)
+SageWorkflowController                실행 상태 전이 · 워커 수명
 ```
+
+**2026-08-05 구성 변경 — 탭당 패널.** 원래 `SageWorkflowPanel` 하나에 입력·결과·기록을 담을
+계획이었으나 **탭 단위로 쪼갠다.** 근거는 원칙이 아니라 이번에 실제로 터진 버그 3개다 —
+카드 잔상 · 테두리 링 잔상 · **결과 탭에 배치되지 않은 저장 위치 컨트롤**. 셋 다
+"한 창이 모든 탭의 컨트롤을 들고 `ShowWindow` 행렬로 관리한다"에서 나왔다.
+특히 세 번째는 `bShowOutput`(결과 탭에서도 TRUE)과 `LayoutInputSection`(입력 탭에서만 호출)이
+갈려 생긴 것으로, **가시성과 배치가 다른 조건으로 결정되는 구조 자체가 원인**이다.
+
+**MFC 도킹 프레임워크는 쓰지 않는다.** 필요한 것은 자유 배치가 아니라 예측 가능한 화면이고,
+`CFrameWndEx` 전환과 `CMFCVisualManager`가 커스텀 오너드로우 UI와 충돌한다.
+검증된 `CWnd` 파생 패널 패턴(3-B-1b · 3-B-2)을 그대로 쓴다.
+
+**`m_wndResultList`가 두 역할을 겸하는 것이 4-B의 핵심 작업이다.** 지금 이 컨트롤 하나가
+납품·견적 입력 탭의 "불러온 입력 표(체크박스 有)"와 결과 탭의 "결과 표"를 겸한다.
+표를 나누지 않으면 탭을 패널로 쪼개도 두 패널이 표 하나를 공유해야 하고 소유자가 다시 모호해진다.
+필터(검색 기준 · 검색창 · 카드)도 두 탭에 함께 나타나므로 **표 + 필터 세트를
+`SageResultTablePanel` 한 클래스로 만들고 두 인스턴스로 쓴다.**
 
 **도달 기준은 책임이다** (`coding-design` > *완료 기준은 책임이다*)
 
@@ -115,6 +136,9 @@ SageWorkflowController               실행 상태 전이 · 워커 수명
 4-6b·4-6c·4-7 ──→ 3-B-4
                  결과 표 · 필터 · 응답 표시 코드가 SageWorkflowPanel로 이동한다.
                  먼저 분기를 핸들러로 걷어낸 뒤 옮겨야 패널 안에서 다시 걷어내지 않는다
+
+3-B-4a ──→ 3-B-4b 표를 감싼 뒤에야 인스턴스를 둘로 나눌 수 있다.
+                 4b가 실제 버그 뿌리(표 하나가 입력·결과를 겸함) 제거 지점이다
 
 3-B-4 ──→ 3-B-6a 워커 결과를 받을 주체가 패널 HWND가 되므로
                  패널이 자리잡은 뒤에 실행 축을 뗀다
@@ -241,7 +265,7 @@ View의 호출 방식은 계산 패널과 동일하게 `ShowWindow` 하나로 �
 | R5 | **레이아웃 좌표계 전환** — 현재 모든 레이아웃이 View 클라이언트 좌표 기준. 패널로 옮기면 패널 기준이 된다 | 패널 내부 컨트롤 위치가 통째로 어긋날 수 있다 | 3-B-1(단가 계산)로 먼저 검증. 실패 시 그 패널만 되돌린다 |
 | R6 | **notification 라우팅 변경** — `NM_CUSTOMDRAW`는 컨트롤이 리플렉션으로 처리하지만 `TVN_SELCHANGED` · `LVN_ITEMCHANGED` · `CBN_SELCHANGE`는 부모가 받는다. 부모가 View → 패널로 바뀐다 | 핸들러가 안 불리면 선택 · 체크 동작이 죽는다 | 패널 이동 전에 해당 notification 목록을 세고 함께 옮긴다 |
 | R7 | **워커 결과 수신처 변경** — `PostMessage(WM_TAECHANG_WORKFLOW_COMPLETE)` 대상이 View HWND다 | 전환 중 결과가 유실되면 진행바가 95%에서 멈춘 채 남는다 | 3-B-6a에서 한 번에 전환. 그 전까지는 View가 받아 패널로 넘긴다 |
-| R8 | **미수금 데이터 관리 탭의 부모** — 법인 발주는 워크플로 패널의 확장 탭이다 | 독립 패널로 먼저 만들면 부모를 두 번 바꾸게 된다 | 3-B-4에서 워크플로 패널과 함께 처리한다 |
+| R8 | **미수금 데이터 관리 탭의 부모** — 법인 발주는 미수금의 탭 하나다 | 독립 패널로 먼저 만들면 부모를 두 번 바꾸게 된다 | 3-B-4d에서 워크스페이스 하위 탭 패널로 배치한다 |
 | R10 | **부모가 컨트롤 영역 밖에 그리는 것** — 카드 배경 2개(`m_rectResultFilterBox` · `m_rectCoCard`)와 `DrawEditBorder`의 **컨트롤 바깥 1px 테두리 링**(대상 16개) | 컨트롤을 숨기거나 옮겨도 Windows는 컨트롤 자기 영역만 무효화하므로 링·카드가 남는다. 3-B-2·4-6b에서 두 번 연속 잔상으로 드러났다 | `SetCardRect`(카드 rect 변경 시 이전 ∪ 새 영역) + `InvalidateContentArea`(레이아웃 재구성 시 작업 영역). 패널로 옮길 때도 같은 규칙을 유지한다 |
 | R9 | **헤더 상태 컨트롤 처리 미결정** — `m_wndHeaderStatus`가 표시된 적이 없는데 멤버 2개 · 함수 2개 · 분기 · 상수 3개가 딸려 있다 | 확인 없이 옮기면 죽은 코드가 새 패널로 복제된다 | 3-B-5b 착수 전에 숨김이 의도인지 확인한다. 미완성이면 표시 복구, 불필요하면 관련 코드 일괄 제거 |
 
@@ -309,27 +333,55 @@ View의 호출 방식은 계산 패널과 동일하게 `ShowWindow` 하나로 �
 
 - [x] 4-6b 필터 축 — **완료** (2026-08-05)
 - [x] 4-6c 상태 판정 — **완료** (2026-08-05)
-- [ ] 4-7 응답 표시
+- [x] 4-7 응답 표시 — **완료** (2026-08-05)
 
-### 3-B-4 — `SageWorkflowPanel` + `SageWorkspacePanel` + `SageCompanyOrderPanel`
+**3-B-3 완료.** 결과 표·필터·응답 표시의 워크플로 분기가 전부 핸들러 질의로 바뀌었다.
 
-브랜치: 하위 단계마다 별도
+### 3-B-4 — 탭당 패널 (4단계)
 
-**착수 시 `SageWorkflowPanel`의 분할 여부를 먼저 판단한다.** 현재 계획대로 입력 · 실행 · 결과 ·
-실행 기록을 한 패널에 두면 View의 책임 8개 중 컨트롤 소유 · 메시지맵 · 레이아웃 · 실행 조정 ·
-상태 보관 **5개를 그대로 물려받는다.** 지표는 통과하고 과중화는 이동만 한다.
-지금 미리 쪼개지 않는 이유는 근거가 없기 때문이다 — 착수 시 기준 A로 "무엇이 바뀌면 이 패널을
-고치는가"를 세어보고, 입력과 결과가 서로 다른 이유로 바뀌면 그때 분할한다.
+**분할 판단 완료** (2026-08-05). 기준 A로 세어보니 입력·결과·기록은 서로 다른 이유로 바뀌고,
+무엇보다 오늘 터진 버그 3개가 "한 창이 모든 탭의 컨트롤을 `ShowWindow` 행렬로 관리한다"에서
+나왔다. 하나로 뭉치지 않고 **탭 단위로 쪼갠다.** 구성과 근거는 *목표 상태* 참조.
 
-- [ ] 기준 A 집계 — 이 패널을 고치게 만드는 변경 원인 나열, 분할 여부 결정
-- [ ] `SageWorkspacePanel` 생성 — 탭 컨트롤과 활성 업무 패널 교체를 가져간다
-- [ ] `SageWorkflowPanel` 생성 — 문서 워크플로 3종 **공용**. 내부 구성은 위 판단 결과에 따른다
-- [ ] `SageCompanyOrderPanel`을 워크플로 패널의 **확장 탭**으로 배치 (R8)
-- [ ] 3-B-1 · 3-B-2 패널을 워크스페이스 하위로 재배치
-- [ ] 화면 확인: 워크플로 3종 × 탭, 데이터 관리 탭, 워크플로 전환 시 상태 유지
+#### 3-B-4a — `SageResultTablePanel` 추출
 
-**완료 기준**: 워크플로를 하나 추가할 때 패널을 고칠 필요가 없다
-(탭 · 라벨 · 컬럼 · 입력 정책은 핸들러가 답한다).
+브랜치: `refactor/result-table-panel`
+
+- [ ] 표 · 검색 기준 콤보 · 검색창 · 초기화 버튼 · 카드 배경을 한 패널로 (인스턴스는 **아직 1개**)
+- [ ] 컬럼 정의(`SageWorkflowColumn` + `nField`)와 필터 기준(`SageWorkflowFilterCriteria`)을 파라미터로 받는다
+- [ ] 화면 확인: 미수금 결과 표 · 납품·견적 입력 표 · 필터 · 체크박스 (현행 재현)
+
+#### 3-B-4b — 입력 표와 결과 표를 두 인스턴스로 분리
+
+브랜치: `refactor/split-input-result-table`
+
+- [ ] `m_wndResultList`가 겸하던 두 역할(납품·견적 입력 표 / 결과 표)을 인스턴스 2개로 나눈다
+- [ ] 체크 상태 · 필터 키워드 · 필터 기준을 **각 인스턴스 소유**로 옮긴다
+- [ ] `GetResultColumnCount(nTaskType)`의 태스크 분기가 줄어드는지 확인
+- [ ] 화면 확인: 납품·견적 불러오기 → 체크 → 생성 → 결과, 탭 왕복 시 각 표의 상태 유지
+
+**여기가 실제 버그 뿌리 제거 지점이다.** 표 하나가 두 역할을 겸하는 한 소유자를 정할 수 없다.
+
+#### 3-B-4c — 탭 패널 3개
+
+브랜치: 패널마다 별도
+
+- [ ] `SageWorkflowInputPanel` — 입력 파일 · 저장 위치 · 실행/초기화 · 진행바 · 전체선택 · 한 페이지 + 입력 표
+- [ ] `SageWorkflowResultPanel` — 결과 표
+- [ ] `SageWorkflowHistoryPanel` — 실행 기록
+- [ ] `UpdateTaskTabVisibility`의 가시성 행렬 47줄이 사라지는지 확인
+
+#### 3-B-4d — `SageWorkspacePanel` + 재배치
+
+브랜치: `refactor/workspace-panel`
+
+- [ ] `SageWorkspacePanel` 생성 — 탭 컨트롤과 활성 탭 패널 교체
+- [ ] `SageCompanyOrderPanel`을 미수금 탭 패널로 배치 (R8)
+- [ ] 3-B-1b · 3-B-2 패널을 워크스페이스 하위로 재배치
+- [ ] 화면 확인: 워크플로 3종 × 탭 전부, 데이터 관리 탭, 워크플로 전환 시 상태 유지
+
+**완료 기준**: 탭을 하나 추가할 때 패널 1개 추가 + 워크스페이스의 탭 목록만 고친다.
+워크플로를 하나 추가할 때 패널을 고칠 필요가 없다(탭 · 라벨 · 컬럼 · 입력 정책은 핸들러가 답한다).
 
 ### 3-B-5a — `SageSidebarPanel`
 
@@ -388,7 +440,7 @@ Runner 문제인지 가릴 수 없다.
 |---|---|---|---|
 | ~~4-6b~~ | ~~필터 기준 목록, `IsDocumentResultFilterVisible`~~ | **완료** | 3-B-3 |
 | ~~4-6c~~ | ~~`IsDocumentWorkflowStateTarget` → 핸들러 존재 여부~~ | **완료** | 3-B-3 |
-| 4-7 | `DisplayResponse`, 표 술어 3개 | 11곳 | 3-B-3 |
+| ~~4-7~~ | ~~`DisplayResponse`, 표 술어 3개~~ | **완료** | 3-B-3 |
 | 4-8 | 실행 축 + infra 역전 | 5곳 + include 6줄 | 3-B-6b |
 
 ### 4-6b — 필터 축 — **완료** (2026-08-05)
@@ -406,11 +458,22 @@ Runner 문제인지 가릴 수 없다.
 정적 인스턴스 3개짜리 **무상태 싱글턴**이라 화면 상태를 들리면 전역 상태가 된다.
 상태 보관은 3-B-6a에서 컨트롤러/패널로 간다.
 
-### 4-7 — 응답 표시
+### 4-7 — 응답 표시 — **완료** (2026-08-05)
 
-- [ ] `DisplayResponse`의 워크플로 분기 8곳을 핸들러로
-- [ ] View의 표 술어 3개(`IsReceivablesResultTable` · `IsDeliveryInputTable` · `IsEstimateInputTable`) 제거
-      → `DEBT_LOG`의 *결과 표 판정 규칙 이중화* 해소
+세 커밋으로 나눠 진행했다.
+
+- **A** (`b2c4dc9`) `SageWorkflowColumn`에 데이터 출처(`SageResultField`)를 넣어 `InsertResultRow`의
+  워크플로 3분기 43줄을 컬럼 수만큼 도는 루프로. **헤더와 데이터가 어긋날 수 없는 구조**가 됐다
+- **B** (`3ef777c`) `DisplayResponse` — 결과 표 유지 조건 · 필터 경유 · 탭 전환 3분기 · 완료 메시지를
+  `UsesInputTable` · 핸들러 존재 · `FindGenerateCompletedMessage`로 대체
+- **C** (`842eccf`) 술어 3개 제거. `IsInputTableVisible` · `IsOnePageOptionVisible`이 핸들러에 묻는다
+  (핸들러에 `UsesOnePageOption` 추가, 견적만 TRUE)
+
+`DEBT_LOG`의 *결과 표 판정 규칙 이중화* 해소. 워크플로 상수 참조 34 → 16곳.
+
+**옮기면서 드러난 것**: 견적 입력 표의 컬럼 3개(단가·표지·운임)가 행 구조의 범용 멤버
+(`m_strTotalCopies` · `m_strValue` · `m_strReason`)를 빌려 쓴다. 현행 그대로 옮겼고 핸들러 배열에
+명시돼 눈에는 보이게 됐다. Presenter 쪽 네이밍 문제이므로 `DEBT_LOG`에 남긴다.
 
 ### 4-8 — 실행 축 + infra 역전
 

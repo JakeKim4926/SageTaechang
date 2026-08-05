@@ -16,6 +16,7 @@
 #include "app/ui/drawing/SageSidebarTree.h"
 
 struct TaechangResultRow;
+struct SageWorkflowColumn;
 class ISageWorkflowHandler;
 
 struct TaechangWorkflowUiState {
@@ -173,9 +174,8 @@ protected:
     BOOL IsActionTabVisible() const;
     int GetTaskTabVisualIndex(int nSemanticTabIndex) const;
     int GetTaskTabSemanticIndex(int nVisualTabIndex) const;
-    BOOL IsReceivablesResultTable() const;
-    BOOL IsDeliveryInputTable() const;
-    BOOL IsEstimateInputTable() const;
+    BOOL IsInputTableVisible() const;
+    BOOL IsOnePageOptionVisible() const;
     BOOL IsInputResetVisible() const;
     BOOL IsDocumentResultFilterVisible() const;
     TaechangWorkflowUiState& GetWorkflowUiState(int nWorkflowType);
@@ -195,6 +195,8 @@ protected:
     void ApplyDroppedInputPaths(const CString& strPaths);
     void RunWorkflowTask(int nTaskType);
     void DisplayResponse(int nWorkflowType, int nTaskType, const CString& strResponseJson);
+    const SageWorkflowColumn& GetLastResultColumn(int nColumnIndex) const;
+    int GetLastResultColumnCount() const;
     void InsertResultRow(const TaechangResultRow& row);
     void RefreshDocumentResultFilter();
     void PopulateResultFilterCriteria();
