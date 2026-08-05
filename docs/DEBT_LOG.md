@@ -1,9 +1,39 @@
-# 기술부채 로그 (DEBT_LOG)
+﻿# 기술부채 로그 (DEBT_LOG)
 
 이번 작업 범위 밖이라 남겨둔 위험 요소를 기록한다. 즉시 해결이 아니라 추적이 목적이다.
 해결한 항목은 `## 해결됨` 섹션으로 옮긴다.
 
 ## 열린 항목
+
+### [2026-08-05] 머지위험 — refactor/result-table-panel에 디자인 적용이 누락된다
+- 위치: `app/ui/panels/SageResultTablePanel.cpp` (브랜치 `refactor/result-table-panel`, 커밋 `533ab0d`)
+- 설명: `fix/design-tokens`는 develop 기준이라 그 패널 파일이 없다. 패널이 머지되면 **디자인 적용이 안 된 표가 하나 생긴다** — `SetHighlightColumns` 인자(3열 → 미수금 1열), `LVS_EX_GRIDLINES` 제거 + `SetRowSeparator`, 그 패널이 만드는 버튼 변형이 대상이다.
+- 위험도: **중간** — 같은 화면에 규격이 다른 표 두 개가 생긴다
+- 후속: **패널 연결(3-B-4a)을 먼저 머지하고 그 위에 디자인을 얹는다.** 순서가 뒤바뀌면 위 3개를 수동으로 다시 넣어야 한다
+
+### [2026-08-05] 미검증 — 금액 tabular 정렬과 선택 행 Bold를 적용하지 못했다
+- 위치: `app/ui/drawing/SageListCtrl.cpp`, 개선안 3장 3-1 · 3-3
+- 설명: 목업은 금액을 `font-variant-numeric:tabular-nums` + Bold로, 선택 행을 Bold로 표시한다. GDI `DrawText`는 OpenType `tnum`을 못 켜고, Bold는 볼드 폰트 리소스가 필요하다. 지금 Gmarket 볼드로 맞추면 Pretendard 전환 때 다시 재야 한다. 또 목업 자체가 불일치한다 — 3-3 선택 행은 전 셀 weight 700인데 3-1 선택 행은 합계·입금 셀에 굵기가 없다.
+- 위험도: 낮음
+- 후속: `DESIGN_PLAN` **D4b**에서 서체 전환(D1b) 직후에 처리한다. tabular는 문서 지시대로 우측 정렬 + Bold로 대체한다
+
+### [2026-08-05] 기존부채 — 참조 없는 상수 2개
+- 위치: `TaechangDefine.h` `TAECHANG_LABEL_WIDTH`(=90) · `TAECHANG_RECEIVABLES_COL_IDX_DEPOSIT_AMOUNT`(=6)
+- 설명: 둘 다 정의만 있고 참조가 0곳이다. `git grep HEAD`로 **내 변경 이전부터** 참조가 없었음을 확인했다(내 변경이 고아로 만든 `..._COL_IDX_TOTAL_AMOUNT`는 규칙대로 제거함). `TAECHANG_LABEL_WIDTH`는 계획서에 90→80으로 적혀 있으나 죽은 상수라 바꿔도 효과가 없다.
+- 위험도: 낮음
+- 후속: `DEPOSIT_AMOUNT`는 **D4b**가 금액 3열 우측 정렬에서 다시 쓸 가능성이 있어 그때 판단한다. `TAECHANG_LABEL_WIDTH`는 Step 5 접두사 전환 때 함께 정리한다
+
+### [2026-08-05] 기존부채 — INPUT_PANEL_HEIGHT가 파생값이 아니라 매직넘버다
+- 위치: `TaechangDefine.h` `TAECHANG_INPUT_PANEL_HEIGHT`
+- 설명: 입력 영역 높이가 `2×SECTION_TITLE_HEIGHT + 3×ROW_GAP + BUTTON_HEIGHT + EDIT_HEIGHT`(=138) + 여유 6인데 값으로 박혀 있다. D3a에서 컨트롤 높이를 32로 올릴 때 136→144를 **손으로 계산해 넣었다.** 다음에 높이를 만지면 또 손계산이 필요하다. 나머지 레이아웃은 상수에서 누적 계산하므로 자동 전파된다.
+- 위험도: 낮음
+- 후속: `constexpr` 파생식으로 바꾼다. 여유분을 별 상수로 뽑아야 하므로 **D8(DPI 대응)에서 좌표를 손볼 때** 함께 처리한다
+
+### [2026-08-05] 기존부채 — app/ui/drawing/*.cpp에 UTF-8 BOM이 없다
+- 위치: `app/ui/drawing/` 하위 `.cpp` 4개 이상 (`SageButton` · `SageListCtrl` · `SageHeaderCtrl` · `SageSidebarTree`)
+- 설명: 프로젝트 관례는 UTF-8 BOM + CRLF인데 이 파일들만 BOM이 없다. `git show HEAD`로 **내 편집이 지운 것이 아님**을 확인했다(첫 3바이트 `23 69 6e` = `#in`). 현재 이 파일들은 한글 리터럴이 없어 문제가 없지만, 한글이 들어가는 순간 컴파일러 코드페이지에 따라 깨질 수 있다.
+- 위험도: 낮음
+- 후속: 이 파일에 한글 문자열을 넣기 전에 BOM을 추가한다. 지금 일괄 추가하면 diff가 전 파일에 퍼져 리뷰가 어려워진다
 
 ### [2026-08-05] 중복로직 — DrawEditBorder가 View와 패널에 각각 있다
 - 위치: app/ui/view/SageTaechangView.cpp `DrawEditBorder` / app/ui/panels/SagePriceCalcPanel.cpp `DrawEditBorder`
