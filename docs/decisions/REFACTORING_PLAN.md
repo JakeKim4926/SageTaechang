@@ -100,7 +100,7 @@ SageWorkflowController               실행 상태 전이 · 워커 수명
 | 3-A | 공통 컨트롤 승격 | **완료** |
 | — | 검수 워크플로(PDF·HWP) 제거 | **완료** `b2e8169` |
 | 4 | 워크플로 핸들러 + 등록부 | **진행 중** — 4-1~4-6a 완료 |
-| **3-B** | **화면 패널 분리 (8단계)** | **다음** — 책임을 실제로 떼는 단계 |
+| **3-B** | **화면 패널 분리 (8단계)** | **진행 중** — 3-B-1a 완료, 다음은 1b |
 | 4-B | 의존 역전 (core Service ↔ infra Repository) | 대기 |
 | 5 | `Sage` 접두사 전환 (상수 648개) | 대기 |
 
@@ -167,6 +167,15 @@ PDF · HWP 표지 검수가 실제로 쓰지 않는 기능임이 확인되어 �
 **교훈: 삭제는 단계를 나눠도 중간 커밋이 빌드되지 않을 수 있다.** 조건식을 지울 때 뒤에서 쓰는
 지역변수 선언까지 함께 지웠다. 결국 5커밋을 1커밋으로 squash했다.
 
+**Step 3-B-1a — 단가 계산 서비스 추출** (`8bcd967`~`a36f03e`)
+`SagePriceCalcService`(core)가 부수·페이지 범위 검증 · 단가 조회 · 인쇄비·소계·합계 · 운임 클램프를
+답한다. View 금액 멤버 3개 → `SagePriceCalcResult` 1개, `UpdateCalcPreview` 86 → 67줄.
+실패 종류는 enum으로 답하고 문자열·아이콘 매핑은 화면에 남겼다(아이콘이 실패마다 다르다).
+서비스는 무상태라 호출 지점에서 스택 생성한다.
+**교훈: 검증을 core로 옮길 때 실패 메시지의 순서가 곧 화면 동작이다.** 범위 검증을 전부
+`Calculate`에 넣으면 "부수 0 + 페이지 빈칸"에서 뜨는 메시지가 바뀐다. 그래서 `ValidateCopies`를
+따로 노출해 기존 순서(부수 범위 → 페이지 필수)를 유지했다.
+
 **Step 4-1~4-6a — 워크플로 핸들러** (`92468e4`~`07f043b`)
 `ISageWorkflowHandler`가 라벨 4종 · 탭 목록 · 결과 컬럼/표시 속성 · 입력 정책 · 선택 행 검증을 답한다.
 핸들러 3쌍(미수금 · 납품 · 견적) + 등록부 1곳. View 조회는 `FindCurrentHandler()`로 모았다(`e8a0c56`).
@@ -225,24 +234,9 @@ PDF · HWP 표지 검수가 실제로 쓰지 않는 기능임이 확인되어 �
 **기준 A로 센 변경 이유는 3개였고 하나가 화면 소관이 아니다** — `UpdateCalcPreview`(86줄)가
 단가 조회(`sageDBMgr` 직접 호출 2곳)와 금액 계산을 함께 한다. 그래서 1a / 1b로 나눈다.
 
-### 3-B-1a — `SagePriceCalcService` 추출
+### 3-B-1a — `SagePriceCalcService` 추출 — **완료** (2026-08-05)
 
-브랜치: `refactor/price-calc-service`
-
-- [ ] `app/core/price/SagePriceCalcService.h/.cpp` 신설 + vcxproj · filters 등록
-- [ ] 부수·페이지 범위 검증, 단가 조회, 인쇄비·소계·합계, 운임 클램프를 서비스로
-- [ ] View 멤버 3개(`m_nCalcPrintPrice` · `m_nCalcCoverPrice` · `m_nCalcUnitPrice`) → `SagePriceCalcResult` 1개
-- [ ] 화면 확인: 실패 5종의 **메시지와 아이콘** 동일, 정상 계산 3항목 + 합계, 운임 변경, 견적 저장 후 내역 추가
-
-**실패를 `BOOL` + `outFailure` enum으로 나눈 이유**: 실패마다 아이콘이 다르다
-(범위 초과 `MB_ICONWARNING` / 조회 실패 `MB_ICONERROR`). `strError` 하나로 합치면 아이콘이
-통일되어 화면이 바뀐다. 문자열·아이콘 매핑은 화면 소관이므로 UI에 남긴다.
-
-**헤더는 `TaechangPriceService` 전방 선언만 둔다.** `TaechangPriceService.h`가 infra Repository
-헤더를 물고 있어(기존 부채) include하면 그 사슬이 번진다.
-
-**범위 밖**: 입력 파싱(빈 문자열 · 숫자 변환)과 메시지·아이콘 매핑은 UI에 남긴다.
-`sageDBMgr` include는 서비스 인스턴스를 얻는 경로라 남는다 — 앱 전체 패턴이므로 4-B · 3-B-6b 소관.
+결과는 *완료된 작업* 참조.
 
 ### 3-B-1b — `SagePriceCalcPanel` 이관
 
