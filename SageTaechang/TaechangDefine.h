@@ -422,6 +422,25 @@ constexpr UINT ID_CALC_FREIGHT_EDIT       = 41053;
 constexpr UINT ID_CALC_PAGES_EDIT         = 41060;
 constexpr UINT ID_CALC_COMPANY_PICK_BTN   = 41061;
 constexpr UINT ID_CALC_RESET_BTN          = 41064;
+constexpr UINT ID_CALC_PANEL              = 41069;
+
+constexpr LPCWSTR TAECHANG_UI_CALC_COMPANY_PICK_LABEL = L"…";
+constexpr LPCWSTR TAECHANG_UI_CALC_WON_UNIT           = L"원";
+constexpr int TAECHANG_CALC_COPIES_INPUT_MAX_LEN      = 7;
+constexpr int TAECHANG_CALC_FREIGHT_INPUT_MAX_LEN     = 10;
+constexpr int TAECHANG_CALC_INPUT_LABEL_WIDTH         = 46;
+constexpr int TAECHANG_CALC_INPUT_LABEL_SHIFT         = 6;
+constexpr int TAECHANG_CALC_EDIT_TEXT_SIDE_PAD        = 2;
+constexpr int TAECHANG_CALC_EDIT_TEXT_TOP_PAD         = 4;
+constexpr int TAECHANG_CALC_COMBO_DROP_ROWS           = 8;
+constexpr int TAECHANG_CALC_ICON_BTN_W                = 30;
+constexpr int TAECHANG_CALC_ICON_BTN_H                = 38;
+constexpr int TAECHANG_CALC_ICON_BTN_GAP              = 6;
+constexpr int TAECHANG_CALC_DIVIDER_HEIGHT            = 2;
+constexpr int TAECHANG_CALC_FREIGHT_UNIT_WIDTH        = 14;
+constexpr int TAECHANG_CALC_FREIGHT_EDIT_MIN_W        = 100;
+constexpr int TAECHANG_CALC_FREIGHT_EDIT_GAP          = 2;
+constexpr int TAECHANG_CALC_HIST_WIDTH_PAD            = 2;
 constexpr UINT ID_PICKER_DLG_SEARCH_EDIT  = 41062;
 constexpr UINT ID_PICKER_DLG_LIST         = 41063;
 
@@ -520,6 +539,10 @@ constexpr LPCWSTR TAECHANG_UI_CALC_COPIES_REQUIRED = L"부수를 입력하세요
 constexpr LPCWSTR TAECHANG_UI_CALC_COPIES_INVALID  = L"부수는 1 이상의 숫자여야 합니다.";
 constexpr LPCWSTR TAECHANG_UI_CALC_PAGES_REQUIRED  = L"페이지 수를 입력하세요.";
 constexpr LPCWSTR TAECHANG_UI_CALC_PAGES_INVALID   = L"페이지 수는 1 이상 1,000,000 이하의 숫자여야 합니다.";
+
+constexpr LPCWSTR TAECHANG_UI_NUMBER_FORMAT           = L"%I64d";
+constexpr wchar_t TAECHANG_THOUSAND_SEPARATOR         = L',';
+constexpr int     TAECHANG_THOUSAND_SEPARATOR_STEP    = 3;
 
 // ── 가격 관리 입력 검증 상수 ────────────────────────────────────────────────
 constexpr int TAECHANG_PRICE_COMPANY_MAX_LEN    = 20;

@@ -5,6 +5,12 @@
 
 ## 열린 항목
 
+### [2026-08-05] 구조불일치 — core 서비스 인스턴스 획득 방식이 두 가지다
+- 위치: app/ui/view/SageTaechangView.cpp `UpdateCalcPreview` / `UpdateCalcTotal`
+- 설명: 기존 서비스 6개는 `SageDBMgr`이 보유하고 `Get*`으로 노출하는데, `SagePriceCalcService`만 호출 지점에서 스택 생성한다(2곳). 무상태라 동작 문제는 없지만 다음 core 서비스를 만들 때 어느 쪽을 따를지 근거가 없다. Step 3-B-1a에서 `SageDBMgr`을 고치지 않는 쪽을 택한 결과다.
+- 위험도: 낮음
+- 후속: Step 4-B 의존 역전에서 서비스 획득 경로를 정할 때 통일한다
+
 ### [2026-08-04] 중복로직 — 결과 표 판정 규칙이 핸들러와 View 양쪽에 있다
 - 위치: app/core/workflow/handlers/ 내 `HasReceivablesResultTable` / `HasDeliveryInputTable` / `HasEstimateInputTable` ↔ app/ui/view/SageTaechangView.cpp `IsReceivablesResultTable` / `IsDeliveryInputTable` / `IsEstimateInputTable`
 - 설명: Step 4-4로 "이 태스크에 전용 표가 있는가" 판정이 핸들러에 생겼지만, View의 술어 3개도 같은 규칙(워크플로 + 태스크 조합)을 그대로 들고 있다. View 쪽은 행 삽입·필터·버튼 표시에서 아직 20곳 넘게 쓰여 지울 수 없었다. 한쪽 규칙만 바뀌면 컬럼과 행 내용이 어긋난다.

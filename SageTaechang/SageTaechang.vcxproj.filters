@@ -88,6 +88,9 @@
     <Filter Include="소스 파일\app\ui\frame">
       <UniqueIdentifier>{A39B9FD2-B703-5622-A9FD-885004D97056}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\app\ui\panels">
+      <UniqueIdentifier>{3C1A7E64-9B52-4D18-A6F1-2B84C0D91E77}</UniqueIdentifier>
+    </Filter>
     <Filter Include="소스 파일\app\ui\view">
       <UniqueIdentifier>{BE0D45ED-54C7-5877-9282-6DF3BA467778}</UniqueIdentifier>
     </Filter>
@@ -123,6 +126,9 @@
     </Filter>
     <Filter Include="헤더 파일\app\ui\frame">
       <UniqueIdentifier>{56FA811A-100E-51FF-A034-744289C239C3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\app\ui\panels">
+      <UniqueIdentifier>{7F42B9C3-16DE-4A57-8C0B-51E3A7D6248B}</UniqueIdentifier>
     </Filter>
     <Filter Include="헤더 파일\app\ui\view">
       <UniqueIdentifier>{4776A43D-50AD-578E-B8E6-8BA90F0F8188}</UniqueIdentifier>
@@ -185,6 +191,12 @@
     </ClCompile>
     <ClCompile Include="app\infra\office\TaechangReceivablesExcelService.cpp">
       <Filter>소스 파일\app\infra\office</Filter>
+    </ClCompile>
+    <ClCompile Include="app\common\SageNumberFormat.cpp">
+      <Filter>소스 파일\app\common</Filter>
+    </ClCompile>
+    <ClCompile Include="app\ui\panels\SagePriceCalcPanel.cpp">
+      <Filter>소스 파일\app\ui\panels</Filter>
     </ClCompile>
     <ClCompile Include="app\common\TaechangJson.cpp">
       <Filter>소스 파일\app\common</Filter>
@@ -409,6 +421,12 @@
     </ClInclude>
     <ClInclude Include="app\infra\office\TaechangReceivablesExcelService.h">
       <Filter>헤더 파일\app\infra\office</Filter>
+    </ClInclude>
+    <ClInclude Include="app\common\SageNumberFormat.h">
+      <Filter>헤더 파일\app\common</Filter>
+    </ClInclude>
+    <ClInclude Include="app\ui\panels\SagePriceCalcPanel.h">
+      <Filter>헤더 파일\app\ui\panels</Filter>
     </ClInclude>
     <ClInclude Include="app\common\TaechangJson.h">
       <Filter>헤더 파일\app\common</Filter>

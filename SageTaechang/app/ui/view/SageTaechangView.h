@@ -2,8 +2,8 @@
 #pragma once
 
 #include "TaechangDefine.h"
-#include "app/core/price/SagePriceCalcService.h"
 #include "app/core/receivable/TaechangReceivableCompanyOrderDto.h"
+#include "app/ui/panels/SagePriceCalcPanel.h"
 #include "app/ui/drawing/SageHeaderCtrl.h"
 #include "app/ui/drawing/SageTabCtrl.h"
 #include "app/ui/drawing/SageComboBox.h"
@@ -41,23 +41,6 @@ struct TaechangWorkflowUiState {
         , nResultFilterCriteria(TAECHANG_FILTER_CRITERIA_NONE)
         , bEstimateOnePage(FALSE) {}
 };
-
-struct CalcHistoryEntry {
-    CString strCompanyName;
-    CString strItemName;
-    CString strDate;
-    int nCopies;
-    int nPages;
-    LONGLONG nPrintPrice;
-    int nCoverPrice;
-    int nFreight;
-    LONGLONG nTotal;
-    CTime timeCalc;
-
-    CalcHistoryEntry() : nCopies(0), nPages(0), nPrintPrice(0), nCoverPrice(0), nFreight(0), nTotal(0) {}
-};
-
-
 
 class CSageTaechangView : public CView
 {
@@ -169,40 +152,10 @@ protected:
     CSageLabel          m_wndPriceSummaryRange;
     CRect               m_rectPriceSummaryCard;
 
-    // ── 부수 계산 패널 ───────────────────────────────────────────────────────
-    CSageLabel           m_wndCalcCompanyLabel;
-    CSageComboBox    m_wndCalcCompanyCombo;
-    CSageButton          m_wndCalcCompanyPickBtn;
-    CSageLabel           m_wndCalcCopiesLabel;
-    CEdit                m_wndCalcCopiesEdit;
-    CSageLabel           m_wndCalcPagesLabel;
-    CEdit                m_wndCalcPagesEdit;
-    CSageButton          m_wndCalcBtn;
-    CSageButton          m_wndCalcResetBtn;
-    CSageLabel           m_wndCalcPrintLabel;
-    CSageLabel           m_wndCalcPrintValue;
-    CSageLabel           m_wndCalcCoverLabel;
-    CSageLabel           m_wndCalcCoverValue;
-    CSageLabel           m_wndCalcSubtotalLabel;
-    CSageLabel           m_wndCalcSubtotalValue;
-    CSageLabel           m_wndCalcFreightLabel;
-    CEdit                m_wndCalcFreightEdit;
-    CSageLabel           m_wndCalcFreightUnitLabel;
-    CSageLabel           m_wndCalcDivider;
-    CSageLabel           m_wndCalcTotalDivider;
-    CSageLabel           m_wndCalcTotalLabel;
-    CSageLabel           m_wndCalcTotalValue;
-    CSageSectionLabel       m_wndCalcHistorySection;
-    CSageHeaderCtrl  m_wndCalcHistoryHeader;
-    CSageListCtrl        m_wndCalcHistoryList;
-    CRect                m_rectCalcInputPanel;
-    CRect                m_rectCalcResultPanel;
-    CArray<CalcHistoryEntry, CalcHistoryEntry&> m_arrCalcHistory;
+    SagePriceCalcPanel m_panelPriceCalc;
 
     // ── 가격 관리 내부 상태 ─────────────────────────────────────────────────
-    SagePriceCalcResult m_calcResult;
     int  m_nPricePanelState;
-    BOOL m_bFormattingCalcFreight;
     BOOL m_bFormattingPricePrint;
     BOOL m_bFormattingPriceCover;
 
@@ -295,7 +248,6 @@ protected:
     void ClearPriceForm();
     BOOL ReadPriceFormToDto(TaechangPriceDto& dto, CString& strError);
     CString GetSelectedCompanyName() const;
-    void FormatPriceEditText(CEdit& edit, BOOL& bFormatting);
 
     // ── 법인 순서 데이터 관리 패널 ───────────────────────────────────────────
     void CreateCompanyOrderPanel();
@@ -305,21 +257,6 @@ protected:
     void RefreshCompanyOrderList();
     void UpdateCoListColumns();
     void UpdateCoPanelState();
-
-    // ── 부수 계산 패널 ───────────────────────────────────────────────────────
-    void CreatePriceCalcPanel();
-    void LayoutPriceCalcPanel(int nLeft, int nTop, int nWidth, int nHeight);
-    void ShowPriceCalcPanel(BOOL bShow);
-    void RefreshCalcCompanyCombo();
-    void ClearCalcInputAndResult();
-    void ClearCalcResult();
-    BOOL UpdateCalcPreview(BOOL bShowMessage);
-    void ShowCalcFailureMessage(SagePriceCalcFailure nFailure, const CString& strError) const;
-    void UpdateCalcTotal();
-    void AddCalcHistory(const CString& strCompany, int nCopies, int nPages, const CString& strItemName, const CString& strDate, LONGLONG nPrintPrice, int nCoverPrice, int nFreight, LONGLONG nTotal);
-    void RefreshCalcHistoryList();
-    int  GetCalcHistoryVisibleCapacity() const;
-    void TrimCalcHistoryToVisibleCapacity();
 
 protected:
     afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
@@ -367,13 +304,6 @@ protected:
     afx_msg void OnCoSearch();
     afx_msg void OnCoListSelChanged(NMHDR* pNMHDR, LRESULT* pResult);
 
-    // ── 부수 계산 이벤트 ────────────────────────────────────────────────────
-    afx_msg void OnCalc();
-    afx_msg void OnCalcReset();
-    afx_msg void OnCalcCompanyChanged();
-    afx_msg void OnCalcInputChanged();
-    afx_msg void OnCalcFreightChanged();
-    afx_msg void OnCalcCompanyPick();
     afx_msg void OnResultSearch();
     afx_msg void OnResultFilterReset();
     afx_msg void OnResultFilterCriteriaChanged();
