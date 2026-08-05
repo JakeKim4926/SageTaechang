@@ -980,12 +980,6 @@ BOOL CSageTaechangView::IsDocumentResultFilterVisible() const {
 	return pHandler->UsesCustomResultTable(m_nLastTaskType);
 }
 
-BOOL CSageTaechangView::IsDocumentWorkflowStateTarget(int nWorkflowType) const {
-	return (nWorkflowType == TAECHANG_WORKFLOW_RECEIVABLES ||
-		nWorkflowType == TAECHANG_WORKFLOW_DELIVERY ||
-		nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE) ? TRUE : FALSE;
-}
-
 TaechangWorkflowUiState& CSageTaechangView::GetWorkflowUiState(int nWorkflowType) {
 	if (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY)
 		return m_stateDelivery;
@@ -995,7 +989,7 @@ TaechangWorkflowUiState& CSageTaechangView::GetWorkflowUiState(int nWorkflowType
 }
 
 void CSageTaechangView::SaveWorkflowUiState(int nWorkflowType) {
-	if (!IsDocumentWorkflowStateTarget(nWorkflowType))
+	if (SageWorkflowRegistry::FindHandler(nWorkflowType) == NULL)
 		return;
 
 	TaechangWorkflowUiState& state = GetWorkflowUiState(nWorkflowType);
@@ -1017,7 +1011,7 @@ void CSageTaechangView::SaveWorkflowUiState(int nWorkflowType) {
 }
 
 void CSageTaechangView::RestoreWorkflowUiState(int nWorkflowType) {
-	if (!IsDocumentWorkflowStateTarget(nWorkflowType)) {
+	if (SageWorkflowRegistry::FindHandler(nWorkflowType) == NULL) {
 		m_nSelectedTaskTab = TAECHANG_TAB_INDEX_INPUT;
 		m_nLastWorkflowType = 0;
 		m_nLastTaskType = 0;
@@ -1102,8 +1096,7 @@ void CSageTaechangView::RebuildCurrentWorkflowResultList() {
 	UpdateResultColumns();
 	if (IsDocumentResultFilterVisible()) {
 		RefreshDocumentResultFilter();
-		if (IsDocumentWorkflowStateTarget(GetSelectedWorkflow()))
-			RestoreCheckedRowNums(GetWorkflowUiState(GetSelectedWorkflow()));
+		RestoreCheckedRowNums(GetWorkflowUiState(GetSelectedWorkflow()));
 	}
 }
 

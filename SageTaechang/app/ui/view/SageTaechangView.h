@@ -178,7 +178,6 @@ protected:
     BOOL IsEstimateInputTable() const;
     BOOL IsInputResetVisible() const;
     BOOL IsDocumentResultFilterVisible() const;
-    BOOL IsDocumentWorkflowStateTarget(int nWorkflowType) const;
     TaechangWorkflowUiState& GetWorkflowUiState(int nWorkflowType);
     void SaveWorkflowUiState(int nWorkflowType);
     void RestoreWorkflowUiState(int nWorkflowType);
