@@ -14,11 +14,6 @@ CSageListCtrl::CSageListCtrl()
 	, m_bRowSeparator(FALSE) {
 }
 
-void CSageListCtrl::PreSubclassWindow() {
-	CListCtrl::PreSubclassWindow();
-	ApplyFixedRowHeight();
-}
-
 void CSageListCtrl::ApplyFixedRowHeight() {
 	if (m_imgRowSpacer.GetSafeHandle() != NULL)
 		return;
@@ -99,6 +94,7 @@ void CSageListCtrl::OnNMCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
 
 	switch (pCD->nmcd.dwDrawStage) {
 		case CDDS_PREPAINT:
+			ApplyFixedRowHeight();
 			*pResult = CDRF_NOTIFYITEMDRAW;
 			break;
 

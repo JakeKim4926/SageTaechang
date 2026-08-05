@@ -13,7 +13,6 @@ public:
 	void SetRowSeparator(BOOL bEnable);
 
 protected:
-	virtual void PreSubclassWindow();
 	afx_msg void OnNMCustomDraw(NMHDR* pNMHDR, LRESULT* pResult);
 
 private:
