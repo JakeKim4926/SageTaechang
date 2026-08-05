@@ -10,7 +10,36 @@ CSageListCtrl::CSageListCtrl()
 	: m_bAlternateRow(FALSE)
 	, m_bCenterFirstColumn(FALSE)
 	, m_nHighlightFirst(0)
-	, m_nHighlightCount(0) {
+	, m_nHighlightCount(0)
+	, m_bRowSeparator(FALSE) {
+}
+
+void CSageListCtrl::PreSubclassWindow() {
+	CListCtrl::PreSubclassWindow();
+	ApplyFixedRowHeight();
+}
+
+void CSageListCtrl::ApplyFixedRowHeight() {
+	if (m_imgRowSpacer.GetSafeHandle() != NULL)
+		return;
+	if (!m_imgRowSpacer.Create(TAECHANG_LIST_ROW_SPACER_WIDTH, TAECHANG_LIST_ROW_HEIGHT, ILC_COLOR32, 1, 1))
+		return;
+	SetImageList(&m_imgRowSpacer, LVSIL_SMALL);
+}
+
+void CSageListCtrl::SetRowSeparator(BOOL bEnable) {
+	m_bRowSeparator = bEnable;
+	if (::IsWindow(GetSafeHwnd()))
+		Invalidate();
+}
+
+void CSageListCtrl::DrawRowSeparator(int nItem, NMLVCUSTOMDRAW* pCD) {
+	CRect rcItem;
+	if (!GetItemRect(nItem, rcItem, LVIR_BOUNDS))
+		return;
+	CDC* pDC = CDC::FromHandle(pCD->nmcd.hdc);
+	pDC->FillSolidRect(rcItem.left, rcItem.bottom - TAECHANG_LIST_GRID_THICKNESS,
+		rcItem.Width(), TAECHANG_LIST_GRID_THICKNESS, TAECHANG_COLOR_LIST_GRID);
 }
 
 void CSageListCtrl::SetAlternateRowColor(BOOL bEnable) {
@@ -77,15 +106,25 @@ void CSageListCtrl::OnNMCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
 		{
 			int nItem = static_cast<int>(pCD->nmcd.dwItemSpec);
 			BOOL bSelected = (GetItemState(nItem, LVIS_SELECTED) & LVIS_SELECTED) != 0;
+			if (m_bRowSeparator)
+				*pResult |= CDRF_NOTIFYPOSTPAINT;
 			if (bSelected)
 				break;
 			if (m_bAlternateRow) {
 				pCD->clrTextBk = GetRowBackColor(nItem);
 				pCD->clrText = TAECHANG_COLOR_TEXT;
-				*pResult = CDRF_NEWFONT;
+				*pResult |= CDRF_NEWFONT;
 			}
 			if (m_nHighlightCount > 0 || m_bCenterFirstColumn)
 				*pResult |= CDRF_NOTIFYSUBITEMDRAW;
+			break;
+		}
+
+		case CDDS_ITEMPOSTPAINT:
+		{
+			if (!m_bRowSeparator)
+				break;
+			DrawRowSeparator(static_cast<int>(pCD->nmcd.dwItemSpec), pCD);
 			break;
 		}
 

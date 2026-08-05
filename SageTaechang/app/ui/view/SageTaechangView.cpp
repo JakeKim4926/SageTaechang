@@ -461,9 +461,8 @@ void CSageTaechangView::ApplyResultColumns() {
 	DWORD dwExtStyle = LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER;
 	if (resultStyle.bCheckbox)
 		dwExtStyle |= LVS_EX_CHECKBOXES;
-	if (resultStyle.bGridLines)
-		dwExtStyle |= LVS_EX_GRIDLINES;
 	m_wndResultList.SetExtendedStyle(dwExtStyle);
+	m_wndResultList.SetRowSeparator(resultStyle.bGridLines);
 	m_wndResultList.SetHighlightColumns(resultStyle.nHighlightStart, resultStyle.nHighlightCount);
 
 	m_wndResultList.DeleteAllItems();
@@ -1829,7 +1828,8 @@ void CSageTaechangView::CreateCompanyOrderPanel() {
 	m_wndCoList.Create(WS_CHILD | LVS_REPORT | LVS_SHOWSELALWAYS | LVS_SINGLESEL, r, this, ID_COORDER_LIST);
 	m_wndCoList.SetAlternateRowColor(TRUE);
 	m_wndCoList.SetCenterFirstColumn(TRUE);
-	m_wndCoList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_GRIDLINES);
+	m_wndCoList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
+	m_wndCoList.SetRowSeparator(TRUE);
 	m_wndCoList.InsertColumn(0, TAECHANG_UI_CO_COL_ORDER, LVCFMT_CENTER, TAECHANG_CO_ORDER_COL_WIDTH);
 	m_wndCoList.InsertColumn(1, TAECHANG_UI_CO_COL_COMPANY, LVCFMT_LEFT, TAECHANG_CO_COMPANY_NAME_WIDTH);
 	if (CHeaderCtrl* pHeader = m_wndCoList.GetHeaderCtrl()) {

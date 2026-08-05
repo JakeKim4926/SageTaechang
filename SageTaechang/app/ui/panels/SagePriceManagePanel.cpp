@@ -65,7 +65,8 @@ void SagePriceManagePanel::CreateControls() {
 	m_wndCopiesList.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS, r, this, ID_PRICE_COPIES_LIST);
 	m_wndCopiesList.SetAlternateRowColor(TRUE);
 	m_wndCopiesList.SetCenterFirstColumn(TRUE);
-	m_wndCopiesList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_GRIDLINES);
+	m_wndCopiesList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
+	m_wndCopiesList.SetRowSeparator(TRUE);
 	m_wndCopiesList.InsertColumn(0, TAECHANG_UI_PRICE_COL_MIN_COPIES, LVCFMT_CENTER, TAECHANG_PRICE_COL_MIN_WIDTH);
 	m_wndCopiesList.InsertColumn(1, TAECHANG_UI_PRICE_COL_MAX_COPIES, LVCFMT_CENTER, TAECHANG_PRICE_COL_MAX_WIDTH);
 	m_wndCopiesList.InsertColumn(2, TAECHANG_UI_PRICE_COL_PRINT_PRICE, LVCFMT_CENTER, TAECHANG_PRICE_COL_PRINT_WIDTH);

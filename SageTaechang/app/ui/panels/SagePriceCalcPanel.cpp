@@ -78,6 +78,7 @@ void SagePriceCalcPanel::CreateControls() {
 	m_wndHistorySection.Create(TAECHANG_UI_CALC_SECTION_HISTORY, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, r, this, ID_CALC_HISTORY_SECTION);
 	m_wndHistoryList.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SINGLESEL, r, this, ID_CALC_HISTORY_LIST);
 	m_wndHistoryList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
+	m_wndHistoryList.SetRowSeparator(TRUE);
 	{
 		CHeaderCtrl* pHeader = m_wndHistoryList.GetHeaderCtrl();
 		if (pHeader && pHeader->GetSafeHwnd()) {
