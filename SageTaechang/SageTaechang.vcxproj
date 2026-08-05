@@ -354,6 +354,10 @@ if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templ
     <None Include="resources\GmarketSansTTFBold.ttf" />
     <None Include="resources\GmarketSansTTFLight.ttf" />
     <None Include="resources\GmarketSansTTFMedium.ttf" />
+    <None Include="resources\PretendardRegular.ttf" />
+    <None Include="resources\PretendardSemiBold.ttf" />
+    <None Include="resources\PretendardBold.ttf" />
+    <None Include="resources\PretendardLicense.txt" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\SageTaechang.ico" />

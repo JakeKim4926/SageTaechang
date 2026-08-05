@@ -498,6 +498,18 @@
     <None Include="resources\GmarketSansTTFMedium.ttf">
     <Filter>리소스 파일</Filter>
     </None>
+    <None Include="resources\PretendardRegular.ttf">
+    <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="resources\PretendardSemiBold.ttf">
+    <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="resources\PretendardBold.ttf">
+    <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="resources\PretendardLicense.txt">
+    <Filter>리소스 파일</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\SageTaechangDoc.ico">
