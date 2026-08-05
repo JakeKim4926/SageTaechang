@@ -963,13 +963,12 @@ BOOL CSageTaechangView::IsDataManageTab() const {
 }
 
 BOOL CSageTaechangView::IsDocumentResultFilterVisible() const {
-	if (GetSelectedWorkflow() == TAECHANG_WORKFLOW_RECEIVABLES && IsReceivablesResultTable())
-		return TRUE;
-	if (GetSelectedWorkflow() == TAECHANG_WORKFLOW_DELIVERY && IsDeliveryInputTable())
-		return TRUE;
-	if (GetSelectedWorkflow() == TAECHANG_WORKFLOW_ESTIMATE && IsEstimateInputTable())
-		return TRUE;
-	return FALSE;
+	ISageWorkflowHandler* pHandler = FindCurrentHandler();
+	if (pHandler == NULL)
+		return FALSE;
+	if (m_nLastWorkflowType != pHandler->GetWorkflowType())
+		return FALSE;
+	return pHandler->UsesCustomResultTable(m_nLastTaskType);
 }
 
 BOOL CSageTaechangView::IsDocumentWorkflowStateTarget(int nWorkflowType) const {
@@ -1694,20 +1693,20 @@ void CSageTaechangView::RefreshDocumentResultFilter() {
 }
 
 int CSageTaechangView::GetDefaultFilterCriteria() const {
-	if (GetSelectedWorkflow() == TAECHANG_WORKFLOW_RECEIVABLES)
-		return TAECHANG_FILTER_CRITERIA_COMPANY;
-	return TAECHANG_FILTER_CRITERIA_ITEM;
+	ISageWorkflowHandler* pHandler = FindCurrentHandler();
+	if (pHandler == NULL || pHandler->GetFilterCriteriaCount() < 1)
+		return TAECHANG_FILTER_CRITERIA_NONE;
+	return pHandler->GetFilterCriteria(0).nCriteria;
 }
 
 int CSageTaechangView::GetEffectiveFilterCriteria() const {
-	if (GetSelectedWorkflow() == TAECHANG_WORKFLOW_RECEIVABLES) {
-		if (m_nResultFilterCriteria == TAECHANG_FILTER_CRITERIA_COMPANY ||
-			m_nResultFilterCriteria == TAECHANG_FILTER_CRITERIA_MANAGER ||
-			m_nResultFilterCriteria == TAECHANG_FILTER_CRITERIA_ITEM)
-			return m_nResultFilterCriteria;
-	} else {
-		if (m_nResultFilterCriteria == TAECHANG_FILTER_CRITERIA_ITEM ||
-			m_nResultFilterCriteria == TAECHANG_FILTER_CRITERIA_COMPANY)
+	ISageWorkflowHandler* pHandler = FindCurrentHandler();
+	if (pHandler == NULL)
+		return TAECHANG_FILTER_CRITERIA_NONE;
+
+	int nCount = pHandler->GetFilterCriteriaCount();
+	for (int i = 0; i < nCount; ++i) {
+		if (pHandler->GetFilterCriteria(i).nCriteria == m_nResultFilterCriteria)
 			return m_nResultFilterCriteria;
 	}
 	return GetDefaultFilterCriteria();
@@ -1717,20 +1716,17 @@ void CSageTaechangView::PopulateResultFilterCriteria() {
 	if (!::IsWindow(m_wndResultFilterCriteria.GetSafeHwnd()))
 		return;
 
+	ISageWorkflowHandler* pHandler = FindCurrentHandler();
+	if (pHandler == NULL)
+		return;
+
 	int nEffective = GetEffectiveFilterCriteria();
 	m_wndResultFilterCriteria.ResetContent();
-	if (GetSelectedWorkflow() == TAECHANG_WORKFLOW_RECEIVABLES) {
-		int nIndexCompany = m_wndResultFilterCriteria.AddString(TAECHANG_UI_FILTER_CRITERIA_COMPANY);
-		m_wndResultFilterCriteria.SetItemData(nIndexCompany, TAECHANG_FILTER_CRITERIA_COMPANY);
-		int nIndexManager = m_wndResultFilterCriteria.AddString(TAECHANG_UI_FILTER_CRITERIA_MANAGER);
-		m_wndResultFilterCriteria.SetItemData(nIndexManager, TAECHANG_FILTER_CRITERIA_MANAGER);
-		int nIndexItem = m_wndResultFilterCriteria.AddString(TAECHANG_UI_FILTER_CRITERIA_ITEM);
-		m_wndResultFilterCriteria.SetItemData(nIndexItem, TAECHANG_FILTER_CRITERIA_ITEM);
-	} else {
-		int nIndexItem = m_wndResultFilterCriteria.AddString(TAECHANG_UI_FILTER_CRITERIA_ITEM);
-		m_wndResultFilterCriteria.SetItemData(nIndexItem, TAECHANG_FILTER_CRITERIA_ITEM);
-		int nIndexCompany = m_wndResultFilterCriteria.AddString(TAECHANG_UI_FILTER_CRITERIA_COMPANY);
-		m_wndResultFilterCriteria.SetItemData(nIndexCompany, TAECHANG_FILTER_CRITERIA_COMPANY);
+	int nCriteriaCount = pHandler->GetFilterCriteriaCount();
+	for (int i = 0; i < nCriteriaCount; ++i) {
+		const SageWorkflowFilterCriteria& criteria = pHandler->GetFilterCriteria(i);
+		int nIndex = m_wndResultFilterCriteria.AddString(criteria.pszLabel);
+		m_wndResultFilterCriteria.SetItemData(nIndex, criteria.nCriteria);
 	}
 
 	int nCount = m_wndResultFilterCriteria.GetCount();
