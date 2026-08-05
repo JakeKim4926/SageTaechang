@@ -84,9 +84,12 @@ function Set-CellValue($sheet, $address, $value) {
 }
 
 $excel = $null
+$excelProcessId = 0
 $inputWorkbook = $null
 $templateWorkbook = $null
 $items = New-Object System.Collections.ArrayList
+
+. (Join-Path $PSScriptRoot 'excel-process.ps1')
 
 try {
     if (-not (Test-Path -LiteralPath $InputPath)) {
@@ -99,7 +102,9 @@ try {
         New-Item -ItemType Directory -Path $OutputFolder | Out-Null
     }
 
+    $excelProcessIdsBefore = Get-ExcelProcessIds
     $excel = New-Object -ComObject Excel.Application
+    $excelProcessId = Find-NewExcelProcessId $excelProcessIdsBefore
     $excel.Visible = $false
     $excel.DisplayAlerts = $false
     try { $excel.ScreenUpdating = $false } catch {}
@@ -252,7 +257,6 @@ catch {
     exit 1
 }
 finally {
-    if ($excel -ne $null) {
-        $excel.Quit()
-    }
+    if ($excel -ne $null) { try { $excel.Quit() } catch {} }
+    Stop-OwnedExcelProcess $excelProcessId
 }

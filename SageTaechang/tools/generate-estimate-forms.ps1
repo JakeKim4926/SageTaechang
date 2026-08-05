@@ -173,6 +173,10 @@ $inputWorkbook    = $null
 $templateWorkbook = $null
 $items            = New-Object System.Collections.ArrayList
 
+. (Join-Path $PSScriptRoot 'excel-process.ps1')
+
+$excelProcessId = 0
+
 try {
     if (-not [System.IO.File]::Exists($InputPath))    { throw "Input file was not found: $InputPath" }
     if (-not [System.IO.File]::Exists($TemplatePath)) { throw "Template file was not found: $TemplatePath" }
@@ -180,7 +184,9 @@ try {
         [System.IO.Directory]::CreateDirectory($OutputFolder) | Out-Null
     }
 
+    $excelProcessIdsBefore = Get-ExcelProcessIds
     $excel = New-Object -ComObject Excel.Application
+    $excelProcessId = Find-NewExcelProcessId $excelProcessIdsBefore
     $excel.Visible = $false
     $excel.DisplayAlerts = $false
     try { $excel.ScreenUpdating = $false } catch {}
@@ -279,4 +285,5 @@ catch {
 }
 finally {
     if ($excel -ne $null) { try { $excel.Quit() } catch {} }
+    Stop-OwnedExcelProcess $excelProcessId
 }
