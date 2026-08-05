@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "app/ui/drawing/SageListCtrl.h"
+#include "app/ui/drawing/SageUiResources.h"
 #include "TaechangDefine.h"
 
 BEGIN_MESSAGE_MAP(CSageListCtrl, CListCtrl)
@@ -172,7 +173,11 @@ void CSageListCtrl::OnNMCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
 			int nSubItem = pCD->iSubItem;
 			BOOL bSelected = (GetItemState(nItem, LVIS_SELECTED) & LVIS_SELECTED) != 0;
 			if (m_nHighlightCount > 0) {
-				pCD->clrText = IsHighlightColumn(nSubItem) ? TAECHANG_COLOR_PRIMARY : TAECHANG_COLOR_TEXT;
+				BOOL bHighlight = IsHighlightColumn(nSubItem);
+				pCD->clrText = bHighlight ? TAECHANG_COLOR_PRIMARY : TAECHANG_COLOR_TEXT;
+				CDC* pDC = CDC::FromHandle(pCD->nmcd.hdc);
+				pDC->SelectObject(SageUiResources::GetFont(
+					bHighlight ? SAGE_FONT_LIST_BOLD : SAGE_FONT_LIST));
 				*pResult = CDRF_NEWFONT;
 			}
 			if (m_bCenterFirstColumn && nSubItem == 0) {

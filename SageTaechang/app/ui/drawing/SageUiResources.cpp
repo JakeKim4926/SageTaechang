@@ -9,6 +9,7 @@ CFont g_fontContent;
 CFont g_fontTitle;
 CFont g_fontHeader;
 CFont g_fontList;
+CFont g_fontListBold;
 CFont g_fontLogo;
 
 constexpr int SAGE_BG_COUNT = SAGE_BG_STATUS_ERROR + 1;
@@ -36,6 +37,14 @@ const COLORREF g_textColors[SAGE_TEXT_COUNT] = {
 	TAECHANG_COLOR_SIDEBAR_CATEGORY
 };
 
+void CreateBoldVariant(CFont& fontBase, CFont& fontBold) {
+	LOGFONT lf = {};
+	if (fontBase.GetLogFont(&lf) == 0)
+		return;
+	lf.lfWeight = FW_BOLD;
+	fontBold.CreateFontIndirect(&lf);
+}
+
 }
 
 namespace SageUiResources {
@@ -47,6 +56,7 @@ void Create() {
 	g_fontHeader.CreatePointFont(TAECHANG_HEADER_FONT_POINT_SIZE, TAECHANG_TITLE_FONT_FACE);
 	g_fontList.CreatePointFont(TAECHANG_LIST_FONT_POINT_SIZE, TAECHANG_CONTROL_FONT_FACE);
 	g_fontLogo.CreatePointFont(TAECHANG_TITLE_FONT_POINT_SIZE, TAECHANG_LOGO_FONT_FACE);
+	CreateBoldVariant(g_fontList, g_fontListBold);
 
 	for (int i = 0; i < SAGE_BG_COUNT; ++i)
 		g_brushes[i].CreateSolidBrush(g_backgroundColors[i]);
@@ -58,6 +68,7 @@ void Destroy() {
 	g_fontTitle.DeleteObject();
 	g_fontHeader.DeleteObject();
 	g_fontList.DeleteObject();
+	g_fontListBold.DeleteObject();
 	g_fontLogo.DeleteObject();
 
 	for (int i = 0; i < SAGE_BG_COUNT; ++i)
@@ -69,8 +80,9 @@ CFont* GetFont(SageFontRole nRole) {
 		case SAGE_FONT_CONTENT: return &g_fontContent;
 		case SAGE_FONT_TITLE:   return &g_fontTitle;
 		case SAGE_FONT_HEADER:  return &g_fontHeader;
-		case SAGE_FONT_LIST:    return &g_fontList;
-		case SAGE_FONT_LOGO:    return &g_fontLogo;
+		case SAGE_FONT_LIST:      return &g_fontList;
+		case SAGE_FONT_LIST_BOLD: return &g_fontListBold;
+		case SAGE_FONT_LOGO:      return &g_fontLogo;
 		default:                return &g_fontControl;
 	}
 }
