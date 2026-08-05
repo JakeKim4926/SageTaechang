@@ -174,8 +174,8 @@ protected:
     BOOL IsActionTabVisible() const;
     int GetTaskTabVisualIndex(int nSemanticTabIndex) const;
     int GetTaskTabSemanticIndex(int nVisualTabIndex) const;
-    BOOL IsDeliveryInputTable() const;
-    BOOL IsEstimateInputTable() const;
+    BOOL IsInputTableVisible() const;
+    BOOL IsOnePageOptionVisible() const;
     BOOL IsInputResetVisible() const;
     BOOL IsDocumentResultFilterVisible() const;
     TaechangWorkflowUiState& GetWorkflowUiState(int nWorkflowType);

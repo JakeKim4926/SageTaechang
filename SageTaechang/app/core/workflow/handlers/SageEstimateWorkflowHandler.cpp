@@ -103,6 +103,10 @@ BOOL SageEstimateWorkflowHandler::UsesInputTable() const {
 	return TRUE;
 }
 
+BOOL SageEstimateWorkflowHandler::UsesOnePageOption() const {
+	return TRUE;
+}
+
 LPCWSTR SageEstimateWorkflowHandler::FindGenerateCompletedMessage() const {
 	return TAECHANG_UI_ESTIMATE_GENERATE_COMPLETED;
 }

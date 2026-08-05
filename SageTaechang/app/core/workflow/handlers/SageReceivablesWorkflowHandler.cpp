@@ -110,6 +110,10 @@ BOOL SageReceivablesWorkflowHandler::UsesInputTable() const {
 	return FALSE;
 }
 
+BOOL SageReceivablesWorkflowHandler::UsesOnePageOption() const {
+	return FALSE;
+}
+
 LPCWSTR SageReceivablesWorkflowHandler::FindGenerateCompletedMessage() const {
 	return NULL;
 }

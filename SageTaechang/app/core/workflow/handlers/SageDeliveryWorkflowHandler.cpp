@@ -105,6 +105,10 @@ BOOL SageDeliveryWorkflowHandler::UsesInputTable() const {
 	return TRUE;
 }
 
+BOOL SageDeliveryWorkflowHandler::UsesOnePageOption() const {
+	return FALSE;
+}
+
 LPCWSTR SageDeliveryWorkflowHandler::FindGenerateCompletedMessage() const {
 	return TAECHANG_UI_DELIVERY_GENERATE_COMPLETED;
 }

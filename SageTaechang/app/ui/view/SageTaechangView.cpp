@@ -484,7 +484,7 @@ void CSageTaechangView::UpdateTaskTabVisibility() {
 	BOOL bShowInput = IsInputTabSelected();
 	BOOL bShowOutput = bShowInput;
 	BOOL bShowAction = IsActionTabVisible();
-	BOOL bShowResult = IsResultTab() || (IsInputTabSelected() && (IsDeliveryInputTable() || IsEstimateInputTable()));
+	BOOL bShowResult = IsResultTab() || (IsInputTabSelected() && IsInputTableVisible());
 	BOOL bShowDetail = IsDetailTab();
 
 	m_wndInputSection.ShowWindow(bShowInput ? SW_SHOW : SW_HIDE);
@@ -503,9 +503,9 @@ void CSageTaechangView::UpdateTaskTabVisibility() {
 	m_wndGenerate.ShowWindow(bShowAction ? SW_SHOW : SW_HIDE);
 	BOOL bShowInputReset = (bShowAction && IsInputResetVisible()) ? TRUE : FALSE;
 	m_wndInputReset.ShowWindow(bShowInputReset ? SW_SHOW : SW_HIDE);
-	BOOL bShowSelectAll = (bShowAction && (IsDeliveryInputTable() || IsEstimateInputTable())) ? TRUE : FALSE;
+	BOOL bShowSelectAll = (bShowAction && IsInputTableVisible()) ? TRUE : FALSE;
 	m_wndSelectAll.ShowWindow(bShowSelectAll ? SW_SHOW : SW_HIDE);
-	BOOL bShowEstimateOnePage = (bShowAction && IsEstimateInputTable()) ? TRUE : FALSE;
+	BOOL bShowEstimateOnePage = (bShowAction && IsOnePageOptionVisible()) ? TRUE : FALSE;
 	m_wndEstimateOnePage.ShowWindow(bShowEstimateOnePage ? SW_SHOW : SW_HIDE);
 	BOOL bShowActionStatus = (bShowAction && !m_bRunning && m_nLastTaskType != 0 && !bShowInputReset) ? TRUE : FALSE;
 	m_wndProgress.ShowWindow((bShowAction && m_bRunning) ? SW_SHOW : SW_HIDE);
@@ -760,8 +760,8 @@ void CSageTaechangView::LayoutActionSection(int nLeft, int nTop, int nWidth) {
 
 void CSageTaechangView::LayoutResultSection(int nLeft, int nTop, int nWidth, int nHeight) {
 	int nBodyHeight = max(TAECHANG_RESULT_MIN_HEIGHT, nHeight - TAECHANG_RESULT_HEADER_HEIGHT);
-	if (IsResultTab() || (IsInputTabSelected() && (IsDeliveryInputTable() || IsEstimateInputTable()))) {
-		BOOL bShowSelectAll = IsInputTabSelected() && (IsDeliveryInputTable() || IsEstimateInputTable());
+	if (IsResultTab() || (IsInputTabSelected() && IsInputTableVisible())) {
+		BOOL bShowSelectAll = IsInputTabSelected() && IsInputTableVisible();
 		BOOL bShowResultFilter = IsDocumentResultFilterVisible();
 		int nFilterTotalW = TAECHANG_RESULT_CRITERIA_WIDTH + TAECHANG_ACTION_GAP
 			+ TAECHANG_RESULT_FILTER_WIDTH + TAECHANG_ACTION_GAP
@@ -776,7 +776,7 @@ void CSageTaechangView::LayoutResultSection(int nLeft, int nTop, int nWidth, int
 		if (bShowSelectAll) {
 			m_wndResultSection.MoveWindow(0, 0, 0, 0);
 			m_wndSelectAll.MoveWindow(nLeft, nTop - TAECHANG_BUTTON_VERT_ADJUST, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
-			if (IsEstimateInputTable()) {
+			if (IsOnePageOptionVisible()) {
 				int nOnePageLeft = nLeft + TAECHANG_BUTTON_WIDTH + TAECHANG_ACTION_GAP;
 				m_wndEstimateOnePage.MoveWindow(nOnePageLeft, nTop - TAECHANG_BUTTON_VERT_ADJUST, TAECHANG_ESTIMATE_ONE_PAGE_WIDTH, TAECHANG_BUTTON_HEIGHT);
 			}
@@ -942,22 +942,26 @@ int CSageTaechangView::GetTaskTabSemanticIndex(int nVisualTabIndex) const {
 	return pHandler->GetTab(nVisualTabIndex).nSemanticIndex;
 }
 
-BOOL CSageTaechangView::IsDeliveryInputTable() const {
-	if (m_nLastWorkflowType != TAECHANG_WORKFLOW_DELIVERY)
+BOOL CSageTaechangView::IsInputTableVisible() const {
+	ISageWorkflowHandler* pHandler = FindCurrentHandler();
+	if (pHandler == NULL || !pHandler->UsesInputTable())
 		return FALSE;
-	return (m_nLastTaskType == TAECHANG_TASK_LOAD) ? TRUE : FALSE;
+	if (m_nLastWorkflowType != pHandler->GetWorkflowType())
+		return FALSE;
+	return pHandler->UsesCustomResultTable(m_nLastTaskType);
 }
 
-BOOL CSageTaechangView::IsEstimateInputTable() const {
-	if (m_nLastWorkflowType != TAECHANG_WORKFLOW_ESTIMATE)
+BOOL CSageTaechangView::IsOnePageOptionVisible() const {
+	ISageWorkflowHandler* pHandler = FindCurrentHandler();
+	if (pHandler == NULL || !pHandler->UsesOnePageOption())
 		return FALSE;
-	return (m_nLastTaskType == TAECHANG_TASK_LOAD) ? TRUE : FALSE;
+	return IsInputTableVisible();
 }
 
 BOOL CSageTaechangView::IsInputResetVisible() const {
 	if (m_bRunning || !IsInputTabSelected())
 		return FALSE;
-	return (IsDeliveryInputTable() || IsEstimateInputTable()) ? TRUE : FALSE;
+	return IsInputTableVisible();
 }
 
 BOOL CSageTaechangView::IsDataManageTab() const {
@@ -1040,7 +1044,7 @@ void CSageTaechangView::SaveCheckedRowNums(TaechangWorkflowUiState& state) {
 	state.strCheckedRowNums.Empty();
 	if (!::IsWindow(m_wndResultList.GetSafeHwnd()))
 		return;
-	if (!IsDeliveryInputTable() && !IsEstimateInputTable())
+	if (!IsInputTableVisible())
 		return;
 
 	int nListCount = m_wndResultList.GetItemCount();
@@ -1061,7 +1065,7 @@ void CSageTaechangView::SaveCheckedRowNums(TaechangWorkflowUiState& state) {
 void CSageTaechangView::RestoreCheckedRowNums(const TaechangWorkflowUiState& state) {
 	if (state.strCheckedRowNums.IsEmpty() || !::IsWindow(m_wndResultList.GetSafeHwnd()))
 		return;
-	if (!IsDeliveryInputTable() && !IsEstimateInputTable())
+	if (!IsInputTableVisible())
 		return;
 
 	int nListCount = m_wndResultList.GetItemCount();
@@ -1261,7 +1265,7 @@ void CSageTaechangView::OnSelectAll() {
 		}
 	}
 	BOOL bCheck = bAllChecked ? FALSE : TRUE;
-	if (bCheck && IsEstimateInputTable() && m_wndEstimateOnePage.GetCheck() == BST_CHECKED && nCount > TAECHANG_ESTIMATE_ONE_PAGE_MAX_ROWS) {
+	if (bCheck && IsOnePageOptionVisible() && m_wndEstimateOnePage.GetCheck() == BST_CHECKED && nCount > TAECHANG_ESTIMATE_ONE_PAGE_MAX_ROWS) {
 		for (int i = 0; i < nCount; ++i)
 			m_wndResultList.SetCheck(i, i < TAECHANG_ESTIMATE_ONE_PAGE_MAX_ROWS ? TRUE : FALSE);
 		AfxMessageBox(TAECHANG_UI_ESTIMATE_ONE_PAGE_LIMIT, MB_ICONWARNING);
@@ -1272,7 +1276,7 @@ void CSageTaechangView::OnSelectAll() {
 }
 
 void CSageTaechangView::OnEstimateOnePage() {
-	if (!IsEstimateInputTable() || m_wndEstimateOnePage.GetCheck() != BST_CHECKED)
+	if (!IsOnePageOptionVisible() || m_wndEstimateOnePage.GetCheck() != BST_CHECKED)
 		return;
 
 	int nCheckedCount = 0;
@@ -1777,7 +1781,7 @@ CString CSageTaechangView::BuildExecutionHistoryLine(int nWorkflowType, int nTas
 
 void CSageTaechangView::OnResultListItemChanged(NMHDR* pNMHDR, LRESULT* pResult) {
 	*pResult = 0;
-	if (!IsEstimateInputTable() || m_wndEstimateOnePage.GetCheck() != BST_CHECKED)
+	if (!IsOnePageOptionVisible() || m_wndEstimateOnePage.GetCheck() != BST_CHECKED)
 		return;
 
 	NM_LISTVIEW* pList = reinterpret_cast<NM_LISTVIEW*>(pNMHDR);
