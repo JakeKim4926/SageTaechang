@@ -5,6 +5,13 @@
 
 ## 열린 항목
 
+### [2026-08-06] 중복로직 — 파일 드롭 허용 코드가 View와 패널에 각각 있다
+- 위치: `app/ui/view/SageTaechangView.cpp` `EnableFileDropForWindow` ↔ `app/ui/panels/SageResultTablePanel.cpp` `AcceptDroppedFiles`(static)
+- 설명: 3-B-4a에서 결과 표가 패널 안으로 들어가면서 `EnableFileDropForWindow(m_wndResultSection)` · `(m_wndResultList)` 두 줄이 갈 곳이 없어졌다. **드롭 대상은 HWND별로 지정해야 하고 상위 창으로 버블링되지 않으므로** 패널이 자기 자식에게 직접 걸어야 한다. `DragAcceptFiles` + `ChangeWindowMessageFilterEx` 3줄이 두 파일에 생겼다.
+- 위험도: 낮음 — 한쪽만 고치면 드롭이 조용히 안 먹는다
+- 후속: **3-B-4b~4d에서 패널이 더 늘어날 때 공용 헬퍼로 뽑는다.** `CWnd`를 받으므로 `app/common`이 아니라 `app/ui/`에 둔다. 지금 뽑으면 재배선 커밋에 무관한 파일이 섞인다
+- 함께: View 쪽은 필터 상수에 리터럴 `0x0049`를 그대로 쓰고 패널은 `WM_TAECHANG_COPYGLOBALDATA`를 쓴다. 같은 값이 두 표기로 있으므로 헬퍼를 뽑을 때 한쪽으로 맞춘다
+
 ### [2026-08-06] 미완 — 패널·View의 입력 검증이 아직 모달이다
 - 위치: `app/ui/panels/SagePriceManagePanel.cpp`(22곳) · `app/ui/view/SageTaechangView.cpp`(18곳) · `app/ui/panels/SagePriceCalcPanel.cpp`(11곳)
 - 설명: D5a에서 다이얼로그 7종의 검증 22곳을 `CSageInlineError`로 옮겼다. **패널·View의 51곳은 그대로 모달이다.** 계획 R7과 D5a가 "다이얼로그 6종"으로 범위를 잡았기 때문인데, 사용자에게는 같은 경험이다 — 단가 데이터 관리에서 법인 미선택으로 「단가 추가」를 누르면 여전히 `AfxMessageBox`가 뜬다.
@@ -34,12 +41,6 @@
 - 설명: 「부수」·「페이지」 라벨만 좌표를 6px 왼쪽으로 당긴다. `SS_RIGHT`와 겹쳐서 1행 「법인명」과 텍스트 끝선이 6px 어긋난다. 라벨 폭이 46이던 시절에 눈으로 맞춘 보정값으로 보이며, D3b에서 폭을 64로 올렸어도 그대로 두었다(기존 코드 · 화면 확인 결과 문제없음). `SagePriceManagePanel.cpp:198`의 `TAECHANG_PRICE_COMPANY_LABEL_SHIFT`(=4)도 같은 성격이다.
 - 위험도: 낮음
 - 후속: 위 정렬 항목과 한 뿌리다. **D7**에서 정렬을 확정할 때 두 SHIFT 상수가 여전히 필요한지 다시 본다. 불필요하면 상수와 참조를 함께 제거한다
-
-### [2026-08-05] 머지위험 — refactor/result-table-panel에 디자인 적용이 누락된다
-- 위치: `app/ui/panels/SageResultTablePanel.cpp` (브랜치 `refactor/result-table-panel`, 커밋 `533ab0d`)
-- 설명: `fix/design-tokens`는 develop 기준이라 그 패널 파일이 없다. 패널이 머지되면 **디자인 적용이 안 된 표가 하나 생긴다** — `SetHighlightColumns` 인자(3열 → 미수금 1열), `LVS_EX_GRIDLINES` 제거 + `SetRowSeparator`, 그 패널이 만드는 버튼 변형이 대상이다.
-- 위험도: **중간** — 같은 화면에 규격이 다른 표 두 개가 생긴다
-- 후속: **패널 연결(3-B-4a)을 먼저 머지하고 그 위에 디자인을 얹는다.** 순서가 뒤바뀌면 위 3개를 수동으로 다시 넣어야 한다
 
 ### [2026-08-05] 미검증 — 금액 tabular 정렬과 선택 행 Bold를 적용하지 못했다
 - 위치: `app/ui/drawing/SageListCtrl.cpp`, 개선안 3장 3-1 · 3-3
@@ -157,6 +158,12 @@
 - 후속: Step 4에서 core Service 경유로 전환
 
 ## 해결됨
+
+### [2026-08-05] 해결 — refactor/result-table-panel에 디자인 적용이 누락된다
+- 등록: 2026-08-05 / 해결: 2026-08-06 (`e4268de` + 3-B-4a 재배선)
+- 내용: `533ab0d`의 패널은 `813e0c1` 기준이라 D1a~D6 39커밋을 몰랐다. 머지되면 규격이 다른 표가 하나 생길 위험이었다.
+- 해결: 되살릴 때 `SetRowSeparator`·`SetGroupColumn`·버튼 아이콘·툴팁을 반영했고(`e4268de`), 재배선 시점에 View와 1:1 대조해 남은 5건을 더 맞췄다 — 표 셀·헤더 폰트 `SAGE_FONT_LIST`(패널은 `CONTENT`였다), 초기화 버튼 폰트 `SAGE_FONT_HEADER`, 검색 버튼 variant 제거(패널이 `PRIMARY`를 줘서 화면당 Primary 1개 규칙을 깼다), 필터 콤보 항목 높이, 필터 입력 길이 제한. 체크박스의 `SetWindowTheme` 제거도 함께 — View에 없던 코드라 테마가 꺼져 모양이 달라졌다.
+- 교훈: **폐기 브랜치를 되살릴 때 "가져왔다"로 끝내면 안 된다.** 되살린 파일과 현재 화면 코드를 항목별로 대조해야 차이가 드러난다. 커밋 `e4268de` 시점에는 3건만 찾았고 실제로는 8건이었다.
 
 ### [2026-08-04] 해결 — 결과 표 판정 규칙이 핸들러와 View 양쪽에 있었다
 - 등록: 2026-08-04 (Step 4-4) / 해결: 2026-08-05 (`b2c4dc9`~`842eccf`, Step 4-7)

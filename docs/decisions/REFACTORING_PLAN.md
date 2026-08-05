@@ -8,66 +8,75 @@
 
 ## 다음 세션 시작점 (2026-08-06 이양)
 
-**브랜치 `refactor/result-table-panel-wire`, 커밋 `e4268de` — 빌드 통과 확인됨.**
-`SageResultTablePanel` 666줄이 프로젝트에 들어와 있고 vcxproj에도 등록됐다.
-**아직 아무도 참조하지 않아 화면 변화는 0이다.**
+### 미검증 — 3-B-4a 재배선이 코드에 들어와 있고 **빌드·동작 확인을 받지 못했다**
 
-이 패널은 `533ab0d`(폐기된 `refactor/result-table-panel` 브랜치)에서 가져왔다.
-그 커밋은 `813e0c1` 기준이라 **D1a~D6 디자인 39커밋을 몰랐고**, 아래를 되돌릴 뻔했다.
-가져오면서 전부 반영했다.
+**브랜치 `refactor/result-table-panel-wire2`.** 재배선은 끝났고 커밋 전이다.
+다음 세션은 **여기서부터 확인한다.** 위에 다른 작업을 얹으면 실패 원인을 가릴 수 없다.
 
-| 되돌아갈 뻔한 것 | 조치 |
-|---|---|
-| `LVS_EX_GRIDLINES` (D4a에서 세로선 때문에 제거한 플래그) | `SetRowSeparator` |
-| `SetGroupColumn` 없음 → `〃`·SemiBold 소실 | 추가 |
-| 검색·초기화 버튼 아이콘·툴팁 없음 (D6) | 추가 |
+확인할 것:
 
-### 남은 작업: View 재배선 (원자적)
-
-**절반만 떼면 컴파일되지 않는다.** 임시 분기를 만들었다가 지우는 방식은 이미 기각됐다.
-현재 코드 기준 실측: **컨트롤 10개 · 참조 146곳 · 함수 27개** (`SageTaechangView.cpp` 2,207줄).
-
-| 함수 | 참조 | 처리 |
+| # | 화면 | 확인 |
 |---|---|---|
-| `CreateChildControls` 21 · `LayoutResultSection` 13 · `ApplyControlFonts` 12 | 46 | 재배선 |
-| `UpdateTaskTabVisibility` 9 · `LayoutChildControls` 9 · `OnDraw` 5 | 23 | 재배선 |
-| `RunWorkflowTask` 5 · `DisplayResponse` 4 · `OnInputReset` 3 · `SetRunningState` 2 | 14 | 재배선 |
-| `Save/RestoreWorkflowUiState` 6 · `PreTranslateMessage` 1 · `EnableFileDropForWindow` 1 | 8 | 재배선 |
-| `ApplyResultColumns` · `UpdateResultColumns` · `InsertResultRow` · `GetLastResultColumn(Count)` | | **삭제** |
-| `RefreshDocumentResultFilter` · `PopulateResultFilterCriteria` · `Get(Default\|Effective)FilterCriteria` | | **삭제** |
-| `OnResultSearch` · `OnResultFilterReset` · `OnResultFilterCriteriaChanged` · `OnResultListItemChanged` | | **삭제** |
-| `OnSelectAll` · `OnEstimateOnePage` · `Save/RestoreCheckedRowNums` | | **삭제** |
+| 1 | 미수금 결과 탭 | 표·필터 카드·검색·초기화가 이전과 **같은 픽셀 위치**인가. `〃`·금액 우측 정렬·가로 hairline 유지 |
+| 2 | 납품 입력 탭 | 전체선택 버튼 위치, 체크박스 열, 행 선택 후 「납품서 생성」 |
+| 3 | 견적 입력 탭 | 「한 페이지 작성」 체크 시 13행째 체크가 거부되는가. 전체선택 시 12행 제한 |
+| 4 | 필터 | 검색어 입력 후 **Enter**(패널 `PreTranslateMessage`로 옮겼다) · 기준 콤보 전환 · 초기화 |
+| 5 | 상태 보존 | 견적에서 검색어·체크·한 페이지 설정 후 납품 → 견적 왕복 시 복원되는가 |
+| 6 | 파일 드롭 | **표 위에 엑셀 파일 드롭**이 여전히 먹는가 (패널 `EnableFileDrop`) |
+| 7 | 초기화 | 「초기화」 버튼 후 표가 비고 전체선택·한 페이지가 사라지는가 |
+| 8 | 워크플로 전환 | 단가 계산/관리로 갔다가 돌아올 때 표가 겹치거나 남지 않는가 |
+| 9 | 창 크기 | 최소~최대로 끌 때 필터 카드가 표 우측에 붙어 따라오는가 |
 
-떼어낼 멤버 10개 (`SageTaechangView.h:74,86,87,91~96,114~116`):
-`m_wndResultSection` · `m_wndResultList` · `m_wndResultHeader` · `m_wndResultFilterCriteria` ·
-`m_wndResultFilter` · `m_wndResultSearchBtn` · `m_wndResultResetBtn` · `m_wndSelectAll` ·
-`m_wndEstimateOnePage` · `m_rectResultFilterBox` (+ `m_strResultFilterKeyword` · `m_nResultFilterCriteria`)
+### 3-B-4a에서 실제로 한 것
 
-추가할 인스턴스: `m_panelInputTable`(납품·견적 입력 탭) · `m_panelResultTable`(결과 탭).
-ID는 `ID_TAECHANG_INPUT_TABLE_PANEL` · `ID_TAECHANG_RESULT_TABLE_PANEL` (이미 정의됨).
+**두 인스턴스로 나눴다.** 근거: 납품·견적은 탭이 **입력·실행기록 둘뿐이고 결과 탭이 없다.**
+미수금만 결과 탭이 있고 `UsesInputTable()`이 FALSE다. 그래서 두 패널은 **동시에 보이지 않는다.**
 
-**좌표 계약**: 패널 rect = `CRect(nLeft, nTop - 밴드높이, nLeft + nWidth, nTop + RESULT_HEADER_HEIGHT + nBodyHeight)`,
-밴드높이 = `GetBandHeight()` = `TAECHANG_RESULT_FILTER_TOP_LIFT + TAECHANG_RESULT_FILTER_BOX_PAD`.
-이렇게 해야 표의 절대 위치가 필터 표시 여부와 무관하게 지금과 같다.
+- `m_panelInputTable` — `UsesInputTable()` TRUE(납품·견적). 제목 없음 + 전체선택/한 페이지
+- `m_panelResultTable` — 미수금. 「결과」 제목
 
-**라우팅**: 결과 표는 미수금 LOAD·GENERATE에서만 쓴다. 납품·견적은 LOAD에서 입력 표를 쓰고
-GENERATE에서 유지한다(`bKeepInputTable`). 범용 4컬럼 표는 현재 도달 경로가 없다.
+패널 선택은 워크플로 타입이 아니라 **핸들러에게 묻는다** (`FindResultTablePanel(pHandler)`).
+배치·표시용으로는 탭 술어로 답하는 `FindVisibleResultTablePanel()`을 따로 둔다 — 질문이 둘이다
+("이 워크플로의 표는 어느 패널인가" vs "지금 화면에 있는 표는 어느 패널인가").
 
-**새 메시지**: `WM_TAECHANG_RESULT_TABLE_CHANGED`(정의됨) → `SaveWorkflowUiState`.
+**좌표 계약**(검증됨, 픽셀 동일): 패널 rect =
+`CRect(nLeft, nTop - GetBandHeight(), nLeft + nWidth, nTop + RESULT_HEADER_HEIGHT + nBodyHeight)`,
+`GetBandHeight()` = `TAECHANG_RESULT_FILTER_TOP_LIFT + TAECHANG_RESULT_FILTER_BOX_PAD`.
+제목·리스트·필터·필터 카드 네 좌표를 손으로 대조해 이전 `LayoutResultSection`과 일치함을 확인했다.
 
-**검증 2회**: 4a(표 분리, 동작 변화 있음) 후 1차, 4b~4d 후 2차.
+**호출 순서를 바꿨다.** `LayoutChildControls`에서 `UpdateTaskTabVisibility()`를
+`LayoutResultSection()` **앞으로** 옮겼다. 패널 `Layout()`이 `m_bSelectAllVisible`·`m_bFilterVisible`을
+읽으므로 상태를 먼저 정해야 한다. 이전 코드는 `LayoutResultSection`이 술어를 직접 다시 계산해서
+순서 의존이 없었다 — 그 중복이 패널로 옮겨간 결과다.
 
-**세션 초반에 착수한다.** 원자적이라 중간에 끊으면 컴파일되지 않는 트리가 남는다.
-2026-08-06 세션은 디자인 D 시리즈로 대부분을 쓴 뒤 착수해 완주하지 못하고 되돌렸다.
+삭제: 컨트롤 멤버 9개 + 상태 3개, 함수 17개, 메시지맵 6항목. `SageTaechangView.cpp` 2,207 → 1,815줄.
+추가: `WM_TAECHANG_RESULT_TABLE_CHANGED` 핸들러 1개, 패널 조회·스키마·행 공급 헬퍼 5개.
 
-### 3-B-4a 다음에 할 일
+패널에 추가한 API: `PreTranslateMessage`(Enter 검색) · `EnableFileDrop` ·
+`EnableSelectionControls`(실행 중 비활성) · `SetOnePageChecked`.
+`IsOnePageChecked()`의 가시성 가드는 **제거했다** — 가드가 있으면 실행기록 탭에서 워크플로를 바꿀 때
+체크 상태가 저장되지 않는다. 납품은 체크박스를 띄운 적이 없어 가드 없이도 항상 FALSE다.
+
+되살린 패널과 D 시리즈 View의 차이 **8건**을 대조해 맞췄다(`DEBT_LOG` 해결 항목 참조).
+`e4268de` 시점에는 3건만 찾았다.
+
+### 4a 다음에 할 일
 
 | 순서 | 할 일 | 근거 |
 |---|---|---|
-| 1 | **3-B-4a 재배선** (위) | D5c·D7·D8이 전부 여기 막혀 있다 |
+| 1 | **4a 동작 확인** (위 9항목) | 미검증 커밋 위에 쌓지 않는다 |
 | 2 | D5c 요약 바 · 선택 바 | 배치처가 결과 표라 4a 이후에만 가능. 규격은 `DESIGN_PLAN` C7 |
 | 3 | D7 화면별 적용 9세트 | `DESIGN_PLAN` D7-1~D7-9 |
-| 4 | D8 DPI 배율 | 디자인 완료 후 |
+| 4 | 3-B-4b~4d (남은 패널 분리) | 아래 *4a가 남긴 것* |
+| 5 | D8 DPI 배율 | 디자인 완료 후 |
+
+### 4a가 남긴 것 (4b~4d 몫)
+
+- **핸들러 정책 술어가 아직 View에 있다** — `IsInputTableVisible` · `IsOnePageOptionVisible` ·
+  `IsDocumentResultFilterVisible` · `IsInputResetVisible`. 표는 나갔지만 "표를 언제 보이는가"는
+  View가 안다. `SageWorkspacePanel`을 만들 때 함께 옮긴다 (책임 기준 **B**)
+- **파일 드롭 허용 코드가 두 곳에 생겼다** — `DEBT_LOG` 2026-08-06 항목
+- `m_wndEmptyStateHint`가 아직 `CSageLabel`이다. D5b의 `CSageEmptyState`로 바꾸는 것은 D7 몫
 
 ### 문서 정리 (미뤄둔 것)
 
@@ -199,7 +208,7 @@ SageWorkflowController                실행 상태 전이 · 워커 수명
 | 3-A | 공통 컨트롤 승격 | **완료** |
 | — | 검수 워크플로(PDF·HWP) 제거 | **완료** `b2e8169` |
 | 4 | 워크플로 핸들러 + 등록부 | **완료** — 4-7까지 (2026-08-05) |
-| **3-B** | **화면 패널 분리 (8단계)** | **진행 중** — 3-B-1·2·3 완료, **3-B-4a 진행 중** |
+| **3-B** | **화면 패널 분리 (8단계)** | **진행 중** — 3-B-1·2·3 완료, **3-B-4a 코드 완료·미검증** (구 4b 흡수) |
 | 4-B | 의존 역전 (core Service ↔ infra Repository) | 대기 |
 | 5 | `Sage` 접두사 전환 (상수 648개) | 대기 |
 
@@ -215,8 +224,9 @@ SageWorkflowController                실행 상태 전이 · 워커 수명
                  결과 표 · 필터 · 응답 표시 코드가 SageWorkflowPanel로 이동한다.
                  먼저 분기를 핸들러로 걷어낸 뒤 옮겨야 패널 안에서 다시 걷어내지 않는다
 
-3-B-4a ──→ 3-B-4b 표를 감싼 뒤에야 인스턴스를 둘로 나눌 수 있다.
-                 4b가 실제 버그 뿌리(표 하나가 입력·결과를 겸함) 제거 지점이다
+3-B-4a = 구 4a+4b  표를 감싸는 것과 인스턴스를 둘로 나누는 것은 나눌 수 없다 —
+                 1개짜리 중간 단계는 View에 상태 배선을 남기고 그것을 다음 단계에서 버린다.
+                 실제 버그 뿌리(표 하나가 입력·결과를 겸함)는 4a에서 제거된다
 
 3-B-4 ──→ 3-B-6a 워커 결과를 받을 주체가 패널 HWND가 되므로
                  패널이 자리잡은 뒤에 실행 축을 뗀다
@@ -421,24 +431,25 @@ View의 호출 방식은 계산 패널과 동일하게 `ShowWindow` 하나로 �
 무엇보다 오늘 터진 버그 3개가 "한 창이 모든 탭의 컨트롤을 `ShowWindow` 행렬로 관리한다"에서
 나왔다. 하나로 뭉치지 않고 **탭 단위로 쪼갠다.** 구성과 근거는 *목표 상태* 참조.
 
-#### 3-B-4a — `SageResultTablePanel` 추출
+#### 3-B-4a — `SageResultTablePanel` 추출 + 두 인스턴스 (구 4a+4b)
 
-브랜치: `refactor/result-table-panel`
+브랜치: `refactor/result-table-panel-wire2` — **코드 완료, 미검증.** 상세는 맨 위 *다음 세션 시작점*
 
-- [ ] 표 · 검색 기준 콤보 · 검색창 · 초기화 버튼 · 카드 배경을 한 패널로 (인스턴스는 **아직 1개**)
-- [ ] 컬럼 정의(`SageWorkflowColumn` + `nField`)와 필터 기준(`SageWorkflowFilterCriteria`)을 파라미터로 받는다
-- [ ] 화면 확인: 미수금 결과 표 · 납품·견적 입력 표 · 필터 · 체크박스 (현행 재현)
+**4a와 4b를 합쳤다.** 원래 4a는 "인스턴스 1개", 4b는 "인스턴스 2개"였다.
+나눌 수 없다 — 인스턴스가 1개면 필터 키워드·체크·한 페이지 상태를 View가 계속 들고 있어야 하고,
+그 배선을 4b에서 통째로 버린다. 2026-08-06 이양 문서가 이미 4a를 두 인스턴스로 규정했으므로
+그 결정을 따랐고, 여기 남아 있던 옛 4a/4b 체크리스트를 이 항목으로 접었다.
 
-#### 3-B-4b — 입력 표와 결과 표를 두 인스턴스로 분리
-
-브랜치: `refactor/split-input-result-table`
-
-- [ ] `m_wndResultList`가 겸하던 두 역할(납품·견적 입력 표 / 결과 표)을 인스턴스 2개로 나눈다
-- [ ] 체크 상태 · 필터 키워드 · 필터 기준을 **각 인스턴스 소유**로 옮긴다
-- [ ] `GetResultColumnCount(nTaskType)`의 태스크 분기가 줄어드는지 확인
-- [ ] 화면 확인: 납품·견적 불러오기 → 체크 → 생성 → 결과, 탭 왕복 시 각 표의 상태 유지
+- [x] 표 · 검색 기준 콤보 · 검색창 · 초기화 버튼 · 카드 배경 · 전체선택 · 한 페이지를 한 패널로
+- [x] 컬럼 정의(`SageWorkflowColumn` + `nField`)와 필터 기준(`SageWorkflowFilterCriteria`)을 파라미터로 받는다
+- [x] 두 역할(납품·견적 입력 표 / 미수금 결과 표)을 인스턴스 2개로 나눈다
+- [x] 체크 상태 · 필터 키워드 · 필터 기준 · 한 페이지를 **각 인스턴스 소유**로 옮긴다
+- [ ] **화면 확인 — 맨 위 9항목. 사용자 몫**
 
 **여기가 실제 버그 뿌리 제거 지점이다.** 표 하나가 두 역할을 겸하는 한 소유자를 정할 수 없다.
+
+`GetResultColumnCount(nTaskType)`의 태스크 분기는 **줄지 않았다.** 그 분기는 "LOAD면 전용 표,
+아니면 범용 4컬럼"이라 인스턴스 수와 무관하다. 4b에 적어둔 기대가 틀렸다.
 
 #### 3-B-4c — 탭 패널 3개
 
