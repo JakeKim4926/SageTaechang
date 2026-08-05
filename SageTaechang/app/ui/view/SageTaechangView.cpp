@@ -219,9 +219,6 @@ CSageTaechangView::CSageTaechangView() noexcept
 	, m_colorHeaderStatus(TAECHANG_COLOR_SECONDARY_TEXT)
 	, m_nHeaderStatusBgRole(SAGE_BG_APP)
 	, m_bLastTaskSuccess(FALSE)
-	, m_nCalcPrintPrice(0)
-	, m_nCalcCoverPrice(0)
-	, m_nCalcUnitPrice(0)
 	, m_nPricePanelState(TAECHANG_PRICE_PANEL_SUMMARY)
 	, m_bFormattingCalcFreight(FALSE)
 	, m_bFormattingPricePrint(FALSE)
@@ -3149,9 +3146,7 @@ void CSageTaechangView::ClearCalcInputAndResult() {
 }
 
 void CSageTaechangView::ClearCalcResult() {
-	m_nCalcPrintPrice = 0;
-	m_nCalcCoverPrice = 0;
-	m_nCalcUnitPrice = 0;
+	m_calcResult = SagePriceCalcResult();
 	m_wndCalcPrintValue.SetWindowTextW(TAECHANG_UI_PRICE_SUMMARY_EMPTY);
 	m_wndCalcCoverValue.SetWindowTextW(TAECHANG_UI_PRICE_SUMMARY_EMPTY);
 	m_wndCalcSubtotalValue.SetWindowTextW(TAECHANG_UI_PRICE_SUMMARY_EMPTY);
@@ -3180,17 +3175,12 @@ BOOL CSageTaechangView::UpdateCalcPreview(BOOL bShowMessage) {
 		return FALSE;
 	}
 
-	int nCopies = _wtoi(strCopies);
-	if (nCopies < 1) {
+	SagePriceCalcService calcService(sageDBMgr.GetTaechangPriceService());
+	SagePriceCalcFailure nFailure;
+	if (calcService.ValidateCopies(_wtoi(strCopies), nFailure) == FALSE) {
 		ClearCalcResult();
 		if (bShowMessage)
-			AfxMessageBox(TAECHANG_UI_CALC_COPIES_INVALID, MB_ICONWARNING);
-		return FALSE;
-	}
-	if (nCopies > TAECHANG_PRICE_COPIES_MAX) {
-		ClearCalcResult();
-		if (bShowMessage)
-			AfxMessageBox(TAECHANG_UI_PRICE_COPIES_OUT_OF_RANGE, MB_ICONWARNING);
+			ShowCalcFailureMessage(nFailure, CString());
 		return FALSE;
 	}
 
@@ -3204,39 +3194,26 @@ BOOL CSageTaechangView::UpdateCalcPreview(BOOL bShowMessage) {
 		return FALSE;
 	}
 
-	int nPages = _wtoi(strPages);
-	if (nPages < 1 || nPages > TAECHANG_PRICE_COPIES_MAX) {
-		ClearCalcResult();
-		if (bShowMessage)
-			AfxMessageBox(TAECHANG_UI_CALC_PAGES_INVALID, MB_ICONWARNING);
-		return FALSE;
-	}
+	CString strFreight;
+	m_wndCalcFreightEdit.GetWindowTextW(strFreight);
+	strFreight.Trim();
 
-	TaechangPriceDto dto;
-	BOOL bFound;
+	SagePriceCalcResult result;
 	CString strError;
-	if (sageDBMgr.GetTaechangPriceService()->LoadByCompanyAndCopies(strCompany, nCopies, dto, bFound, strError) == FALSE) {
+	if (calcService.Calculate(strCompany, _wtoi(strCopies), _wtoi(strPages), PriceTextToInt(strFreight),
+		result, nFailure, strError) == FALSE) {
 		ClearCalcResult();
 		if (bShowMessage)
-			AfxMessageBox(strError, MB_ICONERROR);
-		return FALSE;
-	}
-	if (!bFound) {
-		ClearCalcResult();
-		if (bShowMessage)
-			AfxMessageBox(TAECHANG_UI_CALC_NO_DATA, MB_ICONWARNING);
+			ShowCalcFailureMessage(nFailure, strError);
 		return FALSE;
 	}
 
-	LONGLONG nPrintPrice = static_cast<LONGLONG>(dto.nPrintPrice) * nPages;
-	m_nCalcPrintPrice = nPrintPrice;
-	m_nCalcCoverPrice = dto.nCoverPrice;
-	m_nCalcUnitPrice = dto.nPrintPrice;
+	m_calcResult = result;
 
 	CString strPrint, strCover, strSub;
-	strPrint.Format(TAECHANG_UI_CALC_WON_FORMAT, FormatPrice(nPrintPrice).GetString());
-	strCover.Format(TAECHANG_UI_CALC_WON_FORMAT, FormatPrice(dto.nCoverPrice).GetString());
-	strSub.Format(TAECHANG_UI_CALC_WON_FORMAT, FormatPrice(nPrintPrice + dto.nCoverPrice).GetString());
+	strPrint.Format(TAECHANG_UI_CALC_WON_FORMAT, FormatPrice(m_calcResult.nPrintPrice).GetString());
+	strCover.Format(TAECHANG_UI_CALC_WON_FORMAT, FormatPrice(m_calcResult.nCoverPrice).GetString());
+	strSub.Format(TAECHANG_UI_CALC_WON_FORMAT, FormatPrice(m_calcResult.nSubtotal).GetString());
 	m_wndCalcPrintValue.SetWindowTextW(strPrint);
 	m_wndCalcCoverValue.SetWindowTextW(strCover);
 	m_wndCalcSubtotalValue.SetWindowTextW(strSub);
@@ -3244,16 +3221,36 @@ BOOL CSageTaechangView::UpdateCalcPreview(BOOL bShowMessage) {
 	return TRUE;
 }
 
+void CSageTaechangView::ShowCalcFailureMessage(SagePriceCalcFailure nFailure, const CString& strError) const {
+	switch (nFailure) {
+	case SAGE_PRICE_CALC_COPIES_BELOW_MIN:
+		AfxMessageBox(TAECHANG_UI_CALC_COPIES_INVALID, MB_ICONWARNING);
+		return;
+	case SAGE_PRICE_CALC_COPIES_ABOVE_MAX:
+		AfxMessageBox(TAECHANG_UI_PRICE_COPIES_OUT_OF_RANGE, MB_ICONWARNING);
+		return;
+	case SAGE_PRICE_CALC_PAGES_OUT_OF_RANGE:
+		AfxMessageBox(TAECHANG_UI_CALC_PAGES_INVALID, MB_ICONWARNING);
+		return;
+	case SAGE_PRICE_CALC_NO_DATA:
+		AfxMessageBox(TAECHANG_UI_CALC_NO_DATA, MB_ICONWARNING);
+		return;
+	default:
+		AfxMessageBox(strError, MB_ICONERROR);
+		return;
+	}
+}
+
 void CSageTaechangView::UpdateCalcTotal() {
 	CString strFreight;
 	m_wndCalcFreightEdit.GetWindowTextW(strFreight);
 	strFreight.Trim();
-	int nFreight = PriceTextToInt(strFreight);
-	if (nFreight < 0) nFreight = 0;
-	if (nFreight > TAECHANG_PRICE_AMOUNT_MAX) nFreight = TAECHANG_PRICE_AMOUNT_MAX;
-	LONGLONG nTotal = m_nCalcPrintPrice + m_nCalcCoverPrice + nFreight;
+
+	SagePriceCalcService calcService(sageDBMgr.GetTaechangPriceService());
+	calcService.ApplyFreight(PriceTextToInt(strFreight), m_calcResult);
+
 	CString strTotal;
-	strTotal.Format(TAECHANG_UI_CALC_WON_FORMAT, FormatPrice(nTotal).GetString());
+	strTotal.Format(TAECHANG_UI_CALC_WON_FORMAT, FormatPrice(m_calcResult.nTotal).GetString());
 	m_wndCalcTotalValue.SetWindowTextW(strTotal);
 }
 
@@ -3301,12 +3298,12 @@ void CSageTaechangView::OnCalc() {
 	}
 
 	TaechangCalcEstimateDlg dlg(strCompany, nCopies, nPages,
-		m_nCalcUnitPrice, m_nCalcCoverPrice, nFreight,
+		m_calcResult.nUnitPrice, m_calcResult.nCoverPrice, nFreight,
 		strTemplatePath, strScriptPath, this);
 	if (dlg.DoModal() == IDOK) {
 		AddCalcHistory(strCompany, nCopies, nPages, dlg.GetItemName(), dlg.GetDate(),
-			m_nCalcPrintPrice, m_nCalcCoverPrice, nFreight,
-			m_nCalcPrintPrice + m_nCalcCoverPrice + nFreight);
+			m_calcResult.nPrintPrice, m_calcResult.nCoverPrice, nFreight,
+			m_calcResult.nPrintPrice + m_calcResult.nCoverPrice + nFreight);
 	}
 }
 

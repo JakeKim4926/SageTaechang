@@ -497,3 +497,10 @@
 - **검증**: 문서 변경. 불필요해진 Step·순서 뒤집힘·네이밍 불일치는 없음을 확인
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/95
 - **결과**: merged
+
+## [2026-08-05] refactor/price-calc-service
+- **목적**: Step 3-B-1a. 기준 A 집계에서 단가 계산 화면의 변경 이유 3개 중 계산 규칙이 화면 소관이 아님이 드러나, 패널 이관 전에 core로 분리
+- **변경 내용**: SagePriceCalcService(core) 신설 — 부수·페이지 범위 검증, 단가 조회, 인쇄비·소계·합계, 운임 클램프. 실패 종류는 enum, 문자열·아이콘 매핑은 UI 유지. ValidateCopies를 따로 노출해 기존 검증 순서 보존. View 금액 멤버 3개 → SagePriceCalcResult 1개, UpdateCalcPreview 86 → 67줄
+- **검증**: Debug x64 빌드 성공. 실패 메시지 8종(아이콘 포함), 정상 계산 3항목 + 합계, 운임 변경, 견적 저장 후 내역 추가 확인
+- **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/96
+- **결과**: merged
