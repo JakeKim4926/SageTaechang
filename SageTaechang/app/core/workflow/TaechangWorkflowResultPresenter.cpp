@@ -132,6 +132,11 @@ namespace
 		return bNegative ? CString(L"-") + strDigits : strDigits;
 	}
 
+	CString FormatAmountCellText(const CString& strText) {
+		CString strFormatted = FormatAmountText(strText);
+		return strFormatted.IsEmpty() ? CString(TAECHANG_UI_AMOUNT_EMPTY_MARK) : strFormatted;
+	}
+
 }
 
 TaechangResultRow::TaechangResultRow()
@@ -224,9 +229,9 @@ void TaechangWorkflowResultPresenter::AddReceivablesResultRows(
 		row.m_strIssueDate = strIssueDate;
 		row.m_strItemName = strItemName;
 		row.m_strIssueType = strIssueType;
-		row.m_strTotalAmount = FormatAmountText(strTotalAmount);
-		row.m_strDepositAmount = FormatAmountText(JsonExtractValueText(arrObjects[i], TAECHANG_JSON_KEY_DEPOSIT_AMOUNT));
-		row.m_strReceivableAmount = FormatAmountText(JsonExtractValueText(arrObjects[i], TAECHANG_JSON_KEY_RECEIVABLE_AMOUNT));
+		row.m_strTotalAmount = FormatAmountCellText(strTotalAmount);
+		row.m_strDepositAmount = FormatAmountCellText(JsonExtractValueText(arrObjects[i], TAECHANG_JSON_KEY_DEPOSIT_AMOUNT));
+		row.m_strReceivableAmount = FormatAmountCellText(JsonExtractValueText(arrObjects[i], TAECHANG_JSON_KEY_RECEIVABLE_AMOUNT));
 		row.m_strBankName = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_BANK_NAME);
 		row.m_strNote = JsonExtractString(arrObjects[i], TAECHANG_JSON_KEY_NOTE);
 		outRows.push_back(row);

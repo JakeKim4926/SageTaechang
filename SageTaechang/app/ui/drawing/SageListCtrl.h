@@ -28,6 +28,7 @@ private:
 	BOOL IsHighlightColumn(int nSubItem) const;
 	COLORREF GetRowBackColor(int nItem) const;
 	void DrawFirstColumn(int nItem, BOOL bSelected, NMLVCUSTOMDRAW* pCD);
+	COLORREF ResolveSubItemTextColor(int nItem, int nSubItem, BOOL bHighlight) const;
 	void ApplyFixedRowHeight();
 	void DrawRowSeparator(int nItem, NMLVCUSTOMDRAW* pCD);
 	void DrawSelectionAccent(int nItem, NMLVCUSTOMDRAW* pCD);

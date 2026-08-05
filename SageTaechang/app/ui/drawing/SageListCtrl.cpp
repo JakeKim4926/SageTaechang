@@ -105,6 +105,12 @@ COLORREF CSageListCtrl::GetRowBackColor(int nItem) const {
 	return (nItem % 2 == 1) ? TAECHANG_COLOR_LIST_ROW_ALT : TAECHANG_COLOR_PANEL;
 }
 
+COLORREF CSageListCtrl::ResolveSubItemTextColor(int nItem, int nSubItem, BOOL bHighlight) const {
+	if (GetItemText(nItem, nSubItem) == TAECHANG_UI_AMOUNT_EMPTY_MARK)
+		return TAECHANG_COLOR_TEXT_PLACEHOLDER;
+	return bHighlight ? TAECHANG_COLOR_PRIMARY : TAECHANG_COLOR_TEXT;
+}
+
 void CSageListCtrl::DrawFirstColumn(int nItem, BOOL bSelected, NMLVCUSTOMDRAW* pCD) {
 	CDC* pDC = CDC::FromHandle(pCD->nmcd.hdc);
 	COLORREF clrBk = bSelected ? TAECHANG_COLOR_LIST_ROW_SELECTED : GetRowBackColor(nItem);
@@ -172,7 +178,7 @@ void CSageListCtrl::OnNMCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
 			BOOL bSelected = (GetItemState(nItem, LVIS_SELECTED) & LVIS_SELECTED) != 0;
 			if (m_nHighlightCount > 0) {
 				BOOL bHighlight = IsHighlightColumn(nSubItem);
-				pCD->clrText = bHighlight ? TAECHANG_COLOR_PRIMARY : TAECHANG_COLOR_TEXT;
+				pCD->clrText = ResolveSubItemTextColor(nItem, nSubItem, bHighlight);
 				CDC* pDC = CDC::FromHandle(pCD->nmcd.hdc);
 				pDC->SelectObject(SageUiResources::GetFont(
 					bHighlight ? SAGE_FONT_LIST_BOLD : SAGE_FONT_LIST));
