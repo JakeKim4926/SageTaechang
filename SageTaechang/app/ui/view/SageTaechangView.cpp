@@ -653,6 +653,7 @@ void CSageTaechangView::LayoutChildControls() {
 		m_wndDetailSection.ShowWindow(SW_HIDE);
 		m_wndDetail.ShowWindow(SW_HIDE);
 		m_wndEmptyStateHint.ShowWindow(SW_HIDE);
+		ShowCompanyOrderPanel(FALSE);
 
 		int nPanelHeight = nContentHeight - (nContentTop - TAECHANG_MARGIN);
 		if (m_nCurrentWorkflow == TAECHANG_WORKFLOW_PRICE_MANAGE) {
