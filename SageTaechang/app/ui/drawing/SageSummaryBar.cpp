@@ -54,12 +54,10 @@ void CSageSummaryBar::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 	CDC* pDC = CDC::FromHandle(lpDrawItemStruct->hDC);
 	CRect rectClient(lpDrawItemStruct->rcItem);
 
-	pDC->FillSolidRect(rectClient, TAECHANG_COLOR_PANEL);
-	CBrush brushFrame(TAECHANG_COLOR_BORDER);
-	pDC->FrameRect(rectClient, &brushFrame);
+	pDC->FillSolidRect(rectClient, TAECHANG_COLOR_APP_BACKGROUND);
 
 	pDC->SetBkMode(TRANSPARENT);
-	int nLeft = rectClient.left + TAECHANG_SUMMARY_BAR_PADDING;
+	int nLeft = rectClient.left;
 	for (int i = 0; i < static_cast<int>(m_arrItems.size()); ++i) {
 		if (i > 0) {
 			nLeft += TAECHANG_SUMMARY_ITEM_GAP;
@@ -68,7 +66,7 @@ void CSageSummaryBar::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 		}
 
 		const SageSummaryBarItem& item = m_arrItems[i];
-		if (nLeft + MeasureItemWidth(pDC, item) > rectClient.right - TAECHANG_SUMMARY_BAR_PADDING)
+		if (nLeft + MeasureItemWidth(pDC, item) > rectClient.right)
 			return;
 
 		nLeft = DrawTextSegment(pDC, nLeft, rectClient, item.strLabel, SAGE_FONT_CAPTION, TAECHANG_COLOR_SECONDARY_TEXT);

@@ -213,20 +213,37 @@ void SageResultTablePanel::SetOnePageChecked(BOOL bChecked) {
 	m_wndOnePage.SetChecked(bChecked);
 }
 
+void SageResultTablePanel::LayoutBandRow() {
+	int nBandTop = GetBandHeight();
+	int nBandRight = GetBandRight();
+
+	if (m_bSelectAllVisible) {
+		m_wndTitle.MoveWindow(0, 0, 0, 0);
+		m_wndSummaryBar.MoveWindow(0, 0, 0, 0);
+		LayoutSelectionRow();
+		return;
+	}
+	if (m_wndSummaryBar.HasItems()) {
+		m_wndTitle.MoveWindow(0, 0, 0, 0);
+		m_wndSummaryBar.MoveWindow(
+			0,
+			nBandTop - TAECHANG_BUTTON_VERT_ADJUST,
+			nBandRight,
+			TAECHANG_SUMMARY_BAR_HEIGHT);
+		return;
+	}
+	m_wndSummaryBar.MoveWindow(0, 0, 0, 0);
+	m_wndTitle.MoveWindow(0, nBandTop, nBandRight, TAECHANG_RESULT_HEADER_HEIGHT);
+}
+
 void SageResultTablePanel::Layout(const CRect& rectPanel) {
 	MoveWindow(rectPanel);
 
 	int nBandTop = TAECHANG_RESULT_FILTER_TOP_LIFT + TAECHANG_RESULT_FILTER_BOX_PAD;
 	int nWidth = rectPanel.Width();
 	int nFilterLeft = nWidth - GetFilterTotalWidth();
-	int nBandRight = GetBandRight();
 
-	if (m_bSelectAllVisible) {
-		m_wndTitle.MoveWindow(0, 0, 0, 0);
-		LayoutSelectionRow();
-	} else {
-		m_wndTitle.MoveWindow(0, nBandTop, nBandRight, TAECHANG_RESULT_HEADER_HEIGHT);
-	}
+	LayoutBandRow();
 
 	if (m_bFilterVisible) {
 		int nFilterTop = nBandTop - TAECHANG_RESULT_FILTER_TOP_LIFT;
@@ -265,13 +282,13 @@ void SageResultTablePanel::LayoutTableArea() {
 		return;
 
 	int nListTop = GetBandHeight() + TAECHANG_RESULT_HEADER_HEIGHT;
-	int nBandBottom = GetBandHeight() - TAECHANG_BUTTON_VERT_ADJUST + TAECHANG_BUTTON_HEIGHT;
-	if (m_bSelectAllVisible && nListTop < nBandBottom + TAECHANG_ROW_GAP)
+	int nBandBottom = 0;
+	if (m_bSelectAllVisible)
+		nBandBottom = GetBandHeight() - TAECHANG_BUTTON_VERT_ADJUST + TAECHANG_BUTTON_HEIGHT;
+	else if (m_wndSummaryBar.HasItems())
+		nBandBottom = GetBandHeight() - TAECHANG_BUTTON_VERT_ADJUST + TAECHANG_SUMMARY_BAR_HEIGHT;
+	if (nListTop < nBandBottom + TAECHANG_ROW_GAP)
 		nListTop = nBandBottom + TAECHANG_ROW_GAP;
-	if (m_wndSummaryBar.HasItems()) {
-		m_wndSummaryBar.MoveWindow(0, nListTop, nWidth, TAECHANG_SUMMARY_BAR_HEIGHT);
-		nListTop += TAECHANG_SUMMARY_BAR_HEIGHT + TAECHANG_ROW_GAP;
-	}
 
 	int nTotalBarHeight = m_arrTotalCells.empty() ? 0 : TAECHANG_TOTAL_BAR_HEIGHT;
 	int nListHeight = nHeight - nListTop - nTotalBarHeight;
@@ -503,12 +520,14 @@ void SageResultTablePanel::SetSummaryItems(const std::vector<SageResultSummaryIt
 
 	m_wndSummaryBar.SetItems(arrBarItems);
 	m_wndSummaryBar.ShowWindow(arrBarItems.empty() ? SW_HIDE : SW_SHOW);
+	LayoutBandRow();
 	LayoutTableArea();
 }
 
 void SageResultTablePanel::ClearSummary() {
 	m_wndSummaryBar.SetItems(std::vector<SageSummaryBarItem>());
 	m_wndSummaryBar.ShowWindow(SW_HIDE);
+	LayoutBandRow();
 	LayoutTableArea();
 }
 

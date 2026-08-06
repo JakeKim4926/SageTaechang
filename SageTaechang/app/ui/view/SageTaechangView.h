@@ -161,6 +161,7 @@ protected:
     void ApplyActionButtonState(int nSelectedCount);
     COLORREF ResolveStatusColor(const CString& strStatus) const;
     SageBackgroundRole ResolveStatusBgRole(const CString& strStatus) const;
+    void DrawShellBands(CDC* pDC, const CRect& rectClient);
     void DrawEditBorder(CDC* pDC, CWnd& wnd);
     void SetCardRect(CRect& rectCard, const CRect& rectNew);
     void InvalidateContentArea();

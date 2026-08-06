@@ -78,6 +78,7 @@ protected:
 private:
     void CreateControls();
     void ApplyControlFonts();
+    void LayoutBandRow();
     void LayoutTableArea();
     void LayoutSelectionRow();
     int  GetFilterTotalWidth() const;

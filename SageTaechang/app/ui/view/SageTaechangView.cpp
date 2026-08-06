@@ -242,7 +242,7 @@ void CSageTaechangView::CreateChildControls() {
 	m_wndSidebarTree.SetBkColor(TAECHANG_COLOR_SIDEBAR);
 	m_wndSidebarTree.SetTextColor(TAECHANG_COLOR_SIDEBAR_TEXT);
 	m_wndSidebarTree.SetItemHeight(TAECHANG_SIDEBAR_ITEM_HEIGHT);
-	m_wndHeaderTitle.Create(TAECHANG_UI_RECEIVABLES_NAME, WS_CHILD | WS_VISIBLE, rectEmpty, this);
+	m_wndHeaderTitle.Create(TAECHANG_UI_RECEIVABLES_NAME, WS_CHILD | WS_VISIBLE | SS_CENTERIMAGE, rectEmpty, this);
 	m_wndHeaderStatus.Create(TAECHANG_UI_READY, WS_CHILD | SS_RIGHT, rectEmpty, this);
 	m_wndTaskTabs.Create(WS_CHILD | WS_VISIBLE | TCS_FIXEDWIDTH, rectEmpty, this, ID_TAECHANG_TASK_TABS);
 	m_wndDetailSection.Create(TAECHANG_UI_SECTION_DETAIL, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_DETAIL_SECTION);
@@ -332,10 +332,12 @@ void CSageTaechangView::ApplyLabelRoles() {
 	m_wndSidebarTitle.SetBackgroundRole(SAGE_BG_SIDEBAR);
 	m_wndSidebarTitle.SetFontRole(SAGE_FONT_CONTROL);
 
-	m_wndHeaderTitle.SetTextColorRole(SAGE_TEXT_PRIMARY);
-	m_wndHeaderTitle.SetFontRole(SAGE_FONT_HEADER);
+	m_wndHeaderTitle.SetTextColorRole(SAGE_TEXT_DEFAULT);
+	m_wndHeaderTitle.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndHeaderTitle.SetFontRole(SAGE_FONT_TITLE);
 
 	m_wndUserLabel.SetTextColorRole(SAGE_TEXT_SECONDARY);
+	m_wndUserLabel.SetBackgroundRole(SAGE_BG_PANEL);
 	m_wndUserLabel.SetFontRole(SAGE_FONT_CONTENT);
 
 	m_wndCoSearchLabel.SetTextColorRole(SAGE_TEXT_SECONDARY);
@@ -358,6 +360,7 @@ void CSageTaechangView::ApplyWorkflowTabs() {
 	int nTabCount = pHandler->GetTabCount();
 	for (int nVisualTabIndex = 0; nVisualTabIndex < nTabCount; ++nVisualTabIndex)
 		m_wndTaskTabs.InsertItem(nVisualTabIndex, pHandler->GetTab(nVisualTabIndex).pszLabel);
+	m_wndTaskTabs.ApplyTabHeight();
 	m_wndTaskTabs.SetCurSel(GetTaskTabVisualIndex(m_nSelectedTaskTab));
 	UpdateTaskTabVisibility();
 }
@@ -461,20 +464,25 @@ void CSageTaechangView::LayoutChildControls() {
 	GetClientRect(&rectClient);
 
 	int nSidebarLeft = 0;
-	int nSidebarTop = 0;
 	int nSidebarHeight = rectClient.Height();
-	int nContentLeft = TAECHANG_SIDEBAR_WIDTH + TAECHANG_MARGIN;
-	int nContentTop = TAECHANG_MARGIN;
-	int nContentWidth = rectClient.Width() - nContentLeft - TAECHANG_MARGIN;
-	int nContentHeight = rectClient.Height() - (TAECHANG_MARGIN * 2);
+	int nSidebarInnerWidth = TAECHANG_SIDEBAR_WIDTH - (TAECHANG_MARGIN * 2);
+	int nContentLeft = TAECHANG_SIDEBAR_WIDTH + TAECHANG_CONTENT_PAD_X;
+	int nContentTop = TAECHANG_HEADER_HEIGHT;
+	int nContentWidth = rectClient.Width() - nContentLeft - TAECHANG_CONTENT_PAD_X;
+	int nContentBottom = rectClient.Height() - TAECHANG_CONTENT_PAD_Y;
 
-	m_wndTitle.MoveWindow(TAECHANG_MARGIN, nSidebarTop + TAECHANG_MARGIN, TAECHANG_SIDEBAR_WIDTH - (TAECHANG_MARGIN * 2), TAECHANG_TOP_BAR_HEIGHT - (TAECHANG_MARGIN * 2));
-	m_wndSidebarTitle.MoveWindow(TAECHANG_MARGIN, TAECHANG_TOP_BAR_HEIGHT, TAECHANG_SIDEBAR_WIDTH - (TAECHANG_MARGIN * 2), TAECHANG_SIDEBAR_TITLE_HEIGHT);
-	m_wndSidebarTree.MoveWindow(TAECHANG_MARGIN, TAECHANG_TOP_BAR_HEIGHT + TAECHANG_SIDEBAR_TITLE_HEIGHT, TAECHANG_SIDEBAR_WIDTH - (TAECHANG_MARGIN * 2), nSidebarHeight - TAECHANG_TOP_BAR_HEIGHT - TAECHANG_SIDEBAR_TITLE_HEIGHT - TAECHANG_MARGIN);
+	m_wndTitle.MoveWindow(TAECHANG_MARGIN, 0, nSidebarInnerWidth, TAECHANG_HEADER_HEIGHT);
+	m_wndSidebarTitle.MoveWindow(TAECHANG_MARGIN, TAECHANG_HEADER_HEIGHT, nSidebarInnerWidth, TAECHANG_SIDEBAR_TITLE_HEIGHT);
+	m_wndSidebarTree.MoveWindow(
+		TAECHANG_MARGIN,
+		TAECHANG_HEADER_HEIGHT + TAECHANG_SIDEBAR_TITLE_HEIGHT,
+		nSidebarInnerWidth,
+		nSidebarHeight - TAECHANG_HEADER_HEIGHT - TAECHANG_SIDEBAR_TITLE_HEIGHT - TAECHANG_MARGIN);
 
+	int nHeaderRowTop = (TAECHANG_HEADER_HEIGHT - TAECHANG_BUTTON_HEIGHT) / 2;
 	{
-		int nLoginBtnTop = (TAECHANG_TOP_BAR_HEIGHT - TAECHANG_BUTTON_HEIGHT) / 2;
-		int nLoginBtnRight = rectClient.Width() - TAECHANG_MARGIN;
+		int nLoginBtnTop = nHeaderRowTop;
+		int nLoginBtnRight = rectClient.Width() - TAECHANG_CONTENT_PAD_X;
 		int nLoginBtnLeft = nLoginBtnRight - TAECHANG_LOGIN_BTN_WIDTH;
 		int nUserLabelLeft = nLoginBtnLeft - TAECHANG_USER_LABEL_WIDTH - TAECHANG_ROW_GAP;
 		m_nAuthDividerX = nUserLabelLeft - TAECHANG_ROW_GAP;
@@ -485,9 +493,8 @@ void CSageTaechangView::LayoutChildControls() {
 	}
 
 	int nHeaderTitleWidth = nContentWidth - TAECHANG_LOGIN_BTN_WIDTH - TAECHANG_USER_LABEL_WIDTH - TAECHANG_ROW_GAP * 2 - TAECHANG_MARGIN;
-	m_wndHeaderTitle.MoveWindow(nContentLeft, nContentTop, nHeaderTitleWidth, TAECHANG_SECTION_TITLE_HEIGHT);
+	m_wndHeaderTitle.MoveWindow(nContentLeft, nHeaderRowTop, nHeaderTitleWidth, TAECHANG_BUTTON_HEIGHT);
 	m_wndHeaderStatus.MoveWindow(0, 0, 0, 0);
-	nContentTop += TAECHANG_HEADER_HEIGHT;
 
 	InvalidateContentArea();
 
@@ -503,35 +510,32 @@ void CSageTaechangView::LayoutChildControls() {
 		m_wndDetail.ShowWindow(SW_HIDE);
 		ShowCompanyOrderPanel(FALSE);
 
-		int nPanelHeight = nContentHeight - (nContentTop - TAECHANG_MARGIN);
+		int nPanelTop = nContentTop + TAECHANG_CONTENT_PAD_Y;
+		CRect rectPricePanel(nContentLeft, nPanelTop, nContentLeft + nContentWidth, nContentBottom);
 		if (m_nCurrentWorkflow == TAECHANG_WORKFLOW_PRICE_MANAGE) {
-			m_panelPriceManage.Layout(CRect(nContentLeft, nContentTop, nContentLeft + nContentWidth, nContentTop + nPanelHeight));
+			m_panelPriceManage.Layout(rectPricePanel);
 			m_panelPriceManage.ShowWindow(SW_SHOW);
 		} else {
-			m_panelPriceCalc.Layout(CRect(nContentLeft, nContentTop, nContentLeft + nContentWidth, nContentTop + nPanelHeight));
+			m_panelPriceCalc.Layout(rectPricePanel);
 			m_panelPriceCalc.ShowWindow(SW_SHOW);
 		}
 		UNREFERENCED_PARAMETER(nSidebarLeft);
 		return;
 	}
 
-	if (m_nCurrentWorkflow == TAECHANG_WORKFLOW_RECEIVABLES ||
-		m_nCurrentWorkflow == TAECHANG_WORKFLOW_DELIVERY ||
-		m_nCurrentWorkflow == TAECHANG_WORKFLOW_ESTIMATE)
-		nContentTop += TAECHANG_PANEL_GAP;
-
+	nContentTop += TAECHANG_BORDER_THICKNESS;
 	m_wndTaskTabs.ShowWindow(SW_SHOW);
 	m_wndTaskTabs.MoveWindow(nContentLeft, nContentTop, nContentWidth, TAECHANG_TAB_HEIGHT);
-	nContentTop += TAECHANG_TAB_HEIGHT + TAECHANG_PANEL_GAP;
+	nContentTop += TAECHANG_TAB_HEIGHT + TAECHANG_CONTENT_PAD_Y;
 
 	if (IsDataManageTab()) {
-		LayoutCompanyOrderPanel(nContentLeft, nContentTop, nContentWidth, nContentHeight - nContentTop + TAECHANG_MARGIN);
+		LayoutCompanyOrderPanel(nContentLeft, nContentTop, nContentWidth, nContentBottom - nContentTop);
 		UpdateTaskTabVisibility();
 		UNREFERENCED_PARAMETER(nSidebarLeft);
 		return;
 	}
 
-	int nRemainHeight = nContentHeight - nContentTop + TAECHANG_MARGIN;
+	int nRemainHeight = nContentBottom - nContentTop;
 	if (IsActionTabVisible()) {
 		m_panelWorkflowInput.Layout(CRect(
 			nContentLeft,
@@ -570,9 +574,9 @@ void CSageTaechangView::OnDraw(CDC* pDC) {
 	GetClientRect(&rectClient);
 	pDC->FillSolidRect(rectClient, TAECHANG_COLOR_APP_BACKGROUND);
 	pDC->FillSolidRect(0, 0, TAECHANG_SIDEBAR_WIDTH, rectClient.Height(), TAECHANG_COLOR_SIDEBAR);
-	pDC->FillSolidRect(0, TAECHANG_TOP_BAR_HEIGHT, TAECHANG_SIDEBAR_WIDTH, 1, RGB(55, 47, 38));
+	pDC->FillSolidRect(0, TAECHANG_HEADER_HEIGHT, TAECHANG_SIDEBAR_WIDTH, TAECHANG_BORDER_THICKNESS, TAECHANG_COLOR_SIDEBAR_DIVIDER);
 	pDC->FillSolidRect(TAECHANG_SIDEBAR_WIDTH, 0, 1, rectClient.Height(), TAECHANG_COLOR_BORDER);
-	pDC->FillSolidRect(TAECHANG_SIDEBAR_WIDTH + 1, TAECHANG_MARGIN + TAECHANG_HEADER_HEIGHT, rectClient.Width() - TAECHANG_SIDEBAR_WIDTH - 1, 1, TAECHANG_COLOR_BORDER);
+	DrawShellBands(pDC, rectClient);
 	if (!m_rectCoCard.IsRectEmpty()) {
 		pDC->FillSolidRect(m_rectCoCard, TAECHANG_COLOR_PANEL);
 		CBrush brCoCard(TAECHANG_COLOR_BORDER);
@@ -582,9 +586,29 @@ void CSageTaechangView::OnDraw(CDC* pDC) {
 	DrawEditBorder(pDC, m_wndCoOrderEdit);
 	DrawEditBorder(pDC, m_wndCoCompanyEdit);
 	if (taechangAuth.IsLoggedIn() && m_nAuthDividerX > 0) {
-		int nDivTop = (TAECHANG_TOP_BAR_HEIGHT - TAECHANG_BUTTON_HEIGHT) / 2;
+		int nDivTop = (TAECHANG_HEADER_HEIGHT - TAECHANG_BUTTON_HEIGHT) / 2;
 		pDC->FillSolidRect(m_nAuthDividerX, nDivTop, 1, TAECHANG_BUTTON_HEIGHT, TAECHANG_COLOR_BORDER);
 	}
+}
+
+void CSageTaechangView::DrawShellBands(CDC* pDC, const CRect& rectClient) {
+	int nLeft = TAECHANG_SIDEBAR_WIDTH + TAECHANG_BORDER_THICKNESS;
+	int nWidth = rectClient.Width() - nLeft;
+	int nHeaderBottom = TAECHANG_HEADER_HEIGHT;
+
+	pDC->FillSolidRect(nLeft, 0, nWidth, nHeaderBottom, TAECHANG_COLOR_PANEL);
+	pDC->FillSolidRect(nLeft, nHeaderBottom, nWidth, TAECHANG_BORDER_THICKNESS, TAECHANG_COLOR_BORDER);
+	if (IsPriceWorkflowType(m_nCurrentWorkflow))
+		return;
+
+	int nTabTop = nHeaderBottom + TAECHANG_BORDER_THICKNESS;
+	pDC->FillSolidRect(nLeft, nTabTop, nWidth, TAECHANG_TAB_HEIGHT, TAECHANG_COLOR_PANEL);
+	pDC->FillSolidRect(
+		nLeft,
+		nTabTop + TAECHANG_TAB_HEIGHT - TAECHANG_BORDER_THICKNESS,
+		nWidth,
+		TAECHANG_BORDER_THICKNESS,
+		TAECHANG_COLOR_BORDER);
 }
 
 void CSageTaechangView::InvalidateContentArea() {
@@ -1086,9 +1110,9 @@ BOOL CSageTaechangView::OnEraseBkgnd(CDC* pDC) {
 	GetClientRect(&rectClient);
 	pDC->FillSolidRect(rectClient, TAECHANG_COLOR_APP_BACKGROUND);
 	pDC->FillSolidRect(0, 0, TAECHANG_SIDEBAR_WIDTH, rectClient.Height(), TAECHANG_COLOR_SIDEBAR);
-	pDC->FillSolidRect(0, TAECHANG_TOP_BAR_HEIGHT, TAECHANG_SIDEBAR_WIDTH, 1, RGB(55, 47, 38));
+	pDC->FillSolidRect(0, TAECHANG_HEADER_HEIGHT, TAECHANG_SIDEBAR_WIDTH, TAECHANG_BORDER_THICKNESS, TAECHANG_COLOR_SIDEBAR_DIVIDER);
 	pDC->FillSolidRect(TAECHANG_SIDEBAR_WIDTH, 0, 1, rectClient.Height(), TAECHANG_COLOR_BORDER);
-	pDC->FillSolidRect(TAECHANG_SIDEBAR_WIDTH + 1, TAECHANG_MARGIN + TAECHANG_HEADER_HEIGHT, rectClient.Width() - TAECHANG_SIDEBAR_WIDTH - 1, 1, TAECHANG_COLOR_BORDER);
+	DrawShellBands(pDC, rectClient);
 	return TRUE;
 }
 
