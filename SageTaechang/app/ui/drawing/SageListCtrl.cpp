@@ -248,8 +248,9 @@ void CSageListCtrl::OnNMCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
 			BOOL bSelected = (GetItemState(nItem, LVIS_SELECTED) & LVIS_SELECTED) != 0;
 			if (m_bRowSeparator || bSelected)
 				*pResult |= CDRF_NOTIFYPOSTPAINT;
+			pCD->nmcd.uItemState &= ~CDIS_FOCUS;
 			if (bSelected) {
-				pCD->nmcd.uItemState &= ~(CDIS_SELECTED | CDIS_FOCUS);
+				pCD->nmcd.uItemState &= ~CDIS_SELECTED;
 				pCD->clrTextBk = TAECHANG_COLOR_LIST_ROW_SELECTED;
 				pCD->clrText = TAECHANG_COLOR_TEXT;
 				*pResult |= CDRF_NEWFONT;
