@@ -7,6 +7,7 @@
 #include "app/ui/panels/SagePriceManagePanel.h"
 #include "app/ui/panels/SageResultTablePanel.h"
 #include "app/ui/panels/SageWorkflowInputPanel.h"
+#include "app/ui/panels/SageWorkflowResultPanel.h"
 #include "app/ui/drawing/SageHeaderCtrl.h"
 #include "app/ui/drawing/SageTabCtrl.h"
 #include "app/ui/drawing/SageButton.h"
@@ -98,7 +99,7 @@ protected:
     SagePriceManagePanel m_panelPriceManage;
     SagePriceCalcPanel m_panelPriceCalc;
     SageWorkflowInputPanel m_panelWorkflowInput;
-    SageResultTablePanel m_panelResultTable;
+    SageWorkflowResultPanel m_panelWorkflowResult;
 
     // ── 법인 순서 데이터 관리 패널 ───────────────────────────────────────────
     CSageButton         m_wndCoAddBtn;

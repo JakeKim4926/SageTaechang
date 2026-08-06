@@ -257,9 +257,8 @@ void CSageTaechangView::CreateChildControls() {
 	m_panelPriceCalc.Create(this, ID_CALC_PANEL);
 	m_panelWorkflowInput.Create(this, ID_TAECHANG_WORKFLOW_INPUT_PANEL);
 	m_panelWorkflowInput.EnableFileDrop();
-	m_panelResultTable.Create(this, ID_TAECHANG_RESULT_TABLE_PANEL);
-	m_panelResultTable.SetTitle(TAECHANG_UI_SECTION_RESULT);
-	m_panelResultTable.EnableFileDrop();
+	m_panelWorkflowResult.Create(this, ID_TAECHANG_WORKFLOW_RESULT_PANEL);
+	m_panelWorkflowResult.EnableFileDrop();
 	CreateCompanyOrderPanel();
 
 	ApplyControlFonts();
@@ -366,7 +365,9 @@ void CSageTaechangView::ApplyWorkflowTabs() {
 SageResultTablePanel* CSageTaechangView::FindResultTablePanel(ISageWorkflowHandler* pHandler) {
 	if (pHandler == NULL)
 		return NULL;
-	return pHandler->UsesInputTable() ? &m_panelWorkflowInput.GetInputTable() : &m_panelResultTable;
+	return pHandler->UsesInputTable()
+		? &m_panelWorkflowInput.GetInputTable()
+		: &m_panelWorkflowResult.GetResultTable();
 }
 
 void CSageTaechangView::ApplyResultTableSchema() {
@@ -440,8 +441,8 @@ void CSageTaechangView::UpdateTaskTabVisibility() {
 	BOOL bShowInputTable = (IsInputTabSelected() && IsInputTableVisible()) ? TRUE : FALSE;
 	m_panelWorkflowInput.UpdateInputTableVisibility(bShowInputTable, IsOnePageOptionVisible(), bShowFilter);
 
-	m_panelResultTable.ShowFilter(bShowResultTable && bShowFilter);
-	m_panelResultTable.ShowWindow(bShowResultTable ? SW_SHOW : SW_HIDE);
+	m_panelWorkflowResult.ShowWindow(bShowResultTable ? SW_SHOW : SW_HIDE);
+	m_panelWorkflowResult.UpdateResultTableVisibility(bShowResultTable && bShowFilter);
 	m_wndDetailSection.ShowWindow(bShowDetail ? SW_SHOW : SW_HIDE);
 	m_wndDetail.ShowWindow(bShowDetail ? SW_SHOW : SW_HIDE);
 	ShowCompanyOrderPanel(bShowDataManage);
@@ -497,7 +498,7 @@ void CSageTaechangView::LayoutChildControls() {
 	if (IsPriceWorkflowType(m_nCurrentWorkflow)) {
 		m_wndTaskTabs.ShowWindow(SW_HIDE);
 		m_panelWorkflowInput.ShowWindow(SW_HIDE);
-		m_panelResultTable.ShowWindow(SW_HIDE);
+		m_panelWorkflowResult.ShowWindow(SW_HIDE);
 		m_wndDetailSection.ShowWindow(SW_HIDE);
 		m_wndDetail.ShowWindow(SW_HIDE);
 		ShowCompanyOrderPanel(FALSE);
@@ -550,9 +551,9 @@ void CSageTaechangView::LayoutChildControls() {
 void CSageTaechangView::LayoutResultSection(int nLeft, int nTop, int nWidth, int nHeight) {
 	int nBodyHeight = max(TAECHANG_RESULT_MIN_HEIGHT, nHeight - TAECHANG_RESULT_HEADER_HEIGHT);
 	if (IsResultTab()) {
-		m_panelResultTable.Layout(CRect(
+		m_panelWorkflowResult.Layout(CRect(
 			nLeft,
-			nTop - m_panelResultTable.GetBandHeight(),
+			nTop - m_panelWorkflowResult.GetBandHeight(),
 			nLeft + nWidth,
 			nTop + TAECHANG_RESULT_HEADER_HEIGHT + nBodyHeight));
 	}
