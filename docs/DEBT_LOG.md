@@ -5,6 +5,12 @@
 
 ## 열린 항목
 
+### [2026-08-06] 구조불일치 — 다이얼로그 라벨 색이 앱 안에서 갈려 있다
+- 위치: `app/ui/dialogs/TaechangCalcEstimateDlg.h` · `TaechangPriceSimpleDlg.h`(`TaechangCoverPriceDlg`)
+- 설명: D7-9에서 목업 6종의 라벨을 `CSageLabel`로 승격해 보조 텍스트 색을 줬으나, **목업에 없는 두 다이얼로그는 `CStatic`으로 남아** 라벨이 본문색이다. 같은 앱에서 다이얼로그를 여닫으면 라벨 색이 달라 보인다.
+- 위험도: 낮음 — 동작에는 영향이 없다
+- 후속: D7-10이 7종 **전부**의 프레임을 만지므로 **그때 라벨도 함께 승격한다**. 별도로 하면 같은 파일을 두 번 연다
+
 ### [2026-08-06] 구조불일치 — `TAECHANG_CALC_MAX_HISTORY`가 실제 상한이 아니다
 - 위치: `app/ui/panels/SagePriceCalcPanel.cpp` `GetHistoryVisibleCapacity` · `TrimHistoryToVisibleCapacity`
 - 설명: 이름은 「최대 보관 10건」으로 읽히지만 실제 보관량은 `GetCountPerPage()`(화면에 보이는 행 수)로 잘린다. `MAX_HISTORY`는 **창이 아직 없을 때의 폴백**으로만 쓰인다. 창이 작으면 3~4건이 남고, 크면 10건을 넘길 수도 있다. D7-2에서 「최근 10건」 배지를 붙이려다 발견했고, 배지는 **동적 「최근 N건」**으로 우회했다(사용자 결정).
