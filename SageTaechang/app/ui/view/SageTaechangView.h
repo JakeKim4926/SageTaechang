@@ -73,7 +73,6 @@ protected:
     CSageSectionLabel m_wndDetailSection;
     CSageLabel m_wndTitle;
     CEdit m_wndDetail;
-    CSageLabel m_wndEmptyStateHint;
     CBrush m_brushListHeader;
     BOOL m_bRunning;
     int m_nSelectedTaskTab;
@@ -99,7 +98,6 @@ protected:
     SagePriceManagePanel m_panelPriceManage;
     SagePriceCalcPanel m_panelPriceCalc;
     SageWorkflowInputPanel m_panelWorkflowInput;
-    SageResultTablePanel m_panelInputTable;
     SageResultTablePanel m_panelResultTable;
 
     // ── 법인 순서 데이터 관리 패널 ───────────────────────────────────────────
@@ -154,7 +152,6 @@ protected:
     void RestoreWorkflowUiState(int nWorkflowType);
     void RebuildCurrentWorkflowResultList();
     SageResultTablePanel* FindResultTablePanel(ISageWorkflowHandler* pHandler);
-    SageResultTablePanel* FindVisibleResultTablePanel();
     void ApplyResultTableSchema();
     void SetResultTableRows(const std::vector<TaechangResultRow>& arrRows);
     void RefreshResultTableRows();

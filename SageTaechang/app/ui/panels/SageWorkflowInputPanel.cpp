@@ -13,12 +13,15 @@ BEGIN_MESSAGE_MAP(SageWorkflowInputPanel, CWnd)
 	ON_BN_CLICKED(ID_TAECHANG_LOAD_WORKFLOW, &SageWorkflowInputPanel::OnLoadWorkflow)
 	ON_BN_CLICKED(ID_TAECHANG_GENERATE_WORKFLOW, &SageWorkflowInputPanel::OnGenerateWorkflow)
 	ON_BN_CLICKED(ID_TAECHANG_INPUT_RESET_BTN, &SageWorkflowInputPanel::OnInputReset)
+	ON_MESSAGE(WM_TAECHANG_RESULT_TABLE_CHANGED, &SageWorkflowInputPanel::OnResultTableChanged)
+	ON_MESSAGE(WM_TAECHANG_RESULT_SELECTION_CHANGED, &SageWorkflowInputPanel::OnResultSelectionChanged)
 END_MESSAGE_MAP()
 
 SageWorkflowInputPanel::SageWorkflowInputPanel()
 	: m_bAutoLoadOnInput(FALSE)
 	, m_bRunning(FALSE)
 	, m_bInputResetVisible(FALSE)
+	, m_bTableVisible(FALSE)
 	, m_bLastActionSuccess(FALSE)
 	, m_nProgressPercent(0) {
 }
@@ -44,6 +47,12 @@ void SageWorkflowInputPanel::EnableFileDrop() {
 	AcceptDroppedFiles(m_wndInputSection);
 	AcceptDroppedFiles(m_wndInputPath);
 	AcceptDroppedFiles(m_wndSelectInput);
+	AcceptDroppedFiles(m_wndEmptyStateHint);
+	m_panelInputTable.EnableFileDrop();
+}
+
+SageResultTablePanel& SageWorkflowInputPanel::GetInputTable() {
+	return m_panelInputTable;
 }
 
 int SageWorkflowInputPanel::OnCreate(LPCREATESTRUCT lpCreateStruct) {
@@ -80,6 +89,12 @@ void SageWorkflowInputPanel::CreateControls() {
 	m_wndProgress.SetRange(0, TAECHANG_PROGRESS_COMPLETE);
 	m_wndProgressText.Create(L"", WS_CHILD | WS_VISIBLE | SS_RIGHT, r, this);
 	m_wndActionStatus.Create(L"", WS_CHILD | SS_LEFT | SS_CENTERIMAGE, r, this);
+	m_wndEmptyStateHint.Create(TAECHANG_UI_EMPTY_STATE_HINT, WS_CHILD | WS_VISIBLE | SS_CENTER | SS_CENTERIMAGE, r, this);
+	m_wndEmptyStateHint.SetTextColorRole(SAGE_TEXT_SECONDARY);
+	m_wndEmptyStateHint.SetFontRole(SAGE_FONT_CONTENT);
+
+	m_panelInputTable.Create(this, ID_TAECHANG_INPUT_TABLE_PANEL);
+	m_panelInputTable.SetTitle(NULL);
 }
 
 void SageWorkflowInputPanel::ApplyControlFonts() {
@@ -101,10 +116,35 @@ int SageWorkflowInputPanel::GetContentWidth() const {
 	return rectClient.Width() - TAECHANG_EDIT_BORDER_WIDTH;
 }
 
+int SageWorkflowInputPanel::GetTableAreaTop() const {
+	return TAECHANG_INPUT_PANEL_HEIGHT + TAECHANG_PANEL_GAP + TAECHANG_BUTTON_HEIGHT + TAECHANG_PANEL_GAP;
+}
+
 void SageWorkflowInputPanel::Layout(const CRect& rectPanel) {
 	MoveWindow(rectPanel);
 	LayoutInputSection(GetContentWidth());
 	LayoutActionSection();
+	LayoutTableArea();
+}
+
+void SageWorkflowInputPanel::LayoutTableArea() {
+	if (!::IsWindow(m_panelInputTable.GetSafeHwnd()))
+		return;
+
+	CRect rectClient;
+	GetClientRect(&rectClient);
+	int nWidth = GetContentWidth();
+	if (nWidth <= 0)
+		return;
+
+	int nTop = GetTableAreaTop();
+	int nBodyHeight = max(TAECHANG_RESULT_MIN_HEIGHT, rectClient.Height() - nTop - TAECHANG_RESULT_HEADER_HEIGHT);
+	m_panelInputTable.Layout(CRect(
+		0,
+		nTop - m_panelInputTable.GetBandHeight(),
+		nWidth,
+		nTop + TAECHANG_RESULT_HEADER_HEIGHT + nBodyHeight));
+	m_wndEmptyStateHint.MoveWindow(0, nTop, nWidth, nBodyHeight);
 }
 
 void SageWorkflowInputPanel::LayoutInputSection(int nWidth) {
@@ -249,6 +289,7 @@ void SageWorkflowInputPanel::SetRunningState(BOOL bRunning) {
 	m_wndSelectOutput.EnableWindow(!bRunning);
 	m_wndLoad.EnableWindow(!bRunning);
 	m_wndInputReset.EnableWindow(!bRunning);
+	m_panelInputTable.EnableSelectionControls(!bRunning);
 	if (bRunning) {
 		UpdateProgressPercent(0);
 		SetTimer(ID_TAECHANG_PROGRESS_TIMER, TAECHANG_PROGRESS_TIMER_MS, NULL);
@@ -270,6 +311,33 @@ void SageWorkflowInputPanel::UpdateActionVisibility(BOOL bInputResetVisible, BOO
 	m_wndProgressText.ShowWindow(m_bRunning ? SW_SHOW : SW_HIDE);
 	m_wndActionStatus.ShowWindow(bShowActionStatus ? SW_SHOW : SW_HIDE);
 	LayoutActionSection();
+}
+
+void SageWorkflowInputPanel::UpdateInputTableVisibility(BOOL bTableVisible, BOOL bOnePageVisible, BOOL bFilterVisible) {
+	m_bTableVisible = bTableVisible;
+	m_panelInputTable.ShowSelectAll(bTableVisible);
+	m_panelInputTable.ShowOnePageOption(bTableVisible && bOnePageVisible);
+	m_panelInputTable.ShowFilter(bTableVisible && bFilterVisible);
+	m_panelInputTable.ShowWindow(bTableVisible ? SW_SHOW : SW_HIDE);
+
+	BOOL bShowHint = (!bTableVisible && !m_bRunning) ? TRUE : FALSE;
+	m_wndEmptyStateHint.ShowWindow(bShowHint ? SW_SHOW : SW_HIDE);
+	LayoutTableArea();
+}
+
+LRESULT SageWorkflowInputPanel::ForwardToParent(UINT nMessage, WPARAM wParam, LPARAM lParam) {
+	CWnd* pParent = GetParent();
+	if (pParent == NULL || !::IsWindow(pParent->GetSafeHwnd()))
+		return 0;
+	return pParent->SendMessage(nMessage, wParam, lParam);
+}
+
+LRESULT SageWorkflowInputPanel::OnResultTableChanged(WPARAM wParam, LPARAM lParam) {
+	return ForwardToParent(WM_TAECHANG_RESULT_TABLE_CHANGED, wParam, lParam);
+}
+
+LRESULT SageWorkflowInputPanel::OnResultSelectionChanged(WPARAM wParam, LPARAM lParam) {
+	return ForwardToParent(WM_TAECHANG_RESULT_SELECTION_CHANGED, wParam, lParam);
 }
 
 void SageWorkflowInputPanel::EnableGenerateButton(BOOL bEnable) {

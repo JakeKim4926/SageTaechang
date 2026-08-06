@@ -248,21 +248,15 @@ void CSageTaechangView::CreateChildControls() {
 	m_wndDetailSection.Create(TAECHANG_UI_SECTION_DETAIL, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_DETAIL_SECTION);
 	m_wndTitle.Create(TAECHANG_UI_APP_TITLE, WS_CHILD | WS_VISIBLE | SS_CENTER | SS_CENTERIMAGE, rectEmpty, this);
 	m_wndDetail.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | WS_VSCROLL, rectEmpty, this, ID_TAECHANG_DETAIL_EDIT);
-	m_wndEmptyStateHint.Create(TAECHANG_UI_EMPTY_STATE_HINT, WS_CHILD | WS_VISIBLE | SS_CENTER | SS_CENTERIMAGE, rectEmpty, this);
 
 	m_wndLoginBtn.Create(TAECHANG_UI_LOGIN_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_LOGIN_BTN);
 	m_wndLogoutBtn.Create(TAECHANG_UI_LOGOUT_BTN, WS_CHILD | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_LOGOUT_BTN);
 	m_wndUserLabel.Create(L"", WS_CHILD | SS_CENTERIMAGE | SS_NOPREFIX, rectEmpty, this, ID_TAECHANG_USER_LABEL);
 
-	EnableFileDropForWindow(m_wndEmptyStateHint);
-
 	m_panelPriceManage.Create(this, ID_PRICE_MANAGE_PANEL);
 	m_panelPriceCalc.Create(this, ID_CALC_PANEL);
 	m_panelWorkflowInput.Create(this, ID_TAECHANG_WORKFLOW_INPUT_PANEL);
 	m_panelWorkflowInput.EnableFileDrop();
-	m_panelInputTable.Create(this, ID_TAECHANG_INPUT_TABLE_PANEL);
-	m_panelInputTable.SetTitle(NULL);
-	m_panelInputTable.EnableFileDrop();
 	m_panelResultTable.Create(this, ID_TAECHANG_RESULT_TABLE_PANEL);
 	m_panelResultTable.SetTitle(TAECHANG_UI_SECTION_RESULT);
 	m_panelResultTable.EnableFileDrop();
@@ -345,9 +339,6 @@ void CSageTaechangView::ApplyLabelRoles() {
 	m_wndUserLabel.SetTextColorRole(SAGE_TEXT_SECONDARY);
 	m_wndUserLabel.SetFontRole(SAGE_FONT_CONTENT);
 
-	m_wndEmptyStateHint.SetTextColorRole(SAGE_TEXT_SECONDARY);
-	m_wndEmptyStateHint.SetFontRole(SAGE_FONT_CONTENT);
-
 	m_wndCoSearchLabel.SetTextColorRole(SAGE_TEXT_SECONDARY);
 	m_wndCoSearchLabel.SetFontRole(SAGE_FONT_CONTENT);
 
@@ -375,15 +366,7 @@ void CSageTaechangView::ApplyWorkflowTabs() {
 SageResultTablePanel* CSageTaechangView::FindResultTablePanel(ISageWorkflowHandler* pHandler) {
 	if (pHandler == NULL)
 		return NULL;
-	return pHandler->UsesInputTable() ? &m_panelInputTable : &m_panelResultTable;
-}
-
-SageResultTablePanel* CSageTaechangView::FindVisibleResultTablePanel() {
-	if (IsInputTabSelected() && IsInputTableVisible())
-		return &m_panelInputTable;
-	if (IsResultTab())
-		return &m_panelResultTable;
-	return NULL;
+	return pHandler->UsesInputTable() ? &m_panelWorkflowInput.GetInputTable() : &m_panelResultTable;
 }
 
 void CSageTaechangView::ApplyResultTableSchema() {
@@ -447,27 +430,20 @@ void CSageTaechangView::RefreshResultTableRows() {
 
 void CSageTaechangView::UpdateTaskTabVisibility() {
 	BOOL bShowAction = IsActionTabVisible();
-	BOOL bShowResult = IsResultTab() || (IsInputTabSelected() && IsInputTableVisible());
 	BOOL bShowDetail = IsDetailTab();
-
 	BOOL bShowDataManage = IsDataManageTab();
-	BOOL bShowHint = (!bShowResult && !bShowDetail && !m_bRunning && !bShowDataManage) ? TRUE : FALSE;
+	BOOL bShowResultTable = IsResultTab();
+	BOOL bShowFilter = IsDocumentResultFilterVisible();
 
 	m_panelWorkflowInput.ShowWindow(bShowAction ? SW_SHOW : SW_HIDE);
 	m_panelWorkflowInput.UpdateActionVisibility(IsInputResetVisible(), (m_nLastTaskType != 0) ? TRUE : FALSE);
-
 	BOOL bShowInputTable = (IsInputTabSelected() && IsInputTableVisible()) ? TRUE : FALSE;
-	BOOL bShowResultTable = IsResultTab();
-	BOOL bShowFilter = IsDocumentResultFilterVisible();
-	m_panelInputTable.ShowSelectAll(bShowInputTable);
-	m_panelInputTable.ShowOnePageOption(bShowInputTable && IsOnePageOptionVisible());
-	m_panelInputTable.ShowFilter(bShowInputTable && bShowFilter);
-	m_panelInputTable.ShowWindow(bShowInputTable ? SW_SHOW : SW_HIDE);
+	m_panelWorkflowInput.UpdateInputTableVisibility(bShowInputTable, IsOnePageOptionVisible(), bShowFilter);
+
 	m_panelResultTable.ShowFilter(bShowResultTable && bShowFilter);
 	m_panelResultTable.ShowWindow(bShowResultTable ? SW_SHOW : SW_HIDE);
 	m_wndDetailSection.ShowWindow(bShowDetail ? SW_SHOW : SW_HIDE);
 	m_wndDetail.ShowWindow(bShowDetail ? SW_SHOW : SW_HIDE);
-	m_wndEmptyStateHint.ShowWindow(bShowHint ? SW_SHOW : SW_HIDE);
 	ShowCompanyOrderPanel(bShowDataManage);
 }
 
@@ -521,11 +497,9 @@ void CSageTaechangView::LayoutChildControls() {
 	if (IsPriceWorkflowType(m_nCurrentWorkflow)) {
 		m_wndTaskTabs.ShowWindow(SW_HIDE);
 		m_panelWorkflowInput.ShowWindow(SW_HIDE);
-		m_panelInputTable.ShowWindow(SW_HIDE);
 		m_panelResultTable.ShowWindow(SW_HIDE);
 		m_wndDetailSection.ShowWindow(SW_HIDE);
 		m_wndDetail.ShowWindow(SW_HIDE);
-		m_wndEmptyStateHint.ShowWindow(SW_HIDE);
 		ShowCompanyOrderPanel(FALSE);
 
 		int nPanelHeight = nContentHeight - (nContentTop - TAECHANG_MARGIN);
@@ -556,28 +530,29 @@ void CSageTaechangView::LayoutChildControls() {
 		return;
 	}
 
+	int nRemainHeight = nContentHeight - nContentTop + TAECHANG_MARGIN;
 	if (IsActionTabVisible()) {
-		int nInputPanelHeight = TAECHANG_INPUT_PANEL_HEIGHT + TAECHANG_PANEL_GAP + TAECHANG_BUTTON_HEIGHT;
 		m_panelWorkflowInput.Layout(CRect(
 			nContentLeft,
 			nContentTop,
 			nContentLeft + nContentWidth + TAECHANG_EDIT_BORDER_WIDTH,
-			nContentTop + nInputPanelHeight));
-		nContentTop += nInputPanelHeight + TAECHANG_PANEL_GAP;
+			nContentTop + nRemainHeight));
+		UpdateTaskTabVisibility();
+		UNREFERENCED_PARAMETER(nSidebarLeft);
+		return;
 	}
 
 	UpdateTaskTabVisibility();
-	LayoutResultSection(nContentLeft, nContentTop, nContentWidth, nContentHeight - nContentTop + TAECHANG_MARGIN);
+	LayoutResultSection(nContentLeft, nContentTop, nContentWidth, nRemainHeight);
 	UNREFERENCED_PARAMETER(nSidebarLeft);
 }
 
 void CSageTaechangView::LayoutResultSection(int nLeft, int nTop, int nWidth, int nHeight) {
 	int nBodyHeight = max(TAECHANG_RESULT_MIN_HEIGHT, nHeight - TAECHANG_RESULT_HEADER_HEIGHT);
-	SageResultTablePanel* pPanel = FindVisibleResultTablePanel();
-	if (pPanel != NULL) {
-		pPanel->Layout(CRect(
+	if (IsResultTab()) {
+		m_panelResultTable.Layout(CRect(
 			nLeft,
-			nTop - pPanel->GetBandHeight(),
+			nTop - m_panelResultTable.GetBandHeight(),
 			nLeft + nWidth,
 			nTop + TAECHANG_RESULT_HEADER_HEIGHT + nBodyHeight));
 	}
@@ -585,7 +560,6 @@ void CSageTaechangView::LayoutResultSection(int nLeft, int nTop, int nWidth, int
 		m_wndDetailSection.MoveWindow(nLeft, nTop, nWidth, TAECHANG_RESULT_HEADER_HEIGHT);
 		m_wndDetail.MoveWindow(nLeft, nTop + TAECHANG_RESULT_HEADER_HEIGHT, nWidth, nBodyHeight);
 	}
-	m_wndEmptyStateHint.MoveWindow(nLeft, nTop, nWidth, nBodyHeight);
 }
 
 void CSageTaechangView::OnDraw(CDC* pDC) {
@@ -675,7 +649,7 @@ void CSageTaechangView::UpdateActionButtonState() {
 	ISageWorkflowHandler* pHandler = FindCurrentHandler();
 	if (pHandler == NULL)
 		return;
-	ApplyActionButtonState(pHandler->UsesInputTable() ? m_panelInputTable.GetCheckedRowCount() : 0);
+	ApplyActionButtonState(pHandler->UsesInputTable() ? m_panelWorkflowInput.GetInputTable().GetCheckedRowCount() : 0);
 }
 
 void CSageTaechangView::ApplyActionButtonState(int nSelectedCount) {
@@ -1099,7 +1073,6 @@ void CSageTaechangView::SetRunningState(BOOL bRunning) {
 	m_bRunning = bRunning;
 	m_wndSidebarTree.EnableWindow(!bRunning);
 	m_panelWorkflowInput.SetRunningState(bRunning);
-	m_panelInputTable.EnableSelectionControls(!bRunning);
 	UpdateActionButtonState();
 	UpdateTaskTabVisibility();
 	LayoutChildControls();
