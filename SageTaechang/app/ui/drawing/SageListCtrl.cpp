@@ -114,10 +114,11 @@ void CSageListCtrl::SetCheckboxes(BOOL bEnable) {
 		return;
 	}
 
+	SetExtendedStyle(dwStyle | LVS_EX_CHECKBOXES);
 	if (!BuildCheckStateImages())
 		return;
 	SetImageList(&m_imgCheckState, LVSIL_STATE);
-	SetExtendedStyle(dwStyle | LVS_EX_CHECKBOXES);
+	Invalidate();
 }
 
 void CSageListCtrl::SetRowSeparator(BOOL bEnable) {
