@@ -68,6 +68,7 @@ private:
     int  GetHistoryVisibleCapacity() const;
     void TrimHistoryToVisibleCapacity();
     void RefreshHistoryList();
+    void UpdateRangeHint();
 
 private:
     CSageLabel m_wndCompanyLabel;
@@ -92,6 +93,7 @@ private:
     CSageLabel m_wndTotalDivider;
     CSageLabel m_wndTotalLabel;
     CSageLabel m_wndTotalValue;
+    CSageLabel m_wndRangeHint;
     CSageSectionLabel m_wndHistorySection;
     CSageHeaderCtrl m_wndHistoryHeader;
     CSageListCtrl m_wndHistoryList;
@@ -99,6 +101,7 @@ private:
 private:
     CRect m_rectInputCard;
     CRect m_rectResultCard;
+    CRect m_rectTotalBand;
     SagePriceCalcResult m_calcResult;
     BOOL m_bFormattingFreight;
     CArray<SageCalcHistoryEntry, SageCalcHistoryEntry&> m_arrHistory;

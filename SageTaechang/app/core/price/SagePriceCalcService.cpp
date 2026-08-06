@@ -44,6 +44,9 @@ BOOL SagePriceCalcService::Calculate(
 
     outResult.nUnitPrice = dto.nPrintPrice;
     outResult.nCoverPrice = dto.nCoverPrice;
+    outResult.nRangeMinCopies = dto.nMinCopies;
+    outResult.nRangeMaxCopies = dto.nMaxCopies;
+    outResult.bRangeHasMaxCopies = dto.bHasMaxCopies;
     outResult.nPrintPrice = static_cast<LONGLONG>(dto.nPrintPrice) * nPages;
     outResult.nSubtotal = outResult.nPrintPrice + dto.nCoverPrice;
     ApplyFreight(nFreight, outResult);

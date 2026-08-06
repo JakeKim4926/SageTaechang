@@ -75,8 +75,9 @@ void SagePriceCalcPanel::CreateControls() {
 	m_wndFreightUnitLabel.Create(TAECHANG_UI_CALC_WON_UNIT, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
 	m_wndDivider.Create(L"", WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ, r, this);
 	m_wndTotalDivider.Create(L"", WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ, r, this);
-	m_wndTotalLabel.Create(TAECHANG_UI_CALC_TOTAL_LABEL, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
+	m_wndTotalLabel.Create(TAECHANG_UI_CALC_TOTAL_LABEL, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, r, this);
 	m_wndTotalValue.Create(TAECHANG_UI_PRICE_SUMMARY_EMPTY, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
+	m_wndRangeHint.Create(L"", WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, r, this);
 
 	m_wndHistorySection.Create(TAECHANG_UI_CALC_SECTION_HISTORY, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, r, this, ID_CALC_HISTORY_SECTION);
 	m_wndHistoryList.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SINGLESEL, r, this, ID_CALC_HISTORY_LIST);
@@ -130,13 +131,17 @@ void SagePriceCalcPanel::ApplyControlFonts() {
 }
 
 void SagePriceCalcPanel::ApplyLabelRoles() {
-	m_wndTotalLabel.SetTextColorRole(SAGE_TEXT_PRIMARY);
-	m_wndTotalLabel.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndTotalLabel.SetTextColorRole(SAGE_TEXT_DEFAULT);
+	m_wndTotalLabel.SetBackgroundRole(SAGE_BG_ACCENT_SURFACE);
 	m_wndTotalLabel.SetFontRole(SAGE_FONT_HEADER);
 
 	m_wndTotalValue.SetTextColorRole(SAGE_TEXT_PRIMARY);
-	m_wndTotalValue.SetBackgroundRole(SAGE_BG_PANEL);
-	m_wndTotalValue.SetFontRole(SAGE_FONT_HEADER);
+	m_wndTotalValue.SetBackgroundRole(SAGE_BG_ACCENT_SURFACE);
+	m_wndTotalValue.SetFontRole(SAGE_FONT_SUMMARY);
+
+	m_wndRangeHint.SetTextColorRole(SAGE_TEXT_SECONDARY);
+	m_wndRangeHint.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndRangeHint.SetFontRole(SAGE_FONT_CAPTION);
 
 	m_wndCompanyLabel.SetBackgroundRole(SAGE_BG_PANEL);
 	m_wndCompanyLabel.SetFontRole(SAGE_FONT_CONTENT);
@@ -147,24 +152,28 @@ void SagePriceCalcPanel::ApplyLabelRoles() {
 	m_wndPagesLabel.SetBackgroundRole(SAGE_BG_PANEL);
 	m_wndPagesLabel.SetFontRole(SAGE_FONT_CONTENT);
 
+	m_wndPrintLabel.SetTextColorRole(SAGE_TEXT_MUTED);
 	m_wndPrintLabel.SetBackgroundRole(SAGE_BG_PANEL);
 	m_wndPrintLabel.SetFontRole(SAGE_FONT_CONTENT);
 
 	m_wndPrintValue.SetBackgroundRole(SAGE_BG_PANEL);
 	m_wndPrintValue.SetFontRole(SAGE_FONT_CONTENT);
 
+	m_wndCoverLabel.SetTextColorRole(SAGE_TEXT_MUTED);
 	m_wndCoverLabel.SetBackgroundRole(SAGE_BG_PANEL);
 	m_wndCoverLabel.SetFontRole(SAGE_FONT_CONTENT);
 
 	m_wndCoverValue.SetBackgroundRole(SAGE_BG_PANEL);
 	m_wndCoverValue.SetFontRole(SAGE_FONT_CONTENT);
 
+	m_wndSubtotalLabel.SetTextColorRole(SAGE_TEXT_MUTED);
 	m_wndSubtotalLabel.SetBackgroundRole(SAGE_BG_PANEL);
 	m_wndSubtotalLabel.SetFontRole(SAGE_FONT_CONTENT);
 
 	m_wndSubtotalValue.SetBackgroundRole(SAGE_BG_PANEL);
 	m_wndSubtotalValue.SetFontRole(SAGE_FONT_CONTENT);
 
+	m_wndFreightLabel.SetTextColorRole(SAGE_TEXT_MUTED);
 	m_wndFreightLabel.SetBackgroundRole(SAGE_BG_PANEL);
 	m_wndFreightLabel.SetFontRole(SAGE_FONT_CONTENT);
 
@@ -256,7 +265,8 @@ void SagePriceCalcPanel::LayoutChildControls(int nWidth, int nHeight) {
 	int nDivH = TAECHANG_CALC_DIVIDER_HEIGHT;
 	int nResultPanelH = nPad + nRowH + nRowH + nDivH + TAECHANG_CALC_RESULT_ROW_GAP
 		+ nRowH + nRowH + nDivH + TAECHANG_CALC_RESULT_ROW_GAP
-		+ TAECHANG_EDIT_HEIGHT + nPad;
+		+ TAECHANG_CALC_TOTAL_BAND_HEIGHT + TAECHANG_CALC_RESULT_ROW_GAP
+		+ TAECHANG_CALC_RANGE_HINT_HEIGHT + nPad;
 
 	int nRX = nX + nPad;
 	int nRY = nY + nPad;
@@ -300,8 +310,13 @@ void SagePriceCalcPanel::LayoutChildControls(int nWidth, int nHeight) {
 	m_wndTotalDivider.MoveWindow(nRX, nRY, nContentW, nDivH);
 	nRY += nDivH + TAECHANG_CALC_RESULT_ROW_GAP;
 
-	m_wndTotalLabel.MoveWindow(nRX, nRY, nLabelW, TAECHANG_EDIT_HEIGHT);
-	m_wndTotalValue.MoveWindow(nValX, nRY, nValW, TAECHANG_EDIT_HEIGHT);
+	m_rectTotalBand = CRect(nRX, nRY, nRX + nContentW, nRY + TAECHANG_CALC_TOTAL_BAND_HEIGHT);
+	int nBandTextY = nRY + (TAECHANG_CALC_TOTAL_BAND_HEIGHT - TAECHANG_EDIT_HEIGHT) / 2;
+	m_wndTotalLabel.MoveWindow(nRX + TAECHANG_CALC_TOTAL_BAND_PAD, nBandTextY, nLabelW, TAECHANG_EDIT_HEIGHT);
+	m_wndTotalValue.MoveWindow(nValX, nBandTextY, nValW - TAECHANG_CALC_TOTAL_BAND_PAD, TAECHANG_EDIT_HEIGHT);
+	nRY += TAECHANG_CALC_TOTAL_BAND_HEIGHT + TAECHANG_CALC_RESULT_ROW_GAP;
+
+	m_wndRangeHint.MoveWindow(nRX, nRY, nContentW, TAECHANG_CALC_RANGE_HINT_HEIGHT);
 
 	nY += nResultPanelH + TAECHANG_CALC_SECTION_GAP;
 
@@ -355,6 +370,8 @@ BOOL SagePriceCalcPanel::OnEraseBkgnd(CDC* pDC) {
 		pDC->FillSolidRect(rectTotalDiv.left, rectTotalDiv.top - TAECHANG_CALC_DIVIDER_HEIGHT,
 			rectTotalDiv.Width(), TAECHANG_CALC_DIVIDER_HEIGHT, TAECHANG_COLOR_BORDER);
 	}
+	if (!m_rectTotalBand.IsRectEmpty())
+		pDC->FillSolidRect(m_rectTotalBand, TAECHANG_COLOR_ACCENT_SURFACE);
 	DrawEditBorder(pDC, m_wndCompanyCombo);
 	DrawEditBorder(pDC, m_wndCopiesEdit);
 	DrawEditBorder(pDC, m_wndPagesEdit);
@@ -435,6 +452,25 @@ void SagePriceCalcPanel::ClearResult() {
 	m_wndCoverValue.SetWindowTextW(TAECHANG_UI_PRICE_SUMMARY_EMPTY);
 	m_wndSubtotalValue.SetWindowTextW(TAECHANG_UI_PRICE_SUMMARY_EMPTY);
 	m_wndTotalValue.SetWindowTextW(TAECHANG_UI_PRICE_SUMMARY_EMPTY);
+	m_wndRangeHint.SetWindowTextW(L"");
+}
+
+void SagePriceCalcPanel::UpdateRangeHint() {
+	if (m_calcResult.nRangeMinCopies < 1) {
+		m_wndRangeHint.SetWindowTextW(L"");
+		return;
+	}
+
+	CString strUnit = FormatPrice(m_calcResult.nUnitPrice);
+	CString strCover = FormatPrice(m_calcResult.nCoverPrice);
+	CString strHint;
+	if (m_calcResult.bRangeHasMaxCopies)
+		strHint.Format(TAECHANG_UI_CALC_RANGE_FMT, m_calcResult.nRangeMinCopies,
+			m_calcResult.nRangeMaxCopies, strUnit.GetString(), strCover.GetString());
+	else
+		strHint.Format(TAECHANG_UI_CALC_RANGE_OPEN_FMT, m_calcResult.nRangeMinCopies,
+			strUnit.GetString(), strCover.GetString());
+	m_wndRangeHint.SetWindowTextW(strHint);
 }
 
 BOOL SagePriceCalcPanel::UpdatePreview(BOOL bShowMessage) {
@@ -501,6 +537,7 @@ BOOL SagePriceCalcPanel::UpdatePreview(BOOL bShowMessage) {
 	m_wndPrintValue.SetWindowTextW(strPrint);
 	m_wndCoverValue.SetWindowTextW(strCover);
 	m_wndSubtotalValue.SetWindowTextW(strSub);
+	UpdateRangeHint();
 	UpdateTotal();
 	return TRUE;
 }
@@ -674,6 +711,15 @@ void SagePriceCalcPanel::TrimHistoryToVisibleCapacity() {
 }
 
 void SagePriceCalcPanel::RefreshHistoryList() {
+	int nCount = static_cast<int>(m_arrHistory.GetSize());
+	if (nCount > 0) {
+		CString strCount;
+		strCount.Format(TAECHANG_UI_CALC_HIST_COUNT_FMT, nCount);
+		m_wndHistorySection.SetHintText(strCount);
+	} else {
+		m_wndHistorySection.SetHintText(L"");
+	}
+
 	m_wndHistoryList.SetRedraw(FALSE);
 	m_wndHistoryList.DeleteAllItems();
 	for (int i = 0; i < m_arrHistory.GetSize(); ++i) {

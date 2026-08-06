@@ -17,6 +17,9 @@ struct SagePriceCalcResult {
     int nUnitPrice;
     int nCoverPrice;
     int nFreight;
+    int nRangeMinCopies;
+    int nRangeMaxCopies;
+    BOOL bRangeHasMaxCopies;
     LONGLONG nPrintPrice;
     LONGLONG nSubtotal;
     LONGLONG nTotal;
@@ -25,6 +28,9 @@ struct SagePriceCalcResult {
         : nUnitPrice(0)
         , nCoverPrice(0)
         , nFreight(0)
+        , nRangeMinCopies(0)
+        , nRangeMaxCopies(0)
+        , bRangeHasMaxCopies(FALSE)
         , nPrintPrice(0)
         , nSubtotal(0)
         , nTotal(0) {}
