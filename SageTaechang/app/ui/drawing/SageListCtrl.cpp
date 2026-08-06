@@ -76,10 +76,8 @@ void CSageListCtrl::DrawCheckBox(CDC* pDC, const CRect& rectImage, BOOL bChecked
 	pDC->FrameRect(rectBox, &brushBorder);
 }
 
-BOOL CSageListCtrl::BuildCheckStateImages() {
-	if (m_imgCheckState.GetSafeHandle() != NULL)
-		return TRUE;
-	if (!m_imgCheckState.Create(TAECHANG_LIST_CHECK_IMAGE_WIDTH, TAECHANG_LIST_ROW_HEIGHT,
+BOOL CSageListCtrl::BuildCheckStateImages(CImageList& imgState) {
+	if (!imgState.Create(TAECHANG_LIST_CHECK_IMAGE_WIDTH, TAECHANG_LIST_ROW_HEIGHT,
 			ILC_COLOR32 | ILC_MASK, TAECHANG_LIST_CHECK_STATE_COUNT, 1))
 		return FALSE;
 
@@ -97,7 +95,7 @@ BOOL CSageListCtrl::BuildCheckStateImages() {
 		dcMem.FillSolidRect(rectImage, TAECHANG_COLOR_IMAGE_MASK);
 		DrawCheckBox(&dcMem, rectImage, (i == TAECHANG_LIST_CHECK_STATE_CHECKED) ? TRUE : FALSE);
 		dcMem.SelectObject(pOldBitmap);
-		m_imgCheckState.Add(&bmpState, TAECHANG_COLOR_IMAGE_MASK);
+		imgState.Add(&bmpState, TAECHANG_COLOR_IMAGE_MASK);
 	}
 	return TRUE;
 }
@@ -109,14 +107,16 @@ void CSageListCtrl::SetCheckboxes(BOOL bEnable) {
 	DWORD dwStyle = GetExtendedStyle();
 	if (!bEnable) {
 		SetExtendedStyle(dwStyle & ~LVS_EX_CHECKBOXES);
-		SetImageList(NULL, LVSIL_STATE);
 		return;
 	}
 
 	SetExtendedStyle(dwStyle | LVS_EX_CHECKBOXES);
-	if (!BuildCheckStateImages())
+
+	CImageList imgState;
+	if (!BuildCheckStateImages(imgState))
 		return;
-	SetImageList(&m_imgCheckState, LVSIL_STATE);
+	SetImageList(&imgState, LVSIL_STATE);
+	imgState.Detach();
 	Invalidate();
 }
 

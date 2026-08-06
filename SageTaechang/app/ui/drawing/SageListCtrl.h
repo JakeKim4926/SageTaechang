@@ -34,7 +34,7 @@ private:
 	void DrawGroupColumn(int nItem, BOOL bSelected, NMLVCUSTOMDRAW* pCD);
 	COLORREF ResolveSubItemTextColor(int nItem, int nSubItem, BOOL bHighlight) const;
 	void ApplyFixedRowHeight();
-	BOOL BuildCheckStateImages();
+	BOOL BuildCheckStateImages(CImageList& imgState);
 	void DrawCheckBox(CDC* pDC, const CRect& rectImage, BOOL bChecked);
 	void DrawRowSeparator(int nItem, NMLVCUSTOMDRAW* pCD);
 	void DrawSelectionAccent(int nItem, NMLVCUSTOMDRAW* pCD);
@@ -48,5 +48,4 @@ private:
 	int m_nHighlightCount;
 	BOOL m_bRowSeparator;
 	CImageList m_imgRowSpacer;
-	CImageList m_imgCheckState;
 };
