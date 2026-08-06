@@ -16,8 +16,10 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 	afx_msg LRESULT OnNcHitTest(CPoint point);
+	afx_msg void OnCloseClicked();
 
 private:
 	CString m_strTitle;
+	UINT m_nCloseCommandId;
 	CSageButton m_wndCloseBtn;
 };
