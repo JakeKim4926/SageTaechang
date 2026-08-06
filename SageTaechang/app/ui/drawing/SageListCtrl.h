@@ -20,6 +20,7 @@ public:
 	void SetHighlightColumns(int nFirst, int nCount);
 	void SetRowSeparator(BOOL bEnable);
 	void SetCheckboxes(BOOL bEnable);
+	void SetMutedText(LPCWSTR pszText);
 
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
@@ -47,5 +48,6 @@ private:
 	int m_nHighlightFirst;
 	int m_nHighlightCount;
 	BOOL m_bRowSeparator;
+	CString m_strMutedText;
 	CImageList m_imgRowSpacer;
 };

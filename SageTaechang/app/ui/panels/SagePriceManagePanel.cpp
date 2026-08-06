@@ -68,6 +68,7 @@ void SagePriceManagePanel::CreateControls() {
 	m_wndCopiesList.SetFirstColumnAlign(SAGE_LIST_FIRST_COLUMN_RIGHT);
 	m_wndCopiesList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
 	m_wndCopiesList.SetRowSeparator(TRUE);
+	m_wndCopiesList.SetMutedText(TAECHANG_UI_PRICE_MAX_COPIES_NONE);
 	m_wndCopiesList.InsertColumn(0, TAECHANG_UI_PRICE_COL_MIN_COPIES, LVCFMT_RIGHT, TAECHANG_PRICE_COL_MIN_WIDTH);
 	m_wndCopiesList.InsertColumn(1, TAECHANG_UI_PRICE_COL_MAX_COPIES, LVCFMT_RIGHT, TAECHANG_PRICE_COL_MAX_WIDTH);
 	m_wndCopiesList.InsertColumn(2, TAECHANG_UI_PRICE_COL_PRINT_PRICE, LVCFMT_RIGHT, TAECHANG_PRICE_COL_PRINT_WIDTH);
@@ -492,8 +493,26 @@ void SagePriceManagePanel::UpdateSummaryCard() {
 	if (!::IsWindow(m_wndSummaryTitle.GetSafeHwnd()))
 		return;
 	m_wndSummaryTitle.SetWindowTextW(TAECHANG_UI_PRICE_SUMMARY_GUIDE);
-	m_wndSummaryCount.SetWindowTextW(L"");
-	m_wndSummaryRange.SetWindowTextW(L"");
+
+	int nCount = m_wndCopiesList.GetItemCount();
+	if (nCount == 0) {
+		m_wndSummaryCount.SetWindowTextW(L"");
+		m_wndSummaryRange.SetWindowTextW(L"");
+		return;
+	}
+
+	CString strCount;
+	strCount.Format(TAECHANG_UI_PRICE_SUMMARY_COUNT_FMT, nCount);
+	m_wndSummaryCount.SetWindowTextW(strCount);
+
+	CString strMin = m_wndCopiesList.GetItemText(0, 0);
+	CString strMax = m_wndCopiesList.GetItemText(nCount - 1, 1);
+	CString strRange;
+	if (strMax == TAECHANG_UI_PRICE_MAX_COPIES_NONE)
+		strRange.Format(TAECHANG_UI_PRICE_SUMMARY_RANGE_OPEN_FMT, static_cast<LPCWSTR>(strMin));
+	else
+		strRange.Format(TAECHANG_UI_PRICE_SUMMARY_RANGE_FMT, static_cast<LPCWSTR>(strMin), static_cast<LPCWSTR>(strMax));
+	m_wndSummaryRange.SetWindowTextW(strRange);
 }
 
 CString SagePriceManagePanel::GetSelectedCompanyName() const {

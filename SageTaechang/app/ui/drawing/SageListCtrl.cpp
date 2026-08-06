@@ -112,6 +112,12 @@ void CSageListCtrl::SetRowSeparator(BOOL bEnable) {
 		Invalidate();
 }
 
+void CSageListCtrl::SetMutedText(LPCWSTR pszText) {
+	m_strMutedText = pszText;
+	if (::IsWindow(GetSafeHwnd()))
+		Invalidate();
+}
+
 void CSageListCtrl::DrawRowSeparator(int nItem, NMLVCUSTOMDRAW* pCD) {
 	CRect rcItem;
 	if (!GetItemRect(nItem, rcItem, LVIR_BOUNDS))
@@ -166,8 +172,11 @@ COLORREF CSageListCtrl::GetRowBackColor(int nItem) const {
 }
 
 COLORREF CSageListCtrl::ResolveSubItemTextColor(int nItem, int nSubItem, BOOL bHighlight) const {
-	if (GetItemText(nItem, nSubItem) == TAECHANG_UI_AMOUNT_EMPTY_MARK)
+	CString strText = GetItemText(nItem, nSubItem);
+	if (strText == TAECHANG_UI_AMOUNT_EMPTY_MARK)
 		return TAECHANG_COLOR_TEXT_PLACEHOLDER;
+	if (!m_strMutedText.IsEmpty() && strText == m_strMutedText)
+		return TAECHANG_COLOR_SECONDARY_TEXT;
 	return bHighlight ? TAECHANG_COLOR_PRIMARY : TAECHANG_COLOR_TEXT;
 }
 
