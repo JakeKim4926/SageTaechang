@@ -16,6 +16,7 @@ BEGIN_MESSAGE_MAP(SageResultTablePanel, CWnd)
 	ON_BN_CLICKED(ID_TAECHANG_SELECTION_CLEAR, &SageResultTablePanel::OnSelectionClear)
 	ON_BN_CLICKED(ID_TAECHANG_ESTIMATE_ONE_PAGE, &SageResultTablePanel::OnOnePageOption)
 	ON_NOTIFY(LVN_ITEMCHANGED, ID_TAECHANG_RESULT_LIST, &SageResultTablePanel::OnListItemChanged)
+	ON_NOTIFY(LVN_GETDISPINFO, ID_TAECHANG_RESULT_LIST, &SageResultTablePanel::OnListGetDispInfo)
 END_MESSAGE_MAP()
 
 SageResultTablePanel::SageResultTablePanel()
@@ -556,15 +557,12 @@ void SageResultTablePanel::RefreshRows() {
 				continue;
 		}
 
-		int nColumnCount = static_cast<int>(m_arrColumns.size());
-		if (nColumnCount < 1)
+		if (m_arrColumns.empty())
 			continue;
-		int nCount = m_wndList.GetItemCount();
-		int nIndex = m_wndList.InsertItem(nCount, SageWorkflowResultTable::GetRowText(m_arrRows[i], m_arrColumns[0].nField));
-		for (int nCol = 1; nCol < nColumnCount; ++nCol)
-			m_wndList.SetItemText(nIndex, nCol, SageWorkflowResultTable::GetRowText(m_arrRows[i], m_arrColumns[nCol].nField));
-		m_wndList.SetItemData(nIndex, static_cast<DWORD_PTR>(m_arrRows[i].m_nSourceRowIndex));
+		int nIndex = static_cast<int>(m_arrVisibleRows.size());
 		m_arrVisibleRows.push_back(m_arrRows[i]);
+		m_wndList.InsertItem(LVIF_TEXT | LVIF_PARAM, nIndex, LPSTR_TEXTCALLBACK, 0, 0, 0,
+			static_cast<LPARAM>(m_arrRows[i].m_nSourceRowIndex));
 	}
 	if (!m_bBatchUpdate) {
 		m_wndList.SetRedraw(TRUE);
@@ -813,4 +811,25 @@ void SageResultTablePanel::OnListItemChanged(NMHDR* pNMHDR, LRESULT* pResult) {
 	}
 
 	NotifySelectionChanged();
+}
+
+void SageResultTablePanel::OnListGetDispInfo(NMHDR* pNMHDR, LRESULT* pResult) {
+	*pResult = 0;
+
+	NMLVDISPINFO* pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pNMHDR);
+	if ((pDispInfo->item.mask & LVIF_TEXT) == 0 || pDispInfo->item.pszText == NULL
+		|| pDispInfo->item.cchTextMax < 1)
+		return;
+
+	pDispInfo->item.pszText[0] = L'\0';
+
+	int nRow = pDispInfo->item.iItem;
+	int nColumn = pDispInfo->item.iSubItem;
+	if (nRow < 0 || nRow >= static_cast<int>(m_arrVisibleRows.size()))
+		return;
+	if (nColumn < 0 || nColumn >= static_cast<int>(m_arrColumns.size()))
+		return;
+
+	CString strText = SageWorkflowResultTable::GetRowText(m_arrVisibleRows[nRow], m_arrColumns[nColumn].nField);
+	::lstrcpynW(pDispInfo->item.pszText, strText, pDispInfo->item.cchTextMax);
 }

@@ -72,6 +72,7 @@ protected:
     afx_msg void OnSelectionClear();
     afx_msg void OnOnePageOption();
     afx_msg void OnListItemChanged(NMHDR* pNMHDR, LRESULT* pResult);
+    afx_msg void OnListGetDispInfo(NMHDR* pNMHDR, LRESULT* pResult);
     DECLARE_MESSAGE_MAP()
 
 private:
