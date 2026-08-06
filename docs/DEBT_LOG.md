@@ -5,6 +5,12 @@
 
 ## 열린 항목
 
+### [2026-08-07] 구조불일치 — 실행 기록 패널이 응답 JSON을 직접 파싱한다
+- 위치: `app/ui/panels/SageWorkflowHistoryPanel.cpp` `BuildEntryLine` — `JsonExtractString` 4회
+- 설명: `coding-design`은 「`ui`에 파싱·변환 코드가 들어가지 않았는가」를 묻는데 기록 한 줄을 만들려고 응답 JSON에서 파일 경로·메시지·코드를 직접 꺼낸다. **3-B-4c 이전부터 View에 있던 위반이고 이번 이동은 위치만 바꿨다** — 이번 Step 원칙이 「옮기기만 한다」였으므로 그대로 가져왔다.
+- 위험도: 낮음 — 동작에는 문제가 없고 JSON 키 상수는 `TaechangDefine.h`에 있다
+- 후속: **D7-5**에서 텍스트 로그를 5컬럼 표로 바꿀 때 항목 조립을 `app/core/`로 뺀다. 그때 텍스트 조립 상수 8개(`HISTORY_ENTRY_PREFIX` 등)도 함께 사라진다
+
 ### [2026-08-07] 구조불일치 — 데이터 관리 리스트만 하단 여백이 이중으로 걸린다
 - 위치: `app/ui/view/SageTaechangView.cpp` `LayoutCompanyOrderPanel` — `nListHeight = nHeight - (nListTop - nTop) - TAECHANG_MARGIN`
 - 설명: D7-11에서 `nHeight`가 `nContentBottom - nContentTop`(하단 패딩이 이미 빠진 정확한 남은 높이)으로 바뀌었는데 여기서 `TAECHANG_MARGIN`을 **또** 뺀다. 결과로 데이터 관리 탭 리스트 하단 여백만 다른 화면보다 16px 크다. 기존 대비 변화는 4px뿐이어서 화면 확인을 통과했다.

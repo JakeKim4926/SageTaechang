@@ -8,7 +8,32 @@
 
 ## 다음 세션 시작점 (2026-08-07)
 
-### 지금 어디인가 — **4c 두 항목 완료. 다음은 디자인 쪽 D7-1 3단계**
+### 지금 어디인가 — **3-B-4c 완료. 다음은 4d 또는 풀린 D7-4~D7-6**
+
+`SageWorkflowInputPanel`(1·2단계) · `SageWorkflowResultPanel` · `SageWorkflowHistoryPanel`이 모두
+`develop`에 들어갔고, 그 사이 디자인 쪽 D7-1 3단계와 **D7-11(앱 셸)**도 처리했다.
+빌드·화면 확인 완료, **미검증 커밋 없음.**
+
+| 지표 | 4c 착수 전 | **현재** | 목표 |
+|---|---|---|---|
+| 줄 수 | 1,873 | **1,629** | 600 내외 |
+| 컨트롤 멤버 | 42 | **24** | 0 |
+| `UpdateTaskTabVisibility` | 47줄 | **17줄** | — |
+
+**4c의 마지막 체크 항목(「가시성 행렬 47줄이 사라지는지 확인」)이 달성됐다** — 개별 컨트롤
+`ShowWindow`가 전부 사라지고 패널 4개 + 데이터 관리 호출만 남았다.
+
+**남은 컨트롤 멤버 24개 중 13개가 데이터 관리 탭이다.** 이것이 다음 큰 덩어리이고,
+`coding-design` 목표 구조는 `SageCompanyOrderPanel`로 분리하도록 되어 있다(D7-6과 대상이 같다).
+
+**다음 작업 후보 셋** — 순서는 착수 전에 정한다.
+1. **3-B-4d** `SageWorkspacePanel` + 재배치 (View의 마지막 조립 정리 · `SageWorkflowController` 신설)
+2. **D7-4 · D7-5 · D7-6** — 3-B-4c에 막혀 있던 것이 **이제 풀렸다.** 대상이 모두 패널이 됐다
+3. **D7-11 남은 항목** — 헤더의 「문서 생성」 보조 라벨 + 「관리자」 pill
+
+---
+
+### 이전 기록 — 4c 두 항목 완료 시점 (2026-08-07)
 
 `SageWorkflowInputPanel`(1·2단계)과 `SageWorkflowResultPanel`이 `develop`에 들어갔다.
 빌드·화면 확인 완료, **미검증 커밋 없음.** View는 1,873 → **1,658줄**, 컨트롤 멤버 42 → **26**, **입력 탭 몫 0**.
@@ -699,8 +724,12 @@ D7-10에서 쓴 형태와 같다 — **자식이 부모에 올리는 것은 위�
 
 - [x] `SageWorkflowInputPanel` — **완료·머지** (1단계 `afc0dc2` · 2단계 `3975922`)
 - [x] `SageWorkflowResultPanel` — **완료·머지** (`00d61b3`. 위 판단 참조 — 껍데기인 채 4d를 넘기면 존치 재검토)
-- [ ] `SageWorkflowHistoryPanel` — 실행 기록
-- [ ] `UpdateTaskTabVisibility`의 가시성 행렬 47줄이 사라지는지 확인
+- [x] `SageWorkflowHistoryPanel` — **완료** (`61babe0`). 컨트롤 2 · 상태 1 · 조립 2함수. 메시지맵 0(에디트가 readonly).
+      **JSON 파싱이 함께 따라 들어왔다** — 이전부터 View에 있던 위반이고 D7-5가 표로 바꿀 때 `core`로 뺀다 (`DEBT_LOG`)
+- [x] `UpdateTaskTabVisibility`의 가시성 행렬 47줄이 사라지는지 확인 — **47 → 17줄**
+
+**3-B-4c 완료.** 탭 4개가 각자 패널을 갖고, 탭 전환이 「패널 하나를 보이고 나머지를 숨기는 것」이 됐다.
+4c 착수 근거였던 버그 3개의 뿌리(한 창이 모든 탭의 컨트롤을 `ShowWindow` 행렬로 관리)가 제거됐다.
 
 #### 3-B-4d — `SageWorkspacePanel` + 재배치
 
