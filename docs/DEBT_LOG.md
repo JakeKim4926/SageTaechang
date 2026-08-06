@@ -5,11 +5,39 @@
 
 ## 열린 항목
 
-### [2026-08-06] 구조불일치 — 체크박스가 한 화면에 두 종류다
-- 위치: `app/ui/drawing/SageListCtrl.cpp` `DrawCheckBox`(표 안) ↔ `app/ui/drawing/SageSelectionBar.cpp` `m_wndSelectAll`(네이티브 `BS_AUTOCHECKBOX`)
-- 설명: 표 안 체크박스는 목업대로 **카멜색으로 직접 그렸는데**, 선택 바의 「전체 선택」과 「한 페이지 작성」은 **네이티브 Win32**라 선택 시 파란색이다. 같은 행에 두 색이 보인다.
+### [2026-08-06] 기존부채 — 690행 표를 그리는 데 약 580ms가 든다 (측정 완료)
+- 위치: `app/ui/panels/SageResultTablePanel.cpp` `RefreshRows`
+- 설명: 견적서 690행 파일에서 **로드·워크플로 전환·필터 초기화 모두 약 1초** 멈춘다. 일회용 계측 브랜치로 구간을 갈라 재고 브랜치는 버렸다. **원인은 리스트 컨트롤에 데이터를 밀어넣는 메시지 자체**다.
+
+  | 구간 | 측정 | 횟수 | 회당 |
+  |---|---|---|---|
+  | `InsertItem` | **221 ms** | 690 | 320µs |
+  | `SetItemText` | **305 ms** | 5,520 | 55µs |
+  | 셀 문자열 생성(`GetRowText`) | 5 ms | 6,210 | 0.8µs |
+  | 행 복사(`m_arrVisibleRows`) | 1 ms | | |
+  | 필터 판정 · 선택바 동기화 | 0 · 1 ms | | |
+
+  일반적인 ListView 삽입은 회당 1~5µs인데 320µs다. 컨트롤 설정(체크박스 상태 이미지 · 행 높이용 1×34 이미지리스트 · 커스텀드로우)과 얽힌 내부 비용으로 보이나 **그 이유는 확정하지 못했다.** `SetItemCount`로 아이템 개수를 미리 예약해도 변화가 없어(526 → 523ms) 내부 배열 재할당 가설은 폐기했다.
+- 위험도: 중 — 690행짜리 파일이 일상적이면 매 조작마다 1초씩 멈춘다
+- 후속: **① `LPSTR_TEXTCALLBACK`** — 텍스트를 넣지 않고 그릴 때만 돌려주면 `SetItemText` 305ms가 통째로 사라진다(보이는 20행만 문자열 생성). 패널이 `m_arrVisibleRows`를 들고 있어 `LVN_GETDISPINFO`에 답할 주체가 이미 있고, 커스텀드로우의 `〃`·빈 금액 판정도 그리는 행에 한해 동작한다. **② 가상 리스트(`LVS_OWNERDATA`)** — `InsertItem` 221ms까지 없애지만 체크 상태를 우리가 보관해야 해서 선택·복원 로직을 다시 짜야 한다. ①만으로 580 → 약 270ms. 별도 브랜치 `fix/large-table-render`
+
+### [2026-08-06] 구조불일치 — 「선택 해제」가 견적서 화면에도 보인다
+- 위치: `app/ui/panels/SageResultTablePanel.cpp` (입력 표 인스턴스는 납품·견적 공용)
+- 설명: 목업 3-7(납품)에는 「선택 해제」가 있고 **3-8(견적)에는 없다.** 두 화면이 같은 패널 인스턴스라 한쪽만 숨기려면 패널을 쪼개거나 표시 술어를 하나 더 만들어야 한다.
+- 위험도: 낮음 — 동작은 정상이고 목업과만 다르다
+- 후속: 견적 화면에서 실제로 거슬리는지 먼저 보고, 필요하면 `ShowSelectionClear(BOOL)`를 추가한다
+
+### [2026-08-06] 기존부채 — 도달할 수 없는 6행 초과 경고가 핸들러에 남아 있다
+- 위치: `app/core/workflow/handlers/SageEstimateWorkflowHandler.cpp` `ValidateSelectedRows` (`TAECHANG_UI_ESTIMATE_ONE_PAGE_LIMIT`)
+- 설명: D7-8 2단계에서 패널의 경고창 3곳을 없앴다. 6행 초과는 **체크 시점에 자동 해제**되므로 생성 시점 검증은 도달할 수 없는 방어 코드가 됐다. 상수는 이 한 곳이 유일한 참조다.
 - 위험도: 낮음
-- 후속: `CSageCheckBox`를 만들어 셋을 통일한다. D7-8 2단계에서 「한 페이지 작성」을 테두리 박스로 감쌀 때가 적기다
+- 후속: 자동 해제를 신뢰한다면 검증과 상수를 함께 지운다. 남긴다면 왜 남기는지 근거가 필요하다
+
+### [2026-08-06] 구조불일치 — 체크박스가 한 화면에 두 종류다
+- 위치: `app/ui/drawing/SageSelectionBar.cpp` `m_wndSelectAll` (네이티브 `BS_AUTOCHECKBOX`)
+- 설명: **D7-8 2단계에서 절반 해소됐다.** 표 안 체크박스와 「한 페이지 작성」이 `SageUiStyle::DrawCheckBox`를 공유해 둘 다 카멜색이 됐고, 선택 바의 **「전체 선택」만 네이티브로 남아** 선택 시 파란색이다.
+- 위험도: 낮음
+- 후속: `CSageCheckBox`로 승격해 셋을 통일한다. 그리기 조각은 이미 `SageUiStyle`에 있으므로 라벨·클릭 처리만 감싸면 된다
 
 ### [2026-08-06] 기존부채 — `SetColumns`가 확장 스타일을 통째로 덮어쓴다
 - 위치: `app/ui/panels/SageResultTablePanel.cpp` `SetColumns` → `SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER)`
