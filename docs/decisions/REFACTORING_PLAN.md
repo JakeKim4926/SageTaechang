@@ -735,7 +735,74 @@ D7-10에서 쓴 형태와 같다 — **자식이 부모에 올리는 것은 위�
 
 #### 3-B-4d — `SageWorkspacePanel` + 재배치
 
-브랜치: `refactor/workspace-panel`
+브랜치: 단계마다 별도 (아래 *4d는 셋으로 나뉜다*)
+
+##### 4d는 셋으로 나뉜다 (2026-08-07 조사)
+
+한 브랜치로 하기엔 크고 검증 단위도 다르다.
+
+| 단계 | 내용 | 검증 |
+|---|---|---|
+| **4d-1** | `SageWorkspacePanel` 신설 + 패널 5종(입력·결과·기록·단가2) 재배치 | 워크플로 3종 × 탭 4개 = **12조합** |
+| **4d-2** | `SageCompanyOrderPanel` 신설 → 워크스페이스 하위 배치 | 데이터 관리 탭 CRUD |
+| **4d-3** | `SageWorkflowController` 신설 — 실행 상태 전이 · 워커 수명 | 실행·완료·실패 경로 |
+
+##### 4d-1 설계 (착수 준비, 2026-08-07)
+
+**스킬 확인 결과 — 「패널이 핸들러를 알면 안 된다」는 틀린 전제였다.**
+`sagetaechang-ui` > *업무 분기는 패널이 아니라 핸들러가 답한다*는 **「탭 구성 · 라벨 · 결과 컬럼 ·
+입력 정책은 `ISageWorkflowHandler`가 답하고 패널은 그대로 그린다」**고 한다. 판단 기준은
+「워크플로를 하나 추가할 때 패널을 고쳐야 하는가」이므로 **워크스페이스가 핸들러에 묻는 것은 정상 설계**다.
+`GetTaskTabVisualIndex`/`SemanticIndex`가 핸들러의 탭 정의를 읽는 것도 그대로 옮길 수 있다.
+
+**rect는 full-bleed로 준다.** 워크스페이스가 탭을 소유하므로 **탭 줄 흰 면과 하단 경계도 워크스페이스가 그린다**
+(D7-11에서 View의 `DrawShellBands`가 그리던 탭 부분을 넘긴다). 그러면 View의 `DrawShellBands`는
+헤더만 남는다. 워크스페이스가 `CONTENT_PAD_X/Y`를 소유해 자식에게 패딩 적용된 rect를 배분하므로
+**View는 콘텐츠 패딩을 모르게 된다** — 기준 B(View는 픽셀 좌표를 모른다)에 한 걸음 더 간다.
+
+```
+View          → 워크스페이스 rect = (SIDEBAR_WIDTH+1, HEADER_HEIGHT+1, 창 우측, 창 바닥)
+워크스페이스  → 탭 줄 흰 면 · 경계선 · 탭 컨트롤 배치, 그 아래 CONTENT_PAD 적용해 자식 rect 배분
+```
+
+**가시성 판정이 두 종류 상태에 걸쳐 있다 — 이것이 4d-1의 핵심 난점이다.**
+
+| 술어 | 읽는 상태 | 4d-1에서 |
+|---|---|---|
+| `IsInputTabSelected` · `IsResultTab` · `IsDetailTab` · `IsActionTabVisible` | `m_nSelectedTaskTab`(UI) | **워크스페이스로** |
+| `GetTaskTabVisualIndex` · `GetTaskTabSemanticIndex` · `ApplyWorkflowTabs` | 핸들러 + 탭 선택 | **워크스페이스로** |
+| `IsDataManageTab` | 워크플로 + 탭 선택 | 워크스페이스로 (워크플로는 인자로 받는다) |
+| `IsInputTableVisible` · `IsOnePageOptionVisible` · `IsDocumentResultFilterVisible` | 핸들러 + **`m_nLastWorkflowType` · `m_nLastTaskType`**(실행 결과) | **View에 남긴다** — 4d-3에서 컨트롤러로 |
+| `IsInputResetVisible` | `m_bRunning` + 위 둘 | **View에 남긴다** |
+
+**그래서 View가 가시성 플래그를 묶어 넘긴다.** 지금 입력·결과 패널에 쓰는 방식(`UpdateActionVisibility` ·
+`UpdateInputTableVisibility` · `UpdateResultTableVisibility`)을 워크스페이스가 한 번 받아 배분한다.
+API를 세 개로 늘리지 않고 **상태 묶음 하나**로 받는다.
+
+```cpp
+struct SageWorkspaceVisibility {
+    BOOL bInputResetVisible;
+    BOOL bHasLastResult;
+    BOOL bInputTableVisible;
+    BOOL bOnePageVisible;
+    BOOL bFilterVisible;
+    BOOL bDataManageVisible;
+};
+void SageWorkspacePanel::UpdateVisibility(const SageWorkspaceVisibility& state);
+```
+
+**4d-3이 끝나면 이 묶음이 사라진다** — 컨트롤러가 실행 상태를 소유하면 워크스페이스가 직접 물으면 된다.
+즉 이 구조체는 **4d-1과 4d-3 사이의 임시 다리**이고, 그 사실을 `DEBT_LOG`에 남긴다.
+
+**함께 옮겨야 하는 것 둘**
+
+| 항목 | 문제 |
+|---|---|
+| `m_nSelectedTaskTab` | `TaechangWorkflowUiState`의 첫 필드다. `SaveWorkflowUiState`/`RestoreWorkflowUiState`가 워크플로별로 탭 선택을 저장·복원하므로 **워크스페이스에 묻고 되돌려주는 경로**가 필요하다 |
+| 통지 경로 | 표 → 입력패널 → **워크스페이스** → View로 한 단계 깊어진다. 재전송은 이미 입력·결과 패널에 있는 형태(`ForwardToParent`)를 그대로 쓴다 |
+
+**이번에도 화면은 바뀌지 않아야 한다.** 좌우 2단(D7-6)은 4d-2가 아니라 디자인 Step 몫으로 미뤘고,
+4d-1은 좌표를 그대로 둔 채 소유자만 바꾼다.
 
 - [ ] `SageWorkspacePanel` 생성 — 탭 컨트롤과 활성 탭 패널 교체
 - [ ] `SageCompanyOrderPanel` **신설** 후 미수금 탭 패널로 배치 (R8 — 따로 먼저 만들지 않는다)
