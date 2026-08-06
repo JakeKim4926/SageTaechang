@@ -116,11 +116,6 @@ LPCWSTR SageReceivablesWorkflowHandler::GetActionButtonLabel() const {
 	return TAECHANG_UI_RECEIVABLES_GENERATE_BUTTON;
 }
 
-CString SageReceivablesWorkflowHandler::BuildActionButtonLabel(int nSelectedCount) const {
-	UNREFERENCED_PARAMETER(nSelectedCount);
-	return TAECHANG_UI_RECEIVABLES_GENERATE_BUTTON;
-}
-
 LPCWSTR SageReceivablesWorkflowHandler::GetDetailSectionLabel() const {
 	return TAECHANG_UI_SECTION_HISTORY;
 }

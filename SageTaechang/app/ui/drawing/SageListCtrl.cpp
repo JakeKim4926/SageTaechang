@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "app/ui/drawing/SageListCtrl.h"
 #include "app/ui/drawing/SageUiResources.h"
+#include "app/ui/drawing/SageUiStyle.h"
 #include "TaechangDefine.h"
 
 BEGIN_MESSAGE_MAP(CSageListCtrl, CListCtrl)
@@ -58,22 +59,7 @@ void CSageListCtrl::DrawCheckBox(CDC* pDC, const CRect& rectImage, BOOL bChecked
 	rectBox.OffsetRect(
 		(rectImage.Width() - TAECHANG_LIST_CHECK_BOX_SIZE) / 2,
 		(rectImage.Height() - TAECHANG_LIST_CHECK_BOX_SIZE) / 2);
-
-	if (bChecked) {
-		pDC->FillSolidRect(rectBox, TAECHANG_COLOR_PRIMARY);
-		CPen penMark(PS_SOLID, TAECHANG_LIST_CHECK_MARK_THICKNESS, TAECHANG_COLOR_PANEL);
-		CPen* pOldPen = pDC->SelectObject(&penMark);
-		int nInset = TAECHANG_LIST_CHECK_MARK_THICKNESS * 2;
-		pDC->MoveTo(rectBox.left + nInset, rectBox.top + rectBox.Height() / 2);
-		pDC->LineTo(rectBox.left + rectBox.Width() / 2, rectBox.bottom - nInset);
-		pDC->LineTo(rectBox.right - nInset, rectBox.top + nInset);
-		pDC->SelectObject(pOldPen);
-		return;
-	}
-
-	pDC->FillSolidRect(rectBox, TAECHANG_COLOR_PANEL);
-	CBrush brushBorder(TAECHANG_COLOR_BUTTON_BORDER);
-	pDC->FrameRect(rectBox, &brushBorder);
+	SageUiStyle::DrawCheckBox(*pDC, rectBox, bChecked);
 }
 
 BOOL CSageListCtrl::BuildCheckStateImages(CImageList& imgState) {

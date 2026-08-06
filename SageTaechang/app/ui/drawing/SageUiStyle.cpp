@@ -21,4 +21,22 @@ void DrawComboArrow(CDC& dc, const CRect& rcButton) {
 	dc.SelectObject(pOldPen);
 }
 
+void DrawCheckBox(CDC& dc, const CRect& rectBox, BOOL bChecked) {
+	if (!bChecked) {
+		dc.FillSolidRect(rectBox, TAECHANG_COLOR_PANEL);
+		CBrush brushBorder(TAECHANG_COLOR_BUTTON_BORDER);
+		dc.FrameRect(rectBox, &brushBorder);
+		return;
+	}
+
+	dc.FillSolidRect(rectBox, TAECHANG_COLOR_PRIMARY);
+	CPen penMark(PS_SOLID, TAECHANG_LIST_CHECK_MARK_THICKNESS, TAECHANG_COLOR_PANEL);
+	CPen* pOldPen = dc.SelectObject(&penMark);
+	int nInset = TAECHANG_LIST_CHECK_MARK_THICKNESS * 2;
+	dc.MoveTo(rectBox.left + nInset, rectBox.top + rectBox.Height() / 2);
+	dc.LineTo(rectBox.left + rectBox.Width() / 2, rectBox.bottom - nInset);
+	dc.LineTo(rectBox.right - nInset, rectBox.top + nInset);
+	dc.SelectObject(pOldPen);
+}
+
 }

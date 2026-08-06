@@ -8,6 +8,7 @@
 #include "app/ui/drawing/SageHeaderCtrl.h"
 #include "app/ui/drawing/SageListCtrl.h"
 #include "app/ui/drawing/SageSectionLabel.h"
+#include "app/ui/drawing/SageOptionCheck.h"
 #include "app/ui/drawing/SageSelectionBar.h"
 #include "app/ui/drawing/SageSummaryBar.h"
 #include "app/ui/drawing/SageTableTotalBar.h"
@@ -38,6 +39,8 @@ public:
     void SetFilterCriteria(const std::vector<SageWorkflowFilterCriteria>& arrCriteria);
     void SetRows(const std::vector<TaechangResultRow>& arrRows);
     void ClearRows();
+    void BeginBatchUpdate();
+    void EndBatchUpdate();
     const std::vector<TaechangResultRow>& GetVisibleRows() const;
 
     void SetSummaryItems(const std::vector<SageResultSummaryItem>& arrItems);
@@ -75,6 +78,9 @@ private:
     void CreateControls();
     void ApplyControlFonts();
     void LayoutTableArea();
+    void LayoutSelectionRow();
+    int  GetFilterTotalWidth() const;
+    int  GetBandRight() const;
     void DrawEditBorder(CDC* pDC, CWnd& wnd);
     void RefreshRows();
     void UpdateColumnWidths();
@@ -87,12 +93,12 @@ private:
     void NotifySelectionChanged();
     void SyncSelectionBar();
     void SetAllRowsChecked(BOOL bChecked);
-    void TrimCheckedRowsToOnePage(BOOL bShowMessage);
+    void TrimCheckedRowsToOnePage();
 
 private:
     CSageSectionLabel m_wndTitle;
     CSageSelectionBar m_wndSelectionBar;
-    CButton m_wndOnePage;
+    CSageOptionCheck m_wndOnePage;
     CSageFilterComboBox m_wndCriteria;
     CEdit m_wndFilter;
     CSageButton m_wndSearchBtn;
@@ -117,4 +123,6 @@ private:
     BOOL m_bOnePageVisible;
     BOOL m_bFilterVisible;
     BOOL m_bUpdatingChecks;
+    BOOL m_bBatchUpdate;
+    int m_nSelectedRowCount;
 };

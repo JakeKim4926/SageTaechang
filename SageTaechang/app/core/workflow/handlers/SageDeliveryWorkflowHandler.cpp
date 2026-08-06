@@ -53,14 +53,6 @@ LPCWSTR SageDeliveryWorkflowHandler::GetActionButtonLabel() const {
 	return TAECHANG_UI_DELIVERY_GENERATE_BUTTON;
 }
 
-CString SageDeliveryWorkflowHandler::BuildActionButtonLabel(int nSelectedCount) const {
-	if (nSelectedCount < 1)
-		return TAECHANG_UI_DELIVERY_GENERATE_BUTTON;
-	CString strLabel;
-	strLabel.Format(TAECHANG_UI_DELIVERY_GENERATE_SELECTED_FORMAT, nSelectedCount);
-	return strLabel;
-}
-
 LPCWSTR SageDeliveryWorkflowHandler::GetDetailSectionLabel() const {
 	return TAECHANG_UI_SECTION_HISTORY;
 }

@@ -192,6 +192,9 @@
     <ClCompile Include="app\ui\drawing\SageSelectionBar.cpp">
       <Filter>소스 파일\app\ui\drawing</Filter>
     </ClCompile>
+    <ClCompile Include="app\ui\drawing\SageOptionCheck.cpp">
+      <Filter>소스 파일\app\ui\drawing</Filter>
+    </ClCompile>
     <ClCompile Include="app\ui\drawing\SageInlineError.cpp">
       <Filter>소스 파일\app\ui\drawing</Filter>
     </ClCompile>
@@ -381,6 +384,9 @@
       <Filter>헤더 파일\app\ui\drawing</Filter>
     </ClInclude>
     <ClInclude Include="app\ui\drawing\SageSelectionBar.h">
+      <Filter>헤더 파일\app\ui\drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="app\ui\drawing\SageOptionCheck.h">
       <Filter>헤더 파일\app\ui\drawing</Filter>
     </ClInclude>
     <ClInclude Include="app\ui\drawing\SageInlineError.h">

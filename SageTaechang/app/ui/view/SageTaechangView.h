@@ -177,6 +177,7 @@ protected:
     void RefreshResultTableRows();
     void UpdateResultSummary();
     void UpdateActionButtonState();
+    void ApplyActionButtonState(int nSelectedCount);
     COLORREF ResolveStatusColor(const CString& strStatus) const;
     SageBackgroundRole ResolveStatusBgRole(const CString& strStatus) const;
     void DrawEditBorder(CDC* pDC, CWnd& wnd);

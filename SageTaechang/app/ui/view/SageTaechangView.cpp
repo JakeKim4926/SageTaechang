@@ -789,6 +789,7 @@ void CSageTaechangView::UpdateWorkflowLabels() {
 		return;
 	m_wndHeaderTitle.SetWindowTextW(pHandler->GetHeaderTitle());
 	m_wndInputSection.SetWindowTextW(pHandler->GetInputSectionLabel());
+	m_wndGenerate.SetWindowTextW(pHandler->GetActionButtonLabel());
 	m_wndDetailSection.SetWindowTextW(pHandler->GetDetailSectionLabel());
 	m_wndDetail.SetWindowTextW(m_strExecutionHistory);
 	ApplyWorkflowTabs();
@@ -801,13 +802,16 @@ void CSageTaechangView::UpdateActionButtonState() {
 	ISageWorkflowHandler* pHandler = FindCurrentHandler();
 	if (pHandler == NULL)
 		return;
+	ApplyActionButtonState(pHandler->UsesInputTable() ? m_panelInputTable.GetCheckedRowCount() : 0);
+}
 
-	BOOL bUsesSelection = pHandler->UsesInputTable();
-	int nSelectedCount = bUsesSelection ? m_panelInputTable.GetCheckedRowCount() : 0;
-	m_wndGenerate.SetWindowTextW(pHandler->BuildActionButtonLabel(nSelectedCount));
+void CSageTaechangView::ApplyActionButtonState(int nSelectedCount) {
+	ISageWorkflowHandler* pHandler = FindCurrentHandler();
+	if (pHandler == NULL)
+		return;
 
 	BOOL bEnable = m_bRunning ? FALSE : TRUE;
-	if (bEnable && bUsesSelection)
+	if (bEnable && pHandler->UsesInputTable())
 		bEnable = (nSelectedCount > 0) ? TRUE : FALSE;
 	m_wndGenerate.EnableWindow(bEnable);
 }
@@ -987,9 +991,14 @@ void CSageTaechangView::OnWorkflowChanged() {
 		return;
 	}
 
+	SageResultTablePanel* pPanel = FindResultTablePanel(FindCurrentHandler());
+	if (pPanel != NULL)
+		pPanel->BeginBatchUpdate();
 	UpdateWorkflowLabels();
 	RestoreWorkflowUiState(m_nCurrentWorkflow);
 	RebuildCurrentWorkflowResultList();
+	if (pPanel != NULL)
+		pPanel->EndBatchUpdate();
 	if (!m_bRunning)
 		SetStatusText(TAECHANG_UI_READY);
 }
@@ -1414,9 +1423,8 @@ LRESULT CSageTaechangView::OnResultTableChanged(WPARAM wParam, LPARAM lParam) {
 }
 
 LRESULT CSageTaechangView::OnResultSelectionChanged(WPARAM wParam, LPARAM lParam) {
-	UNREFERENCED_PARAMETER(wParam);
 	UNREFERENCED_PARAMETER(lParam);
-	UpdateActionButtonState();
+	ApplyActionButtonState(static_cast<int>(wParam));
 	return 0;
 }
 
