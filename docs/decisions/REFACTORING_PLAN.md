@@ -8,18 +8,73 @@
 
 ## 다음 세션 시작점 (2026-08-06)
 
-### 지금 어디인가 — D7-1 **완료·검증됨**, 다음은 **D7-7 · D7-8**
+### 지금 어디인가 — D7-1 **머지됨**, 진행 중은 **D7-7 · D7-8 1단계(선택 바)**
 
-`develop` = `7926a1c`. 현재 브랜치 `feature/receivables-total-row`에 커밋 3개가 있고
-**아직 `develop`에 머지하지 않았다.**
+`develop` = `de346ed` (2026-08-06 fast-forward 머지). `feature/receivables-total-row`는 삭제했다.
+**미검증 커밋은 없다.** 현재 브랜치는 `feature/table-selection-bar`.
 
-| 커밋 | 내용 | 검증 |
-|---|---|---|
-| `222cb3c` | PR_LOG에 1단계 머지 결과 반영 | 문서 |
-| `3a32c4f` | D7-1 2단계를 Step으로 확정 | 문서 |
-| `c45aceb` | 미수금 합계 밴드 (D7-1 2단계) | 빌드 + 화면 확인 완료 |
+## Step D7-7 · D7-8 1단계 — 표 선택 바
 
-**미검증 커밋은 없다.**
+브랜치: `feature/table-selection-bar`
+규칙 출처: `sagetaechang-ui` > *MFC 공통 컨트롤 규격* · *버튼 위계 배분*,
+`coding-design` > *ui 계층 구성* · *화면은 컨트롤을 그리는 방법을 몰라야 한다*
+목업: 3-7 · 3-8의 선택 행
+
+### 확정된 결정 (2026-08-06 사용자 결정)
+
+- **생성 버튼은 View의 실행 영역에 그대로 둔다.** 목업 3-7은 선택 바 안에 두지만, 실행 축은
+  3-B-6a(`SageWorkflowController`) 소관이라 D7이 먼저 옮기면 **3-B가 되돌린다** — 두 계획서가
+  서로 막는 그 상황이다. 문구에 선택 건수를 반영하고 0건이면 비활성하는 것으로 완료 기준을 채운다
+- **`CSageSelectionBar`가 「전체 선택」 체크박스와 「선택 해제」를 소유하고 클릭은 커맨드 ID로
+  부모에 올린다** — `CSageEmptyState`가 `CSageButton` 자식을 들고 `SetAction(label, nCommandId)`로
+  올리는 선례를 따른다
+- **「전체 선택」을 버튼에서 체크박스로 바꾼다** (목업·D5c 명세). 「선택 해제」와 겹쳐 보이지만
+  부분 선택 상태에서 체크박스는 「전체 켜기」로 읽히므로 즉시 0건으로 만드는 버튼은 따로 의미가 있다
+
+### 조사로 확정한 사실 (2026-08-06)
+
+- **입력 표는 납품·견적 공용 인스턴스(`m_panelInputTable`)다.** 선택 바를 한 번 넣으면
+  **두 화면에 동시에** 붙는다. D7-7과 D7-8이 각각 붙이는 작업이 아니다
+- **체크 상태 변경은 View로 흐르지 않는다.** `NotifyStateChanged()`는 필터 검색·초기화·기준 변경
+  3곳에만 걸려 있고 `OnSelectAll`·`OnListItemChanged`에는 없다
+- **선택 건수를 세는 API가 패널에 없다.** View가 실행 시점에 리스트를 직접 순회한다
+- 「전체 선택」은 현재 `CSageButton`(`TAECHANG_BUTTON_WIDTH` = 120)이고 선택 행 좌표는 `nBandTop` 기준이다
+- 「한 페이지 작성」 6행 제한의 `AfxMessageBox`는 **3곳**이다 (`OnSelectAll` ·
+  `TrimCheckedRowsToOnePage` · `OnListItemChanged` 경로) — 2단계 몫
+
+### 새로 만들 배선
+
+- **`WM_TAECHANG_RESULT_SELECTION_CHANGED` 신설.** `WM_TAECHANG_RESULT_TABLE_CHANGED`를 재사용하지
+  않는다 — 그것은 **행 집합** 변경이고 요약 바·합계 밴드를 다시 계산한다. 체크 토글마다 합계를
+  재계산할 이유가 없다
+- **대량 `SetCheck` 중에는 알림을 억제하고 루프가 끝난 뒤 한 번만 보낸다.** 전체 선택이 N번
+  알림을 쏘면 View가 N번 갱신된다
+- **생성 버튼 문구는 핸들러가 답한다** — `ISageWorkflowHandler::BuildActionButtonLabel(int nSelectedCount)`.
+  미수금은 기존 라벨 그대로, 납품·견적은 「선택 N건 …」. **View에 워크플로 분기를 만들지 않는다**
+
+### 작업 순서
+
+- [ ] 1. `CSageSelectionBar` 신설 (`app/ui/drawing/`) + `vcxproj`·`filters` 3단계 → 검증: 빌드
+- [ ] 2. 패널 배선 — `m_wndSelectAll`(버튼) 제거, 선택 바 배치, 체크 변경 알림 + 억제 가드
+      → 검증: 전체 선택·개별 토글·선택 해제가 표와 어긋나지 않는다
+- [ ] 3. 핸들러 `BuildActionButtonLabel` 3개 + View의 버튼 문구·활성 갱신
+      → 검증: 아래 *완료 기준*
+- [ ] 4. `DESIGN_PLAN` D7-7 갱신 + `DEBT_LOG` → `docs:` 커밋
+
+코드는 **`feat:` 커밋 1개**로 묶는다.
+
+### 완료 기준
+
+- 표를 세지 않고 **몇 건을 선택했는지** 안다
+- **0건이면 생성 버튼이 비활성**이고 문구가 기본으로 돌아간다
+- 전체 선택 체크박스가 표의 실제 상태를 반영한다 (행 하나를 풀면 체크가 풀린다)
+- 실행 중에는 선택 바가 비활성이다 (기존 `EnableSelectionControls` 동작 유지)
+- 납품·견적 **두 화면에서 같게** 동작한다
+
+### 범위 밖 (2단계 `feature/estimate-one-page-inline`)
+
+「· 최대 6행」 상시 표시와 `AfxMessageBox` 3곳 → 인라인 안내. 생성 버튼을 선택 바로 옮기는 것은
+3-B-6a 이후 재검토한다.
 
 ## D7-1 2단계 — 미수금 합계 밴드 **완료** (2026-08-06)
 
