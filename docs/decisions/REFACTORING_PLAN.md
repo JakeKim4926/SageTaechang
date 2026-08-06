@@ -26,10 +26,12 @@
 **남은 컨트롤 멤버 24개 중 13개가 데이터 관리 탭이다.** 이것이 다음 큰 덩어리이고,
 `coding-design` 목표 구조는 `SageCompanyOrderPanel`로 분리하도록 되어 있다(D7-6과 대상이 같다).
 
-**다음 작업 후보 셋** — 순서는 착수 전에 정한다.
-1. **3-B-4d** `SageWorkspacePanel` + 재배치 (View의 마지막 조립 정리 · `SageWorkflowController` 신설)
-2. **D7-4 · D7-5 · D7-6** — 3-B-4c에 막혀 있던 것이 **이제 풀렸다.** 대상이 모두 패널이 됐다
-3. **D7-11 남은 항목** — 헤더의 「문서 생성」 보조 라벨 + 「관리자」 pill
+**다음은 3-B-4d다** (2026-08-07 확정). 「데이터 관리 패널을 따로 먼저」는 **미해결 리스크 R8이
+이미 금지해 둔 경로**다 — 독립 패널로 만들면 부모를 View → 워크스페이스로 **두 번** 바꾸게 된다.
+4d 안에서 워크스페이스와 함께 만든다. 착수 조사는 아래 *4d 착수 준비*에 남겼다.
+
+그 뒤 **D7-4 · D7-5 · D7-6**이 풀린다(대상이 모두 패널이 됐다).
+**D7-11 남은 항목**(헤더 「문서 생성」 보조 라벨 · 「관리자」 pill)은 독립적이라 아무 때나 끼울 수 있다.
 
 ---
 
@@ -736,9 +738,45 @@ D7-10에서 쓴 형태와 같다 — **자식이 부모에 올리는 것은 위�
 브랜치: `refactor/workspace-panel`
 
 - [ ] `SageWorkspacePanel` 생성 — 탭 컨트롤과 활성 탭 패널 교체
-- [ ] `SageCompanyOrderPanel`을 미수금 탭 패널로 배치 (R8)
-- [ ] 3-B-1b · 3-B-2 패널을 워크스페이스 하위로 재배치
+- [ ] `SageCompanyOrderPanel` **신설** 후 미수금 탭 패널로 배치 (R8 — 따로 먼저 만들지 않는다)
+- [ ] 3-B-1b · 3-B-2 패널(단가 2종)을 워크스페이스 하위로 재배치
+- [ ] **4c가 만든 패널 3종**(입력 · 결과 · 기록)도 워크스페이스 하위로 재배치 — 4c 진행 후 늘어난 항목
 - [ ] 화면 확인: 워크플로 3종 × 탭 전부, 데이터 관리 탭, 워크플로 전환 시 상태 유지
+
+##### 4d 착수 준비 — 데이터 관리 조사 (2026-08-07)
+
+**다시 조사하지 않도록 여기 남긴다.** 목업 대조는 `DESIGN_PLAN` D7-6 > *목업 재대조*에 있다.
+
+| 항목 | 수량 | 내역 |
+|---|---|---|
+| 컨트롤 멤버 | **13** | 편집 카드 9(`CoCrudSection` · `CoOrderLabel/Edit` · `CoNameLabel` · `CoCompanyEdit` · `CoAdd/Modify/Cancel/Delete Btn`) + 목록 5(`CoListSection` · `CoSearchLabel/Edit/Btn` · `CoListHeader` · `CoList`) |
+| 상태 | **5** | `m_nCoPanelState` · `m_strCoSearchKeyword` · `m_nCoSelectedOrderId` · `m_arrCoOrders` · `m_rectCoCard` |
+| 메시지맵 | **6** | 버튼 5 + `LVN_ITEMCHANGED` |
+| 함수 | **6** | `CreateCompanyOrderPanel` · `LayoutCompanyOrderPanel` · `ShowCompanyOrderPanel` · `RefreshCompanyOrderList` · `UpdateCoListColumns` · `UpdateCoPanelState` |
+| 핸들러 | **6** | `OnCoAdd` · `OnCoModify` · `OnCoDelete` · `OnCoCancel` · `OnCoSearch` · `OnCoListSelChanged` |
+
+**View에 얽힌 것 셋 — 옮길 때 함께 풀어야 한다**
+
+| 지점 | 내용 |
+|---|---|
+| `PreTranslateMessage` | Enter(검색 실행) · **Tab(순서↔법인명 순환)**. 자식이 먼저 보므로 패널로 옮기면 그대로 동작한다 (입력 패널 드롭에서 확인한 `WalkPreTranslateTree` 순서) |
+| `OnDraw` / `OnEraseBkgnd` | `m_rectCoCard` 카드 배경·테두리 + `DrawEditBorder` 3개 → 패널의 `OnEraseBkgnd`로 |
+| **`ui → infra` 직접 호출 4곳** | `sageDBMgr.GetReceivableCompanyOrderService()`의 `LoadAll` · `Add` · `Change` · `Remove`. **`coding-design` 계층 위반이고 View의 `app/infra` include 6줄 중 하나(`SageDBMgr.h`)가 이것이다** |
+
+**infra 호출은 그대로 옮긴다** — 기록 패널 JSON 파싱과 같은 판단이다(위반의 위치만 바뀜).
+`core`에 서비스 인터페이스를 세우는 것은 Step 4 계열 작업이고 4d에 섞으면 범위가 두 배가 된다.
+`DEBT_LOG`에 올리고 후속으로 남긴다.
+
+**결정 완료 (2026-08-07 사용자)**
+
+| # | 결정 | 결과 |
+|---|---|---|
+| 1 | 좌우 2단 레이아웃은 **D7-6으로 미룬다** | 4d는 **상하 배치를 그대로 옮긴다.** 화면이 바뀌면 실패 |
+| 2 | 「한 화면에 Primary 하나」를 **「한 카드에 하나」로 완화** | 스킬 정정 완료(이력 포함). *사용량 규칙*의 「채워진 면 1개」와 체크리스트도 같은 기준으로 맞췄다 |
+| 3 | 구조와 디자인은 **분리한다** | 4d(구조) → D7-6(디자인) 순. D7-2가 세운 기준을 유지한다 |
+
+**1번 결정의 효과가 크다.** 좌우 2단이 D7-6으로 가면 4d의 데이터 관리 몫은
+**「좌표를 그대로 둔 채 소유자만 바꾸는 것」**이 된다 — 4c에서 다섯 번 해본 작업과 같은 형태다.
 
 **완료 기준**: 탭을 하나 추가할 때 패널 1개 추가 + 워크스페이스의 탭 목록만 고친다.
 워크플로를 하나 추가할 때 패널을 고칠 필요가 없다(탭 · 라벨 · 컬럼 · 입력 정책은 핸들러가 답한다).
