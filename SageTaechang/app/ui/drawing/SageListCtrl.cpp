@@ -259,7 +259,7 @@ void CSageListCtrl::OnNMCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
 				*pResult |= CDRF_NEWFONT;
 			}
 			if (m_nHighlightCount > 0 || m_nFirstColumnAlign != SAGE_LIST_FIRST_COLUMN_DEFAULT
-				|| m_nGroupColumn != TAECHANG_LIST_NO_GROUP_COLUMN)
+				|| m_nGroupColumn != TAECHANG_LIST_NO_GROUP_COLUMN || !m_strMutedText.IsEmpty())
 				*pResult |= CDRF_NOTIFYSUBITEMDRAW;
 			break;
 		}
@@ -285,6 +285,9 @@ void CSageListCtrl::OnNMCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
 				CDC* pDC = CDC::FromHandle(pCD->nmcd.hdc);
 				pDC->SelectObject(SageUiResources::GetFont(
 					bHighlight ? SAGE_FONT_LIST_BOLD : SAGE_FONT_LIST));
+				*pResult = CDRF_NEWFONT;
+			} else if (!m_strMutedText.IsEmpty()) {
+				pCD->clrText = ResolveSubItemTextColor(nItem, nSubItem, FALSE);
 				*pResult = CDRF_NEWFONT;
 			}
 			if (m_nFirstColumnAlign != SAGE_LIST_FIRST_COLUMN_DEFAULT && nSubItem == 0) {
