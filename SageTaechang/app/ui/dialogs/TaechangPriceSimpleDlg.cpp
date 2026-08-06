@@ -275,6 +275,7 @@ int TaechangCoverPriceDlg::LayoutControls() {
 void TaechangCoverPriceDlg::ApplyFont() {
     m_font.CreatePointFont(TAECHANG_CONTENT_FONT_POINT_SIZE, TAECHANG_CONTROL_FONT_FACE);
     m_wndLabel.SetFont(&m_font);
+    m_wndLabel.SetTextColorRole(SAGE_TEXT_MUTED);
     m_wndEdit.SetFont(&m_font);
     m_wndOkBtn.SetFont(&m_font);
     m_wndOkBtn.SetVariant(SAGE_BUTTON_PRIMARY);
@@ -350,6 +351,9 @@ void TaechangCoverPriceDlg::OnCancel() {
 }
 
 HBRUSH TaechangCoverPriceDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
+    if (pWnd != NULL && pWnd->IsKindOf(RUNTIME_CLASS(CSageLabel)))
+        return CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
+
     if (nCtlColor == CTLCOLOR_STATIC) {
         pDC->SetTextColor(TAECHANG_COLOR_TEXT);
         pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);

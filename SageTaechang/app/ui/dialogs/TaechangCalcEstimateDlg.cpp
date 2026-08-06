@@ -110,12 +110,16 @@ void TaechangCalcEstimateDlg::CreateControls() {
 void TaechangCalcEstimateDlg::ApplyFont() {
     m_font.CreatePointFont(TAECHANG_CONTENT_FONT_POINT_SIZE, TAECHANG_CONTROL_FONT_FACE);
     m_wndDateLabel.SetFont(&m_font);
+    m_wndDateLabel.SetTextColorRole(SAGE_TEXT_MUTED);
     m_wndYearEdit.SetFont(&m_font);
     m_wndDateSep1.SetFont(&m_font);
+    m_wndDateSep1.SetTextColorRole(SAGE_TEXT_SECONDARY);
     m_wndMonthEdit.SetFont(&m_font);
     m_wndDateSep2.SetFont(&m_font);
+    m_wndDateSep2.SetTextColorRole(SAGE_TEXT_SECONDARY);
     m_wndDayEdit.SetFont(&m_font);
     m_wndItemLabel.SetFont(&m_font);
+    m_wndItemLabel.SetTextColorRole(SAGE_TEXT_MUTED);
     m_wndItemEdit.SetFont(&m_font);
     m_wndOkBtn.SetFont(&m_font);
     m_wndOkBtn.SetVariant(SAGE_BUTTON_PRIMARY);
@@ -410,6 +414,9 @@ void TaechangCalcEstimateDlg::OnMonthChanged() {
 
 HBRUSH TaechangCalcEstimateDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
     HBRUSH hBrush = CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
+
+    if (pWnd != NULL && pWnd->IsKindOf(RUNTIME_CLASS(CSageLabel)))
+        return hBrush;
 
     if (nCtlColor == CTLCOLOR_EDIT) {
         pDC->SetTextColor(TAECHANG_COLOR_TEXT);

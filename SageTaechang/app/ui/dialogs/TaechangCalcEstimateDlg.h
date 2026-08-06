@@ -3,6 +3,7 @@
 #include "app/ui/drawing/SageButton.h"
 #include "app/ui/drawing/SageEdit.h"
 #include "app/ui/drawing/SageInlineError.h"
+#include "app/ui/drawing/SageLabel.h"
 #include "app/ui/dialogs/SageDialogSizer.h"
 #include "app/ui/dialogs/SageFramelessDialog.h"
 
@@ -59,14 +60,14 @@ private:
     CString m_strDate;
     CString m_strItemName;
 
-    CStatic m_wndDateLabel;
+    CSageLabel m_wndDateLabel;
     CSageEdit m_wndYearEdit;
-    CStatic m_wndDateSep1;
+    CSageLabel m_wndDateSep1;
     CSageEdit m_wndMonthEdit;
-    CStatic m_wndDateSep2;
+    CSageLabel m_wndDateSep2;
     CSageEdit m_wndDayEdit;
     CStatic m_wndDateDivider;
-    CStatic m_wndItemLabel;
+    CSageLabel m_wndItemLabel;
     CSageEdit m_wndItemEdit;
     CStatic m_wndItemDivider;
     CSageInlineError m_wndError;

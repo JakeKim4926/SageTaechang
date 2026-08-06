@@ -82,7 +82,7 @@ private:
 private:
     int m_nCoverPrice;
     BOOL m_bFormattingCoverPrice;
-    CStatic m_wndLabel;
+    CSageLabel m_wndLabel;
     CSageEdit m_wndEdit;
     CSageInlineError m_wndError;
     CSageButton m_wndOkBtn;
