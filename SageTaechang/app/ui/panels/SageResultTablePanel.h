@@ -8,6 +8,7 @@
 #include "app/ui/drawing/SageHeaderCtrl.h"
 #include "app/ui/drawing/SageListCtrl.h"
 #include "app/ui/drawing/SageSectionLabel.h"
+#include "app/ui/drawing/SageSelectionBar.h"
 #include "app/ui/drawing/SageSummaryBar.h"
 #include "app/ui/drawing/SageTableTotalBar.h"
 
@@ -46,6 +47,7 @@ public:
     void ClearTotals();
 
     int  GetRowCount() const;
+    int  GetCheckedRowCount() const;
     BOOL IsRowChecked(int nRow) const;
     void SetRowChecked(int nRow, BOOL bChecked);
     DWORD_PTR GetRowData(int nRow) const;
@@ -64,6 +66,7 @@ protected:
     afx_msg void OnFilterReset();
     afx_msg void OnCriteriaChanged();
     afx_msg void OnSelectAll();
+    afx_msg void OnSelectionClear();
     afx_msg void OnOnePageOption();
     afx_msg void OnListItemChanged(NMHDR* pNMHDR, LRESULT* pResult);
     DECLARE_MESSAGE_MAP()
@@ -81,11 +84,14 @@ private:
     int  GetDefaultCriteria() const;
     void PopulateCriteria();
     void NotifyStateChanged();
+    void NotifySelectionChanged();
+    void SyncSelectionBar();
+    void SetAllRowsChecked(BOOL bChecked);
     void TrimCheckedRowsToOnePage(BOOL bShowMessage);
 
 private:
     CSageSectionLabel m_wndTitle;
-    CSageButton m_wndSelectAll;
+    CSageSelectionBar m_wndSelectionBar;
     CButton m_wndOnePage;
     CSageFilterComboBox m_wndCriteria;
     CEdit m_wndFilter;
@@ -110,4 +116,5 @@ private:
     BOOL m_bSelectAllVisible;
     BOOL m_bOnePageVisible;
     BOOL m_bFilterVisible;
+    BOOL m_bUpdatingChecks;
 };

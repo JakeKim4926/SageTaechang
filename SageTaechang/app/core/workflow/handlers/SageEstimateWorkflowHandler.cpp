@@ -51,6 +51,14 @@ LPCWSTR SageEstimateWorkflowHandler::GetActionButtonLabel() const {
 	return TAECHANG_UI_ESTIMATE_GENERATE_BUTTON;
 }
 
+CString SageEstimateWorkflowHandler::BuildActionButtonLabel(int nSelectedCount) const {
+	if (nSelectedCount < 1)
+		return TAECHANG_UI_ESTIMATE_GENERATE_BUTTON;
+	CString strLabel;
+	strLabel.Format(TAECHANG_UI_ESTIMATE_GENERATE_SELECTED_FORMAT, nSelectedCount);
+	return strLabel;
+}
+
 LPCWSTR SageEstimateWorkflowHandler::GetDetailSectionLabel() const {
 	return TAECHANG_UI_SECTION_HISTORY;
 }

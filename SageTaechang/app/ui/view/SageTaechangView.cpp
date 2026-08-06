@@ -174,6 +174,7 @@ BEGIN_MESSAGE_MAP(CSageTaechangView, CView)
 	ON_NOTIFY(LVN_ITEMCHANGED, ID_COORDER_LIST, &CSageTaechangView::OnCoListSelChanged)
 	ON_MESSAGE(WM_TAECHANG_WORKFLOW_COMPLETE, &CSageTaechangView::OnWorkflowComplete)
 	ON_MESSAGE(WM_TAECHANG_RESULT_TABLE_CHANGED, &CSageTaechangView::OnResultTableChanged)
+	ON_MESSAGE(WM_TAECHANG_RESULT_SELECTION_CHANGED, &CSageTaechangView::OnResultSelectionChanged)
 	ON_WM_DROPFILES()
 END_MESSAGE_MAP()
 
@@ -450,6 +451,7 @@ void CSageTaechangView::SetResultTableRows(const std::vector<TaechangResultRow>&
 		return;
 	pPanel->SetRows(arrRows);
 	UpdateResultSummary();
+	UpdateActionButtonState();
 }
 
 void CSageTaechangView::UpdateResultSummary() {
@@ -787,12 +789,27 @@ void CSageTaechangView::UpdateWorkflowLabels() {
 		return;
 	m_wndHeaderTitle.SetWindowTextW(pHandler->GetHeaderTitle());
 	m_wndInputSection.SetWindowTextW(pHandler->GetInputSectionLabel());
-	m_wndGenerate.SetWindowTextW(pHandler->GetActionButtonLabel());
 	m_wndDetailSection.SetWindowTextW(pHandler->GetDetailSectionLabel());
 	m_wndDetail.SetWindowTextW(m_strExecutionHistory);
 	ApplyWorkflowTabs();
 	ApplyResultTableSchema();
+	UpdateActionButtonState();
 	LayoutChildControls();
+}
+
+void CSageTaechangView::UpdateActionButtonState() {
+	ISageWorkflowHandler* pHandler = FindCurrentHandler();
+	if (pHandler == NULL)
+		return;
+
+	BOOL bUsesSelection = pHandler->UsesInputTable();
+	int nSelectedCount = bUsesSelection ? m_panelInputTable.GetCheckedRowCount() : 0;
+	m_wndGenerate.SetWindowTextW(pHandler->BuildActionButtonLabel(nSelectedCount));
+
+	BOOL bEnable = m_bRunning ? FALSE : TRUE;
+	if (bEnable && bUsesSelection)
+		bEnable = (nSelectedCount > 0) ? TRUE : FALSE;
+	m_wndGenerate.EnableWindow(bEnable);
 }
 
 BOOL CSageTaechangView::IsInputTabSelected() const {
@@ -1225,9 +1242,9 @@ void CSageTaechangView::SetRunningState(BOOL bRunning) {
 	m_wndSelectInput.EnableWindow(!bRunning);
 	m_wndSelectOutput.EnableWindow(!bRunning);
 	m_wndLoad.EnableWindow(!bRunning);
-	m_wndGenerate.EnableWindow(!bRunning);
 	m_wndInputReset.EnableWindow(!bRunning);
 	m_panelInputTable.EnableSelectionControls(!bRunning);
+	UpdateActionButtonState();
 	if (bRunning) {
 		UpdateProgressPercent(0);
 		SetTimer(ID_TAECHANG_PROGRESS_TIMER, TAECHANG_PROGRESS_TIMER_MS, NULL);
@@ -1392,6 +1409,14 @@ LRESULT CSageTaechangView::OnResultTableChanged(WPARAM wParam, LPARAM lParam) {
 	UNREFERENCED_PARAMETER(lParam);
 	SaveWorkflowUiState(GetSelectedWorkflow());
 	UpdateResultSummary();
+	UpdateActionButtonState();
+	return 0;
+}
+
+LRESULT CSageTaechangView::OnResultSelectionChanged(WPARAM wParam, LPARAM lParam) {
+	UNREFERENCED_PARAMETER(wParam);
+	UNREFERENCED_PARAMETER(lParam);
+	UpdateActionButtonState();
 	return 0;
 }
 

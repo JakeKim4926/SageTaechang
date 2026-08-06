@@ -13,6 +13,7 @@ public:
     virtual LPCWSTR GetHeaderTitle() const = 0;
     virtual LPCWSTR GetInputSectionLabel() const = 0;
     virtual LPCWSTR GetActionButtonLabel() const = 0;
+    virtual CString BuildActionButtonLabel(int nSelectedCount) const = 0;
     virtual LPCWSTR GetDetailSectionLabel() const = 0;
 
     virtual int GetTabCount() const = 0;

@@ -176,6 +176,7 @@ protected:
     void SetResultTableRows(const std::vector<TaechangResultRow>& arrRows);
     void RefreshResultTableRows();
     void UpdateResultSummary();
+    void UpdateActionButtonState();
     COLORREF ResolveStatusColor(const CString& strStatus) const;
     SageBackgroundRole ResolveStatusBgRole(const CString& strStatus) const;
     void DrawEditBorder(CDC* pDC, CWnd& wnd);
@@ -215,6 +216,7 @@ protected:
     afx_msg void OnInputReset();
     afx_msg LRESULT OnWorkflowComplete(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnResultTableChanged(WPARAM wParam, LPARAM lParam);
+    afx_msg LRESULT OnResultSelectionChanged(WPARAM wParam, LPARAM lParam);
     afx_msg void OnDropFiles(HDROP hDropInfo);
     afx_msg void OnLogin();
     afx_msg void OnLogout();

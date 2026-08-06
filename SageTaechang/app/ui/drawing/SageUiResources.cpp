@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "app/ui/drawing/SageUiResources.h"
 #include "TaechangDefine.h"
 
@@ -6,6 +6,7 @@ namespace {
 
 CFont g_fontControl;
 CFont g_fontContent;
+CFont g_fontContentSemiBold;
 CFont g_fontTitle;
 CFont g_fontHeader;
 CFont g_fontCaption;
@@ -57,6 +58,7 @@ void Create() {
 	g_fontContent.CreatePointFont(TAECHANG_CONTENT_FONT_POINT_SIZE, TAECHANG_CONTROL_FONT_FACE);
 	g_fontTitle.CreatePointFont(TAECHANG_TITLE_FONT_POINT_SIZE, TAECHANG_TITLE_FONT_FACE);
 	g_fontHeader.CreatePointFont(TAECHANG_HEADER_FONT_POINT_SIZE, TAECHANG_TITLE_FONT_FACE);
+	g_fontContentSemiBold.CreatePointFont(TAECHANG_CONTENT_FONT_POINT_SIZE, TAECHANG_TITLE_FONT_FACE);
 	g_fontCaption.CreatePointFont(TAECHANG_CAPTION_FONT_POINT_SIZE, TAECHANG_CONTROL_FONT_FACE);
 	g_fontSummary.CreatePointFont(TAECHANG_SUMMARY_FONT_POINT_SIZE, TAECHANG_TITLE_FONT_FACE);
 	g_fontList.CreatePointFont(TAECHANG_LIST_FONT_POINT_SIZE, TAECHANG_CONTROL_FONT_FACE);
@@ -71,6 +73,7 @@ void Create() {
 void Destroy() {
 	g_fontControl.DeleteObject();
 	g_fontContent.DeleteObject();
+	g_fontContentSemiBold.DeleteObject();
 	g_fontTitle.DeleteObject();
 	g_fontHeader.DeleteObject();
 	g_fontCaption.DeleteObject();
@@ -87,6 +90,7 @@ void Destroy() {
 CFont* GetFont(SageFontRole nRole) {
 	switch (nRole) {
 		case SAGE_FONT_CONTENT: return &g_fontContent;
+		case SAGE_FONT_CONTENT_SEMIBOLD: return &g_fontContentSemiBold;
 		case SAGE_FONT_TITLE:   return &g_fontTitle;
 		case SAGE_FONT_HEADER:  return &g_fontHeader;
 		case SAGE_FONT_CAPTION:       return &g_fontCaption;
