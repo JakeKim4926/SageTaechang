@@ -5,11 +5,6 @@
 
 ## 열린 항목
 
-### [2026-08-06] 구조불일치 — 다이얼로그 라벨 색이 앱 안에서 갈려 있다
-- 위치: `app/ui/dialogs/TaechangCalcEstimateDlg.h` · `TaechangPriceSimpleDlg.h`(`TaechangCoverPriceDlg`)
-- 설명: D7-9에서 목업 6종의 라벨을 `CSageLabel`로 승격해 보조 텍스트 색을 줬으나, **목업에 없는 두 다이얼로그는 `CStatic`으로 남아** 라벨이 본문색이다. 같은 앱에서 다이얼로그를 여닫으면 라벨 색이 달라 보인다.
-- 위험도: 낮음 — 동작에는 영향이 없다
-- 후속: D7-10이 7종 **전부**의 프레임을 만지므로 **그때 라벨도 함께 승격한다**. 별도로 하면 같은 파일을 두 번 연다
 
 ### [2026-08-06] 구조불일치 — `TAECHANG_CALC_MAX_HISTORY`가 실제 상한이 아니다
 - 위치: `app/ui/panels/SagePriceCalcPanel.cpp` `GetHistoryVisibleCapacity` · `TrimHistoryToVisibleCapacity`
@@ -284,6 +279,12 @@
 - 후속: Step 4에서 core Service 경유로 전환
 
 ## 해결됨
+
+### [2026-08-06] 해결 — 다이얼로그 라벨 색이 앱 안에서 갈려 있다
+- 등록: 2026-08-06 (D7-9) / 해결: 2026-08-07 (`9753329`, D7-10)
+- 내용: D7-9가 목업 6종의 라벨만 `CSageLabel`로 승격해서, 목업에 없는 견적서 생성·표지 단가 다이얼로그는 라벨이 본문색으로 남아 있었다.
+- 해결: 후속에 적어둔 대로 **D7-10이 7종 전부를 만지는 김에 함께 승격**했다. 「날짜」·「품목명」·표지 라벨은 `SAGE_TEXT_MUTED`, 날짜 구분자 2개는 `SAGE_TEXT_SECONDARY`. 구분선 2개는 `CStatic`으로 남겼다 — 라벨이 아니라 선이고 `OnCtlColor`가 HWND로 브러시를 준다.
+- 교훈: **후속에 「다음 Step에서 함께 한다」고 적었으면 그 Step을 끝낼 때 로그를 다시 본다.** D7-10 구현을 마칠 때까지 이 항목을 잊고 있었고, 완료 보고 직전에야 발견했다.
 
 ### [2026-08-05] 해결 — refactor/result-table-panel에 디자인 적용이 누락된다
 - 등록: 2026-08-05 / 해결: 2026-08-06 (`e4268de` + 3-B-4a 재배선)
