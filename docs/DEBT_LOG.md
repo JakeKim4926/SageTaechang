@@ -5,6 +5,29 @@
 
 ## 열린 항목
 
+### [2026-08-07] 구조불일치 — `m_bRunning`이 View와 입력 패널에 이중으로 존재한다
+- 위치: `app/ui/view/SageTaechangView.cpp` `SetRunningState` · `app/ui/panels/SageWorkflowInputPanel.cpp` `SetRunningState`
+- 설명: 실행 상태의 소유자는 View인데 패널도 자기 사본을 든다. 패널이 **진행바 타이머**와 **액션 영역 가시성**(진행바·% ·완료 텍스트)을 스스로 판단해야 하기 때문이다. 지금은 View의 `SetRunningState` 하나가 두 값을 함께 갱신하는 단일 진입점이라 어긋나지 않지만, 패널 쪽을 다른 데서 부르면 조용히 갈라진다.
+- 위험도: 중 — 갈라지면 실행 중인데 진행바가 안 보이거나 그 반대가 되고, 화면만 봐서는 원인을 못 찾는다
+- 후속: 3-B-4d에서 `SageWorkflowController`가 실행 상태를 단독 소유하면 사라진다. 그때까지 패널의 `SetRunningState` 호출처를 늘리지 않는다
+
+### [2026-08-07] 기존부채 — View의 `ON_WM_DROPFILES`는 도달할 수 없고 프레임 드롭 등록은 무동작이다
+- 위치: `app/ui/view/SageTaechangView.cpp` 메시지맵 `ON_WM_DROPFILES` · `PreTranslateMessage` · `OnCreate`의 `EnableFileDropForWindow(*pFrame)`
+- 설명: `PreTranslateMessage`가 `WM_DROPFILES`를 잡고 `TRUE`를 반환하므로 **메시지맵 핸들러는 호출되지 않는다.** 또 프레임에 `DragAcceptFiles`를 걸어 두었지만 프레임에는 핸들러가 없고 `WalkPreTranslateTree`는 타깃에서 부모로 올라가므로 **프레임에 떨어뜨린 파일은 아무 일도 일으키지 않는다.** 3-B-4c 드롭 경계를 조사하다 발견했다.
+- 위험도: 낮음 — 실제 진입점이 전부 View의 자손이라 현재 동작에는 영향이 없다
+- 후속: 3-B-4d에서 드롭 소유자를 정할 때 둘 중 하나로 정리한다 — 핸들러를 살리거나 등록을 걷어낸다
+
+### [2026-08-07] 중복로직 — `DrawEditBorder`가 세 곳에 복제됐다
+- 위치: `app/ui/view/SageTaechangView.cpp` · `app/ui/panels/SageResultTablePanel.cpp` · `app/ui/panels/SageWorkflowInputPanel.cpp`
+- 설명: 컨트롤 **바깥** 1px에 테두리를 그리는 같은 함수가 화면마다 복사돼 있다. 패널은 자기 에디트를 스스로 그려야 하므로 이번에 세 번째가 생겼다. 같은 이유로 입력 패널의 rect가 오른쪽으로 1px 넓다(`TAECHANG_EDIT_BORDER_WIDTH`) — 그렇지 않으면 우측 세로선이 클리핑된다.
+- 위험도: 낮음 — 세 복사본이 아직 동일하다
+- 후속: `CSageEdit` 승격(패널·View 16곳)이 끝나면 셋 다 사라지고 1px 보정도 함께 없어진다. `sagetaechang-ui` > *`CSageEdit`은 화면에 따라 갈린다*
+
+### [2026-08-07] 기존부채 — 화면에 뜨지 않는 컨트롤 4개를 입력 패널로 그대로 옮겼다
+- 위치: `app/ui/panels/SageWorkflowInputPanel.h` — `m_wndWorkflowLabel` · `m_wndInputLabel` · `m_wndOutputLabel` · `m_wndLoad`
+- 설명: 넷 다 생성만 되고 화면에 나타나지 않는다. 앞의 셋은 `UpdateActionVisibility`가 매번 `SW_HIDE`로 되돌리고, `m_wndWorkflowLabel`은 `WS_VISIBLE` 없이 만들어진 뒤 배치조차 되지 않는다. 3-B-4c가 「옮기기만 한다」였으므로 필요 여부 판단을 보류하고 그대로 가져왔다.
+- 위험도: 낮음
+- 후속: D7-4에서 입력 탭을 목업 3-4에 맞출 때 정한다 — 라벨을 살릴지(폼 라벨 폭 80은 아직 화면에 없는 「입력 파일」·「저장 위치」 몫이다) 지울지
 
 ### [2026-08-06] 구조불일치 — `TAECHANG_CALC_MAX_HISTORY`가 실제 상한이 아니다
 - 위치: `app/ui/panels/SagePriceCalcPanel.cpp` `GetHistoryVisibleCapacity` · `TrimHistoryToVisibleCapacity`

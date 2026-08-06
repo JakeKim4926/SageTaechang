@@ -6,13 +6,13 @@
 > **2026-08-05 기준 재정의** — 완료 기준을 줄 수 지표에서 **책임 기준(A~E)**으로 바꿨다.
 > 줄 수는 증상 지표로 내렸고, 같은 기준을 새로 만드는 패널에도 적용한다.
 
-## 다음 세션 시작점 (2026-08-06)
+## 다음 세션 시작점 (2026-08-07)
 
-### 지금 어디인가 — **`SageWorkflowInputPanel` 조사까지 끝났고, 이동만 남았다**
+### 지금 어디인가 — **`SageWorkflowInputPanel` 이동 완료. 빌드·화면 확인 대기**
 
-**다음 세션은 아래 *3-B-4c* > `SageWorkflowInputPanel` 절을 읽고 바로 이동에 들어간다.**
-경계·대상·완료 처리 결정이 거기 확정돼 있으므로 **다시 조사하지 않는다.**
-브랜치 `refactor/workflow-input-panel`은 문서 커밋 2개만 담은 채 머지돼 있다.
+**미검증 커밋 1건** — `afc0dc2`(브랜치 `refactor/workflow-input-panel`).
+빌드와 입력 탭 화면 동작을 확인받기 전에는 **다음 작업을 얹지 않는다.**
+확인이 끝나면 다음은 4c의 두 번째 항목 `SageWorkflowResultPanel`이다.
 
 
 > **번호 정정 (2026-08-07)** — 이 문서 네 곳이 `3-B-4b`를 가리키고 있었다. **4b는 존재하지 않는다.**
@@ -159,7 +159,7 @@ D4c 교훈 16(「쓰이는 화면 N곳을 세어 보고 만든다」)이 성능 
 |---|---|---|
 | ~~1~~ | ~~**`fix/large-table-render`**~~ | **완료** 2026-08-07 (위 절). 남은 `InsertItem` 221ms는 `DEBT_LOG` 후속 ② |
 | ~~2~~ | ~~D7-2 · D7-3 · D7-9 · D7-10~~ | **완료** 2026-08-06~07. D7-10은 D7-9에서 잘못 배제한 상단 밴드를 되살린 신설 Step이다 |
-| 3 | **3-B-4c~4d** 남은 패널 분리 | **진행 중** — 4c 첫 항목 `SageWorkflowInputPanel` 착수(2026-08-07). 아래 *4a가 남긴 것*. 여기서 핸들러 정책 술어 4개가 View를 떠나고 **D7-4~D7-6의 막힘도 풀린다** |
+| 3 | **3-B-4c~4d** 남은 패널 분리 | **진행 중** — 4c 첫 항목 `SageWorkflowInputPanel` **완료**(2026-08-07 `afc0dc2`, 빌드 미검증). 다음은 `SageWorkflowResultPanel`. 여기서 핸들러 정책 술어 4개가 View를 떠나고 **D7-4~D7-6의 막힘도 풀린다** |
 | 4 | **D7-4 · D7-5 · D7-6** | **3번보다 뒤여야 한다** — 아래 *D7은 대상에 따라 순서가 갈린다* |
 | 5 | D8 DPI 배율 | 디자인 완료 후 |
 
@@ -589,17 +589,23 @@ View의 호출 방식은 계산 패널과 동일하게 `ShowWindow` 하나로 �
 
 브랜치: 패널마다 별도
 
-**착수 전 집계 (2026-08-07, 공통 절차 1번)** — `SageTaechangView` 현재 상태
+**집계 (공통 절차 1번)** — `SageTaechangView`
 
-| 지표 | 현재 | 목표 |
-|---|---|---|
-| 줄 수 | 1,873 | 600 내외 |
-| 컨트롤 멤버 | **42** | 0 |
-| 메시지맵 항목 | 24 | 10 이하 |
-| 워크플로 타입 분기 | 23곳 | 0 |
-| `app/infra` include | 6줄 | 0 |
+| 지표 | 착수 전 (08-07) | `SageWorkflowInputPanel` 후 | 목표 |
+|---|---|---|---|
+| 줄 수 | 1,873 | **1,685** | 600 내외 |
+| 컨트롤 멤버 | 42 | **27** | 0 |
+| 메시지맵 항목 | 24 | **20** | 10 이하 |
+| 워크플로 타입 분기 | 23곳 | 26곳 | 0 |
+| `app/infra` include | 6줄 | 6줄 | 0 |
 
-멤버 42개의 소속: **입력 탭 19** · 데이터 관리 탭 13 · 헤더 5 · 사이드바 2 · 탭 컨트롤 1 · 실행 기록 2.
+남은 멤버 27개의 소속: **데이터 관리 탭 13** · 헤더 5 · 사이드바 2 · 탭 컨트롤 1 · 실행 기록 2 · 인증 3 · 빈 상태 1.
+
+**워크플로 분기는 오히려 늘었다** (23 → 26). 패널이 핸들러를 알면 안 되므로 「입력 선택 후 자동 로드할지」
+「어느 라벨을 쓸지」를 View가 핸들러에 물어 패널에 넘기기 때문이다. **이 증가는 4d에서 회수된다** —
+`SageWorkflowController`가 생기면 질의 지점이 그쪽으로 옮겨간다. 지표가 목표가 아니라 증상이라는
+사례가 여기서 나왔다 (*완료 기준은 책임이다* 참조). 줄 수·멤버 수만 봤다면 이 증가를 되돌리려다
+패널에 워크플로 분기를 넣었을 것이다.
 
 **진행 상태 컨트롤 3개가 입력 패널로 함께 간다** — `m_wndProgress` · `m_wndProgressText` ·
 `m_wndActionStatus`. 목업 3-4가 「대기 → 처리 중 → 완료」를 **한 영역에서 연속으로** 보여주므로,
@@ -608,37 +614,38 @@ View의 호출 방식은 계산 패널과 동일하게 `ShowWindow` 하나로 �
 **이번 Step에서 디자인은 넣지 않는다** (D7-2에서 세운 기준 — 표현과 구조를 한 Step에 섞지 않는다).
 옮기기만 하고 화면 표시는 그대로 둔다. **화면이 바뀌면 실패다.**
 
-##### `SageWorkflowInputPanel` — 착수 준비 완료 (2026-08-07, 조사만 끝냄)
+##### `SageWorkflowInputPanel` — **이동 완료** (2026-08-07, `afc0dc2` · 빌드 미검증)
 
-**다시 조사하지 않아도 되도록 경계와 대상을 여기 확정해 둔다.** 다음 세션은 이 목록으로 바로 이동에 들어간다.
+컨트롤 15 · 메시지맵 5 · 전용 레이아웃 2 · 핸들러 9를 `app/ui/panels/`로 옮겼다.
+**완료 처리는 예정대로 View에 남겼다** — `OnWorkflowComplete` → `DisplayResponse`가 세 탭에 걸쳐 있어
+통째로 넣으면 패널이 결과 표와 기록을 알게 되고 만든 직후 기준 A를 위반한다.
+패널은 `SetRunningState` · `UpdateActionVisibility` · `SetActionStatusText` 같은 API만 열었고,
+`SageWorkflowController`는 예정대로 **4d**에서 만든다.
 
-**완료 처리는 View에 남긴다** (2026-08-07 사용자 결정). `OnWorkflowComplete` → `DisplayResponse`가
-**세 탭에 걸쳐 있기 때문이다** — `SetRunningState`(입력) · `ApplyResultTableSchema`/`SetResultTableRows`(결과) ·
-`AppendExecutionHistory`/`m_wndDetail`(기록). 통째로 입력 패널에 넣으면 그 패널이 결과 표와 기록을 알게 되어
-**만든 직후 기준 A를 위반한다.** 패널은 `SetRunningState`·`SetProgress` 같은 **API만 열어두고**,
-`SageWorkflowController`는 결과·기록 패널이 다 생긴 **4d에서** 만든다(3-B-4a가 쓴 순서 — 패널 먼저, 조정자 나중).
+**View → 패널 통지 2종을 새로 만들었다.** 패널이 워크플로 핸들러를 알면 안 되므로,
+버튼은 판단하지 않고 통지만 올린다. 「어느 태스크인가」는 View가 답한다.
 
-**이동 대상**
-
-| 항목 | 수량 | 내역 |
+| 메시지 | 보내는 쪽 | 받는 쪽이 하는 일 |
 |---|---|---|
-| 컨트롤 멤버 | **15** | `InputSection` · `InputLabel` · `InputPath` · `SelectInput` · `OutputSection` · `OutputLabel` · `OutputFolder` · `SelectOutput` · `Load` · `Generate` · `InputReset` · `Progress` · `ProgressText` · `ActionStatus` · `WorkflowLabel` |
-| 메시지맵 | **7** | 버튼 5(`SELECT_INPUT` · `SELECT_OUTPUT` · `LOAD_WORKFLOW` · `GENERATE_WORKFLOW` · `INPUT_RESET_BTN`) + `ON_WM_TIMER`(진행바) + `ON_WM_DROPFILES` |
-| 전용 레이아웃 | **2** | `LayoutInputSection`(30줄) · `LayoutActionSection`(30줄) |
-| 핸들러·헬퍼 | 이동 시 확정 | `OnSelectInput` · `OnSelectOutput` · `OnLoadWorkflow` · `OnGenerateWorkflow` · `OnInputReset` · `SetRunningState` · `UpdateProgressPercent` · `ApplyActionButtonState` · `ApplyDroppedInputPaths` |
+| `WM_TAECHANG_WORKFLOW_RUN_REQUESTED` | 실행 버튼 · 입력 선택 후 자동 로드 | `RunWorkflowTask(wParam)` |
+| `WM_TAECHANG_WORKFLOW_INPUT_RESET` | 초기화 버튼 | 결과 표 · 응답 JSON · 태스크 상태 초기화 |
 
-**경계에서 갈린 것 셋 — 이름만 보고 판단하면 틀린다**
+**계획과 달라진 것 둘 — 조사 단계에서 좌표를 보지 않아 생긴 오판정이다**
 
-| 컨트롤 | 판정 | 근거 |
-|---|---|---|
-| `m_wndTitle` | **제외** | 이름과 달리 **사이드바 로고**다 (`SAGE_BG_SIDEBAR` · `SAGE_FONT_LOGO`, `LayoutChildControls:550`에서 사이드바 좌표에 배치) |
-| `m_wndEmptyStateHint` | **포함** | 입력 탭에서만 보인다. `CSageEmptyState`로 바꾸는 것은 **D7-4 몫**이므로 이번엔 그대로 옮기기만 한다 |
-| `m_wndDetail` · `m_wndDetailSection` | **제외** | 실행 기록 탭 — 4c의 다음 항목 |
+| 항목 | 당초 판정 | 실제 | 사유 |
+|---|---|---|---|
+| `m_wndEmptyStateHint` | 포함 | **제외** | 「입력 탭에서만 보인다」는 가시성만 본 판정이었다. 배치는 `LayoutResultSection`이 하고 좌표가 **결과 표 영역**이다. 자식은 부모 클라이언트로 클리핑되므로 입력 패널에 넣으면 화면에서 사라진다. 소속은 4d에서 정한다 |
+| `ON_WM_DROPFILES` | 포함 | **제외** | 드롭 진입점이 입력 패널 밖(View 배경 · 결과 표 패널 · 힌트)에도 있고, `View::PreTranslateMessage`가 **자손 전체의** `WM_DROPFILES`를 먼저 가로챈다(`WalkPreTranslateTree`는 타깃→부모 순). 옮기면 수신 코드가 두 곳으로 갈라진다. **등록** 3개(`InputSection`·`InputPath`·`SelectInput`)만 패널의 `EnableFileDrop`으로 가져갔다 |
 
-**한 커밋으로 옮긴다** (공통 절차 4). 축을 나누면 위임 스텁을 만들었다 지우는 중간 상태가 생긴다.
-**화면 표시가 바뀌면 실패다** — 이번 Step에 디자인은 넣지 않는다.
+**교훈 — 이동 대상 판정은 「어디서 보이는가」가 아니라 「누가 좌표를 정하는가」로 갈린다.**
+`m_wndEmptyStateHint`는 입력 탭에서만 보이지만 배치 주체가 결과 영역이다.
+가시성 행렬(`UpdateTaskTabVisibility`)과 배치 함수(`Layout*`)를 **둘 다** 보지 않으면 같은 오판을 반복한다.
 
-- [ ] `SageWorkflowInputPanel` — 입력 파일 · 저장 위치 · 실행/초기화 · 진행바 · 전체선택 · 한 페이지 + 입력 표
+**패널 rect는 오른쪽으로 1px 넓다** (`TAECHANG_EDIT_BORDER_WIDTH`). 경로 에디트가 컨트롤 폭 전체를 쓰고
+테두리는 `DrawEditBorder`가 **컨트롤 바깥** 1px에 그리므로, 패널 폭을 그대로 주면 우측 세로선이 클리핑된다.
+`CSageEdit` 승격으로 사라질 보정이며 그 전까지는 필요하다 (`sagetaechang-ui` > *`CSageEdit`은 화면에 따라 갈린다*).
+
+- [x] `SageWorkflowInputPanel` — **완료** (빌드·화면 확인 대기)
 - [ ] `SageWorkflowResultPanel` — 결과 표
 - [ ] `SageWorkflowHistoryPanel` — 실행 기록
 - [ ] `UpdateTaskTabVisibility`의 가시성 행렬 47줄이 사라지는지 확인
