@@ -5,8 +5,9 @@
 #include "app/ui/drawing/SageInlineError.h"
 #include "app/ui/drawing/SageLabel.h"
 #include "app/ui/dialogs/SageDialogSizer.h"
+#include "app/ui/dialogs/SageFramelessDialog.h"
 
-class TaechangPasswordChangeDlg : public CDialog {
+class TaechangPasswordChangeDlg : public SageFramelessDialog {
 public:
     TaechangPasswordChangeDlg(CWnd* pParent = NULL);
     ~TaechangPasswordChangeDlg();
@@ -24,7 +25,6 @@ protected:
     DECLARE_MESSAGE_MAP()
 
 private:
-    BYTE* BuildDialogTemplate();
     void CreateControls();
     int LayoutControls();
     void ApplyFont();
@@ -32,7 +32,6 @@ private:
     void ShowInputError(CSageEdit& edit, const CString& strMessage);
 
 private:
-    CWnd* m_pDlgParent;
     CSageLabel m_wndCurrentLabel;
     CSageLabel m_wndNewLabel;
     CSageLabel m_wndConfirmLabel;

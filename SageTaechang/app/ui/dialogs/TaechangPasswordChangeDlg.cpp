@@ -6,59 +6,19 @@
 #include "app/infra/db/SageDBMgr.h"
 #include "app/ui/drawing/SageUiResources.h"
 
-BEGIN_MESSAGE_MAP(TaechangPasswordChangeDlg, CDialog)
+BEGIN_MESSAGE_MAP(TaechangPasswordChangeDlg, SageFramelessDialog)
     ON_WM_CTLCOLOR()
 END_MESSAGE_MAP()
 
 TaechangPasswordChangeDlg::TaechangPasswordChangeDlg(CWnd* pParent)
-    : CDialog((UINT)0, pParent), m_pDlgParent(pParent) {
+    : SageFramelessDialog(pParent) {
 }
 
 TaechangPasswordChangeDlg::~TaechangPasswordChangeDlg() {}
 
-BYTE* TaechangPasswordChangeDlg::BuildDialogTemplate() {
-    const WCHAR* szTitle = TAECHANG_UI_CHANGE_PW_TITLE;
-    const WCHAR* szFont = TAECHANG_CONTROL_FONT_FACE;
-    const WORD wFontSize = TAECHANG_LOGIN_DLG_FONT_PT;
-
-    size_t nTitleLen = wcslen(szTitle) + 1;
-    size_t nFontLen = wcslen(szFont) + 1;
-    size_t nBufSize = sizeof(DLGTEMPLATE)
-        + sizeof(WORD) * 2
-        + nTitleLen * sizeof(WCHAR)
-        + sizeof(WORD) * 4
-        + nFontLen * sizeof(WCHAR);
-
-    BYTE* pBuf = new BYTE[nBufSize]();
-    BYTE* p = pBuf;
-
-    DLGTEMPLATE* pDlg = (DLGTEMPLATE*)p;
-    pDlg->style = WS_POPUP | WS_CAPTION | WS_SYSMENU | DS_MODALFRAME | DS_SETFONT | DS_CENTER;
-    pDlg->dwExtendedStyle = 0;
-    pDlg->cdit = 0;
-    pDlg->x = 0;
-    pDlg->y = 0;
-    pDlg->cx = TAECHANG_LOGIN_DLG_TEMPLATE_CX;
-    pDlg->cy = TAECHANG_LOGIN_DLG_TEMPLATE_CY;
-    p += sizeof(DLGTEMPLATE);
-
-    *(WORD*)p = 0; p += 2;
-    *(WORD*)p = 0; p += 2;
-
-    memcpy(p, szTitle, nTitleLen * sizeof(WCHAR));
-    p += nTitleLen * sizeof(WCHAR);
-
-    if (((ULONG_PTR)(p - pBuf)) % 2 != 0)
-        p++;
-
-    *(WORD*)p = wFontSize; p += 2;
-    memcpy(p, szFont, nFontLen * sizeof(WCHAR));
-
-    return pBuf;
-}
-
 INT_PTR TaechangPasswordChangeDlg::DoModal() {
-    BYTE* pTemplate = BuildDialogTemplate();
+    BYTE* pTemplate = BuildFramelessTemplate(TAECHANG_UI_CHANGE_PW_TITLE,
+        TAECHANG_LOGIN_DLG_TEMPLATE_CX, TAECHANG_LOGIN_DLG_TEMPLATE_CY);
     InitModalIndirect((DLGTEMPLATE*)pTemplate, m_pDlgParent);
     INT_PTR nResult = CDialog::DoModal();
     delete[] pTemplate;
@@ -73,9 +33,10 @@ BOOL TaechangPasswordChangeDlg::OnInitDialog() {
     m_brushBackground.CreateSolidBrush(TAECHANG_COLOR_APP_BACKGROUND);
     m_brushPanel.CreateSolidBrush(TAECHANG_COLOR_PANEL);
 
+    CreateCaptionBar(TAECHANG_UI_CHANGE_PW_TITLE);
     CreateControls();
     ApplyFont();
-    SageDialogSizer::SizeToClient(*this, TAECHANG_PASSWORD_DLG_WIDTH, LayoutControls());
+    SizeFramelessClient(TAECHANG_PASSWORD_DLG_WIDTH, LayoutControls());
 
     m_wndCurrentEdit.SetFocus();
     return FALSE;
@@ -139,7 +100,7 @@ int TaechangPasswordChangeDlg::LayoutControls() {
     int nClientW = TAECHANG_PASSWORD_DLG_WIDTH;
     int nEditW = nClientW - nM * 2 - nLabelW - nGap;
 
-    int nRowTop = nM;
+    int nRowTop = GetContentTop() + nM;
     int nEditLeft = nM + nLabelW + nGap;
 
     m_wndCurrentLabel.MoveWindow(nM, nRowTop + TAECHANG_LABEL_VERT_OFFSET, nLabelW, nEditH);

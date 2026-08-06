@@ -3,62 +3,22 @@
 #include "TaechangDefine.h"
 #include "app/ui/drawing/SageUiResources.h"
 
-BEGIN_MESSAGE_MAP(TaechangCalcCompanyPickerDlg, CDialog)
+BEGIN_MESSAGE_MAP(TaechangCalcCompanyPickerDlg, SageFramelessDialog)
     ON_WM_CTLCOLOR()
     ON_EN_CHANGE(ID_PICKER_DLG_SEARCH_EDIT, &TaechangCalcCompanyPickerDlg::OnSearchChanged)
     ON_LBN_DBLCLK(ID_PICKER_DLG_LIST, &TaechangCalcCompanyPickerDlg::OnListDblClick)
 END_MESSAGE_MAP()
 
 TaechangCalcCompanyPickerDlg::TaechangCalcCompanyPickerDlg(const CStringArray& arrNames, const CString& strInitialName, CWnd* pParent)
-    : CDialog((UINT)0, pParent), m_pDlgParent(pParent), m_strInitialName(strInitialName) {
+    : SageFramelessDialog(pParent), m_strInitialName(strInitialName) {
     m_arrAllNames.Copy(arrNames);
 }
 
 TaechangCalcCompanyPickerDlg::~TaechangCalcCompanyPickerDlg() {}
 
-BYTE* TaechangCalcCompanyPickerDlg::BuildDialogTemplate() {
-    const WCHAR* szTitle = TAECHANG_UI_PICKER_DLG_TITLE;
-    const WCHAR* szFont = TAECHANG_CONTROL_FONT_FACE;
-    const WORD wFontSize = TAECHANG_LOGIN_DLG_FONT_PT;
-
-    size_t nTitleLen = wcslen(szTitle) + 1;
-    size_t nFontLen = wcslen(szFont) + 1;
-    size_t nBufSize = sizeof(DLGTEMPLATE)
-        + sizeof(WORD) * 2
-        + nTitleLen * sizeof(WCHAR)
-        + sizeof(WORD) * 4
-        + nFontLen * sizeof(WCHAR);
-
-    BYTE* pBuf = new BYTE[nBufSize]();
-    BYTE* p = pBuf;
-
-    DLGTEMPLATE* pDlg = (DLGTEMPLATE*)p;
-    pDlg->style = WS_POPUP | WS_CAPTION | WS_SYSMENU | DS_MODALFRAME | DS_SETFONT | DS_CENTER;
-    pDlg->dwExtendedStyle = 0;
-    pDlg->cdit = 0;
-    pDlg->x = 0;
-    pDlg->y = 0;
-    pDlg->cx = TAECHANG_PICKER_DLG_TEMPLATE_CX;
-    pDlg->cy = TAECHANG_PICKER_DLG_TEMPLATE_CY;
-    p += sizeof(DLGTEMPLATE);
-
-    *(WORD*)p = 0; p += 2;
-    *(WORD*)p = 0; p += 2;
-
-    memcpy(p, szTitle, nTitleLen * sizeof(WCHAR));
-    p += nTitleLen * sizeof(WCHAR);
-
-    if (((ULONG_PTR)(p - pBuf)) % 2 != 0)
-        p++;
-
-    *(WORD*)p = wFontSize; p += 2;
-    memcpy(p, szFont, nFontLen * sizeof(WCHAR));
-
-    return pBuf;
-}
-
 INT_PTR TaechangCalcCompanyPickerDlg::DoModal() {
-    BYTE* pTemplate = BuildDialogTemplate();
+    BYTE* pTemplate = BuildFramelessTemplate(TAECHANG_UI_PICKER_DLG_TITLE,
+        TAECHANG_PICKER_DLG_TEMPLATE_CX, TAECHANG_PICKER_DLG_TEMPLATE_CY);
     InitModalIndirect((DLGTEMPLATE*)pTemplate, m_pDlgParent);
     INT_PTR nResult = CDialog::DoModal();
     delete[] pTemplate;
@@ -74,23 +34,13 @@ BOOL TaechangCalcCompanyPickerDlg::OnInitDialog() {
 
     SetWindowText(TAECHANG_UI_PICKER_DLG_TITLE);
 
-    CRect rectClient;
-    GetClientRect(&rectClient);
-
-    CRect rectWindow;
-    GetWindowRect(&rectWindow);
-    int nFrameW = rectWindow.Width() - rectClient.Width();
-    int nFrameH = rectWindow.Height() - rectClient.Height();
-    SetWindowPos(NULL, 0, 0,
-        TAECHANG_PICKER_DLG_WIDTH + nFrameW,
-        TAECHANG_PICKER_DLG_HEIGHT + nFrameH,
-        SWP_NOMOVE | SWP_NOZORDER);
-
     m_brushBackground.CreateSolidBrush(TAECHANG_COLOR_APP_BACKGROUND);
     m_brushPanel.CreateSolidBrush(TAECHANG_COLOR_PANEL);
 
+    CreateCaptionBar(TAECHANG_UI_PICKER_DLG_TITLE);
     CreateControls();
     ApplyFont();
+    SizeFramelessClient(TAECHANG_PICKER_DLG_WIDTH, TAECHANG_PICKER_DLG_HEIGHT + GetContentTop());
     LayoutControls();
     ApplySearchEditTextRect();
 
@@ -149,10 +99,10 @@ void TaechangCalcCompanyPickerDlg::LayoutControls() {
     int nBtnH = TAECHANG_BUTTON_HEIGHT;
     int nGap = TAECHANG_ROW_GAP;
     int nClientW = TAECHANG_PICKER_DLG_WIDTH;
-    int nClientH = TAECHANG_PICKER_DLG_HEIGHT;
+    int nClientH = TAECHANG_PICKER_DLG_HEIGHT + GetContentTop();
     int nContentW = nClientW - nM * 2;
 
-    int nSearchTop = nM;
+    int nSearchTop = GetContentTop() + nM;
     int nListTop = nSearchTop + nEditH + nGap;
     int nBtnTop = nClientH - nM - nBtnH;
     int nErrorTop = nBtnTop - TAECHANG_INLINE_MSG_HEIGHT;

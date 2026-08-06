@@ -4,10 +4,11 @@
 #include "app/ui/drawing/SageEdit.h"
 #include "app/ui/drawing/SageInlineError.h"
 #include "app/ui/drawing/SageLabel.h"
+#include "app/ui/dialogs/SageFramelessDialog.h"
 
 #include "pch.h"
 
-class TaechangCalcCompanyPickerDlg : public CDialog {
+class TaechangCalcCompanyPickerDlg : public SageFramelessDialog {
 public:
     TaechangCalcCompanyPickerDlg(const CStringArray& arrNames, const CString& strInitialName, CWnd* pParent = NULL);
     ~TaechangCalcCompanyPickerDlg();
@@ -33,11 +34,9 @@ private:
     void LayoutControls();
     void ApplyFont();
     void ApplySearchEditTextRect();
-    BYTE* BuildDialogTemplate();
     void FilterList(const CString& strKeyword);
 
 private:
-    CWnd* m_pDlgParent;
     CStringArray m_arrAllNames;
     CString m_strInitialName;
     CString m_strSelectedName;

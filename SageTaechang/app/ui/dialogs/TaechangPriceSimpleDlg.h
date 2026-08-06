@@ -5,10 +5,11 @@
 #include "app/ui/drawing/SageInlineError.h"
 #include "app/ui/drawing/SageLabel.h"
 #include "app/ui/dialogs/SageDialogSizer.h"
+#include "app/ui/dialogs/SageFramelessDialog.h"
 
 #include "pch.h"
 
-class TaechangCompanyRenameDlg : public CDialog {
+class TaechangCompanyRenameDlg : public SageFramelessDialog {
 public:
     TaechangCompanyRenameDlg(CWnd* pParent = NULL);
     ~TaechangCompanyRenameDlg();
@@ -34,10 +35,8 @@ private:
     void ApplyFont();
     void ApplyEditTextRect();
     void ShowInputError(const CString& strMessage);
-    BYTE* BuildDialogTemplate();
 
 private:
-    CWnd* m_pDlgParent;
     CString m_strCompanyName;
     CString m_strInitialName;
     int m_nPriceCount;
@@ -52,7 +51,7 @@ private:
     CBrush m_brushPanel;
 };
 
-class TaechangCoverPriceDlg : public CDialog {
+class TaechangCoverPriceDlg : public SageFramelessDialog {
 public:
     TaechangCoverPriceDlg(CWnd* pParent = NULL);
     ~TaechangCoverPriceDlg();
@@ -79,10 +78,8 @@ private:
     void ApplyEditTextRect();
     void FormatPriceEditText();
     void ShowInputError(const CString& strMessage);
-    BYTE* BuildDialogTemplate();
 
 private:
-    CWnd* m_pDlgParent;
     int m_nCoverPrice;
     BOOL m_bFormattingCoverPrice;
     CStatic m_wndLabel;

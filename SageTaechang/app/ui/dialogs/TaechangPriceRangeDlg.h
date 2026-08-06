@@ -5,10 +5,11 @@
 #include "app/ui/drawing/SageInlineError.h"
 #include "app/ui/drawing/SageLabel.h"
 #include "app/ui/dialogs/SageDialogSizer.h"
+#include "app/ui/dialogs/SageFramelessDialog.h"
 
 #include "pch.h"
 
-class TaechangPriceRangeDlg : public CDialog {
+class TaechangPriceRangeDlg : public SageFramelessDialog {
 public:
     TaechangPriceRangeDlg(CWnd* pParent = NULL);
     ~TaechangPriceRangeDlg();
@@ -46,10 +47,8 @@ private:
     void ClearInputError();
     BOOL IsCopiesRangeOverlap(int nMinA, BOOL bHasMaxA, int nMaxA, int nMinB, BOOL bHasMaxB, int nMaxB) const;
     BOOL IsOverlappingExistingRange(int nMinCopies, BOOL bHasMaxCopies, int nMaxCopies) const;
-    BYTE* BuildDialogTemplate();
 
 private:
-    CWnd* m_pDlgParent;
     int m_nMinCopies;
     BOOL m_bHasMaxCopies;
     int m_nMaxCopies;

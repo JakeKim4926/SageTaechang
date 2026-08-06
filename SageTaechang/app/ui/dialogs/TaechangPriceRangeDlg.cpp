@@ -25,7 +25,7 @@ namespace
     }
 }
 
-BEGIN_MESSAGE_MAP(TaechangPriceRangeDlg, CDialog)
+BEGIN_MESSAGE_MAP(TaechangPriceRangeDlg, SageFramelessDialog)
     ON_BN_CLICKED(ID_PRICE_RANGE_DLG_NO_MAX_CHECK, &TaechangPriceRangeDlg::OnNoMaxCheck)
     ON_BN_CLICKED(ID_PRICE_RANGE_DLG_SINGLE_CHECK, &TaechangPriceRangeDlg::OnSingleCheck)
     ON_EN_CHANGE(ID_PRICE_RANGE_DLG_PRINT_EDIT, &TaechangPriceRangeDlg::OnPrintPriceChanged)
@@ -34,8 +34,7 @@ BEGIN_MESSAGE_MAP(TaechangPriceRangeDlg, CDialog)
 END_MESSAGE_MAP()
 
 TaechangPriceRangeDlg::TaechangPriceRangeDlg(CWnd* pParent)
-    : CDialog((UINT)0, pParent),
-      m_pDlgParent(pParent),
+    : SageFramelessDialog(pParent),
       m_nMinCopies(0),
       m_bHasMaxCopies(TRUE),
       m_nMaxCopies(0),
@@ -47,49 +46,9 @@ TaechangPriceRangeDlg::TaechangPriceRangeDlg(CWnd* pParent)
 
 TaechangPriceRangeDlg::~TaechangPriceRangeDlg() {}
 
-BYTE* TaechangPriceRangeDlg::BuildDialogTemplate() {
-    const WCHAR* szTitle = TAECHANG_UI_PRICE_RANGE_DLG_TITLE;
-    const WCHAR* szFont = TAECHANG_CONTROL_FONT_FACE;
-    const WORD wFontSize = TAECHANG_LOGIN_DLG_FONT_PT;
-
-    size_t nTitleLen = wcslen(szTitle) + 1;
-    size_t nFontLen = wcslen(szFont) + 1;
-    size_t nBufSize = sizeof(DLGTEMPLATE)
-        + sizeof(WORD) * 2
-        + nTitleLen * sizeof(WCHAR)
-        + sizeof(WORD) * 4
-        + nFontLen * sizeof(WCHAR);
-
-    BYTE* pBuf = new BYTE[nBufSize]();
-    BYTE* p = pBuf;
-
-    DLGTEMPLATE* pDlg = (DLGTEMPLATE*)p;
-    pDlg->style = WS_POPUP | WS_CAPTION | WS_SYSMENU | DS_MODALFRAME | DS_SETFONT | DS_CENTER;
-    pDlg->dwExtendedStyle = 0;
-    pDlg->cdit = 0;
-    pDlg->x = 0;
-    pDlg->y = 0;
-    pDlg->cx = TAECHANG_PRICE_RANGE_DLG_TEMPLATE_CX;
-    pDlg->cy = TAECHANG_PRICE_RANGE_DLG_TEMPLATE_CY;
-    p += sizeof(DLGTEMPLATE);
-
-    *(WORD*)p = 0; p += 2;
-    *(WORD*)p = 0; p += 2;
-
-    memcpy(p, szTitle, nTitleLen * sizeof(WCHAR));
-    p += nTitleLen * sizeof(WCHAR);
-
-    if (((ULONG_PTR)(p - pBuf)) % 2 != 0)
-        p++;
-
-    *(WORD*)p = wFontSize; p += 2;
-    memcpy(p, szFont, nFontLen * sizeof(WCHAR));
-
-    return pBuf;
-}
-
 INT_PTR TaechangPriceRangeDlg::DoModal() {
-    BYTE* pTemplate = BuildDialogTemplate();
+    BYTE* pTemplate = BuildFramelessTemplate(TAECHANG_UI_PRICE_RANGE_DLG_TITLE,
+        TAECHANG_PRICE_RANGE_DLG_TEMPLATE_CX, TAECHANG_PRICE_RANGE_DLG_TEMPLATE_CY);
     InitModalIndirect((DLGTEMPLATE*)pTemplate, m_pDlgParent);
     INT_PTR nResult = CDialog::DoModal();
     delete[] pTemplate;
@@ -129,9 +88,10 @@ BOOL TaechangPriceRangeDlg::OnInitDialog() {
     m_brushBackground.CreateSolidBrush(TAECHANG_COLOR_APP_BACKGROUND);
     m_brushPanel.CreateSolidBrush(TAECHANG_COLOR_PANEL);
 
+    CreateCaptionBar(TAECHANG_UI_PRICE_RANGE_DLG_TITLE);
     CreateControls();
     ApplyFont();
-    SageDialogSizer::SizeToClient(*this, TAECHANG_PRICE_RANGE_DLG_WIDTH, LayoutControls());
+    SizeFramelessClient(TAECHANG_PRICE_RANGE_DLG_WIDTH, LayoutControls());
 
     m_wndMinEdit.SetFocus();
     return FALSE;
@@ -195,7 +155,7 @@ int TaechangPriceRangeDlg::LayoutControls() {
     int nEditW = nClientW - nM * 2;
     int nCheckW = 110;
 
-    int nY = nM;
+    int nY = GetContentTop() + nM;
     m_wndMinLabel.MoveWindow(nM, nY, nEditW - nCheckW - nGap, nEditH);
     m_wndSingleCheck.MoveWindow(nClientW - nM - nCheckW, nY, nCheckW, nEditH);
     nY += nEditH;

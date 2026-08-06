@@ -4,10 +4,11 @@
 #include "app/ui/drawing/SageEdit.h"
 #include "app/ui/drawing/SageInlineError.h"
 #include "app/ui/dialogs/SageDialogSizer.h"
+#include "app/ui/dialogs/SageFramelessDialog.h"
 
 #include "pch.h"
 
-class TaechangCalcEstimateDlg : public CDialog {
+class TaechangCalcEstimateDlg : public SageFramelessDialog {
 public:
     TaechangCalcEstimateDlg(
         const CString& strCompany,
@@ -44,10 +45,8 @@ private:
     void ShowInputError(CSageEdit& edit, const CString& strMessage);
     BOOL SelectOutputFolder(CString& strFolder);
     BOOL RunGenerate(const CString& strOutputFolder);
-    BYTE* BuildDialogTemplate();
 
 private:
-    CWnd*   m_pDlgParent;
     CString m_strCompany;
     int     m_nCopies;
     int     m_nPages;
