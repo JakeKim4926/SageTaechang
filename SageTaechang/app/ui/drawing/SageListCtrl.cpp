@@ -95,8 +95,7 @@ BOOL CSageListCtrl::BuildCheckStateImages() {
 
 		CBitmap* pOldBitmap = dcMem.SelectObject(&bmpState);
 		dcMem.FillSolidRect(rectImage, TAECHANG_COLOR_IMAGE_MASK);
-		if (i > 0)
-			DrawCheckBox(&dcMem, rectImage, (i == 2) ? TRUE : FALSE);
+		DrawCheckBox(&dcMem, rectImage, (i == TAECHANG_LIST_CHECK_STATE_CHECKED) ? TRUE : FALSE);
 		dcMem.SelectObject(pOldBitmap);
 		m_imgCheckState.Add(&bmpState, TAECHANG_COLOR_IMAGE_MASK);
 	}
