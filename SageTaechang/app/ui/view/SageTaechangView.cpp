@@ -462,9 +462,17 @@ void CSageTaechangView::UpdateResultSummary() {
 	if (pHandler->GetWorkflowType() != m_nLastWorkflowType ||
 		!pHandler->BuildResultSummary(m_nLastTaskType, pPanel->GetVisibleRows(), m_strLastResponseJson, arrItems)) {
 		pPanel->ClearSummary();
+		pPanel->ClearTotals();
 		return;
 	}
 	pPanel->SetSummaryItems(arrItems);
+
+	std::vector<SageResultTotalCell> arrTotalCells;
+	if (!pHandler->BuildResultTotals(m_nLastTaskType, pPanel->GetVisibleRows(), arrTotalCells)) {
+		pPanel->ClearTotals();
+		return;
+	}
+	pPanel->SetTotalCells(arrTotalCells);
 }
 
 void CSageTaechangView::RefreshResultTableRows() {

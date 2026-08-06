@@ -64,6 +64,26 @@ struct SageResultSummaryItem
     BOOL bHighlight;
 };
 
+enum SageResultTotalRole
+{
+    SAGE_RESULT_TOTAL_LABEL,
+    SAGE_RESULT_TOTAL_COUNT,
+    SAGE_RESULT_TOTAL_AMOUNT,
+    SAGE_RESULT_TOTAL_AMOUNT_HIGHLIGHT
+};
+
+struct SageResultTotalCell
+{
+    SageResultTotalCell() {
+        nColumn = 0;
+        nRole = SAGE_RESULT_TOTAL_LABEL;
+    }
+
+    int nColumn;
+    CString strText;
+    SageResultTotalRole nRole;
+};
+
 struct SageWorkflowResultStyle
 {
     BOOL bCheckbox;

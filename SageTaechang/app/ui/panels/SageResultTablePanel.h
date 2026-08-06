@@ -9,6 +9,7 @@
 #include "app/ui/drawing/SageListCtrl.h"
 #include "app/ui/drawing/SageSectionLabel.h"
 #include "app/ui/drawing/SageSummaryBar.h"
+#include "app/ui/drawing/SageTableTotalBar.h"
 
 class SageResultTablePanel : public CWnd {
 public:
@@ -41,6 +42,9 @@ public:
     void SetSummaryItems(const std::vector<SageResultSummaryItem>& arrItems);
     void ClearSummary();
 
+    void SetTotalCells(const std::vector<SageResultTotalCell>& arrCells);
+    void ClearTotals();
+
     int  GetRowCount() const;
     BOOL IsRowChecked(int nRow) const;
     void SetRowChecked(int nRow, BOOL bChecked);
@@ -71,6 +75,8 @@ private:
     void DrawEditBorder(CDC* pDC, CWnd& wnd);
     void RefreshRows();
     void UpdateColumnWidths();
+    void UpdateTotalBarCells();
+    int  GetColumnLeft(int nColumn) const;
     int  GetEffectiveCriteria() const;
     int  GetDefaultCriteria() const;
     void PopulateCriteria();
@@ -86,6 +92,7 @@ private:
     CSageButton m_wndSearchBtn;
     CSageButton m_wndResetBtn;
     CSageSummaryBar m_wndSummaryBar;
+    CSageTableTotalBar m_wndTotalBar;
     CSageHeaderCtrl m_wndHeader;
     CSageListCtrl m_wndList;
 
@@ -94,6 +101,7 @@ private:
     std::vector<SageWorkflowFilterCriteria> m_arrCriteria;
     std::vector<TaechangResultRow> m_arrRows;
     std::vector<TaechangResultRow> m_arrVisibleRows;
+    std::vector<SageResultTotalCell> m_arrTotalCells;
     SageWorkflowResultStyle m_style;
     CRect m_rectFilterCard;
     CString m_strKeyword;

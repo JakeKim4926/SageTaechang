@@ -24,6 +24,10 @@ public:
         const std::vector<TaechangResultRow>& arrVisibleRows,
         const CString& strResponseJson,
         std::vector<SageResultSummaryItem>& outItems) const;
+    virtual BOOL BuildResultTotals(
+        int nTaskType,
+        const std::vector<TaechangResultRow>& arrVisibleRows,
+        std::vector<SageResultTotalCell>& outCells) const;
 
     virtual int GetFilterCriteriaCount() const;
     virtual const SageWorkflowFilterCriteria& GetFilterCriteria(int nIndex) const;

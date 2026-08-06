@@ -58,6 +58,46 @@ void AddSummaryItem(
 	outItems.push_back(item);
 }
 
+void AddTotalCell(
+	std::vector<SageResultTotalCell>& outCells,
+	int nColumn,
+	const CString& strText,
+	SageResultTotalRole nRole) {
+	SageResultTotalCell cell;
+	cell.nColumn = nColumn;
+	cell.strText = strText;
+	cell.nRole = nRole;
+	outCells.push_back(cell);
+}
+
+struct SageReceivablesTotals
+{
+	SageReceivablesTotals() {
+		nRowCount = 0;
+		nTotalAmount = 0;
+		nDepositAmount = 0;
+		nReceivableAmount = 0;
+	}
+
+	int nRowCount;
+	__int64 nTotalAmount;
+	__int64 nDepositAmount;
+	__int64 nReceivableAmount;
+};
+
+SageReceivablesTotals SumVisibleRows(const std::vector<TaechangResultRow>& arrVisibleRows) {
+	SageReceivablesTotals totals;
+	for (int i = 0; i < static_cast<int>(arrVisibleRows.size()); ++i) {
+		if (arrVisibleRows[i].m_strCompanyName == TAECHANG_UI_SEPARATOR_MARK)
+			continue;
+		++totals.nRowCount;
+		totals.nTotalAmount += arrVisibleRows[i].m_nTotalAmount;
+		totals.nDepositAmount += arrVisibleRows[i].m_nDepositAmount;
+		totals.nReceivableAmount += arrVisibleRows[i].m_nReceivableAmount;
+	}
+	return totals;
+}
+
 }
 
 int SageReceivablesWorkflowHandler::GetWorkflowType() const {
@@ -126,14 +166,7 @@ BOOL SageReceivablesWorkflowHandler::BuildResultSummary(
 	if (!UsesCustomResultTable(nTaskType))
 		return FALSE;
 
-	int nRowCount = 0;
-	__int64 nReceivableTotal = 0;
-	for (int i = 0; i < static_cast<int>(arrVisibleRows.size()); ++i) {
-		if (arrVisibleRows[i].m_strCompanyName == TAECHANG_UI_SEPARATOR_MARK)
-			continue;
-		++nRowCount;
-		nReceivableTotal += arrVisibleRows[i].m_nReceivableAmount;
-	}
+	SageReceivablesTotals totals = SumVisibleRows(arrVisibleRows);
 
 	std::vector<CString> arrMissingCompanies;
 	JsonSplitStringArray(
@@ -141,11 +174,34 @@ BOOL SageReceivablesWorkflowHandler::BuildResultSummary(
 		arrMissingCompanies);
 
 	AddSummaryItem(outItems, TAECHANG_UI_RECEIVABLES_SUMMARY_TOTAL,
-		FormatCountText(nRowCount), TAECHANG_UI_SUMMARY_UNIT_COUNT, FALSE);
+		FormatCountText(totals.nRowCount), TAECHANG_UI_SUMMARY_UNIT_COUNT, FALSE);
 	AddSummaryItem(outItems, TAECHANG_UI_RECEIVABLES_SUMMARY_RECEIVABLE,
-		SageWorkflowResultTable::FormatAmountNumber(nReceivableTotal), TAECHANG_UI_SUMMARY_UNIT_AMOUNT, TRUE);
+		SageWorkflowResultTable::FormatAmountNumber(totals.nReceivableAmount), TAECHANG_UI_SUMMARY_UNIT_AMOUNT, TRUE);
 	AddSummaryItem(outItems, TAECHANG_UI_RECEIVABLES_MISSING_COMPANIES,
 		FormatCountText(static_cast<int>(arrMissingCompanies.size())), TAECHANG_UI_SUMMARY_UNIT_COUNT, FALSE);
+	return TRUE;
+}
+
+BOOL SageReceivablesWorkflowHandler::BuildResultTotals(
+	int nTaskType,
+	const std::vector<TaechangResultRow>& arrVisibleRows,
+	std::vector<SageResultTotalCell>& outCells) const {
+	outCells.clear();
+	if (!UsesCustomResultTable(nTaskType))
+		return FALSE;
+
+	SageReceivablesTotals totals = SumVisibleRows(arrVisibleRows);
+
+	AddTotalCell(outCells, TAECHANG_RECEIVABLES_COL_IDX_COMPANY,
+		TAECHANG_UI_RECEIVABLES_TOTAL_LABEL, SAGE_RESULT_TOTAL_LABEL);
+	AddTotalCell(outCells, TAECHANG_RECEIVABLES_COL_IDX_ITEM,
+		FormatCountText(totals.nRowCount) + TAECHANG_UI_SUMMARY_UNIT_COUNT, SAGE_RESULT_TOTAL_COUNT);
+	AddTotalCell(outCells, TAECHANG_RECEIVABLES_COL_IDX_TOTAL_AMOUNT,
+		SageWorkflowResultTable::FormatAmountNumber(totals.nTotalAmount), SAGE_RESULT_TOTAL_AMOUNT);
+	AddTotalCell(outCells, TAECHANG_RECEIVABLES_COL_IDX_DEPOSIT_AMOUNT,
+		SageWorkflowResultTable::FormatAmountNumber(totals.nDepositAmount), SAGE_RESULT_TOTAL_AMOUNT);
+	AddTotalCell(outCells, TAECHANG_RECEIVABLES_COL_IDX_RECEIVABLE_AMOUNT,
+		SageWorkflowResultTable::FormatAmountNumber(totals.nReceivableAmount), SAGE_RESULT_TOTAL_AMOUNT_HIGHLIGHT);
 	return TRUE;
 }
 

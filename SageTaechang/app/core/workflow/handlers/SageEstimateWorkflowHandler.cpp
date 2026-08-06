@@ -101,6 +101,16 @@ BOOL SageEstimateWorkflowHandler::BuildResultSummary(
 	return FALSE;
 }
 
+BOOL SageEstimateWorkflowHandler::BuildResultTotals(
+	int nTaskType,
+	const std::vector<TaechangResultRow>& arrVisibleRows,
+	std::vector<SageResultTotalCell>& outCells) const {
+	UNREFERENCED_PARAMETER(nTaskType);
+	UNREFERENCED_PARAMETER(arrVisibleRows);
+	outCells.clear();
+	return FALSE;
+}
+
 int SageEstimateWorkflowHandler::GetFilterCriteriaCount() const {
 	return SAGE_ESTIMATE_FILTER_CRITERIA_COUNT;
 }

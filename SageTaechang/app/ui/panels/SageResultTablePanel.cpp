@@ -37,6 +37,15 @@ static void AcceptDroppedFiles(CWnd& wnd) {
 	::ChangeWindowMessageFilterEx(hWnd, WM_TAECHANG_COPYGLOBALDATA, MSGFLT_ALLOW, NULL);
 }
 
+static SageTotalBarCellStyle ToTotalBarCellStyle(SageResultTotalRole nRole) {
+	switch (nRole) {
+		case SAGE_RESULT_TOTAL_COUNT:            return SAGE_TOTAL_BAR_COUNT;
+		case SAGE_RESULT_TOTAL_AMOUNT:           return SAGE_TOTAL_BAR_AMOUNT;
+		case SAGE_RESULT_TOTAL_AMOUNT_HIGHLIGHT: return SAGE_TOTAL_BAR_AMOUNT_HIGHLIGHT;
+		default:                                 return SAGE_TOTAL_BAR_LABEL;
+	}
+}
+
 BOOL SageResultTablePanel::Create(CWnd* pParent, UINT nId) {
 	CRect rectEmpty(0, 0, 0, 0);
 	return CWnd::CreateEx(0, AfxRegisterWndClass(0), NULL, WS_CHILD | WS_CLIPCHILDREN, rectEmpty, pParent, nId);
@@ -84,6 +93,7 @@ void SageResultTablePanel::CreateControls() {
 	m_wndResetBtn.SetTooltip(TAECHANG_UI_TIP_RESET);
 
 	m_wndSummaryBar.Create(L"", WS_CHILD | SS_OWNERDRAW, r, this, ID_TAECHANG_RESULT_SUMMARY_BAR);
+	m_wndTotalBar.Create(L"", WS_CHILD | SS_OWNERDRAW, r, this, ID_TAECHANG_RESULT_TOTAL_BAR);
 
 	m_wndList.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SINGLESEL, r, this, ID_TAECHANG_RESULT_LIST);
 	m_wndList.SetAlternateRowColor(TRUE);
@@ -229,10 +239,13 @@ void SageResultTablePanel::LayoutTableArea() {
 		nListTop += TAECHANG_SUMMARY_BAR_HEIGHT + TAECHANG_ROW_GAP;
 	}
 
-	int nListHeight = nHeight - nListTop;
+	int nTotalBarHeight = m_arrTotalCells.empty() ? 0 : TAECHANG_TOTAL_BAR_HEIGHT;
+	int nListHeight = nHeight - nListTop - nTotalBarHeight;
 	if (nListHeight < TAECHANG_RESULT_MIN_HEIGHT)
 		nListHeight = TAECHANG_RESULT_MIN_HEIGHT;
 	m_wndList.MoveWindow(0, nListTop, nWidth, nListHeight);
+	if (nTotalBarHeight > 0)
+		m_wndTotalBar.MoveWindow(0, nListTop + nListHeight, nWidth, nTotalBarHeight);
 	UpdateColumnWidths();
 }
 
@@ -336,6 +349,7 @@ void SageResultTablePanel::UpdateColumnWidths() {
 				nColumnWidth = nWidth - nFixedWidth;
 			m_wndList.SetColumnWidth(i, nColumnWidth);
 		}
+		UpdateTotalBarCells();
 		return;
 	}
 
@@ -350,6 +364,40 @@ void SageResultTablePanel::UpdateColumnWidths() {
 		nAssignedWidth += nColumnWidth;
 		m_wndList.SetColumnWidth(i, nColumnWidth);
 	}
+	UpdateTotalBarCells();
+}
+
+int SageResultTablePanel::GetColumnLeft(int nColumn) const {
+	int nLeft = 0;
+	for (int i = 0; i < nColumn; ++i)
+		nLeft += m_wndList.GetColumnWidth(i);
+	return nLeft;
+}
+
+void SageResultTablePanel::UpdateTotalBarCells() {
+	if (!::IsWindow(m_wndTotalBar.GetSafeHwnd()))
+		return;
+
+	CRect rectListClient;
+	m_wndList.GetClientRect(&rectListClient);
+	m_wndList.ClientToScreen(&rectListClient);
+	m_wndTotalBar.ScreenToClient(&rectListClient);
+
+	std::vector<SageTableTotalBarCell> arrBarCells;
+	for (int i = 0; i < static_cast<int>(m_arrTotalCells.size()); ++i) {
+		const SageResultTotalCell& cell = m_arrTotalCells[i];
+		if (cell.nColumn < 0 || cell.nColumn >= static_cast<int>(m_arrColumns.size()))
+			continue;
+
+		SageTableTotalBarCell barCell;
+		barCell.strText = cell.strText;
+		barCell.nLeft = rectListClient.left + GetColumnLeft(cell.nColumn);
+		barCell.nWidth = m_wndList.GetColumnWidth(cell.nColumn);
+		barCell.bRightAlign = (m_arrColumns[cell.nColumn].nAlign == SAGE_COLUMN_ALIGN_RIGHT) ? TRUE : FALSE;
+		barCell.nStyle = ToTotalBarCellStyle(cell.nRole);
+		arrBarCells.push_back(barCell);
+	}
+	m_wndTotalBar.SetCells(arrBarCells);
 }
 
 void SageResultTablePanel::SetFilterCriteria(const std::vector<SageWorkflowFilterCriteria>& arrCriteria) {
@@ -429,6 +477,18 @@ void SageResultTablePanel::SetSummaryItems(const std::vector<SageResultSummaryIt
 void SageResultTablePanel::ClearSummary() {
 	m_wndSummaryBar.SetItems(std::vector<SageSummaryBarItem>());
 	m_wndSummaryBar.ShowWindow(SW_HIDE);
+	LayoutTableArea();
+}
+
+void SageResultTablePanel::SetTotalCells(const std::vector<SageResultTotalCell>& arrCells) {
+	m_arrTotalCells = arrCells;
+	m_wndTotalBar.ShowWindow(m_arrTotalCells.empty() ? SW_HIDE : SW_SHOW);
+	LayoutTableArea();
+}
+
+void SageResultTablePanel::ClearTotals() {
+	m_arrTotalCells.clear();
+	m_wndTotalBar.ShowWindow(SW_HIDE);
 	LayoutTableArea();
 }
 
