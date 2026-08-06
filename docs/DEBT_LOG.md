@@ -5,6 +5,30 @@
 
 ## 열린 항목
 
+### [2026-08-06] 구조불일치 — 합계 밴드 셀 역할 enum이 core와 ui에 각각 있다
+- 위치: `app/core/workflow/SageWorkflowResultTable.h` `SageResultTotalRole` ↔ `app/ui/drawing/SageTableTotalBar.h` `SageTotalBarCellStyle`, 매핑은 `app/ui/panels/SageResultTablePanel.cpp` `ToTotalBarCellStyle`
+- 설명: 값 4개짜리 enum이 **두 벌**이고 패널이 변환한다. 하나로 합치려면 컨트롤이 `core/workflow` 헤더를 물어야 하는데, `CSageSummaryBar`가 자기 `SageSummaryBarItem`을 갖고 패널이 변환하는 **1단계 선례**를 따라 갈랐다 (`sagetaechang-ui` > *컨트롤은 도메인 개념을 알면 안 된다*).
+- 위험도: 낮음 — 표현 역할이 늘면 두 곳을 함께 고쳐야 한다
+- 후속: 세 번째 표에 밴드가 필요해질 때 유지할지 다시 본다. 합칠 거면 컨트롤이 core를 무는 방향이 아니라 **렌더링 전용 헤더를 따로 두는** 방향이다
+
+### [2026-08-06] 기존부채 — 리스트 세로 스크롤바가 뜨면 밴드 우측 끝이 남는다
+- 위치: `app/ui/panels/SageResultTablePanel.cpp` `LayoutTableArea` · `UpdateTotalBarCells`
+- 설명: 밴드는 표 폭(패널 폭) 전체를 차지하지만 셀 좌표는 **리스트 클라이언트 폭**에서 나온다. 스크롤바 폭만큼 우측이 밴드 배경으로 남는다. 맨 끝 「비고」 열이 합계 행에서 빈칸이라 값이 어긋나 보이지는 않는다.
+- 위험도: 낮음
+- 후속: 거슬리면 밴드 폭을 리스트 클라이언트 폭에 맞춘다. 그러면 밴드 배경이 표보다 좁아져 하단 경계선이 끊긴다 — 어느 쪽을 택할지가 결정 사항이다
+
+### [2026-08-06] 임시구현 — 합계 금액이 0이면 `—`가 아니라 「0」으로 나온다
+- 위치: `app/core/workflow/handlers/SageReceivablesWorkflowHandler.cpp` `BuildResultTotals`
+- 설명: 표의 빈 금액은 `—`(`TAECHANG_UI_AMOUNT_EMPTY_MARK`)인데 밴드는 0을 그대로 쓴다. **빈 값이 아니라 계산된 0**이라 구분한 것이다. 입금이 하나도 없는 파일에서 입금 합계가 「0」으로 보인다.
+- 위험도: 낮음
+- 후속: 사용자가 어색해하면 0일 때만 `—`로 바꾼다
+
+### [2026-08-06] 기존부채 — 창을 극단적으로 줄이면 합계 밴드가 패널 아래로 밀린다
+- 위치: `app/ui/panels/SageResultTablePanel.cpp` `LayoutTableArea`
+- 설명: 리스트 높이가 `TAECHANG_RESULT_MIN_HEIGHT`로 클램프되면 밴드 top이 패널 바닥을 넘는다. 밴드 높이를 빼는 만큼 **클램프가 이전보다 일찍 걸린다.**
+- 위험도: 낮음 — 정상 창 크기에서는 도달하지 않는다
+- 후속: 클램프가 걸리면 밴드를 패널 바닥에 고정하고 리스트를 그만큼 줄인다
+
 ### [2026-08-06] 기존부채 — 미수금 내역서 생성이 서식 복사를 클립보드로 9번 왕복한다
 - 위치: `tools/generate-receivables-form.ps1` `Copy-RowFormat`(:214) ← `Apply-OutputFormats`(:320)
 - 설명: `Rows.Copy()` + `PasteSpecial` + `CutCopyMode=$false`로 Excel 클립보드를 왕복한다. 전체 범위 1회 + **구분 행(`-`)마다 1회**라 19건·구분 8개인 파일에서 9회 돈다. 좀비 Excel을 정리한 깨끗한 상태에서 생성이 **4.0초**, 로드는 같은 파일에 **2.7초** — 차이의 상당 부분이 이 왕복이다.
