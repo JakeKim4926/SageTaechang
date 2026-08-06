@@ -1,4 +1,10 @@
-﻿## [2026-08-06] feature/estimate-one-page-inline
+﻿## [2026-08-07] fix/large-table-render
+- **목적**: 690행 견적서 파일에서 로드·워크플로 전환·필터 초기화가 매번 약 1초 멈추는 것을 줄인다 (`DEBT_LOG` 후속 ①)
+- **변경 내용**: `SageResultTablePanel::RefreshRows`의 삽입 루프를 `LPSTR_TEXTCALLBACK`으로 전환해 **행당 메시지를 10회에서 1회로** 줄였다(`InsertItem` 1 + `SetItemText` 8 + `SetItemData` 1 → `LVIF_TEXT|LVIF_PARAM` 삽입 1회). 셀 문자열은 패널이 `LVN_GETDISPINFO`에 답하며 **그리는 행에 한해** 만든다 — 답할 데이터(`m_arrVisibleRows` · `m_arrColumns`)를 가진 쪽이 패널이므로 콜백도 패널이 받는다. **`CSageListCtrl`에는 아무것도 넘기지 않았다**(컨트롤은 도메인 개념을 알면 안 된다). **착수 전 전수 조사로 가부를 확정했다** — 이 리스트의 텍스트를 외부에서 읽는 코드 0곳(`GetItemText`는 `SageListCtrl.cpp` 내부 5곳뿐이고 전부 그리는 행 한정), `SortItems` 0곳, 결과 필터는 `m_arrRows`를 직접 훑는다. `SagePriceManagePanel`의 `GetItemText` 6곳은 **다른 리스트**였다. **`push_back`을 `InsertItem`보다 앞에 뒀다** — 콜백 구조에서는 컨트롤이 삽입 도중에도 텍스트를 되물을 수 있다. **재측정은 하지 않았다** — 빌드와 690행 화면(속도 체감 · 표 내용 동일)을 사용자가 확인했고, `DEBT_LOG`의 「약 270ms」는 계산된 예상값이지 잰 값이 아니다. `InsertItem` 221ms(가상 리스트 전환분)와 리스트 인덱스 전제는 `DEBT_LOG`에 남겼다
+- **PR 링크**: 없음
+- **결과**: pending — `develop` 미머지. 빌드 + 화면 확인 완료
+
+## [2026-08-06] feature/estimate-one-page-inline
 - **목적**: 「한 페이지 작성」을 목업대로 테두리 박스에 담고 6행 제한을 상시 안내해 모달 경고창을 없앤다 (D7-8 2단계, D7-7·D7-8 완결)
 - **변경 내용**: `CSageOptionCheck` 신설 — 테두리 박스 + 체크박스 + 라벨 + 힌트를 **스스로 그리고 폭을 실측**한다(고정 폭 상수 `TAECHANG_ESTIMATE_ONE_PAGE_WIDTH`는 참조 0곳이 되어 제거). `SageUiStyle::DrawCheckBox`를 `CSageListCtrl`에서 올려 표 체크박스와 공유했다 — 스킬이 *「두 컨트롤이 실제로 같은 코드를 가질 때만 모은다」*고 한 조건에 처음 해당했고 `SageUiStyle`의 두 번째 조각이다. **`AfxMessageBox` 3곳 제거**(패널 내 참조 0곳). 초과분은 지금도 자동 해제되고 힌트가 상시 보이므로 사전 차단된다. **착수 전 목업 재대조에서 2건을 잡았다** — 박스 좌우 여백은 목업 10이지만 「간격은 4의 배수」 규칙에 따라 8, 그리고 목업 3-8에는 「선택 해제」가 없지만 입력 표가 납품·견적 공용 인스턴스라 양쪽에 보인다(`DEBT_LOG`). **작업 중 잡은 것**: 「선택 해제」가 잘렸다 — 선택 바 폭이 `Layout()` 시점 건수(「0건 중 0건」)로 정해지는데 690행이 들어오면 「690건 중 6건」으로 텍스트가 길어져 버튼이 바 밖으로 밀렸다. `LayoutSelectionRow()`를 분리해 건수가 바뀔 때도 재배치한다. **생성 버튼 문구는 고정으로 되돌렸다**(사용자 결정) — `BuildActionButtonLabel` 확장점과 포맷 상수 2개를 걷어냈고 0건 비활성은 유지한다. **성능**: 690행에서 로드·전환·초기화가 각각 약 1초 멈추는 것을 판별 실험 3개로 「690행에 도착하는 비용」으로 좁힌 뒤, 일회용 계측 브랜치(`perf/measure-refresh-rows`, 폐기)로 구간을 갈라 **`InsertItem` 221ms · `SetItemText` 305ms**로 확정했다 — 문자열 생성 5ms, 행 복사 1ms, 이번에 추가한 선택바 동기화 1ms는 무관했다. `SetItemCount` 예약 가설은 측정으로 폐기(526 → 523ms). 수치와 후속(`LPSTR_TEXTCALLBACK` → 가상 리스트)은 `DEBT_LOG`
 - **PR 링크**: 없음
