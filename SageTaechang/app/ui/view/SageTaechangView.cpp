@@ -245,9 +245,7 @@ void CSageTaechangView::CreateChildControls() {
 	m_wndHeaderTitle.Create(TAECHANG_UI_RECEIVABLES_NAME, WS_CHILD | WS_VISIBLE | SS_CENTERIMAGE, rectEmpty, this);
 	m_wndHeaderStatus.Create(TAECHANG_UI_READY, WS_CHILD | SS_RIGHT, rectEmpty, this);
 	m_wndTaskTabs.Create(WS_CHILD | WS_VISIBLE | TCS_FIXEDWIDTH, rectEmpty, this, ID_TAECHANG_TASK_TABS);
-	m_wndDetailSection.Create(TAECHANG_UI_SECTION_DETAIL, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_DETAIL_SECTION);
 	m_wndTitle.Create(TAECHANG_UI_APP_TITLE, WS_CHILD | WS_VISIBLE | SS_CENTER | SS_CENTERIMAGE, rectEmpty, this);
-	m_wndDetail.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | WS_VSCROLL, rectEmpty, this, ID_TAECHANG_DETAIL_EDIT);
 
 	m_wndLoginBtn.Create(TAECHANG_UI_LOGIN_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_LOGIN_BTN);
 	m_wndLogoutBtn.Create(TAECHANG_UI_LOGOUT_BTN, WS_CHILD | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_LOGOUT_BTN);
@@ -259,6 +257,7 @@ void CSageTaechangView::CreateChildControls() {
 	m_panelWorkflowInput.EnableFileDrop();
 	m_panelWorkflowResult.Create(this, ID_TAECHANG_WORKFLOW_RESULT_PANEL);
 	m_panelWorkflowResult.EnableFileDrop();
+	m_panelWorkflowHistory.Create(this, ID_TAECHANG_WORKFLOW_HISTORY_PANEL);
 	CreateCompanyOrderPanel();
 
 	ApplyControlFonts();
@@ -304,8 +303,6 @@ void CSageTaechangView::ApplyControlFonts() {
 
 	m_wndHeaderStatus.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndTaskTabs.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndDetailSection.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndDetail.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndLoginBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndLogoutBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndCoCrudSection.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
@@ -446,8 +443,7 @@ void CSageTaechangView::UpdateTaskTabVisibility() {
 
 	m_panelWorkflowResult.ShowWindow(bShowResultTable ? SW_SHOW : SW_HIDE);
 	m_panelWorkflowResult.UpdateResultTableVisibility(bShowResultTable && bShowFilter);
-	m_wndDetailSection.ShowWindow(bShowDetail ? SW_SHOW : SW_HIDE);
-	m_wndDetail.ShowWindow(bShowDetail ? SW_SHOW : SW_HIDE);
+	m_panelWorkflowHistory.ShowWindow(bShowDetail ? SW_SHOW : SW_HIDE);
 	ShowCompanyOrderPanel(bShowDataManage);
 }
 
@@ -506,8 +502,7 @@ void CSageTaechangView::LayoutChildControls() {
 		m_wndTaskTabs.ShowWindow(SW_HIDE);
 		m_panelWorkflowInput.ShowWindow(SW_HIDE);
 		m_panelWorkflowResult.ShowWindow(SW_HIDE);
-		m_wndDetailSection.ShowWindow(SW_HIDE);
-		m_wndDetail.ShowWindow(SW_HIDE);
+		m_panelWorkflowHistory.ShowWindow(SW_HIDE);
 		ShowCompanyOrderPanel(FALSE);
 
 		int nPanelTop = nContentTop + TAECHANG_CONTENT_PAD_Y;
@@ -562,8 +557,11 @@ void CSageTaechangView::LayoutResultSection(int nLeft, int nTop, int nWidth, int
 			nTop + TAECHANG_RESULT_HEADER_HEIGHT + nBodyHeight));
 	}
 	if (IsDetailTab()) {
-		m_wndDetailSection.MoveWindow(nLeft, nTop, nWidth, TAECHANG_RESULT_HEADER_HEIGHT);
-		m_wndDetail.MoveWindow(nLeft, nTop + TAECHANG_RESULT_HEADER_HEIGHT, nWidth, nBodyHeight);
+		m_panelWorkflowHistory.Layout(CRect(
+			nLeft,
+			nTop,
+			nLeft + nWidth,
+			nTop + TAECHANG_RESULT_HEADER_HEIGHT + nBodyHeight));
 	}
 }
 
@@ -662,8 +660,7 @@ void CSageTaechangView::UpdateWorkflowLabels() {
 	m_panelWorkflowInput.SetActionButtonLabel(pHandler->GetActionButtonLabel());
 	m_panelWorkflowInput.SetInputDialogTitle(pHandler->GetInputDialogTitle());
 	m_panelWorkflowInput.SetAutoLoadOnInput(pHandler->UsesInputTable());
-	m_wndDetailSection.SetWindowTextW(pHandler->GetDetailSectionLabel());
-	m_wndDetail.SetWindowTextW(m_strExecutionHistory);
+	m_panelWorkflowHistory.SetSectionLabel(pHandler->GetDetailSectionLabel());
 	ApplyWorkflowTabs();
 	ApplyResultTableSchema();
 	UpdateActionButtonState();
@@ -1196,8 +1193,7 @@ void CSageTaechangView::DisplayResponse(int nWorkflowType, int nTaskType, const 
 	TaechangWorkflowResultPresenter presenter;
 	std::vector<TaechangResultRow> arrRows;
 	BOOL bSuccess = presenter.BuildRows(nWorkflowType, nTaskType, strResponseJson, arrRows);
-	AppendExecutionHistory(nWorkflowType, nTaskType, strResponseJson, bSuccess);
-	m_wndDetail.SetWindowTextW(m_strExecutionHistory);
+	m_panelWorkflowHistory.AppendEntry(m_strRunningInputPath, strResponseJson, bSuccess);
 
 	if (!bKeepInputTable)
 		SetResultTableRows(arrRows);
@@ -1236,56 +1232,6 @@ LRESULT CSageTaechangView::OnResultSelectionChanged(WPARAM wParam, LPARAM lParam
 	UNREFERENCED_PARAMETER(lParam);
 	ApplyActionButtonState(static_cast<int>(wParam));
 	return 0;
-}
-
-void CSageTaechangView::AppendExecutionHistory(int nWorkflowType, int nTaskType, const CString& strResponseJson, BOOL bSuccess) {
-	CString strLine = BuildExecutionHistoryLine(nWorkflowType, nTaskType, strResponseJson, bSuccess);
-	if (strLine.IsEmpty())
-		return;
-
-	if (!m_strExecutionHistory.IsEmpty())
-		m_strExecutionHistory += TAECHANG_UI_HISTORY_ENTRY_BREAK;
-	m_strExecutionHistory += strLine;
-}
-
-CString CSageTaechangView::BuildExecutionHistoryLine(int nWorkflowType, int nTaskType, const CString& strResponseJson, BOOL bSuccess) const {
-	UNREFERENCED_PARAMETER(nWorkflowType);
-	UNREFERENCED_PARAMETER(nTaskType);
-
-	CTime now = CTime::GetCurrentTime();
-	CString strLine = TAECHANG_UI_HISTORY_ENTRY_PREFIX + now.Format(TAECHANG_UI_HISTORY_TIME_FORMAT) +
-		TAECHANG_UI_HISTORY_ENTRY_SUFFIX + (bSuccess ? TAECHANG_UI_HISTORY_SUCCESS : TAECHANG_UI_HISTORY_FAILED);
-	CString strInputPath = m_strRunningInputPath;
-	if (strInputPath.IsEmpty())
-		strInputPath = TAECHANG_UI_HISTORY_EMPTY_VALUE;
-	strLine += TAECHANG_UI_HISTORY_LINE_BREAK;
-	strLine += TAECHANG_UI_HISTORY_FIELD_INDENT;
-	strLine += TAECHANG_UI_HISTORY_INPUT_PREFIX;
-	strLine += strInputPath;
-
-	if (bSuccess) {
-		CString strOutputPath = JsonExtractString(strResponseJson, TAECHANG_JSON_KEY_FILE_PATH);
-		if (strOutputPath.IsEmpty())
-			strOutputPath = JsonExtractString(strResponseJson, TAECHANG_JSON_KEY_OUTPUT_FOLDER);
-		if (strOutputPath.IsEmpty())
-			strOutputPath = TAECHANG_UI_HISTORY_EMPTY_VALUE;
-		strLine += TAECHANG_UI_HISTORY_LINE_BREAK;
-		strLine += TAECHANG_UI_HISTORY_FIELD_INDENT;
-		strLine += TAECHANG_UI_HISTORY_OUTPUT_PREFIX;
-		strLine += strOutputPath;
-	} else {
-		CString strReason = JsonExtractString(strResponseJson, TAECHANG_JSON_KEY_MESSAGE);
-		if (strReason.IsEmpty())
-			strReason = JsonExtractString(strResponseJson, TAECHANG_JSON_KEY_CODE);
-		if (strReason.IsEmpty())
-			strReason = TAECHANG_UI_HISTORY_EMPTY_VALUE;
-		strLine += TAECHANG_UI_HISTORY_LINE_BREAK;
-		strLine += TAECHANG_UI_HISTORY_FIELD_INDENT;
-		strLine += TAECHANG_UI_HISTORY_REASON_PREFIX;
-		strLine += strReason;
-	}
-
-	return strLine;
 }
 
 void CSageTaechangView::CreateCompanyOrderPanel() {

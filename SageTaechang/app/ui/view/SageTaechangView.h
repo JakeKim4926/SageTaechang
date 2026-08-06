@@ -8,6 +8,7 @@
 #include "app/ui/panels/SageResultTablePanel.h"
 #include "app/ui/panels/SageWorkflowInputPanel.h"
 #include "app/ui/panels/SageWorkflowResultPanel.h"
+#include "app/ui/panels/SageWorkflowHistoryPanel.h"
 #include "app/ui/drawing/SageHeaderCtrl.h"
 #include "app/ui/drawing/SageTabCtrl.h"
 #include "app/ui/drawing/SageButton.h"
@@ -71,9 +72,7 @@ protected:
     CSageLabel m_wndHeaderTitle;
     CStatic m_wndHeaderStatus;
     CSageTabCtrl m_wndTaskTabs;
-    CSageSectionLabel m_wndDetailSection;
     CSageLabel m_wndTitle;
-    CEdit m_wndDetail;
     CBrush m_brushListHeader;
     BOOL m_bRunning;
     int m_nSelectedTaskTab;
@@ -85,7 +84,6 @@ protected:
     SageBackgroundRole m_nHeaderStatusBgRole;
     BOOL m_bLastTaskSuccess;
     CString m_strLastResponseJson;
-    CString m_strExecutionHistory;
     CString m_strRunningInputPath;
     TaechangWorkflowUiState m_stateReceivables;
     TaechangWorkflowUiState m_stateDelivery;
@@ -100,6 +98,7 @@ protected:
     SagePriceCalcPanel m_panelPriceCalc;
     SageWorkflowInputPanel m_panelWorkflowInput;
     SageWorkflowResultPanel m_panelWorkflowResult;
+    SageWorkflowHistoryPanel m_panelWorkflowHistory;
 
     // ── 법인 순서 데이터 관리 패널 ───────────────────────────────────────────
     CSageButton         m_wndCoAddBtn;
@@ -171,8 +170,6 @@ protected:
     void ApplyDroppedInputPaths(const CString& strPaths);
     void RunWorkflowTask(int nTaskType);
     void DisplayResponse(int nWorkflowType, int nTaskType, const CString& strResponseJson);
-    void AppendExecutionHistory(int nWorkflowType, int nTaskType, const CString& strResponseJson, BOOL bSuccess);
-    CString BuildExecutionHistoryLine(int nWorkflowType, int nTaskType, const CString& strResponseJson, BOOL bSuccess) const;
 
     // ── 법인 순서 데이터 관리 패널 ───────────────────────────────────────────
     void CreateCompanyOrderPanel();
