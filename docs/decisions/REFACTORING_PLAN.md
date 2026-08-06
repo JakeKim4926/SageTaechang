@@ -8,11 +8,15 @@
 
 ## 다음 세션 시작점 (2026-08-07)
 
-### 지금 어디인가 — **`SageWorkflowInputPanel` 이동 완료. 빌드·화면 확인 대기**
+### 지금 어디인가 — **`SageWorkflowInputPanel` 1단계 완료. 입력 표를 아직 안 들였다**
 
-**미검증 커밋 1건** — `afc0dc2`(브랜치 `refactor/workflow-input-panel`).
-빌드와 입력 탭 화면 동작을 확인받기 전에는 **다음 작업을 얹지 않는다.**
-확인이 끝나면 다음은 4c의 두 번째 항목 `SageWorkflowResultPanel`이다.
+`afc0dc2`(입력 폼·실행 영역) **빌드·화면 확인 완료**. 미검증 커밋 없음.
+
+**4c 첫 항목은 아직 끝나지 않았다.** *목표 상태*는 입력 표(`SageResultTablePanel` 입력 인스턴스)를
+**입력 패널의 자식**으로 두는데 아직 View가 들고 있다. 전 세션이 확정한 이동 대상 표에
+`m_panelInputTable`이 빠져 있었고 1단계가 그 표만 따랐다 — **표와 체크리스트 원문(「… + 입력 표」)이
+어긋나 있었던 것이다.** 다음 작업은 그 2단계이고, `m_wndEmptyStateHint`도 여기서 함께 들어간다
+(1단계에서 뺀 사유가 입력 표가 들어오면 사라진다. 아래 *2단계* 참조).
 
 
 > **번호 정정 (2026-08-07)** — 이 문서 네 곳이 `3-B-4b`를 가리키고 있었다. **4b는 존재하지 않는다.**
@@ -591,15 +595,16 @@ View의 호출 방식은 계산 패널과 동일하게 `ShowWindow` 하나로 �
 
 **집계 (공통 절차 1번)** — `SageTaechangView`
 
-| 지표 | 착수 전 (08-07) | `SageWorkflowInputPanel` 후 | 목표 |
-|---|---|---|---|
-| 줄 수 | 1,873 | **1,685** | 600 내외 |
-| 컨트롤 멤버 | 42 | **27** | 0 |
-| 메시지맵 항목 | 24 | **20** | 10 이하 |
-| 워크플로 타입 분기 | 23곳 | 26곳 | 0 |
-| `app/infra` include | 6줄 | 6줄 | 0 |
+| 지표 | 착수 전 (08-07) | 1단계 후 | **2단계 후** | 목표 |
+|---|---|---|---|---|
+| 줄 수 | 1,873 | 1,685 | **1,658** | 600 내외 |
+| 컨트롤 멤버 | 42 | 27 | **26** | 0 |
+| 메시지맵 항목 | 24 | 20 | **20** | 10 이하 |
+| 워크플로 타입 분기 | 23곳 | 26곳 | 26곳 | 0 |
+| `app/infra` include | 6줄 | 6줄 | 6줄 | 0 |
 
-남은 멤버 27개의 소속: **데이터 관리 탭 13** · 헤더 5 · 사이드바 2 · 탭 컨트롤 1 · 실행 기록 2 · 인증 3 · 빈 상태 1.
+남은 멤버 26개의 소속: **데이터 관리 탭 13** · 헤더 5 · 사이드바 2 · 탭 컨트롤 1 · 실행 기록 2 · 인증 3.
+**입력 탭 몫은 0이 됐다.** 남은 덩어리는 데이터 관리 탭(4c 이후 `SageCompanyOrderPanel`)이다.
 
 **워크플로 분기는 오히려 늘었다** (23 → 26). 패널이 핸들러를 알면 안 되므로 「입력 선택 후 자동 로드할지」
 「어느 라벨을 쓸지」를 View가 핸들러에 물어 패널에 넘기기 때문이다. **이 증가는 4d에서 회수된다** —
@@ -645,7 +650,33 @@ View의 호출 방식은 계산 패널과 동일하게 `ShowWindow` 하나로 �
 테두리는 `DrawEditBorder`가 **컨트롤 바깥** 1px에 그리므로, 패널 폭을 그대로 주면 우측 세로선이 클리핑된다.
 `CSageEdit` 승격으로 사라질 보정이며 그 전까지는 필요하다 (`sagetaechang-ui` > *`CSageEdit`은 화면에 따라 갈린다*).
 
-- [x] `SageWorkflowInputPanel` — **완료** (빌드·화면 확인 대기)
+##### 2단계 — 입력 표와 빈 상태를 들였다 (2026-08-07)
+
+`m_panelInputTable`(`SageResultTablePanel` 입력 인스턴스)과 `m_wndEmptyStateHint`가 입력 패널 소유가 됐다.
+패널 rect가 **입력 폼 시작부터 콘텐츠 바닥까지**로 늘고 내부에서 `폼 → 액션 → 표 → 빈 상태`를 배치한다.
+`LayoutResultSection`은 **결과·기록 탭 전용**이 됐고, 도달 불가가 된 `FindVisibleResultTablePanel`은 지웠다.
+
+**표 내용은 여전히 View가 조작한다** (사용자 결정 A안). 패널은 `SageResultTablePanel& GetInputTable()`로
+참조를 노출하고, 소유·배치·가시성만 가져간다. 대안이었던 「표 API 전부 감싸기」는 **위임 메서드 20개**를
+만들고 4d에서 다시 걷어내야 한다 — 기준 E의 취지와 정면으로 충돌한다.
+`FindResultTablePanel`이 워크플로에 따라 입력 표/결과 표를 고르고 그 뒤 코드가 **둘을 구분하지 않는**
+4a 구조가 그대로 살아 있어야 하기 때문이다. 이 참조는 4d에서 `SageWorkflowController`가 인수한다.
+
+**표 통지 2종은 패널이 받아 View로 올린다.** 부모가 바뀌었으므로 `SageResultTablePanel`이 보내는
+`RESULT_TABLE_CHANGED`·`RESULT_SELECTION_CHANGED`가 입력 패널에 도착한다. `CSageDialogCaptionBar`가
+D7-10에서 쓴 형태와 같다 — **자식이 부모에 올리는 것은 위임 스텁이 아니다.** 기준 E는 View가
+패널 대신 받는 것을 금지하며, 계층 중간 단계의 재전송은 MFC에서 정상 경로다.
+
+**자체 리뷰에서 잡은 버그 — 가시성과 배치의 순서가 뒤집혀 있었다.**
+`LayoutChildControls`의 원래 순서는 `UpdateTaskTabVisibility`(가시성) → `LayoutResultSection`(배치)였다.
+표 패널의 `Layout`은 `m_bSelectAllVisible`·`m_bFilterVisible`을 읽어 밴드 폭과 선택 바 위치를 정하는데
+(`GetBandRight` · `LayoutSelectionRow`), `ShowSelectAll`·`ShowFilter`는 **플래그만 세팅하고 배치하지 않는다.**
+패널이 표까지 배치하게 되면서 배치가 가시성보다 먼저 오게 됐고, 낡은 플래그로 그릴 뻔했다.
+**해법은 1단계와 같다 — 가시성 함수가 자기 배치를 책임진다** (`UpdateInputTableVisibility` → `LayoutTableArea`,
+`UpdateActionVisibility` → `LayoutActionSection`). `SageResultTablePanel`의 `SyncSelectionBar` → `LayoutSelectionRow`와 같은 형태이며,
+**「가시성 플래그를 읽어 배치하는 함수」가 있으면 그 플래그를 바꾸는 쪽이 재배치를 불러야 한다**는 규칙으로 굳힌다.
+
+- [x] `SageWorkflowInputPanel` — **완료** (1단계 `afc0dc2` 확인 완료 · 2단계 빌드 대기)
 - [ ] `SageWorkflowResultPanel` — 결과 표
 - [ ] `SageWorkflowHistoryPanel` — 실행 기록
 - [ ] `UpdateTaskTabVisibility`의 가시성 행렬 47줄이 사라지는지 확인
