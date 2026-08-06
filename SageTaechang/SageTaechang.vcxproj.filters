@@ -234,6 +234,9 @@
     <ClCompile Include="app\ui\panels\SageResultTablePanel.cpp">
       <Filter>소스 파일\app\ui\panels</Filter>
     </ClCompile>
+    <ClCompile Include="app\ui\panels\SageWorkflowInputPanel.cpp">
+      <Filter>소스 파일\app\ui\panels</Filter>
+    </ClCompile>
     <ClCompile Include="app\common\TaechangJson.cpp">
       <Filter>소스 파일\app\common</Filter>
     </ClCompile>
@@ -498,6 +501,9 @@
       <Filter>헤더 파일\app\ui\panels</Filter>
     </ClInclude>
     <ClInclude Include="app\ui\panels\SageResultTablePanel.h">
+      <Filter>헤더 파일\app\ui\panels</Filter>
+    </ClInclude>
+    <ClInclude Include="app\ui\panels\SageWorkflowInputPanel.h">
       <Filter>헤더 파일\app\ui\panels</Filter>
     </ClInclude>
     <ClInclude Include="app\common\TaechangJson.h">

@@ -6,6 +6,7 @@
 #include "app/ui/panels/SagePriceCalcPanel.h"
 #include "app/ui/panels/SagePriceManagePanel.h"
 #include "app/ui/panels/SageResultTablePanel.h"
+#include "app/ui/panels/SageWorkflowInputPanel.h"
 #include "app/ui/drawing/SageHeaderCtrl.h"
 #include "app/ui/drawing/SageTabCtrl.h"
 #include "app/ui/drawing/SageButton.h"
@@ -69,28 +70,12 @@ protected:
     CSageLabel m_wndHeaderTitle;
     CStatic m_wndHeaderStatus;
     CSageTabCtrl m_wndTaskTabs;
-    CSageSectionLabel m_wndInputSection;
-    CSageSectionLabel m_wndOutputSection;
     CSageSectionLabel m_wndDetailSection;
     CSageLabel m_wndTitle;
-    CSageLabel m_wndWorkflowLabel;
-    CSageLabel m_wndInputLabel;
-    CSageLabel m_wndOutputLabel;
-    CEdit m_wndInputPath;
-    CEdit m_wndOutputFolder;
-    CSageButton m_wndSelectInput;
-    CSageButton m_wndSelectOutput;
-    CSageButton m_wndLoad;
-    CSageButton m_wndGenerate;
-    CSageButton m_wndInputReset;
-    CProgressCtrl m_wndProgress;
-    CSageLabel m_wndProgressText;
     CEdit m_wndDetail;
     CSageLabel m_wndEmptyStateHint;
-    CStatic m_wndActionStatus;
     CBrush m_brushListHeader;
     BOOL m_bRunning;
-    int m_nProgressPercent;
     int m_nSelectedTaskTab;
     int m_nLastWorkflowType;
     int m_nLastTaskType;
@@ -113,6 +98,7 @@ protected:
 
     SagePriceManagePanel m_panelPriceManage;
     SagePriceCalcPanel m_panelPriceCalc;
+    SageWorkflowInputPanel m_panelWorkflowInput;
     SageResultTablePanel m_panelInputTable;
     SageResultTablePanel m_panelResultTable;
 
@@ -146,12 +132,9 @@ protected:
     void ApplyWorkflowTabs();
     void UpdateTaskTabVisibility();
     void LayoutChildControls();
-    void LayoutInputSection(int nLeft, int nTop, int nWidth, BOOL bShowOutput);
-    void LayoutActionSection(int nLeft, int nTop, int nWidth);
     void LayoutResultSection(int nLeft, int nTop, int nWidth, int nHeight);
     void SetRunningState(BOOL bRunning);
     void UpdateAuthState();
-    void UpdateProgressPercent(int nPercent);
     void SetStatusText(const CString& strStatus);
     int GetSelectedWorkflow() const;
     ISageWorkflowHandler* FindCurrentHandler() const;
@@ -204,18 +187,14 @@ protected:
 protected:
     afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
     afx_msg void OnSize(UINT nType, int cx, int cy);
-    afx_msg void OnTimer(UINT_PTR nIDEvent);
     afx_msg BOOL OnEraseBkgnd(CDC* pDC);
     afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
     afx_msg void OnWorkflowChanged();
     afx_msg void OnSidebarSelectionChanged(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnTaskTabChanged(NMHDR* pNMHDR, LRESULT* pResult);
-    afx_msg void OnSelectInput();
-    afx_msg void OnSelectOutput();
-    afx_msg void OnLoadWorkflow();
-    afx_msg void OnGenerateWorkflow();
-    afx_msg void OnInputReset();
     afx_msg LRESULT OnWorkflowComplete(WPARAM wParam, LPARAM lParam);
+    afx_msg LRESULT OnWorkflowRunRequested(WPARAM wParam, LPARAM lParam);
+    afx_msg LRESULT OnWorkflowInputReset(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnResultTableChanged(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnResultSelectionChanged(WPARAM wParam, LPARAM lParam);
     afx_msg void OnDropFiles(HDROP hDropInfo);
