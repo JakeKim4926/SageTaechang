@@ -5,6 +5,12 @@
 
 ## 열린 항목
 
+### [2026-08-07] 구조불일치 — 데이터 관리 리스트만 하단 여백이 이중으로 걸린다
+- 위치: `app/ui/view/SageTaechangView.cpp` `LayoutCompanyOrderPanel` — `nListHeight = nHeight - (nListTop - nTop) - TAECHANG_MARGIN`
+- 설명: D7-11에서 `nHeight`가 `nContentBottom - nContentTop`(하단 패딩이 이미 빠진 정확한 남은 높이)으로 바뀌었는데 여기서 `TAECHANG_MARGIN`을 **또** 뺀다. 결과로 데이터 관리 탭 리스트 하단 여백만 다른 화면보다 16px 크다. 기존 대비 변화는 4px뿐이어서 화면 확인을 통과했다.
+- 위험도: 낮음 — 여백이 넓을 뿐 잘리거나 겹치지 않는다
+- 후속: D7-6(데이터 관리, 목업 3-6)에서 `- TAECHANG_MARGIN`을 걷어낸다. 그때 카드 내부 패딩(`nPad = TAECHANG_MARGIN`)이 목업과 맞는지도 함께 본다
+
 ### [2026-08-07] 구조불일치 — `m_bRunning`이 View와 입력 패널에 이중으로 존재한다
 - 위치: `app/ui/view/SageTaechangView.cpp` `SetRunningState` · `app/ui/panels/SageWorkflowInputPanel.cpp` `SetRunningState`
 - 설명: 실행 상태의 소유자는 View인데 패널도 자기 사본을 든다. 패널이 **진행바 타이머**와 **액션 영역 가시성**(진행바·% ·완료 텍스트)을 스스로 판단해야 하기 때문이다. 지금은 View의 `SetRunningState` 하나가 두 값을 함께 갱신하는 단일 진입점이라 어긋나지 않지만, 패널 쪽을 다른 데서 부르면 조용히 갈라진다.
