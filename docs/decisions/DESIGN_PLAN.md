@@ -1246,13 +1246,18 @@ D4c 교훈 14(폰트가 복원되지 않는다)와 **같은 뿌리**다. 그때�
 | 법인 수정 | `TaechangCompanyRenameDlg` | **`TaechangPriceSimpleDlg.cpp`** (파일명과 클래스명 불일치 — 기존 상태, 이번에 고치지 않음) |
 | 법인 선택 | `TaechangCalcCompanyPickerDlg` | `TaechangCalcCompanyPickerDlg.cpp` |
 
-### 6종 공통 (한 번에 적용)
+### 6종 공통 — **네 항목 중 셋은 이미 끝나 있었다** (2026-08-06 대조)
 
-- [ ] `CSageInlineError`를 폼 하단 좌측에 배치. 입력 검증을 `AfxMessageBox` → 인라인으로 (R7)
-- [ ] 확인측 버튼 = Primary, 취소 = Secondary(중성 테두리). 6개 다이얼로그 전부 이미 `CSageButton`을 쓴다
-- [ ] 라벨 폭 — 로그인·단가 추가·법인 추가·법인 수정 **64**, 비밀번호 변경 **96**
-- [ ] 라벨 색 `TEXT_MUTED`, 컨트롤 높이 32
-- [ ] 6개 모두 `CreateControls` / `LayoutControls` / `ApplyFont` 같은 구조다 — **같은 패턴으로 한 번에 바꾼다**
+| 공통 항목 | 상태 |
+|---|---|
+| `CSageInlineError` 배치 + 검증 이관 (R7) | **완료** — D5a. 6종 전부 보유 |
+| 확인=Primary · 취소=Secondary | **완료** — D2 |
+| 라벨 폭 64 / 96 · 컨트롤 높이 32 | **완료** — D3a · D3b |
+| **라벨 색 `TEXT_MUTED`** | **미완** — 6종 라벨이 전부 `CStatic`이라 역할 API가 없다 |
+
+**D5a는 에디트만 승격했다.** `CSageEdit`은 들어갔지만 라벨은 `CStatic`으로 남아 색을 지정할 방법이 없다.
+`OnCtlColor`에 색 분기를 넣는 것은 스킬이 금지하므로 **`CSageLabel` 승격이 유일한 경로**다(라벨 12개).
+View는 2026-08-02 `refactor/sage-label-roles`에서 37개를 승격했고 **다이얼로그가 그때 빠졌다.**
 
 ### 다이얼로그별로 다른 것
 
@@ -1264,6 +1269,39 @@ D4c 교훈 14(폰트가 복원되지 않는다)와 **같은 뿌리**다. 그때�
 | 법인 추가 | 상시 힌트 「한글 20자 / 영문 40자 이내」. `COMPANY_EXISTS` · `TOO_LONG_KO/EN`을 인라인으로 |
 | 법인 수정 | 안내 「이 법인에 등록된 단가 N건은 그대로 유지됩니다」 **신규** — 삭제와의 차이를 알려준다 |
 | 법인 선택 | 검색 결과 카운터 「36개 중 18개 일치」 **신규**. `PICKER_SEARCH_CUE` 검색은 이미 동작한다 |
+
+### 착수 후 드러난 것 — 법인 수정 다이얼로그는 자기 법인을 모른다 (2026-08-06)
+
+`TaechangCompanyRenameDlg`는 **현재 법인명을 받지 않는다.** 생성자는 부모만 받고
+`GetCompanyName()`으로 입력값만 돌려준다. 그래서 목업의 두 가지가 지금 구조로는 불가능하다 —
+에디트에 **현재 이름을 채우는 것**(목업 `value="삼덕회계법인"`)과 **「등록된 단가 4건」**을 세는 것.
+
+**`SetCompanyContext(법인명, 단가건수)`를 신설하고 호출부인 패널이 건수를 넘긴다.**
+패널은 이미 표에 건수를 갖고 있고, 다이얼로그가 서비스를 직접 부르면 화면이 데이터 접근을 알게 된다.
+
+### `AfxMessageBox` 3개는 유지한다
+
+R7은 「다이얼로그 **입력 검증분만** 인라인으로 옮기고 화면 밖 사유는 `MessageBox` 유지」다.
+남은 3개가 전부 그 경우다.
+
+| 위치 | 내용 | 판정 |
+|---|---|---|
+| `TaechangLoginDlg.cpp:212` | 서비스 실패 `strError` | 화면 밖 사유(DB 등) — 유지 |
+| `TaechangPasswordChangeDlg.cpp:235` | 서비스 실패 `strError` | 동일 — 유지 |
+| `TaechangPasswordChangeDlg.cpp:252` | 변경 **성공** 알림 | 다이얼로그가 닫히므로 인라인으로 옮길 자리가 없다. 없애면 피드백이 사라진다 — 유지 |
+
+### 이번 범위
+
+- 라벨 `CStatic` → `CSageLabel` 승격 + `SAGE_TEXT_MUTED` (6종 12개)
+- 비밀번호 라벨 문구 2개 교체 · 상시 힌트 3종 · 법인 추가 placeholder
+- 법인 수정 `SetCompanyContext` · 법인 선택 검색 카운터
+
+### 목업에서 벗어나는 지점
+
+| 목업 | 채택 | 사유 |
+|---|---|---|
+| 상단 40px 제목 밴드(`#F2EEE7` + ✕) | 시스템 타이틀바 | **Win32 다이얼로그의 캡션이다.** 클라이언트 영역 밖이라 재현 대상이 아니다 |
+| `border-radius:6px` | 각진 사각 | R3 |
 
 ### 목업에 없는 다이얼로그
 
