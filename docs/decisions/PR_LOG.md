@@ -1,8 +1,14 @@
-﻿## [2026-08-07] fix/large-table-render
+﻿## [2026-08-06] feature/price-manage-design
+- **목적**: 단가 데이터 관리 화면을 목업 3-3에 맞춘다 (D7-3)
+- **변경 내용**: **착수 전 대조에서 4개 항목 중 2개가 이미 끝나 있었다** — 빈 상태(`CSageEmptyState`)는 D5b에서, 버튼 위계(단가 추가=Primary · 법인 삭제=Danger)는 그 전에 적용돼 있었다. 「관리」 열의 행내 「수정」은 **사용자 결정으로 뺐다**(행 선택이 이미 같은 일을 하고, 셀 클릭 히트테스트는 지금 표에 없는 새 상호작용이다). 반대로 계획서가 「이미 있는 것」으로 분류한 **상세 정보 패널은 자리만 있고 값이 없었다** — `SUMMARY_COUNT_FMT`·`RANGE_FMT`·`RANGE_OPEN_FMT`가 전부 참조 0곳이고 `UpdateSummaryCard()`가 두 줄을 `L""`로 비웠다(**D7-1 1단계와 같은 착오**). 실제 작업은 ① `PRICE_MAX_COPIES_NONE`을 「-」→「제한 없음」으로 바꾸고 표에서 `SECONDARY_TEXT`로 흐리게, ② 상세 카드 두 줄을 구간 개수와 **법인 전체 부수 범위**로 채우기 두 가지였다. 「선택 구간」이 아니라 전체 범위인 이유는 행을 선택하면 카드가 편집 폼으로 바뀌어(`OnCopiesSelChanged` → `EDIT_MODIFY`) 선택 구간을 보여줄 자리가 없기 때문이다. 색은 **컨트롤에 렌더링 속성으로 전달**했다(`CSageListCtrl::SetMutedText`) — 컨트롤이 단가 도메인 문구를 알면 안 된다. 열 폭은 GDI로 실측했다(「제한 없음」 47px < 80px, `GetTextFaceW`로 Pretendard 선택 확인). **화면 확인에서 둘이 더 나왔고 목적별로 커밋을 나눴다** — ① 「제한 없음」이 흐리지 않았다: `ResolveSubItemTextColor`가 `m_nHighlightCount > 0`일 때만 호출돼 **강조 열이 없는 표에서는 색 판정이 아예 돌지 않았다**(D4c 교훈 14와 같은 뿌리) ② 선택 후 빈 곳을 클릭하면 빗금 테두리가 남았다: `CDIS_FOCUS` 제거가 `bSelected` 분기 안에 있어 **선택이 풀린 뒤의 포커스**가 통째로 빠졌다. 둘 다 `CSageListCtrl` 공용 코드라 모든 표에 걸린다
+- **PR 링크**: 없음
+- **결과**: pending — `develop` 미머지. 빌드 + 화면 확인 완료
+
+## [2026-08-06] fix/large-table-render
 - **목적**: 690행 견적서 파일에서 로드·워크플로 전환·필터 초기화가 매번 약 1초 멈추는 것을 줄인다 (`DEBT_LOG` 후속 ①)
 - **변경 내용**: `SageResultTablePanel::RefreshRows`의 삽입 루프를 `LPSTR_TEXTCALLBACK`으로 전환해 **행당 메시지를 10회에서 1회로** 줄였다(`InsertItem` 1 + `SetItemText` 8 + `SetItemData` 1 → `LVIF_TEXT|LVIF_PARAM` 삽입 1회). 셀 문자열은 패널이 `LVN_GETDISPINFO`에 답하며 **그리는 행에 한해** 만든다 — 답할 데이터(`m_arrVisibleRows` · `m_arrColumns`)를 가진 쪽이 패널이므로 콜백도 패널이 받는다. **`CSageListCtrl`에는 아무것도 넘기지 않았다**(컨트롤은 도메인 개념을 알면 안 된다). **착수 전 전수 조사로 가부를 확정했다** — 이 리스트의 텍스트를 외부에서 읽는 코드 0곳(`GetItemText`는 `SageListCtrl.cpp` 내부 5곳뿐이고 전부 그리는 행 한정), `SortItems` 0곳, 결과 필터는 `m_arrRows`를 직접 훑는다. `SagePriceManagePanel`의 `GetItemText` 6곳은 **다른 리스트**였다. **`push_back`을 `InsertItem`보다 앞에 뒀다** — 콜백 구조에서는 컨트롤이 삽입 도중에도 텍스트를 되물을 수 있다. **재측정은 하지 않았다** — 빌드와 690행 화면(속도 체감 · 표 내용 동일)을 사용자가 확인했고, `DEBT_LOG`의 「약 270ms」는 계산된 예상값이지 잰 값이 아니다. `InsertItem` 221ms(가상 리스트 전환분)와 리스트 인덱스 전제는 `DEBT_LOG`에 남겼다
 - **PR 링크**: 없음
-- **결과**: pending — `develop` 미머지. 빌드 + 화면 확인 완료
+- **결과**: merged — `develop`에 fast-forward 머지(`a25a446`). 커밋 3개가 `docs`·`fix`·`docs` 세 목적이라 squash하지 않고 보존했다. 작업 브랜치 삭제
 
 ## [2026-08-06] feature/estimate-one-page-inline
 - **목적**: 「한 페이지 작성」을 목업대로 테두리 박스에 담고 6행 제한을 상시 안내해 모달 경고창을 없앤다 (D7-8 2단계, D7-7·D7-8 완결)
