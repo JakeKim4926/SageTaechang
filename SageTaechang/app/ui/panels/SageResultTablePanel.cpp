@@ -298,10 +298,8 @@ void SageResultTablePanel::SetColumns(const std::vector<SageWorkflowColumn>& arr
 	if (!::IsWindow(m_wndList.GetSafeHwnd()))
 		return;
 
-	DWORD dwExtStyle = LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER;
-	if (style.bCheckbox)
-		dwExtStyle |= LVS_EX_CHECKBOXES;
-	m_wndList.SetExtendedStyle(dwExtStyle);
+	m_wndList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
+	m_wndList.SetCheckboxes(style.bCheckbox);
 	m_wndList.SetRowSeparator(style.bGridLines);
 	m_wndList.SetHighlightColumns(style.nHighlightStart, style.nHighlightCount);
 	m_wndList.SetGroupColumn(style.nGroupColumn);

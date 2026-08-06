@@ -19,6 +19,7 @@ public:
 	void SetGroupColumn(int nColumn);
 	void SetHighlightColumns(int nFirst, int nCount);
 	void SetRowSeparator(BOOL bEnable);
+	void SetCheckboxes(BOOL bEnable);
 
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
@@ -33,6 +34,8 @@ private:
 	void DrawGroupColumn(int nItem, BOOL bSelected, NMLVCUSTOMDRAW* pCD);
 	COLORREF ResolveSubItemTextColor(int nItem, int nSubItem, BOOL bHighlight) const;
 	void ApplyFixedRowHeight();
+	BOOL BuildCheckStateImages();
+	void DrawCheckBox(CDC* pDC, const CRect& rectImage, BOOL bChecked);
 	void DrawRowSeparator(int nItem, NMLVCUSTOMDRAW* pCD);
 	void DrawSelectionAccent(int nItem, NMLVCUSTOMDRAW* pCD);
 	void InvalidateItemRow(int nItem);
@@ -45,4 +48,5 @@ private:
 	int m_nHighlightCount;
 	BOOL m_bRowSeparator;
 	CImageList m_imgRowSpacer;
+	CImageList m_imgCheckState;
 };

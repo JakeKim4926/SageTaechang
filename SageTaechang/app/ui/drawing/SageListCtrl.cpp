@@ -53,6 +53,73 @@ void CSageListCtrl::ApplyFixedRowHeight() {
 	SetImageList(&m_imgRowSpacer, LVSIL_SMALL);
 }
 
+void CSageListCtrl::DrawCheckBox(CDC* pDC, const CRect& rectImage, BOOL bChecked) {
+	CRect rectBox(0, 0, TAECHANG_LIST_CHECK_BOX_SIZE, TAECHANG_LIST_CHECK_BOX_SIZE);
+	rectBox.OffsetRect(
+		(rectImage.Width() - TAECHANG_LIST_CHECK_BOX_SIZE) / 2,
+		(rectImage.Height() - TAECHANG_LIST_CHECK_BOX_SIZE) / 2);
+
+	if (bChecked) {
+		pDC->FillSolidRect(rectBox, TAECHANG_COLOR_PRIMARY);
+		CPen penMark(PS_SOLID, TAECHANG_LIST_CHECK_MARK_THICKNESS, TAECHANG_COLOR_PANEL);
+		CPen* pOldPen = pDC->SelectObject(&penMark);
+		int nInset = TAECHANG_LIST_CHECK_MARK_THICKNESS * 2;
+		pDC->MoveTo(rectBox.left + nInset, rectBox.top + rectBox.Height() / 2);
+		pDC->LineTo(rectBox.left + rectBox.Width() / 2, rectBox.bottom - nInset);
+		pDC->LineTo(rectBox.right - nInset, rectBox.top + nInset);
+		pDC->SelectObject(pOldPen);
+		return;
+	}
+
+	pDC->FillSolidRect(rectBox, TAECHANG_COLOR_PANEL);
+	CBrush brushBorder(TAECHANG_COLOR_BUTTON_BORDER);
+	pDC->FrameRect(rectBox, &brushBorder);
+}
+
+BOOL CSageListCtrl::BuildCheckStateImages() {
+	if (m_imgCheckState.GetSafeHandle() != NULL)
+		return TRUE;
+	if (!m_imgCheckState.Create(TAECHANG_LIST_CHECK_IMAGE_WIDTH, TAECHANG_LIST_ROW_HEIGHT,
+			ILC_COLOR32 | ILC_MASK, TAECHANG_LIST_CHECK_STATE_COUNT, 1))
+		return FALSE;
+
+	CRect rectImage(0, 0, TAECHANG_LIST_CHECK_IMAGE_WIDTH, TAECHANG_LIST_ROW_HEIGHT);
+	CClientDC dcScreen(this);
+	for (int i = 0; i < TAECHANG_LIST_CHECK_STATE_COUNT; ++i) {
+		CDC dcMem;
+		CBitmap bmpState;
+		if (!dcMem.CreateCompatibleDC(&dcScreen))
+			return FALSE;
+		if (!bmpState.CreateCompatibleBitmap(&dcScreen, rectImage.Width(), rectImage.Height()))
+			return FALSE;
+
+		CBitmap* pOldBitmap = dcMem.SelectObject(&bmpState);
+		dcMem.FillSolidRect(rectImage, TAECHANG_COLOR_IMAGE_MASK);
+		if (i > 0)
+			DrawCheckBox(&dcMem, rectImage, (i == 2) ? TRUE : FALSE);
+		dcMem.SelectObject(pOldBitmap);
+		m_imgCheckState.Add(&bmpState, TAECHANG_COLOR_IMAGE_MASK);
+	}
+	return TRUE;
+}
+
+void CSageListCtrl::SetCheckboxes(BOOL bEnable) {
+	if (!::IsWindow(GetSafeHwnd()))
+		return;
+
+	DWORD dwStyle = GetExtendedStyle();
+	if (!bEnable) {
+		SetExtendedStyle(dwStyle & ~LVS_EX_CHECKBOXES);
+		SetImageList(NULL, LVSIL_STATE);
+		return;
+	}
+
+	if (!BuildCheckStateImages())
+		return;
+	SetImageList(&m_imgCheckState, LVSIL_STATE);
+	SetExtendedStyle(dwStyle | LVS_EX_CHECKBOXES);
+}
+
 void CSageListCtrl::SetRowSeparator(BOOL bEnable) {
 	m_bRowSeparator = bEnable;
 	if (::IsWindow(GetSafeHwnd()))
