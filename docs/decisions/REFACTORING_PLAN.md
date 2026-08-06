@@ -8,7 +8,12 @@
 
 ## 다음 세션 시작점 (2026-08-06)
 
-### 지금 어디인가 — **디자인에서 지금 할 수 있는 것은 다 했다. 다음은 3-B-4c~4d**
+### 지금 어디인가 — **`SageWorkflowInputPanel` 조사까지 끝났고, 이동만 남았다**
+
+**다음 세션은 아래 *3-B-4c* > `SageWorkflowInputPanel` 절을 읽고 바로 이동에 들어간다.**
+경계·대상·완료 처리 결정이 거기 확정돼 있으므로 **다시 조사하지 않는다.**
+브랜치 `refactor/workflow-input-panel`은 문서 커밋 2개만 담은 채 머지돼 있다.
+
 
 > **번호 정정 (2026-08-07)** — 이 문서 네 곳이 `3-B-4b`를 가리키고 있었다. **4b는 존재하지 않는다.**
 > 4a가 「구 4a+4b」로 둘을 흡수했고(그 절의 제목과 교훈에 적혀 있다) 남은 것은 **4c·4d**다.
@@ -602,6 +607,36 @@ View의 호출 방식은 계산 패널과 동일하게 `ShowWindow` 하나로 �
 
 **이번 Step에서 디자인은 넣지 않는다** (D7-2에서 세운 기준 — 표현과 구조를 한 Step에 섞지 않는다).
 옮기기만 하고 화면 표시는 그대로 둔다. **화면이 바뀌면 실패다.**
+
+##### `SageWorkflowInputPanel` — 착수 준비 완료 (2026-08-07, 조사만 끝냄)
+
+**다시 조사하지 않아도 되도록 경계와 대상을 여기 확정해 둔다.** 다음 세션은 이 목록으로 바로 이동에 들어간다.
+
+**완료 처리는 View에 남긴다** (2026-08-07 사용자 결정). `OnWorkflowComplete` → `DisplayResponse`가
+**세 탭에 걸쳐 있기 때문이다** — `SetRunningState`(입력) · `ApplyResultTableSchema`/`SetResultTableRows`(결과) ·
+`AppendExecutionHistory`/`m_wndDetail`(기록). 통째로 입력 패널에 넣으면 그 패널이 결과 표와 기록을 알게 되어
+**만든 직후 기준 A를 위반한다.** 패널은 `SetRunningState`·`SetProgress` 같은 **API만 열어두고**,
+`SageWorkflowController`는 결과·기록 패널이 다 생긴 **4d에서** 만든다(3-B-4a가 쓴 순서 — 패널 먼저, 조정자 나중).
+
+**이동 대상**
+
+| 항목 | 수량 | 내역 |
+|---|---|---|
+| 컨트롤 멤버 | **15** | `InputSection` · `InputLabel` · `InputPath` · `SelectInput` · `OutputSection` · `OutputLabel` · `OutputFolder` · `SelectOutput` · `Load` · `Generate` · `InputReset` · `Progress` · `ProgressText` · `ActionStatus` · `WorkflowLabel` |
+| 메시지맵 | **7** | 버튼 5(`SELECT_INPUT` · `SELECT_OUTPUT` · `LOAD_WORKFLOW` · `GENERATE_WORKFLOW` · `INPUT_RESET_BTN`) + `ON_WM_TIMER`(진행바) + `ON_WM_DROPFILES` |
+| 전용 레이아웃 | **2** | `LayoutInputSection`(30줄) · `LayoutActionSection`(30줄) |
+| 핸들러·헬퍼 | 이동 시 확정 | `OnSelectInput` · `OnSelectOutput` · `OnLoadWorkflow` · `OnGenerateWorkflow` · `OnInputReset` · `SetRunningState` · `UpdateProgressPercent` · `ApplyActionButtonState` · `ApplyDroppedInputPaths` |
+
+**경계에서 갈린 것 셋 — 이름만 보고 판단하면 틀린다**
+
+| 컨트롤 | 판정 | 근거 |
+|---|---|---|
+| `m_wndTitle` | **제외** | 이름과 달리 **사이드바 로고**다 (`SAGE_BG_SIDEBAR` · `SAGE_FONT_LOGO`, `LayoutChildControls:550`에서 사이드바 좌표에 배치) |
+| `m_wndEmptyStateHint` | **포함** | 입력 탭에서만 보인다. `CSageEmptyState`로 바꾸는 것은 **D7-4 몫**이므로 이번엔 그대로 옮기기만 한다 |
+| `m_wndDetail` · `m_wndDetailSection` | **제외** | 실행 기록 탭 — 4c의 다음 항목 |
+
+**한 커밋으로 옮긴다** (공통 절차 4). 축을 나누면 위임 스텁을 만들었다 지우는 중간 상태가 생긴다.
+**화면 표시가 바뀌면 실패다** — 이번 Step에 디자인은 넣지 않는다.
 
 - [ ] `SageWorkflowInputPanel` — 입력 파일 · 저장 위치 · 실행/초기화 · 진행바 · 전체선택 · 한 페이지 + 입력 표
 - [ ] `SageWorkflowResultPanel` — 결과 표
