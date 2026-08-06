@@ -2,7 +2,7 @@
 - **목적**: 미수금 결과 표 상단에 요약 바를 올리고(D7-1 1단계), 작업 중 발견한 Excel 프로세스 누수를 함께 차단
 - **변경 내용**: `CSageSummaryBar` 신설(`app/ui/drawing/`) — 라벨·수치·단위 문자열만 받고 워크플로 타입을 모른다. 요약 데이터는 `ISageWorkflowHandler::BuildResultSummary`로 **핸들러가 답한다**(미수금만 채우고 납품·견적은 FALSE) — View에 워크플로 분기를 만들지 않기 위한 확장점이다. **계획서 전제가 틀렸다**: `RECEIVABLES_PREVIEW_TOTAL`·`MISSING_COMPANIES` 두 상수가 참조 0곳이었고 미수금 합계를 계산하는 코드가 없었다. 행 금액은 `FormatAmountCellText`로 포맷된 **문자열만** 있어 더할 수 없었으므로 `TaechangResultRow`에 `__int64` 3종을 함께 담고 `FormatAmountNumber`를 추가했다. `missingCompanies`는 PowerShell이 이미 내보내던 것을 처음 읽었다. 건수·합계는 **보이는 행 기준**으로 갱신하고(기존 `WM_TAECHANG_RESULT_TABLE_CHANGED` 흐름에 얹음) **구분 표기(`-`) 행은 건수에서 제외**한다 — 데이터 구분선이지 미수금 건이 아니다. 폰트는 `sagetaechang-ui` 타입 스케일대로 `SAGE_FONT_SUMMARY`(128 = 17px SemiBold)를 신설했다(C7의 16px 기술과 어긋나며 스킬 표를 따랐다). **성능 조사**: 사용자가 내역서 생성이 느려졌다고 해 추적한 결과 원인은 요약 바가 아니라 **워크플로 스크립트 7개가 띄운 Excel 인스턴스가 남는 것**이었다 — 좀비가 쌓이며 생성이 4초에서 12초까지 늘었다. COM 참조 해제 + GC 방식은 측정해보니 누수를 막지 못하고 실행당 수 초를 더 써서 폐기하고, 프로세스 목록 차이로 **자기가 띄운 PID만 특정해 종료**하는 방식(`tools/excel-process.ps1`, 7개가 dot-source)으로 바꿨다. 리빌드 후 생성 3회 연속 4초대 유지 확인. **진단 교훈**: `Handles=0`·`WS 44KB` EXCEL 항목은 이미 죽은 껍데기이므로 프로세스 개수로 누수를 판정하면 안 된다
 - **PR 링크**: 없음
-- **결과**: pending — `develop` 미머지. D7-1 2단계(합계 밴드)는 별도 브랜치
+- **결과**: merged — `develop`에 fast-forward 머지(`7926a1c`, 2026-08-06). 커밋 3개가 `feat`·`fix`·`docs` 세 목적이라 squash하지 않고 보존했다. 작업 브랜치 삭제. D7-1 2단계(합계 밴드)는 `feature/receivables-total-row`
 
 ## [2026-08-02] refactor/sage-label-roles
 - **목적**: 라벨이 역할로 자기 색과 폰트를 내게 해 View의 색상 분기를 걷어냄 (3-A-8 4~6단계, Step 3-A 완결)
