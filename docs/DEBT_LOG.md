@@ -5,6 +5,24 @@
 
 ## 열린 항목
 
+### [2026-08-06] 구조불일치 — 체크박스가 한 화면에 두 종류다
+- 위치: `app/ui/drawing/SageListCtrl.cpp` `DrawCheckBox`(표 안) ↔ `app/ui/drawing/SageSelectionBar.cpp` `m_wndSelectAll`(네이티브 `BS_AUTOCHECKBOX`)
+- 설명: 표 안 체크박스는 목업대로 **카멜색으로 직접 그렸는데**, 선택 바의 「전체 선택」과 「한 페이지 작성」은 **네이티브 Win32**라 선택 시 파란색이다. 같은 행에 두 색이 보인다.
+- 위험도: 낮음
+- 후속: `CSageCheckBox`를 만들어 셋을 통일한다. D7-8 2단계에서 「한 페이지 작성」을 테두리 박스로 감쌀 때가 적기다
+
+### [2026-08-06] 기존부채 — `SetColumns`가 확장 스타일을 통째로 덮어쓴다
+- 위치: `app/ui/panels/SageResultTablePanel.cpp` `SetColumns` → `SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER)`
+- 설명: 매 호출마다 `LVS_EX_CHECKBOXES`가 잠깐 꺼지고, **그때 comctl32가 상태 이미지리스트를 자기 것으로 알고 파괴한다.** 이번엔 매번 새로 만들어 `Detach`로 소유권을 넘기는 것으로 막았지만, 다른 확장 스타일을 추가하면 같은 함정을 다시 밟는다.
+- 위험도: 중 — 원인이 보이지 않는 종류의 버그였다 (확인 빌드 4회 소요)
+- 후속: 스타일을 덮어쓰지 말고 **필요한 플래그만 켜고 끄도록** 바꾼다
+
+### [2026-08-06] 기존부채 — 입력 파일이 워크플로와 맞는지 검사하지 않는다
+- 위치: `app/ui/view/SageTaechangView.cpp` `RunWorkflowTask` · 워크플로 스크립트 전반
+- 설명: 견적서 생성에 미수금 파일(`receivables_202603.xls`)을 넣으면 **오류 없이** 견적서 열 배치로 읽어, 날짜 자리에 Excel 일련번호(`46084`), 부수 자리에 「법인/회사」가 들어간 표가 나온다. 사용자가 실제로 겪었다.
+- 위험도: 중 — 잘못된 문서가 생성될 수 있다
+- 후속: 로드 결과의 헤더가 워크플로 기대 열과 맞는지 확인하고, 아니면 인라인으로 알린다
+
 ### [2026-08-06] 구조불일치 — 합계 밴드 셀 역할 enum이 core와 ui에 각각 있다
 - 위치: `app/core/workflow/SageWorkflowResultTable.h` `SageResultTotalRole` ↔ `app/ui/drawing/SageTableTotalBar.h` `SageTotalBarCellStyle`, 매핑은 `app/ui/panels/SageResultTablePanel.cpp` `ToTotalBarCellStyle`
 - 설명: 값 4개짜리 enum이 **두 벌**이고 패널이 변환한다. 하나로 합치려면 컨트롤이 `core/workflow` 헤더를 물어야 하는데, `CSageSummaryBar`가 자기 `SageSummaryBarItem`을 갖고 패널이 변환하는 **1단계 선례**를 따라 갈랐다 (`sagetaechang-ui` > *컨트롤은 도메인 개념을 알면 안 된다*).
