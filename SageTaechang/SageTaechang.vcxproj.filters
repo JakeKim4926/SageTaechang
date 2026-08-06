@@ -177,6 +177,12 @@
     <ClCompile Include="app\ui\dialogs\SageDialogSizer.cpp">
       <Filter>소스 파일\app\ui\dialogs</Filter>
     </ClCompile>
+    <ClCompile Include="app\ui\dialogs\SageFramelessDialog.cpp">
+      <Filter>소스 파일\app\ui\dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="app\ui\drawing\SageDialogCaptionBar.cpp">
+      <Filter>소스 파일\app\ui\drawing</Filter>
+    </ClCompile>
     <ClCompile Include="app\ui\drawing\SageEdit.cpp">
       <Filter>소스 파일\app\ui\drawing</Filter>
     </ClCompile>
@@ -370,6 +376,12 @@
     </ClInclude>
     <ClInclude Include="app\ui\dialogs\SageDialogSizer.h">
       <Filter>헤더 파일\app\ui\dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="app\ui\dialogs\SageFramelessDialog.h">
+      <Filter>헤더 파일\app\ui\dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="app\ui\drawing\SageDialogCaptionBar.h">
+      <Filter>헤더 파일\app\ui\drawing</Filter>
     </ClInclude>
     <ClInclude Include="app\ui\drawing\SageEdit.h">
       <Filter>헤더 파일\app\ui\drawing</Filter>

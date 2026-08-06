@@ -5,10 +5,11 @@
 #include "app/ui/drawing/SageInlineError.h"
 #include "app/ui/drawing/SageLabel.h"
 #include "app/ui/dialogs/SageDialogSizer.h"
+#include "app/ui/dialogs/SageFramelessDialog.h"
 
 #include "pch.h"
 
-class TaechangLoginDlg : public CDialog {
+class TaechangLoginDlg : public SageFramelessDialog {
 public:
     TaechangLoginDlg(CWnd* pParent = NULL);
     ~TaechangLoginDlg();
@@ -32,11 +33,8 @@ private:
     void ApplyFont();
     void ApplyEditTextRect(CEdit& edit);
     void ShowInputError(CSageEdit& edit, const CString& strMessage);
-    BYTE* BuildDialogTemplate();
 
 private:
-    CWnd* m_pDlgParent;
-
     CSageLabel m_wndIdLabel;
     CSageLabel m_wndPwLabel;
     CSageEdit m_wndIdEdit;

@@ -121,6 +121,8 @@ void CSageButton::DrawIconAt(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon) 
 		DrawCalculateIcon(dc, ptCenter, clrIcon);
 	else if (m_nIcon == SAGE_BUTTON_ICON_ADD)
 		DrawAddIcon(dc, ptCenter, clrIcon);
+	else if (m_nIcon == SAGE_BUTTON_ICON_CLOSE)
+		DrawCloseIcon(dc, ptCenter, clrIcon);
 	else
 		DrawResetIcon(dc, ptCenter, clrIcon);
 }
@@ -152,6 +154,20 @@ void CSageButton::DrawAddIcon(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon)
 		TAECHANG_ICON_ADD_SPAN, TAECHANG_ICON_STROKE, clrIcon);
 	dc.FillSolidRect(ptCenter.x - nHalfStroke, ptCenter.y - nHalfSpan,
 		TAECHANG_ICON_STROKE, TAECHANG_ICON_ADD_SPAN, clrIcon);
+}
+
+void CSageButton::DrawCloseIcon(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon) {
+	CPen pen(PS_SOLID, TAECHANG_ICON_STROKE, clrIcon);
+	CPen* pOldPen = dc.SelectObject(&pen);
+
+	int nHalfSpan = TAECHANG_ICON_CLOSE_SPAN / 2;
+	dc.MoveTo(ptCenter.x - nHalfSpan, ptCenter.y - nHalfSpan);
+	dc.LineTo(ptCenter.x + nHalfSpan, ptCenter.y + nHalfSpan);
+	dc.MoveTo(ptCenter.x + nHalfSpan, ptCenter.y - nHalfSpan);
+	dc.LineTo(ptCenter.x - nHalfSpan, ptCenter.y + nHalfSpan);
+
+	if (pOldPen)
+		dc.SelectObject(pOldPen);
 }
 
 void CSageButton::DrawCalculateIcon(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon) {
