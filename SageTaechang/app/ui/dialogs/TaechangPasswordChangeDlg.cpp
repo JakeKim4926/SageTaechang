@@ -4,6 +4,7 @@
 #include "app/core/auth/TaechangAuthSession.h"
 #include "app/core/auth/TaechangUserService.h"
 #include "app/infra/db/SageDBMgr.h"
+#include "app/ui/drawing/SageUiResources.h"
 
 BEGIN_MESSAGE_MAP(TaechangPasswordChangeDlg, CDialog)
     ON_WM_CTLCOLOR()
@@ -110,6 +111,7 @@ void TaechangPasswordChangeDlg::CreateControls() {
     m_wndCurrentLabel.Create(TAECHANG_UI_CHANGE_PW_CURRENT, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, r, this);
     m_wndNewLabel.Create(TAECHANG_UI_CHANGE_PW_NEW, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, r, this);
     m_wndConfirmLabel.Create(TAECHANG_UI_CHANGE_PW_CONFIRM, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, r, this);
+    m_wndHint.Create(TAECHANG_UI_CHANGE_PW_HINT, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, r, this);
 
     DWORD dwEditStyle = WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_PASSWORD | ES_AUTOHSCROLL;
     m_wndCurrentEdit.Create(dwEditStyle, r, this, ID_TAECHANG_PW_CURRENT_EDIT);
@@ -157,7 +159,10 @@ int TaechangPasswordChangeDlg::LayoutControls() {
     int nErrorTop = nRowTop + nEditH;
     m_wndError.MoveWindow(nEditLeft, nErrorTop, nEditW, TAECHANG_INLINE_MSG_HEIGHT);
 
-    int nBtnTop = nErrorTop + TAECHANG_INLINE_MSG_HEIGHT + nGap;
+    int nHintTop = nErrorTop + TAECHANG_INLINE_MSG_HEIGHT;
+    m_wndHint.MoveWindow(nEditLeft, nHintTop, nEditW, TAECHANG_INLINE_MSG_HEIGHT);
+
+    int nBtnTop = nHintTop + TAECHANG_INLINE_MSG_HEIGHT + nGap;
     int nBtnRight = nClientW - nM;
     m_wndCancelBtn.MoveWindow(nBtnRight - nBtnW, nBtnTop, nBtnW, nBtnH);
     m_wndOkBtn.MoveWindow(nBtnRight - nBtnW * 2 - nGap, nBtnTop, nBtnW, nBtnH);
@@ -169,8 +174,13 @@ void TaechangPasswordChangeDlg::ApplyFont() {
     m_font.CreatePointFont(TAECHANG_CONTENT_FONT_POINT_SIZE, TAECHANG_CONTROL_FONT_FACE);
 
     m_wndCurrentLabel.SetFont(&m_font);
+    m_wndCurrentLabel.SetTextColorRole(SAGE_TEXT_MUTED);
     m_wndNewLabel.SetFont(&m_font);
+    m_wndNewLabel.SetTextColorRole(SAGE_TEXT_MUTED);
     m_wndConfirmLabel.SetFont(&m_font);
+    m_wndConfirmLabel.SetTextColorRole(SAGE_TEXT_MUTED);
+    m_wndHint.SetFont(SageUiResources::GetFont(SAGE_FONT_CAPTION));
+    m_wndHint.SetTextColorRole(SAGE_TEXT_SECONDARY);
     m_wndCurrentEdit.SetFont(&m_font);
     m_wndNewEdit.SetFont(&m_font);
     m_wndConfirmEdit.SetFont(&m_font);
@@ -258,6 +268,9 @@ void TaechangPasswordChangeDlg::OnCancel() {
 }
 
 HBRUSH TaechangPasswordChangeDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
+    if (pWnd != NULL && pWnd->IsKindOf(RUNTIME_CLASS(CSageLabel)))
+        return CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
+
     if (nCtlColor == CTLCOLOR_STATIC) {
         pDC->SetTextColor(TAECHANG_COLOR_TEXT);
         pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);

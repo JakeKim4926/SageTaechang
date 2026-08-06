@@ -3,6 +3,7 @@
 #include "app/ui/drawing/SageButton.h"
 #include "app/ui/drawing/SageEdit.h"
 #include "app/ui/drawing/SageInlineError.h"
+#include "app/ui/drawing/SageLabel.h"
 #include "app/ui/dialogs/SageDialogSizer.h"
 
 class TaechangPasswordChangeDlg : public CDialog {
@@ -32,9 +33,10 @@ private:
 
 private:
     CWnd* m_pDlgParent;
-    CStatic m_wndCurrentLabel;
-    CStatic m_wndNewLabel;
-    CStatic m_wndConfirmLabel;
+    CSageLabel m_wndCurrentLabel;
+    CSageLabel m_wndNewLabel;
+    CSageLabel m_wndConfirmLabel;
+    CSageLabel m_wndHint;
     CSageEdit m_wndCurrentEdit;
     CSageEdit m_wndNewEdit;
     CSageEdit m_wndConfirmEdit;

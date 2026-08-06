@@ -157,7 +157,9 @@ void TaechangLoginDlg::ApplyFont() {
     m_font.CreatePointFont(TAECHANG_CONTENT_FONT_POINT_SIZE, TAECHANG_CONTROL_FONT_FACE);
 
     m_wndIdLabel.SetFont(&m_font);
+    m_wndIdLabel.SetTextColorRole(SAGE_TEXT_MUTED);
     m_wndPwLabel.SetFont(&m_font);
+    m_wndPwLabel.SetTextColorRole(SAGE_TEXT_MUTED);
     m_wndIdEdit.SetFont(&m_font);
     m_wndPwEdit.SetFont(&m_font);
     m_wndOkBtn.SetFont(&m_font);
@@ -230,6 +232,9 @@ void TaechangLoginDlg::OnCancel() {
 
 HBRUSH TaechangLoginDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
     HBRUSH hBrush = CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
+
+    if (pWnd != NULL && pWnd->IsKindOf(RUNTIME_CLASS(CSageLabel)))
+        return hBrush;
 
     if (nCtlColor == CTLCOLOR_STATIC) {
         pDC->SetTextColor(TAECHANG_COLOR_TEXT);

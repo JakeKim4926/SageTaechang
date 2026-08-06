@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "app/ui/dialogs/TaechangCompanyDlg.h"
 #include "TaechangDefine.h"
+#include "app/ui/drawing/SageUiResources.h"
 
 BEGIN_MESSAGE_MAP(TaechangCompanyDlg, CDialog)
     ON_WM_CTLCOLOR()
@@ -100,6 +101,8 @@ void TaechangCompanyDlg::CreateControls() {
     m_wndCompanyEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOHSCROLL,
         rectEmpty, this, ID_PRICE_COMPANY_DLG_EDIT);
     m_wndError.Create(NULL, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, rectEmpty, this);
+    m_wndHint.Create(TAECHANG_UI_PRICE_COMPANY_DLG_HINT,
+        WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, rectEmpty, this);
     m_wndOkBtn.Create(TAECHANG_UI_PRICE_COMPANY_DLG_OK,
         WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, IDOK);
     m_wndCancelBtn.Create(TAECHANG_UI_PRICE_COMPANY_DLG_CANCEL,
@@ -120,11 +123,13 @@ int TaechangCompanyDlg::LayoutControls() {
     int nLabelTop = nM;
     int nEditTop = nLabelTop + nEditH;
     int nErrorTop = nEditTop + nEditH;
-    int nBtnTop = nErrorTop + TAECHANG_INLINE_MSG_HEIGHT + nGap;
+    int nHintTop = nErrorTop + TAECHANG_INLINE_MSG_HEIGHT;
+    int nBtnTop = nHintTop + TAECHANG_INLINE_MSG_HEIGHT + nGap;
 
     m_wndLabel.MoveWindow(nM, nLabelTop, nEditW, nEditH);
     m_wndCompanyEdit.MoveWindow(nM, nEditTop, nEditW, nEditH);
     m_wndError.MoveWindow(nM, nErrorTop, nEditW, TAECHANG_INLINE_MSG_HEIGHT);
+    m_wndHint.MoveWindow(nM, nHintTop, nEditW, TAECHANG_INLINE_MSG_HEIGHT);
     CRect rectEdit;
     m_wndCompanyEdit.GetClientRect(&rectEdit);
     rectEdit.left += 2;
@@ -144,7 +149,10 @@ void TaechangCompanyDlg::ApplyFont() {
     m_font.CreatePointFont(TAECHANG_CONTENT_FONT_POINT_SIZE, TAECHANG_CONTROL_FONT_FACE);
 
     m_wndLabel.SetFont(&m_font);
+    m_wndLabel.SetTextColorRole(SAGE_TEXT_MUTED);
     m_wndCompanyEdit.SetFont(&m_font);
+    m_wndHint.SetFont(SageUiResources::GetFont(SAGE_FONT_CAPTION));
+    m_wndHint.SetTextColorRole(SAGE_TEXT_SECONDARY);
     m_wndOkBtn.SetFont(&m_font);
     m_wndOkBtn.SetVariant(SAGE_BUTTON_PRIMARY);
     m_wndCancelBtn.SetFont(&m_font);
@@ -185,6 +193,9 @@ void TaechangCompanyDlg::OnCancel() {
 
 HBRUSH TaechangCompanyDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
     HBRUSH hBrush = CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
+
+    if (pWnd != NULL && pWnd->IsKindOf(RUNTIME_CLASS(CSageLabel)))
+        return hBrush;
 
     if (nCtlColor == CTLCOLOR_STATIC) {
         pDC->SetTextColor(TAECHANG_COLOR_TEXT);

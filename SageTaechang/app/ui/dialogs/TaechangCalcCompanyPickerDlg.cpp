@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "app/ui/dialogs/TaechangCalcCompanyPickerDlg.h"
 #include "TaechangDefine.h"
+#include "app/ui/drawing/SageUiResources.h"
 
 BEGIN_MESSAGE_MAP(TaechangCalcCompanyPickerDlg, CDialog)
     ON_WM_CTLCOLOR()
@@ -132,6 +133,7 @@ void TaechangCalcCompanyPickerDlg::CreateControls() {
     m_wndNameList.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | WS_VSCROLL | LBS_NOTIFY | LBS_NOINTEGRALHEIGHT,
         rectEmpty, this, ID_PICKER_DLG_LIST);
     m_wndError.Create(NULL, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, rectEmpty, this);
+    m_wndMatchCount.Create(L"", WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, rectEmpty, this);
     m_wndOkBtn.Create(TAECHANG_UI_PICKER_DLG_OK,
         WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, IDOK);
     m_wndCancelBtn.Create(TAECHANG_UI_PICKER_DLG_CANCEL,
@@ -161,6 +163,7 @@ void TaechangCalcCompanyPickerDlg::LayoutControls() {
     m_wndSearchEdit.MoveWindow(nM, nSearchTop, nContentW, nEditH);
     m_wndNameList.MoveWindow(nM, nListTop, nContentW, nListH);
     m_wndError.MoveWindow(nM, nErrorTop, nContentW, TAECHANG_INLINE_MSG_HEIGHT);
+    m_wndMatchCount.MoveWindow(nM, nBtnTop, nContentW, nBtnH);
 
     int nBtnRight = nClientW - nM;
     m_wndCancelBtn.MoveWindow(nBtnRight - nBtnW, nBtnTop, nBtnW, nBtnH);
@@ -172,6 +175,8 @@ void TaechangCalcCompanyPickerDlg::ApplyFont() {
 
     m_wndSearchEdit.SetFont(&m_font);
     m_wndNameList.SetFont(&m_font);
+    m_wndMatchCount.SetFont(SageUiResources::GetFont(SAGE_FONT_CAPTION));
+    m_wndMatchCount.SetTextColorRole(SAGE_TEXT_SECONDARY);
     m_wndOkBtn.SetFont(&m_font);
     m_wndOkBtn.SetVariant(SAGE_BUTTON_PRIMARY);
     m_wndCancelBtn.SetFont(&m_font);
@@ -197,6 +202,11 @@ void TaechangCalcCompanyPickerDlg::FilterList(const CString& strKeyword) {
     m_wndNameList.SetRedraw(TRUE);
     if (m_wndNameList.GetCount() > 0)
         m_wndNameList.SetCurSel(0);
+
+    CString strCount;
+    strCount.Format(TAECHANG_UI_PICKER_DLG_MATCH_FMT,
+        static_cast<int>(m_arrAllNames.GetSize()), m_wndNameList.GetCount());
+    m_wndMatchCount.SetWindowTextW(strCount);
 }
 
 void TaechangCalcCompanyPickerDlg::OnSearchChanged() {
@@ -229,6 +239,9 @@ void TaechangCalcCompanyPickerDlg::OnCancel() {
 
 HBRUSH TaechangCalcCompanyPickerDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
     HBRUSH hBrush = CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
+
+    if (pWnd != NULL && pWnd->IsKindOf(RUNTIME_CLASS(CSageLabel)))
+        return hBrush;
 
     if (nCtlColor == CTLCOLOR_EDIT) {
         pDC->SetTextColor(TAECHANG_COLOR_TEXT);

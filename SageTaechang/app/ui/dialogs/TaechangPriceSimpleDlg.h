@@ -3,6 +3,7 @@
 #include "app/ui/drawing/SageButton.h"
 #include "app/ui/drawing/SageEdit.h"
 #include "app/ui/drawing/SageInlineError.h"
+#include "app/ui/drawing/SageLabel.h"
 #include "app/ui/dialogs/SageDialogSizer.h"
 
 #include "pch.h"
@@ -15,6 +16,7 @@ public:
 public:
     virtual INT_PTR DoModal();
     CString GetCompanyName() const;
+    void SetCompanyContext(const CString& strCompanyName, int nPriceCount);
 
 protected:
     virtual BOOL OnInitDialog();
@@ -37,7 +39,10 @@ private:
 private:
     CWnd* m_pDlgParent;
     CString m_strCompanyName;
-    CStatic m_wndLabel;
+    CString m_strInitialName;
+    int m_nPriceCount;
+    CSageLabel m_wndLabel;
+    CSageLabel m_wndHint;
     CSageEdit m_wndEdit;
     CSageInlineError m_wndError;
     CSageButton m_wndOkBtn;

@@ -3,6 +3,7 @@
 #include "app/ui/drawing/SageButton.h"
 #include "app/ui/drawing/SageEdit.h"
 #include "app/ui/drawing/SageInlineError.h"
+#include "app/ui/drawing/SageLabel.h"
 #include "app/ui/dialogs/SageDialogSizer.h"
 
 #include "pch.h"
@@ -37,7 +38,8 @@ private:
     CWnd* m_pDlgParent;
     CString m_strCompanyName;
 
-    CStatic m_wndLabel;
+    CSageLabel m_wndLabel;
+    CSageLabel m_wndHint;
     CSageEdit m_wndCompanyEdit;
     CSageInlineError m_wndError;
     CSageButton m_wndOkBtn;

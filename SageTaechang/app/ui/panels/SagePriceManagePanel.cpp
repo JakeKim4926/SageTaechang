@@ -648,6 +648,7 @@ void SagePriceManagePanel::OnRenameCompany() {
 	}
 
 	TaechangCompanyRenameDlg dlg(this);
+	dlg.SetCompanyContext(strCompany, m_wndCopiesList.GetItemCount());
 	if (dlg.DoModal() != IDOK)
 		return;
 

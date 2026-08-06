@@ -3,6 +3,7 @@
 #include "app/ui/drawing/SageButton.h"
 #include "app/ui/drawing/SageEdit.h"
 #include "app/ui/drawing/SageInlineError.h"
+#include "app/ui/drawing/SageLabel.h"
 #include "app/ui/dialogs/SageDialogSizer.h"
 
 #include "pch.h"
@@ -60,15 +61,15 @@ private:
     CArray<int, int> m_arrExistingHasMaxCopies;
     CArray<int, int> m_arrExistingMaxCopies;
 
-    CStatic m_wndMinLabel;
+    CSageLabel m_wndMinLabel;
     CSageEdit m_wndMinEdit;
     CButton m_wndSingleCheck;
-    CStatic m_wndMaxLabel;
+    CSageLabel m_wndMaxLabel;
     CSageEdit m_wndMaxEdit;
     CButton m_wndNoMaxCheck;
-    CStatic m_wndPrintLabel;
+    CSageLabel m_wndPrintLabel;
     CSageEdit m_wndPrintEdit;
-    CStatic m_wndCoverLabel;
+    CSageLabel m_wndCoverLabel;
     CSageEdit m_wndCoverEdit;
     CSageInlineError m_wndError;
     CSageButton m_wndOkBtn;

@@ -3,6 +3,7 @@
 #include "app/ui/drawing/SageButton.h"
 #include "app/ui/drawing/SageEdit.h"
 #include "app/ui/drawing/SageInlineError.h"
+#include "app/ui/drawing/SageLabel.h"
 
 #include "pch.h"
 
@@ -44,6 +45,7 @@ private:
     CSageEdit m_wndSearchEdit;
     CListBox m_wndNameList;
     CSageInlineError m_wndError;
+    CSageLabel m_wndMatchCount;
     CSageButton m_wndOkBtn;
     CSageButton m_wndCancelBtn;
 

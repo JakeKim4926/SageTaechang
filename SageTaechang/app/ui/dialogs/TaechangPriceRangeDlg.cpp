@@ -236,14 +236,18 @@ void TaechangPriceRangeDlg::ApplyFont() {
     m_font.CreatePointFont(TAECHANG_CONTENT_FONT_POINT_SIZE, TAECHANG_CONTROL_FONT_FACE);
 
     m_wndMinLabel.SetFont(&m_font);
+    m_wndMinLabel.SetTextColorRole(SAGE_TEXT_MUTED);
     m_wndMinEdit.SetFont(&m_font);
     m_wndSingleCheck.SetFont(&m_font);
     m_wndMaxLabel.SetFont(&m_font);
+    m_wndMaxLabel.SetTextColorRole(SAGE_TEXT_MUTED);
     m_wndMaxEdit.SetFont(&m_font);
     m_wndNoMaxCheck.SetFont(&m_font);
     m_wndPrintLabel.SetFont(&m_font);
+    m_wndPrintLabel.SetTextColorRole(SAGE_TEXT_MUTED);
     m_wndPrintEdit.SetFont(&m_font);
     m_wndCoverLabel.SetFont(&m_font);
+    m_wndCoverLabel.SetTextColorRole(SAGE_TEXT_MUTED);
     m_wndCoverEdit.SetFont(&m_font);
     m_wndOkBtn.SetFont(&m_font);
     m_wndOkBtn.SetVariant(SAGE_BUTTON_PRIMARY);
@@ -430,6 +434,9 @@ void TaechangPriceRangeDlg::OnCancel() {
 
 HBRUSH TaechangPriceRangeDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
     HBRUSH hBrush = CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
+
+    if (pWnd != NULL && pWnd->IsKindOf(RUNTIME_CLASS(CSageLabel)))
+        return hBrush;
 
     if (nCtlColor == CTLCOLOR_STATIC) {
         pDC->SetTextColor(TAECHANG_COLOR_TEXT);
