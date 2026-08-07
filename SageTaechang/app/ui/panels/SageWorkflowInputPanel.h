@@ -5,6 +5,7 @@
 #include "app/ui/drawing/SageButton.h"
 #include "app/ui/drawing/SageLabel.h"
 #include "app/ui/drawing/SageSectionLabel.h"
+#include "app/ui/drawing/SageStatusCard.h"
 
 class SageWorkflowInputPanel : public CWnd {
 public:
@@ -27,10 +28,11 @@ public:
     void SetOutputFolder(const CString& strOutputFolder);
 
     void SetRunningState(BOOL bRunning);
-    void UpdateActionVisibility(BOOL bInputResetVisible, BOOL bHasLastResult);
+    void UpdateActionVisibility(BOOL bInputResetVisible);
     void UpdateInputTableVisibility(BOOL bTableVisible, BOOL bOnePageVisible, BOOL bFilterVisible);
     void EnableGenerateButton(BOOL bEnable);
-    void SetActionStatusText(LPCWSTR pszStatus, BOOL bSuccess);
+    void ResetStatusCard();
+    void SetStatusResult(BOOL bSuccess, const CString& strMessage, const CString& strDetail);
 
     SageResultTablePanel& GetInputTable();
 
@@ -74,9 +76,7 @@ private:
     CSageButton m_wndSelectOutput;
     CSageButton m_wndGenerate;
     CSageButton m_wndInputReset;
-    CProgressCtrl m_wndProgress;
-    CSageLabel m_wndProgressText;
-    CStatic m_wndActionStatus;
+    CSageStatusCard m_wndStatusCard;
     CSageLabel m_wndEmptyStateHint;
     SageResultTablePanel m_panelInputTable;
 
@@ -86,6 +86,5 @@ private:
     BOOL m_bRunning;
     BOOL m_bInputResetVisible;
     BOOL m_bTableVisible;
-    BOOL m_bLastActionSuccess;
     int m_nProgressPercent;
 };

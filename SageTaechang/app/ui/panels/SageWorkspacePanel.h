@@ -32,14 +32,12 @@ struct SageWorkflowUiState {
 struct SageWorkspaceVisibility {
     SageWorkspaceVisibility() {
         bInputResetVisible = FALSE;
-        bHasLastResult = FALSE;
         bInputTableVisible = FALSE;
         bOnePageVisible = FALSE;
         bFilterVisible = FALSE;
     }
 
     BOOL bInputResetVisible;
-    BOOL bHasLastResult;
     BOOL bInputTableVisible;
     BOOL bOnePageVisible;
     BOOL bFilterVisible;
@@ -112,6 +110,12 @@ private:
     void ApplyActionButtonState(int nSelectedCount);
     void SetRunningState(BOOL bRunning);
     void DisplayResponse(int nWorkflowType, int nTaskType, const CString& strResponseJson);
+    void ApplyStatusCardResult(
+        ISageWorkflowHandler* pHandler,
+        int nTaskType,
+        const CString& strResponseJson,
+        BOOL bSuccess,
+        int nResultCount);
     BOOL IsInputTableVisible() const;
     BOOL IsOnePageOptionVisible() const;
     BOOL IsInputResetVisible() const;

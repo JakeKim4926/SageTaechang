@@ -5,6 +5,7 @@
 #include "app/core/workflow/SageWorkflowRegistry.h"
 #include "app/core/workflow/SageWorkflowResultTable.h"
 #include "app/core/workflow/TaechangWorkflowResultPresenter.h"
+#include "app/common/TaechangJson.h"
 #include "TaechangDefine.h"
 
 BEGIN_MESSAGE_MAP(SageWorkspacePanel, CWnd)
@@ -125,6 +126,7 @@ void SageWorkspacePanel::SetWorkflow(int nWorkflowType, ISageWorkflowHandler* pH
 	if (!::IsWindow(GetSafeHwnd()))
 		return;
 
+	m_panelWorkflowInput.ResetStatusCard();
 	Invalidate();
 	if (!::IsWindow(m_wndTaskTabs.GetSafeHwnd()))
 		return;
@@ -238,7 +240,7 @@ void SageWorkspacePanel::UpdateVisibility(const SageWorkspaceVisibility& state) 
 	BOOL bShowDetail = (!bPrice && IsDetailTab()) ? TRUE : FALSE;
 
 	m_panelWorkflowInput.ShowWindow(bShowInput ? SW_SHOW : SW_HIDE);
-	m_panelWorkflowInput.UpdateActionVisibility(state.bInputResetVisible, state.bHasLastResult);
+	m_panelWorkflowInput.UpdateActionVisibility(state.bInputResetVisible);
 	m_panelWorkflowInput.UpdateInputTableVisibility(
 		(bShowInput && state.bInputTableVisible) ? TRUE : FALSE,
 		state.bOnePageVisible,
@@ -362,7 +364,6 @@ BOOL SageWorkspacePanel::IsResultFilterVisible() const {
 void SageWorkspacePanel::RefreshVisibility() {
 	SageWorkspaceVisibility state;
 	state.bInputResetVisible = IsInputResetVisible();
-	state.bHasLastResult = (m_controller.GetLastTaskType() != 0) ? TRUE : FALSE;
 	state.bInputTableVisible = (IsInputTabSelected() && IsInputTableVisible()) ? TRUE : FALSE;
 	state.bOnePageVisible = IsOnePageOptionVisible();
 	state.bFilterVisible = IsResultFilterVisible();
@@ -549,6 +550,7 @@ void SageWorkspacePanel::ResetInput() {
 		return;
 
 	m_panelWorkflowInput.SetInputPath(CString());
+	m_panelWorkflowInput.ResetStatusCard();
 	pPanel->RestoreFilter(CString(), pPanel->GetFilterCriteria());
 	pPanel->SetOnePageChecked(FALSE);
 	pPanel->ClearRows();
@@ -612,10 +614,46 @@ void SageWorkspacePanel::DisplayResponse(int nWorkflowType, int nTaskType, const
 		}
 	}
 
-	m_panelWorkflowInput.SetActionStatusText(
-		bSuccess ? TAECHANG_UI_ACTION_STATUS_COMPLETED : TAECHANG_UI_ACTION_STATUS_FAILED, bSuccess);
+	int nResultCount = bKeepInputTable
+		? m_panelWorkflowInput.GetInputTable().GetCheckedRowCount()
+		: static_cast<int>(arrRows.size());
+	ApplyStatusCardResult(pHandler, nTaskType, strResponseJson, bSuccess, nResultCount);
 	NotifyStatus(bSuccess ? TAECHANG_UI_COMPLETED : TAECHANG_UI_FAILED);
 	ForwardToParent(WM_TAECHANG_WORKSPACE_STATE_CHANGED, 0, 0);
+}
+
+void SageWorkspacePanel::ApplyStatusCardResult(
+	ISageWorkflowHandler* pHandler,
+	int nTaskType,
+	const CString& strResponseJson,
+	BOOL bSuccess,
+	int nResultCount) {
+	if (pHandler == NULL)
+		return;
+
+	CString strMessage;
+	CString strDetail;
+	if (!bSuccess) {
+		if (nTaskType == TAECHANG_TASK_LOAD)
+			strMessage = TAECHANG_UI_STATUS_CARD_LOAD_FAILED;
+		else
+			strMessage.Format(TAECHANG_UI_STATUS_CARD_FAILED_FORMAT, pHandler->GetActionButtonLabel());
+		strDetail = JsonExtractString(strResponseJson, TAECHANG_JSON_KEY_MESSAGE);
+		if (strDetail.IsEmpty())
+			strDetail = JsonExtractString(strResponseJson, TAECHANG_JSON_KEY_CODE);
+		m_panelWorkflowInput.SetStatusResult(FALSE, strMessage, strDetail);
+		return;
+	}
+
+	if (nTaskType == TAECHANG_TASK_LOAD)
+		strMessage.Format(TAECHANG_UI_STATUS_CARD_LOAD_COMPLETED_FORMAT, nResultCount);
+	else
+		strMessage.Format(TAECHANG_UI_STATUS_CARD_COMPLETED_FORMAT, pHandler->GetActionButtonLabel(), nResultCount);
+
+	strDetail = JsonExtractString(strResponseJson, TAECHANG_JSON_KEY_FILE_PATH);
+	if (strDetail.IsEmpty())
+		strDetail = JsonExtractString(strResponseJson, TAECHANG_JSON_KEY_OUTPUT_FOLDER);
+	m_panelWorkflowInput.SetStatusResult(TRUE, strMessage, strDetail);
 }
 
 void SageWorkspacePanel::NotifyStatus(LPCWSTR pszStatus) {

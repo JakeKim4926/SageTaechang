@@ -21,7 +21,6 @@ SageWorkflowInputPanel::SageWorkflowInputPanel()
 	, m_bRunning(FALSE)
 	, m_bInputResetVisible(FALSE)
 	, m_bTableVisible(FALSE)
-	, m_bLastActionSuccess(FALSE)
 	, m_nProgressPercent(0) {
 }
 
@@ -46,6 +45,7 @@ void SageWorkflowInputPanel::EnableFileDrop() {
 	AcceptDroppedFiles(m_wndCardHeader);
 	AcceptDroppedFiles(m_wndInputPath);
 	AcceptDroppedFiles(m_wndSelectInput);
+	AcceptDroppedFiles(m_wndStatusCard);
 	AcceptDroppedFiles(m_wndEmptyStateHint);
 	m_panelInputTable.EnableFileDrop();
 }
@@ -61,7 +61,6 @@ int SageWorkflowInputPanel::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	CreateControls();
 	ApplyControlFonts();
 	ApplyLabelRoles();
-	UpdateProgressPercent(0);
 	return 0;
 }
 
@@ -79,11 +78,8 @@ void SageWorkflowInputPanel::CreateControls() {
 	m_wndInputReset.Create(TAECHANG_UI_INPUT_RESET_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_TAECHANG_INPUT_RESET_BTN);
 	m_wndInputReset.SetVariant(SAGE_BUTTON_GHOST);
 	m_wndInputReset.SetSurfaceColor(TAECHANG_COLOR_PANEL);
-	m_wndProgress.Create(WS_CHILD | WS_VISIBLE | PBS_MARQUEE, r, this, ID_TAECHANG_PROGRESS);
-	m_wndProgress.SetMarquee(FALSE, 0);
-	m_wndProgress.SetRange(0, TAECHANG_PROGRESS_COMPLETE);
-	m_wndProgressText.Create(L"", WS_CHILD | WS_VISIBLE | SS_RIGHT, r, this);
-	m_wndActionStatus.Create(L"", WS_CHILD | SS_LEFT | SS_CENTERIMAGE, r, this);
+	m_wndStatusCard.Create(L"", WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, r, this, ID_TAECHANG_STATUS_CARD);
+	m_wndStatusCard.SetIdle(TAECHANG_UI_STATUS_CARD_IDLE);
 	m_wndEmptyStateHint.Create(TAECHANG_UI_EMPTY_STATE_HINT, WS_CHILD | WS_VISIBLE | SS_CENTER | SS_CENTERIMAGE, r, this);
 	m_wndEmptyStateHint.SetTextColorRole(SAGE_TEXT_SECONDARY);
 	m_wndEmptyStateHint.SetFontRole(SAGE_FONT_CONTENT);
@@ -100,7 +96,6 @@ void SageWorkflowInputPanel::ApplyControlFonts() {
 	m_wndSelectOutput.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndGenerate.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndInputReset.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndActionStatus.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 }
 
 void SageWorkflowInputPanel::ApplyLabelRoles() {
@@ -129,7 +124,7 @@ int SageWorkflowInputPanel::GetInputCardHeight() const {
 }
 
 int SageWorkflowInputPanel::GetTableAreaTop() const {
-	return GetInputCardHeight() + TAECHANG_CARD_GAP + TAECHANG_BUTTON_HEIGHT + TAECHANG_CARD_GAP;
+	return GetInputCardHeight() + TAECHANG_CARD_GAP + TAECHANG_STATUS_CARD_HEIGHT + TAECHANG_CARD_GAP;
 }
 
 void SageWorkflowInputPanel::Layout(const CRect& rectPanel) {
@@ -198,13 +193,11 @@ void SageWorkflowInputPanel::LayoutActionSection() {
 	if (m_bInputResetVisible)
 		m_wndInputReset.MoveWindow(nX, nActionTop, TAECHANG_INPUT_RESET_WIDTH, TAECHANG_CARD_ACTION_BUTTON_HEIGHT);
 
-	int nStatusTop = GetInputCardHeight() + TAECHANG_CARD_GAP;
-	int nProgressWidth = nWidth - TAECHANG_PROGRESS_TEXT_WIDTH - TAECHANG_ACTION_GAP;
-	if (nProgressWidth < 0)
-		nProgressWidth = 0;
-	m_wndProgress.MoveWindow(0, nStatusTop + TAECHANG_PROGRESS_VERT_OFFSET, nProgressWidth, TAECHANG_PROGRESS_HEIGHT);
-	m_wndProgressText.MoveWindow(nProgressWidth + TAECHANG_ACTION_GAP, nStatusTop + TAECHANG_PROGRESS_TEXT_VERT_OFFSET, TAECHANG_PROGRESS_TEXT_WIDTH, TAECHANG_EDIT_HEIGHT);
-	m_wndActionStatus.MoveWindow(0, nStatusTop + TAECHANG_LABEL_VERT_OFFSET, nWidth, TAECHANG_EDIT_HEIGHT);
+	m_wndStatusCard.MoveWindow(
+		0,
+		GetInputCardHeight() + TAECHANG_CARD_GAP,
+		nWidth,
+		TAECHANG_STATUS_CARD_HEIGHT);
 }
 
 void SageWorkflowInputPanel::ApplyEditTextRect(CEdit& wndEdit) {
@@ -252,11 +245,6 @@ HBRUSH SageWorkflowInputPanel::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) 
 	if (pWnd->IsKindOf(RUNTIME_CLASS(CSageLabel)))
 		return hBrush;
 	pDC->SetTextColor(TAECHANG_COLOR_TEXT);
-	if (pWnd->GetSafeHwnd() == m_wndActionStatus.GetSafeHwnd()) {
-		pDC->SetTextColor(m_bLastActionSuccess ? TAECHANG_COLOR_SUCCESS : TAECHANG_COLOR_ERROR);
-		pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
-		return SageUiResources::GetBrush(SAGE_BG_APP);
-	}
 	if (nCtlColor == CTLCOLOR_STATIC) {
 		pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
 		return SageUiResources::GetBrush(SAGE_BG_APP);
@@ -315,22 +303,17 @@ void SageWorkflowInputPanel::SetRunningState(BOOL bRunning) {
 	m_wndInputReset.EnableWindow(!bRunning);
 	m_panelInputTable.EnableSelectionControls(!bRunning);
 	if (bRunning) {
+		m_wndStatusCard.SetRunning(TAECHANG_UI_STATUS_CARD_RUNNING);
 		UpdateProgressPercent(0);
 		SetTimer(ID_TAECHANG_PROGRESS_TIMER, TAECHANG_PROGRESS_TIMER_MS, NULL);
 		return;
 	}
 	KillTimer(ID_TAECHANG_PROGRESS_TIMER);
-	UpdateProgressPercent(TAECHANG_PROGRESS_COMPLETE);
 }
 
-void SageWorkflowInputPanel::UpdateActionVisibility(BOOL bInputResetVisible, BOOL bHasLastResult) {
+void SageWorkflowInputPanel::UpdateActionVisibility(BOOL bInputResetVisible) {
 	m_bInputResetVisible = bInputResetVisible;
 	m_wndInputReset.ShowWindow(bInputResetVisible ? SW_SHOW : SW_HIDE);
-
-	BOOL bShowActionStatus = (!m_bRunning && bHasLastResult && !bInputResetVisible) ? TRUE : FALSE;
-	m_wndProgress.ShowWindow(m_bRunning ? SW_SHOW : SW_HIDE);
-	m_wndProgressText.ShowWindow(m_bRunning ? SW_SHOW : SW_HIDE);
-	m_wndActionStatus.ShowWindow(bShowActionStatus ? SW_SHOW : SW_HIDE);
 	LayoutActionSection();
 }
 
@@ -365,18 +348,17 @@ void SageWorkflowInputPanel::EnableGenerateButton(BOOL bEnable) {
 	m_wndGenerate.EnableWindow(bEnable);
 }
 
-void SageWorkflowInputPanel::SetActionStatusText(LPCWSTR pszStatus, BOOL bSuccess) {
-	m_bLastActionSuccess = bSuccess;
-	m_wndActionStatus.SetWindowTextW(pszStatus);
-	m_wndActionStatus.Invalidate();
+void SageWorkflowInputPanel::ResetStatusCard() {
+	m_wndStatusCard.SetIdle(TAECHANG_UI_STATUS_CARD_IDLE);
+}
+
+void SageWorkflowInputPanel::SetStatusResult(BOOL bSuccess, const CString& strMessage, const CString& strDetail) {
+	m_wndStatusCard.SetResult(bSuccess, strMessage, strDetail);
 }
 
 void SageWorkflowInputPanel::UpdateProgressPercent(int nPercent) {
 	m_nProgressPercent = nPercent;
-	m_wndProgress.SetPos(m_nProgressPercent);
-	CString strProgress;
-	strProgress.Format(TAECHANG_UI_PROGRESS_FORMAT, m_nProgressPercent);
-	m_wndProgressText.SetWindowTextW(strProgress);
+	m_wndStatusCard.SetProgressPercent(m_nProgressPercent);
 }
 
 void SageWorkflowInputPanel::OnTimer(UINT_PTR nIDEvent) {
