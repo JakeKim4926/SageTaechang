@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "app/ui/drawing/SageSidebarTree.h"
+#include "app/ui/drawing/SageUiResources.h"
 #include "TaechangDefine.h"
 
 BEGIN_MESSAGE_MAP(CSageSidebarTree, CTreeCtrl)
@@ -18,12 +19,17 @@ void CSageSidebarTree::OnNMCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
 			HTREEITEM hItem = reinterpret_cast<HTREEITEM>(pCD->nmcd.dwItemSpec);
 			BOOL bIsGroupHeader = (GetParentItem(hItem) == NULL);
 			BOOL bIsSelected = (pCD->nmcd.uItemState & CDIS_SELECTED) != 0;
+			CDC* pItemDC = CDC::FromHandle(pCD->nmcd.hdc);
 			if (bIsGroupHeader) {
+				pItemDC->SelectObject(SageUiResources::GetFont(SAGE_FONT_CAPTION));
 				pCD->clrText = TAECHANG_COLOR_SIDEBAR_CATEGORY;
 				pCD->clrTextBk = TAECHANG_COLOR_SIDEBAR;
 				*pResult = CDRF_NEWFONT;
 			} else {
-				pCD->clrText = TAECHANG_COLOR_SIDEBAR_TEXT;
+				pItemDC->SelectObject(SageUiResources::GetFont(
+					bIsSelected ? SAGE_FONT_CONTENT_SEMIBOLD : SAGE_FONT_CONTROL));
+				pCD->clrText = bIsSelected
+					? TAECHANG_COLOR_SIDEBAR_SELECTED_TEXT : TAECHANG_COLOR_SIDEBAR_TEXT;
 				pCD->clrTextBk = bIsSelected ? TAECHANG_COLOR_SIDEBAR_SELECTED : TAECHANG_COLOR_SIDEBAR;
 				*pResult = CDRF_NEWFONT;
 				if (bIsSelected)

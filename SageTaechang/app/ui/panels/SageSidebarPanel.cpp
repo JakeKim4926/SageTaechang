@@ -33,7 +33,7 @@ void SageSidebarPanel::CreateControls() {
 	CRect rectEmpty(0, 0, 0, 0);
 	m_wndTitle.Create(TAECHANG_UI_APP_TITLE, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, rectEmpty, this);
 	m_wndTree.Create(
-		WS_CHILD | WS_VISIBLE | WS_BORDER | TVS_FULLROWSELECT | TVS_SHOWSELALWAYS
+		WS_CHILD | WS_VISIBLE | TVS_FULLROWSELECT | TVS_SHOWSELALWAYS
 		| TVS_DISABLEDRAGDROP | TVS_NOSCROLL,
 		rectEmpty, this, ID_TAECHANG_SIDEBAR_TREE);
 	SetWindowTheme(m_wndTree.GetSafeHwnd(), L"", L"");
