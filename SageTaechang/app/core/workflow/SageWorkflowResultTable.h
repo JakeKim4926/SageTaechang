@@ -45,6 +45,22 @@ struct SageWorkflowColumn
     SageResultField nField;
 };
 
+struct SageColumnWidthSpec
+{
+    SageColumnWidthSpec() {
+        nWidth = 0;
+        bStretch = FALSE;
+    }
+
+    SageColumnWidthSpec(int nColumnWidth, BOOL bStretchColumn) {
+        nWidth = nColumnWidth;
+        bStretch = bStretchColumn;
+    }
+
+    int nWidth;
+    BOOL bStretch;
+};
+
 struct SageWorkflowFilterCriteria
 {
     int nCriteria;
@@ -107,5 +123,9 @@ int GetGenericColumnCount();
 const SageWorkflowColumn& GetGenericColumn(int nColumnIndex);
 CString GetRowText(const TaechangResultRow& row, SageResultField nField);
 CString FormatAmountNumber(__int64 nAmount);
+void DistributeColumnWidths(
+    const std::vector<SageColumnWidthSpec>& arrSpecs,
+    int nTotalWidth,
+    std::vector<int>& outWidths);
 
 }

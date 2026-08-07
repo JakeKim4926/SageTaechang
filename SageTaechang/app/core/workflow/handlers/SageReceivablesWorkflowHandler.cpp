@@ -116,10 +116,6 @@ LPCWSTR SageReceivablesWorkflowHandler::GetActionButtonLabel() const {
 	return TAECHANG_UI_RECEIVABLES_GENERATE_BUTTON;
 }
 
-LPCWSTR SageReceivablesWorkflowHandler::GetDetailSectionLabel() const {
-	return TAECHANG_UI_SECTION_HISTORY;
-}
-
 int SageReceivablesWorkflowHandler::GetTabCount() const {
 	return SAGE_RECEIVABLES_TAB_COUNT;
 }

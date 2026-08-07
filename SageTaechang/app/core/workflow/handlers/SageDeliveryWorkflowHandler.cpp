@@ -53,10 +53,6 @@ LPCWSTR SageDeliveryWorkflowHandler::GetActionButtonLabel() const {
 	return TAECHANG_UI_DELIVERY_GENERATE_BUTTON;
 }
 
-LPCWSTR SageDeliveryWorkflowHandler::GetDetailSectionLabel() const {
-	return TAECHANG_UI_SECTION_HISTORY;
-}
-
 int SageDeliveryWorkflowHandler::GetTabCount() const {
 	return SAGE_DELIVERY_TAB_COUNT;
 }

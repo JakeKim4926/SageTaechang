@@ -7,6 +7,19 @@ enum SageListFirstColumnAlign
 	SAGE_LIST_FIRST_COLUMN_RIGHT
 };
 
+struct SageListRowStyle
+{
+	SageListRowStyle() {
+		clrRowBackground = CLR_NONE;
+		clrBadgeBackground = CLR_NONE;
+		clrBadgeText = CLR_NONE;
+	}
+
+	COLORREF clrRowBackground;
+	COLORREF clrBadgeBackground;
+	COLORREF clrBadgeText;
+};
+
 class CSageListCtrl : public CListCtrl
 {
 	DECLARE_MESSAGE_MAP()
@@ -20,7 +33,9 @@ public:
 	void SetHighlightColumns(int nFirst, int nCount);
 	void SetRowSeparator(BOOL bEnable);
 	void SetCheckboxes(BOOL bEnable);
-	void SetMutedText(LPCWSTR pszText);
+	void SetMutedText(LPCWSTR pszText, COLORREF clrText);
+	void SetBadgeColumn(int nColumn);
+	void SetRowStyle(int nState, const SageListRowStyle& style);
 
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
@@ -40,6 +55,8 @@ private:
 	void DrawRowSeparator(int nItem, NMLVCUSTOMDRAW* pCD);
 	void DrawSelectionAccent(int nItem, NMLVCUSTOMDRAW* pCD);
 	void InvalidateItemRow(int nItem);
+	const SageListRowStyle* FindRowStyle(int nItem) const;
+	void DrawBadgeColumn(int nItem, BOOL bSelected, NMLVCUSTOMDRAW* pCD);
 
 private:
 	BOOL m_bAlternateRow;
@@ -48,6 +65,9 @@ private:
 	int m_nHighlightFirst;
 	int m_nHighlightCount;
 	BOOL m_bRowSeparator;
+	int m_nBadgeColumn;
 	CString m_strMutedText;
+	COLORREF m_clrMutedText;
 	CImageList m_imgRowSpacer;
+	std::vector<SageListRowStyle> m_arrRowStyles;
 };

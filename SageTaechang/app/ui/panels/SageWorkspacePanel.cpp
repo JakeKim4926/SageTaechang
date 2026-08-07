@@ -385,7 +385,6 @@ void SageWorkspacePanel::ApplyWorkflowLabels(ISageWorkflowHandler* pHandler) {
 	m_panelWorkflowInput.SetActionButtonLabel(pHandler->GetActionButtonLabel());
 	m_panelWorkflowInput.SetInputDialogTitle(pHandler->GetInputDialogTitle());
 	m_panelWorkflowInput.SetAutoLoadOnInput(pHandler->UsesInputTable());
-	m_panelWorkflowHistory.SetSectionLabel(pHandler->GetDetailSectionLabel());
 }
 
 void SageWorkspacePanel::ApplyResultTableSchema() {

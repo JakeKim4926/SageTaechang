@@ -51,10 +51,6 @@ LPCWSTR SageEstimateWorkflowHandler::GetActionButtonLabel() const {
 	return TAECHANG_UI_ESTIMATE_GENERATE_BUTTON;
 }
 
-LPCWSTR SageEstimateWorkflowHandler::GetDetailSectionLabel() const {
-	return TAECHANG_UI_SECTION_HISTORY;
-}
-
 int SageEstimateWorkflowHandler::GetTabCount() const {
 	return SAGE_ESTIMATE_TAB_COUNT;
 }

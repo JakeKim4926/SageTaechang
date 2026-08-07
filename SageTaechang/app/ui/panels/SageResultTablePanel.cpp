@@ -379,40 +379,14 @@ void SageResultTablePanel::UpdateColumnWidths() {
 	if (nWidth <= 0)
 		return;
 
-	int nColumnCount = static_cast<int>(m_arrColumns.size());
-	int nFixedWidth = 0;
-	int nDefinedWidth = 0;
-	BOOL bHasStretchColumn = FALSE;
-	for (int i = 0; i < nColumnCount; ++i) {
-		nDefinedWidth += m_arrColumns[i].nWidth;
-		if (m_arrColumns[i].bStretch)
-			bHasStretchColumn = TRUE;
-		else
-			nFixedWidth += m_arrColumns[i].nWidth;
-	}
+	std::vector<SageColumnWidthSpec> arrSpecs;
+	for (int i = 0; i < static_cast<int>(m_arrColumns.size()); ++i)
+		arrSpecs.push_back(SageColumnWidthSpec(m_arrColumns[i].nWidth, m_arrColumns[i].bStretch));
 
-	if (bHasStretchColumn) {
-		for (int i = 0; i < nColumnCount; ++i) {
-			int nColumnWidth = m_arrColumns[i].nWidth;
-			if (m_arrColumns[i].bStretch && nWidth - nFixedWidth > nColumnWidth)
-				nColumnWidth = nWidth - nFixedWidth;
-			m_wndList.SetColumnWidth(i, nColumnWidth);
-		}
-		UpdateTotalBarCells();
-		return;
-	}
-
-	int nAssignedWidth = 0;
-	for (int i = 0; i < nColumnCount; ++i) {
-		int nColumnWidth = m_arrColumns[i].nWidth;
-		if (nWidth > nDefinedWidth) {
-			nColumnWidth = (i == nColumnCount - 1)
-				? nWidth - nAssignedWidth
-				: ::MulDiv(m_arrColumns[i].nWidth, nWidth, nDefinedWidth);
-		}
-		nAssignedWidth += nColumnWidth;
-		m_wndList.SetColumnWidth(i, nColumnWidth);
-	}
+	std::vector<int> arrWidths;
+	SageWorkflowResultTable::DistributeColumnWidths(arrSpecs, nWidth, arrWidths);
+	for (int i = 0; i < static_cast<int>(arrWidths.size()); ++i)
+		m_wndList.SetColumnWidth(i, arrWidths[i]);
 	UpdateTotalBarCells();
 }
 

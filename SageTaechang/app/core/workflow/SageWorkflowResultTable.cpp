@@ -64,4 +64,62 @@ CString FormatAmountNumber(__int64 nAmount) {
 	return bNegative ? CString(TAECHANG_UI_AMOUNT_NEGATIVE_MARK) + strDigits : strDigits;
 }
 
+void DistributeColumnWidths(
+	const std::vector<SageColumnWidthSpec>& arrSpecs,
+	int nTotalWidth,
+	std::vector<int>& outWidths) {
+	outWidths.clear();
+	int nColumnCount = static_cast<int>(arrSpecs.size());
+	if (nColumnCount == 0 || nTotalWidth <= 0)
+		return;
+
+	int nFixedWidth = 0;
+	int nStretchDefinedWidth = 0;
+	int nDefinedWidth = 0;
+	int nLastStretchIndex = TAECHANG_LIST_NO_ITEM;
+	for (int i = 0; i < nColumnCount; ++i) {
+		nDefinedWidth += arrSpecs[i].nWidth;
+		if (arrSpecs[i].bStretch) {
+			nStretchDefinedWidth += arrSpecs[i].nWidth;
+			nLastStretchIndex = i;
+			continue;
+		}
+		nFixedWidth += arrSpecs[i].nWidth;
+	}
+
+	outWidths.resize(nColumnCount);
+	if (nStretchDefinedWidth > 0) {
+		int nStretchWidth = nTotalWidth - nFixedWidth;
+		if (nStretchWidth < nStretchDefinedWidth) {
+			for (int i = 0; i < nColumnCount; ++i)
+				outWidths[i] = arrSpecs[i].nWidth;
+			return;
+		}
+
+		int nAssignedWidth = 0;
+		for (int i = 0; i < nColumnCount; ++i) {
+			if (!arrSpecs[i].bStretch) {
+				outWidths[i] = arrSpecs[i].nWidth;
+				continue;
+			}
+			outWidths[i] = (i == nLastStretchIndex)
+				? nStretchWidth - nAssignedWidth
+				: ::MulDiv(arrSpecs[i].nWidth, nStretchWidth, nStretchDefinedWidth);
+			nAssignedWidth += outWidths[i];
+		}
+		return;
+	}
+
+	int nAssignedWidth = 0;
+	for (int i = 0; i < nColumnCount; ++i) {
+		outWidths[i] = arrSpecs[i].nWidth;
+		if (nTotalWidth > nDefinedWidth) {
+			outWidths[i] = (i == nColumnCount - 1)
+				? nTotalWidth - nAssignedWidth
+				: ::MulDiv(arrSpecs[i].nWidth, nTotalWidth, nDefinedWidth);
+		}
+		nAssignedWidth += outWidths[i];
+	}
+}
+
 }
