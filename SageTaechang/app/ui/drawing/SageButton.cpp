@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "app/ui/drawing/SageButton.h"
+#include "app/ui/drawing/SageUiStyle.h"
 #include "TaechangDefine.h"
 
 CSageButton::CSageButton()
