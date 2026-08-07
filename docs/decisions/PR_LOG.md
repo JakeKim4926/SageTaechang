@@ -2,7 +2,7 @@
 - **목적**: 4d-1 — `SageWorkspacePanel` 신설 + 패널 5종(입력·결과·기록·단가2) 재배치
 - **변경 내용**: **착수 전 스킬 대조에서 내 전제가 틀린 것을 잡았다.** 「패널이 워크플로 핸들러를 알면 안 된다」고 판단해 설계 판단 3건이 남았다고 했는데, `sagetaechang-ui`는 **「탭 구성 · 라벨 · 결과 컬럼 · 입력 정책은 `ISageWorkflowHandler`가 답하고 패널은 그대로 그린다」**고 명시한다. 판단 기준은 「워크플로를 하나 추가할 때 패널을 고쳐야 하는가」이므로 워크스페이스가 핸들러에 묻는 것이 정상 설계였고, `GetTaskTabVisualIndex`·`ApplyWorkflowTabs`를 그대로 옮길 수 있었다. **rect는 full-bleed로 준다** — 워크스페이스가 탭을 소유하므로 **탭 줄 흰 면과 경계선도 워크스페이스가 그리고**, View의 `DrawShellBands`는 헤더만 남았다. `CONTENT_PAD_X/Y`도 워크스페이스가 소유해 **View는 콘텐츠 좌표를 모른다**(기준 B에 한 걸음). **가시성 판정이 두 상태에 걸쳐 있는 것이 핵심 난점이었다** — 탭 선택은 워크스페이스로 갔지만 실행 결과(`m_nLastWorkflowType` 등)는 컨트롤러 몫이라 View에 남아, 판정 결과 5개를 `SageWorkspaceVisibility`로 묶어 넘기고 워크스페이스가 배분한다(4d-3에서 사라질 임시 다리, `DEBT_LOG`). **작업 중 버그를 하나 냈다** — 단가 화면 전환 시 탭 줄 흰 면의 **좌우 24px이 남았다.** 워크플로 전환 시 워크스페이스를 무효화하지 않은 것이 원인이고, 탭 컨트롤이 있던 가운데는 `ShowWindow(SW_HIDE)`가 부모 무효화를 일으켜 지워져서 증상이 「좌우 흰 사각형」으로 보였다. `SetWorkflow`에 `Invalidate()`를 넣어 고쳤다. **교훈: 그리는 주체를 자식 윈도우로 옮기면 무효화 책임도 따라간다** — `WS_CLIPCHILDREN` 때문에 부모의 `InvalidateRect`는 자식 영역을 건드리지 못한다. 확인 목록에 「단가 화면」은 넣었지만 **「워크플로를 전환한 뒤」 보는 경로**가 빠져 있었다. 결과: View **1,629 → 1,492줄**, 컨트롤 멤버 24 → 23, `UpdateTaskTabVisibility` 17 → 11줄
 - **PR 링크**: 없음
-- **결과**: pending — 커밋 `4916e12`. **빌드 확인 완료, 화면 미검증**(12조합 + 전환 경로)
+- **결과**: merged — `develop`에 fast-forward 머지. 커밋 2개(`refactor`·`docs`). 작업 브랜치 삭제. 빌드·화면 확인 완료(12조합 + 전환 경로)
 
 ## [2026-08-07] refactor/workflow-history-panel
 - **목적**: 4c 마지막 항목 — 실행 기록을 `SageWorkflowHistoryPanel`로 분리하고 **3-B-4c를 닫는다**
