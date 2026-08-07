@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "pch.h"
+#include "app/ui/panels/SageCompanyOrderPanel.h"
 #include "app/ui/panels/SagePriceCalcPanel.h"
 #include "app/ui/panels/SagePriceManagePanel.h"
 #include "app/ui/panels/SageWorkflowHistoryPanel.h"
@@ -51,6 +52,7 @@ public:
     SageWorkflowHistoryPanel& GetHistoryPanel();
     SagePriceManagePanel& GetPriceManagePanel();
     SagePriceCalcPanel& GetPriceCalcPanel();
+    SageCompanyOrderPanel& GetCompanyOrderPanel();
 
 protected:
     afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
@@ -78,6 +80,7 @@ private:
     SageWorkflowHistoryPanel m_panelWorkflowHistory;
     SagePriceManagePanel m_panelPriceManage;
     SagePriceCalcPanel m_panelPriceCalc;
+    SageCompanyOrderPanel m_panelCompanyOrder;
 
 private:
     ISageWorkflowHandler* m_pHandler;

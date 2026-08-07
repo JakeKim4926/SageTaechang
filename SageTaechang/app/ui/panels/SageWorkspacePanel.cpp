@@ -38,6 +38,7 @@ int SageWorkspacePanel::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	m_panelWorkflowInput.Create(this, ID_TAECHANG_WORKFLOW_INPUT_PANEL);
 	m_panelWorkflowResult.Create(this, ID_TAECHANG_WORKFLOW_RESULT_PANEL);
 	m_panelWorkflowHistory.Create(this, ID_TAECHANG_WORKFLOW_HISTORY_PANEL);
+	m_panelCompanyOrder.Create(this, ID_TAECHANG_COMPANY_ORDER_PANEL);
 	return 0;
 }
 
@@ -64,6 +65,10 @@ SagePriceManagePanel& SageWorkspacePanel::GetPriceManagePanel() {
 
 SagePriceCalcPanel& SageWorkspacePanel::GetPriceCalcPanel() {
 	return m_panelPriceCalc;
+}
+
+SageCompanyOrderPanel& SageWorkspacePanel::GetCompanyOrderPanel() {
+	return m_panelCompanyOrder;
 }
 
 BOOL SageWorkspacePanel::IsPriceWorkflow() const {
@@ -133,8 +138,11 @@ void SageWorkspacePanel::SetWorkflow(int nWorkflowType, ISageWorkflowHandler* pH
 
 void SageWorkspacePanel::SelectTab(int nSemanticTabIndex) {
 	m_nSelectedTaskTab = nSemanticTabIndex;
-	if (::IsWindow(m_wndTaskTabs.GetSafeHwnd()))
-		m_wndTaskTabs.SetCurSel(GetTabVisualIndex(m_nSelectedTaskTab));
+	if (!::IsWindow(m_wndTaskTabs.GetSafeHwnd()))
+		return;
+	m_wndTaskTabs.SetCurSel(GetTabVisualIndex(m_nSelectedTaskTab));
+	if (IsDataManageTab())
+		m_panelCompanyOrder.RefreshList();
 }
 
 CRect SageWorkspacePanel::GetContentRect() const {
@@ -187,6 +195,11 @@ void SageWorkspacePanel::LayoutActivePanel() {
 		return;
 	}
 
+	if (IsDataManageTab()) {
+		m_panelCompanyOrder.Layout(rectContent);
+		return;
+	}
+
 	if (IsInputTabSelected()) {
 		m_panelWorkflowInput.Layout(CRect(
 			rectContent.left,
@@ -231,6 +244,7 @@ void SageWorkspacePanel::UpdateVisibility(const SageWorkspaceVisibility& state) 
 	m_panelWorkflowResult.UpdateResultTableVisibility((bShowResult && state.bFilterVisible) ? TRUE : FALSE);
 
 	m_panelWorkflowHistory.ShowWindow(bShowDetail ? SW_SHOW : SW_HIDE);
+	m_panelCompanyOrder.ShowWindow(IsDataManageTab() ? SW_SHOW : SW_HIDE);
 
 	m_panelPriceManage.ShowWindow((m_nCurrentWorkflow == TAECHANG_WORKFLOW_PRICE_MANAGE) ? SW_SHOW : SW_HIDE);
 	m_panelPriceCalc.ShowWindow((m_nCurrentWorkflow == TAECHANG_WORKFLOW_PRICE_CALC) ? SW_SHOW : SW_HIDE);
@@ -257,6 +271,8 @@ void SageWorkspacePanel::OnTabChanged(NMHDR* pNMHDR, LRESULT* pResult) {
 	UNREFERENCED_PARAMETER(pNMHDR);
 	m_nSelectedTaskTab = GetTabSemanticIndex(m_wndTaskTabs.GetCurSel());
 	*pResult = 0;
+	if (IsDataManageTab())
+		m_panelCompanyOrder.RefreshList();
 	ForwardToParent(WM_TAECHANG_WORKSPACE_TAB_CHANGED, 0, 0);
 }
 

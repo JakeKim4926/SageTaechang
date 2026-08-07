@@ -2,14 +2,10 @@
 #pragma once
 
 #include "TaechangDefine.h"
-#include "app/core/receivable/TaechangReceivableCompanyOrderDto.h"
 #include "app/ui/panels/SageResultTablePanel.h"
 #include "app/ui/panels/SageWorkspacePanel.h"
-#include "app/ui/drawing/SageHeaderCtrl.h"
 #include "app/ui/drawing/SageButton.h"
-#include "app/ui/drawing/SageSectionLabel.h"
 #include "app/ui/drawing/SageLabel.h"
-#include "app/ui/drawing/SageListCtrl.h"
 #include "app/ui/drawing/SageUiResources.h"
 #include "app/ui/drawing/SageSidebarTree.h"
 
@@ -89,28 +85,6 @@ protected:
 
     SageWorkspacePanel m_panelWorkspace;
 
-    // ── 법인 순서 데이터 관리 패널 ───────────────────────────────────────────
-    CSageButton         m_wndCoAddBtn;
-    CSageButton         m_wndCoModifyBtn;
-    CSageButton         m_wndCoDeleteBtn;
-    CSageButton         m_wndCoCancelBtn;
-    CSageLabel          m_wndCoSearchLabel;
-    CEdit               m_wndCoSearchEdit;
-    CSageButton         m_wndCoSearchBtn;
-    CSageLabel          m_wndCoOrderLabel;
-    CEdit               m_wndCoOrderEdit;
-    CSageLabel          m_wndCoNameLabel;
-    CEdit               m_wndCoCompanyEdit;
-    CSageSectionLabel      m_wndCoCrudSection;
-    CSageSectionLabel      m_wndCoListSection;
-    CRect               m_rectCoCard;
-    CSageHeaderCtrl m_wndCoListHeader;
-    CSageListCtrl       m_wndCoList;
-    int                 m_nCoPanelState;
-    CString             m_strCoSearchKeyword;
-    int                 m_nCoSelectedOrderId;
-    CArray<TaechangReceivableCompanyOrderDto, TaechangReceivableCompanyOrderDto&> m_arrCoOrders;
-
 protected:
     void CreateChildControls();
     void BuildSidebarTree();
@@ -142,8 +116,6 @@ protected:
     COLORREF ResolveStatusColor(const CString& strStatus) const;
     SageBackgroundRole ResolveStatusBgRole(const CString& strStatus) const;
     void DrawShellBands(CDC* pDC, const CRect& rectClient);
-    void DrawEditBorder(CDC* pDC, CWnd& wnd);
-    void SetCardRect(CRect& rectCard, const CRect& rectNew);
     void InvalidateContentArea();
     BOOL ValidateInputPath(CString& strInputPath);
     BOOL ValidateOutputFolder(CString& strOutputFolder);
@@ -151,14 +123,6 @@ protected:
     void ApplyDroppedInputPaths(const CString& strPaths);
     void RunWorkflowTask(int nTaskType);
     void DisplayResponse(int nWorkflowType, int nTaskType, const CString& strResponseJson);
-
-    // ── 법인 순서 데이터 관리 패널 ───────────────────────────────────────────
-    void CreateCompanyOrderPanel();
-    void LayoutCompanyOrderPanel(int nLeft, int nTop, int nWidth, int nHeight);
-    void ShowCompanyOrderPanel(BOOL bShow);
-    void RefreshCompanyOrderList();
-    void UpdateCoListColumns();
-    void UpdateCoPanelState();
 
 protected:
     afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
@@ -176,14 +140,6 @@ protected:
     afx_msg void OnDropFiles(HDROP hDropInfo);
     afx_msg void OnLogin();
     afx_msg void OnLogout();
-
-    // ── 법인 순서 데이터 관리 이벤트 ─────────────────────────────────────────
-    afx_msg void OnCoAdd();
-    afx_msg void OnCoModify();
-    afx_msg void OnCoDelete();
-    afx_msg void OnCoCancel();
-    afx_msg void OnCoSearch();
-    afx_msg void OnCoListSelChanged(NMHDR* pNMHDR, LRESULT* pResult);
 
     DECLARE_MESSAGE_MAP()
 };
