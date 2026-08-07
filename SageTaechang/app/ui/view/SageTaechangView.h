@@ -6,7 +6,7 @@
 #include "app/ui/drawing/SageButton.h"
 #include "app/ui/drawing/SageLabel.h"
 #include "app/ui/drawing/SageUiResources.h"
-#include "app/ui/drawing/SageSidebarTree.h"
+#include "app/ui/panels/SageSidebarPanel.h"
 
 class ISageWorkflowHandler;
 
@@ -32,14 +32,10 @@ public:
 #endif
 
 protected:
-    CSageLabel m_wndSidebarTitle;
-    CSageSidebarTree m_wndSidebarTree;
     CSageLabel m_wndHeaderTitle;
     CStatic m_wndHeaderStatus;
-    CSageLabel m_wndTitle;
     CBrush m_brushListHeader;
     int m_nCurrentWorkflow;
-    HTREEITEM m_hLastWorkflowItem;
     COLORREF m_colorHeaderStatus;
     SageBackgroundRole m_nHeaderStatusBgRole;
 
@@ -48,11 +44,11 @@ protected:
     CSageLabel m_wndUserLabel;
     int m_nAuthDividerX;
 
+    SageSidebarPanel m_panelSidebar;
     SageWorkspacePanel m_panelWorkspace;
 
 protected:
     void CreateChildControls();
-    void BuildSidebarTree();
     void ApplyControlFonts();
     void ApplyLabelRoles();
     void LayoutChildControls();
@@ -72,7 +68,8 @@ protected:
     afx_msg BOOL OnEraseBkgnd(CDC* pDC);
     afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
     afx_msg void OnWorkflowChanged();
-    afx_msg void OnSidebarSelectionChanged(NMHDR* pNMHDR, LRESULT* pResult);
+    afx_msg LRESULT OnSidebarWorkflow(WPARAM wParam, LPARAM lParam);
+    afx_msg LRESULT OnSidebarAction(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnWorkspaceTabChanged(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnWorkspaceStatus(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnWorkspaceStateChanged(WPARAM wParam, LPARAM lParam);

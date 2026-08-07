@@ -56,7 +56,8 @@ BEGIN_MESSAGE_MAP(CSageTaechangView, CView)
 	ON_WM_SIZE()
 	ON_WM_ERASEBKGND()
 	ON_WM_CTLCOLOR()
-	ON_NOTIFY(TVN_SELCHANGED, ID_TAECHANG_SIDEBAR_TREE, &CSageTaechangView::OnSidebarSelectionChanged)
+	ON_MESSAGE(WM_TAECHANG_SIDEBAR_WORKFLOW, &CSageTaechangView::OnSidebarWorkflow)
+	ON_MESSAGE(WM_TAECHANG_SIDEBAR_ACTION, &CSageTaechangView::OnSidebarAction)
 	ON_BN_CLICKED(ID_TAECHANG_LOGIN_BTN, &CSageTaechangView::OnLogin)
 	ON_BN_CLICKED(ID_TAECHANG_LOGOUT_BTN, &CSageTaechangView::OnLogout)
 	ON_MESSAGE(WM_TAECHANG_WORKSPACE_TAB_CHANGED, &CSageTaechangView::OnWorkspaceTabChanged)
@@ -67,7 +68,6 @@ END_MESSAGE_MAP()
 
 CSageTaechangView::CSageTaechangView() noexcept
 	: m_nCurrentWorkflow(TAECHANG_WORKFLOW_DELIVERY)
-	, m_hLastWorkflowItem(NULL)
 	, m_colorHeaderStatus(TAECHANG_COLOR_SECONDARY_TEXT)
 	, m_nHeaderStatusBgRole(SAGE_BG_APP)
 	, m_nAuthDividerX(0) {
@@ -104,20 +104,15 @@ int CSageTaechangView::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 
 void CSageTaechangView::CreateChildControls() {
 	CRect rectEmpty(0, 0, 0, 0);
-	m_wndSidebarTitle.Create(TAECHANG_UI_SIDEBAR_TITLE, WS_CHILD | WS_VISIBLE | SS_CENTERIMAGE, rectEmpty, this);
-	m_wndSidebarTree.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | TVS_FULLROWSELECT | TVS_SHOWSELALWAYS | TVS_DISABLEDRAGDROP | TVS_NOSCROLL, rectEmpty, this, ID_TAECHANG_SIDEBAR_TREE);
-	SetWindowTheme(m_wndSidebarTree.GetSafeHwnd(), L"", L"");
-	m_wndSidebarTree.SetBkColor(TAECHANG_COLOR_SIDEBAR);
-	m_wndSidebarTree.SetTextColor(TAECHANG_COLOR_SIDEBAR_TEXT);
-	m_wndSidebarTree.SetItemHeight(TAECHANG_SIDEBAR_ITEM_HEIGHT);
 	m_wndHeaderTitle.Create(TAECHANG_UI_RECEIVABLES_NAME, WS_CHILD | WS_VISIBLE | SS_CENTERIMAGE, rectEmpty, this);
 	m_wndHeaderStatus.Create(TAECHANG_UI_READY, WS_CHILD | SS_RIGHT, rectEmpty, this);
-	m_wndTitle.Create(TAECHANG_UI_APP_TITLE, WS_CHILD | WS_VISIBLE | SS_CENTER | SS_CENTERIMAGE, rectEmpty, this);
 
 	m_wndLoginBtn.Create(TAECHANG_UI_LOGIN_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_LOGIN_BTN);
 	m_wndLogoutBtn.Create(TAECHANG_UI_LOGOUT_BTN, WS_CHILD | BS_OWNERDRAW, rectEmpty, this, ID_TAECHANG_LOGOUT_BTN);
 	m_wndUserLabel.Create(L"", WS_CHILD | SS_CENTERIMAGE | SS_NOPREFIX, rectEmpty, this, ID_TAECHANG_USER_LABEL);
 
+	m_panelSidebar.Create(this, ID_TAECHANG_SIDEBAR_PANEL);
+	m_panelSidebar.ShowWindow(SW_SHOW);
 	m_panelWorkspace.Create(this, ID_TAECHANG_WORKSPACE_PANEL);
 	m_panelWorkspace.EnableFileDrop();
 	m_panelWorkspace.ShowWindow(SW_SHOW);
@@ -125,56 +120,16 @@ void CSageTaechangView::CreateChildControls() {
 	ApplyControlFonts();
 	ApplyLabelRoles();
 	OnWorkflowChanged();
-	BuildSidebarTree();
-}
-
-void CSageTaechangView::BuildSidebarTree() {
-	HTREEITEM hDocument = m_wndSidebarTree.InsertItem(TAECHANG_UI_SIDEBAR_GROUP_DOCUMENT, TVI_ROOT, TVI_LAST);
-	m_wndSidebarTree.SetItemData(hDocument, TAECHANG_SIDEBAR_ACTION_NONE);
-	HTREEITEM hReceivables = m_wndSidebarTree.InsertItem(TAECHANG_UI_RECEIVABLES_NAME, hDocument, TVI_LAST);
-	m_wndSidebarTree.SetItemData(hReceivables, TAECHANG_WORKFLOW_RECEIVABLES);
-	HTREEITEM hDelivery = m_wndSidebarTree.InsertItem(TAECHANG_UI_DELIVERY_NAME, hDocument, TVI_LAST);
-	m_wndSidebarTree.SetItemData(hDelivery, TAECHANG_WORKFLOW_DELIVERY);
-	HTREEITEM hEstimate = m_wndSidebarTree.InsertItem(TAECHANG_UI_ESTIMATE_NAME, hDocument, TVI_LAST);
-	m_wndSidebarTree.SetItemData(hEstimate, TAECHANG_WORKFLOW_ESTIMATE);
-
-	HTREEITEM hPrice = m_wndSidebarTree.InsertItem(TAECHANG_UI_SIDEBAR_GROUP_PRICE, TVI_ROOT, TVI_LAST);
-	m_wndSidebarTree.SetItemData(hPrice, TAECHANG_SIDEBAR_ACTION_NONE);
-	HTREEITEM hPriceManage = m_wndSidebarTree.InsertItem(TAECHANG_UI_PRICE_MANAGE_NAME, hPrice, TVI_LAST);
-	m_wndSidebarTree.SetItemData(hPriceManage, TAECHANG_WORKFLOW_PRICE_MANAGE);
-	HTREEITEM hPriceCalc = m_wndSidebarTree.InsertItem(TAECHANG_UI_PRICE_CALC_NAME, hPrice, TVI_LAST);
-	m_wndSidebarTree.SetItemData(hPriceCalc, TAECHANG_WORKFLOW_PRICE_CALC);
-
-	HTREEITEM hEtc = m_wndSidebarTree.InsertItem(TAECHANG_UI_SIDEBAR_GROUP_ETC, TVI_ROOT, TVI_LAST);
-	m_wndSidebarTree.SetItemData(hEtc, TAECHANG_SIDEBAR_ACTION_NONE);
-	HTREEITEM hChangePassword = m_wndSidebarTree.InsertItem(TAECHANG_UI_CHANGE_PW_MENU, hEtc, TVI_LAST);
-	m_wndSidebarTree.SetItemData(hChangePassword, TAECHANG_SIDEBAR_ACTION_CHANGE_PASSWORD);
-
-	m_wndSidebarTree.Expand(hDocument, TVE_EXPAND);
-	m_wndSidebarTree.Expand(hPrice, TVE_EXPAND);
-	m_wndSidebarTree.Expand(hEtc, TVE_EXPAND);
-
-	m_hLastWorkflowItem = hDelivery;
-	m_wndSidebarTree.SelectItem(hDelivery);
+	m_panelSidebar.BuildTree();
 }
 
 void CSageTaechangView::ApplyControlFonts() {
-	m_wndSidebarTree.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTROL));
-
 	m_wndHeaderStatus.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndLoginBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndLogoutBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 }
 
 void CSageTaechangView::ApplyLabelRoles() {
-	m_wndTitle.SetTextColorRole(SAGE_TEXT_SIDEBAR);
-	m_wndTitle.SetBackgroundRole(SAGE_BG_SIDEBAR);
-	m_wndTitle.SetFontRole(SAGE_FONT_LOGO);
-
-	m_wndSidebarTitle.SetTextColorRole(SAGE_TEXT_SIDEBAR_CATEGORY);
-	m_wndSidebarTitle.SetBackgroundRole(SAGE_BG_SIDEBAR);
-	m_wndSidebarTitle.SetFontRole(SAGE_FONT_CONTROL);
-
 	m_wndHeaderTitle.SetTextColorRole(SAGE_TEXT_DEFAULT);
 	m_wndHeaderTitle.SetBackgroundRole(SAGE_BG_PANEL);
 	m_wndHeaderTitle.SetFontRole(SAGE_FONT_TITLE);
@@ -190,25 +145,15 @@ void CSageTaechangView::OnSize(UINT nType, int cx, int cy) {
 }
 
 void CSageTaechangView::LayoutChildControls() {
-	if (!::IsWindow(m_wndSidebarTree.GetSafeHwnd()))
+	if (!::IsWindow(m_panelSidebar.GetSafeHwnd()))
 		return;
 
 	CRect rectClient;
 	GetClientRect(&rectClient);
 
-	int nSidebarLeft = 0;
-	int nSidebarHeight = rectClient.Height();
-	int nSidebarInnerWidth = TAECHANG_SIDEBAR_WIDTH - (TAECHANG_MARGIN * 2);
+	m_panelSidebar.Layout(CRect(0, 0, TAECHANG_SIDEBAR_WIDTH, rectClient.Height()));
 	int nContentLeft = TAECHANG_SIDEBAR_WIDTH + TAECHANG_CONTENT_PAD_X;
 	int nContentWidth = rectClient.Width() - nContentLeft - TAECHANG_CONTENT_PAD_X;
-
-	m_wndTitle.MoveWindow(TAECHANG_MARGIN, 0, nSidebarInnerWidth, TAECHANG_HEADER_HEIGHT);
-	m_wndSidebarTitle.MoveWindow(TAECHANG_MARGIN, TAECHANG_HEADER_HEIGHT, nSidebarInnerWidth, TAECHANG_SIDEBAR_TITLE_HEIGHT);
-	m_wndSidebarTree.MoveWindow(
-		TAECHANG_MARGIN,
-		TAECHANG_HEADER_HEIGHT + TAECHANG_SIDEBAR_TITLE_HEIGHT,
-		nSidebarInnerWidth,
-		nSidebarHeight - TAECHANG_HEADER_HEIGHT - TAECHANG_SIDEBAR_TITLE_HEIGHT - TAECHANG_MARGIN);
 
 	int nHeaderRowTop = (TAECHANG_HEADER_HEIGHT - TAECHANG_BUTTON_HEIGHT) / 2;
 	{
@@ -235,8 +180,6 @@ void CSageTaechangView::LayoutChildControls() {
 		rectClient.Width(),
 		rectClient.Height()));
 	m_panelWorkspace.RefreshVisibility();
-
-	UNREFERENCED_PARAMETER(nSidebarLeft);
 }
 
 void CSageTaechangView::OnDraw(CDC* pDC) {
@@ -245,8 +188,6 @@ void CSageTaechangView::OnDraw(CDC* pDC) {
 	CRect rectClient;
 	GetClientRect(&rectClient);
 	pDC->FillSolidRect(rectClient, TAECHANG_COLOR_APP_BACKGROUND);
-	pDC->FillSolidRect(0, 0, TAECHANG_SIDEBAR_WIDTH, rectClient.Height(), TAECHANG_COLOR_SIDEBAR);
-	pDC->FillSolidRect(0, TAECHANG_HEADER_HEIGHT, TAECHANG_SIDEBAR_WIDTH, TAECHANG_BORDER_THICKNESS, TAECHANG_COLOR_SIDEBAR_DIVIDER);
 	pDC->FillSolidRect(TAECHANG_SIDEBAR_WIDTH, 0, 1, rectClient.Height(), TAECHANG_COLOR_BORDER);
 	DrawShellBands(pDC, rectClient);
 	if (taechangAuth.IsLoggedIn() && m_nAuthDividerX > 0) {
@@ -311,43 +252,20 @@ void CSageTaechangView::OnWorkflowChanged() {
 		SetStatusText(TAECHANG_UI_READY);
 }
 
-void CSageTaechangView::OnSidebarSelectionChanged(NMHDR* pNMHDR, LRESULT* pResult) {
-	UNREFERENCED_PARAMETER(pNMHDR);
-	*pResult = 0;
-	HTREEITEM hItem = m_wndSidebarTree.GetSelectedItem();
-	if (hItem == NULL)
-		return;
-	DWORD_PTR nItemData = m_wndSidebarTree.GetItemData(hItem);
-	if (nItemData == TAECHANG_SIDEBAR_ACTION_NONE)
-		return;
-	if (nItemData == TAECHANG_SIDEBAR_ACTION_CHANGE_PASSWORD) {
-		if (!taechangAuth.IsLoggedIn()) {
-			AfxMessageBox(TAECHANG_UI_LOGIN_REQUIRED, MB_ICONWARNING);
-			if (m_hLastWorkflowItem != NULL)
-				m_wndSidebarTree.SelectItem(m_hLastWorkflowItem);
-			return;
-		}
-		TaechangPasswordChangeDlg dlg(this);
-		dlg.DoModal();
-		if (m_hLastWorkflowItem != NULL)
-			m_wndSidebarTree.SelectItem(m_hLastWorkflowItem);
-		return;
-	}
-	if (nItemData == TAECHANG_WORKFLOW_RECEIVABLES || nItemData == TAECHANG_WORKFLOW_PRICE_MANAGE) {
-		if (!taechangAuth.IsLoggedIn()) {
-			AfxMessageBox(TAECHANG_UI_LOGIN_REQUIRED, MB_ICONWARNING);
-			if (m_hLastWorkflowItem != NULL)
-				m_wndSidebarTree.SelectItem(m_hLastWorkflowItem);
-			return;
-		}
-	}
-	int nNewWorkflow = static_cast<int>(nItemData);
-	m_hLastWorkflowItem = hItem;
-	if (nNewWorkflow == m_nCurrentWorkflow)
-		return;
+LRESULT CSageTaechangView::OnSidebarWorkflow(WPARAM wParam, LPARAM lParam) {
+	UNREFERENCED_PARAMETER(lParam);
 	m_panelWorkspace.SaveWorkflowState(m_nCurrentWorkflow);
-	m_nCurrentWorkflow = nNewWorkflow;
+	m_nCurrentWorkflow = static_cast<int>(wParam);
 	OnWorkflowChanged();
+	return 0;
+}
+
+LRESULT CSageTaechangView::OnSidebarAction(WPARAM wParam, LPARAM lParam) {
+	UNREFERENCED_PARAMETER(wParam);
+	UNREFERENCED_PARAMETER(lParam);
+	TaechangPasswordChangeDlg dlg(this);
+	dlg.DoModal();
+	return 0;
 }
 
 LRESULT CSageTaechangView::OnWorkspaceTabChanged(WPARAM wParam, LPARAM lParam) {
