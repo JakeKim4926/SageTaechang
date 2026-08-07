@@ -222,6 +222,43 @@ BOOL TaechangReceivableCompanyOrderRepository::Update(
     return TRUE;
 }
 
+BOOL TaechangReceivableCompanyOrderRepository::SwapSortOrder(
+    const TaechangReceivableCompanyOrderDto& dtoFirst,
+    const TaechangReceivableCompanyOrderDto& dtoSecond,
+    CString& strError
+) {
+    TaechangReceivableCompanyOrderDto dtoLower;
+    TaechangReceivableCompanyOrderDto dtoUpper;
+    CString strRollbackError;
+    int nAffectedCount;
+    int nSortOrder;
+
+    nAffectedCount = 0;
+
+    if (m_pSqlContext == NULL || m_pSqlContext->IsOpened() == FALSE) {
+        strError = _T("SQLite DB가 열려 있지 않습니다.");
+        return FALSE;
+    }
+
+    dtoLower = dtoFirst;
+    dtoUpper = dtoSecond;
+    nSortOrder = dtoLower.nSortOrder;
+    dtoLower.nSortOrder = dtoUpper.nSortOrder;
+    dtoUpper.nSortOrder = nSortOrder;
+
+    if (m_pSqlContext->BeginTransaction(strError) == FALSE) {
+        return FALSE;
+    }
+
+    if (Update(dtoLower, nAffectedCount, strError) == FALSE ||
+        Update(dtoUpper, nAffectedCount, strError) == FALSE) {
+        m_pSqlContext->Rollback(strRollbackError);
+        return FALSE;
+    }
+
+    return m_pSqlContext->Commit(strError);
+}
+
 BOOL TaechangReceivableCompanyOrderRepository::DeleteByOrderId(int nOrderId, int& nAffectedCount, CString& strError) {
     sqlite3* pDb;
     sqlite3_stmt* pStatement;

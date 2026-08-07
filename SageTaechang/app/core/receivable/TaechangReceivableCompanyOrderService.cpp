@@ -141,6 +141,24 @@ BOOL TaechangReceivableCompanyOrderService::ChangeCompanyOrder(
     return TRUE;
 }
 
+BOOL TaechangReceivableCompanyOrderService::SwapCompanyOrder(
+    const TaechangReceivableCompanyOrderDto& dtoFirst,
+    const TaechangReceivableCompanyOrderDto& dtoSecond,
+    CString& strError
+) {
+    if (m_pRepository == NULL) {
+        strError = _T("TaechangReceivableCompanyOrderRepository가 NULL입니다.");
+        return FALSE;
+    }
+
+    if (dtoFirst.nOrderId <= 0 || dtoSecond.nOrderId <= 0) {
+        strError = _T("유효하지 않은 정렬 ID입니다.");
+        return FALSE;
+    }
+
+    return m_pRepository->SwapSortOrder(dtoFirst, dtoSecond, strError);
+}
+
 BOOL TaechangReceivableCompanyOrderService::RemoveCompanyOrder(int nOrderId, CString& strError) {
     int nAffectedCount;
 

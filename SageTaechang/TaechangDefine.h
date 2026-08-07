@@ -104,6 +104,8 @@ constexpr int TAECHANG_ICON_SEARCH_HANDLE = 4;
 constexpr int TAECHANG_ICON_RESET_RADIUS = 6;
 constexpr int TAECHANG_ICON_RESET_ARROW = 3;
 constexpr int TAECHANG_ICON_CLOSE_SPAN = 10;
+constexpr int TAECHANG_ICON_ARROW_HALF_WIDTH = 4;
+constexpr int TAECHANG_ICON_ARROW_HALF_HEIGHT = 2;
 
 constexpr int TAECHANG_DLG_CAPTION_HEIGHT = 40;
 constexpr int TAECHANG_DLG_CAPTION_PAD = 16;
@@ -937,6 +939,8 @@ constexpr LPCWSTR TAECHANG_UI_CO_ADD_BTN            = L"법인 추가";
 constexpr LPCWSTR TAECHANG_UI_CO_DELETE_BTN         = L"이 법인 삭제";
 constexpr LPCWSTR TAECHANG_UI_CO_COUNT_FORMAT       = L"%d개 법인";
 constexpr LPCWSTR TAECHANG_UI_CO_SEARCH_PLACEHOLDER = L"법인명 검색";
+constexpr LPCWSTR TAECHANG_UI_TIP_MOVE_UP           = L"위로 이동";
+constexpr LPCWSTR TAECHANG_UI_TIP_MOVE_DOWN         = L"아래로 이동";
 constexpr LPCWSTR TAECHANG_UI_CO_GUIDE              = L"여기서 정한 순서대로 미수금 내역서가 출력됩니다. 목록에 없는 법인은 «기타»로 마지막에 묶입니다.";
 constexpr LPCWSTR TAECHANG_UI_CO_SAVE_BTN           = L"저장";
 constexpr LPCWSTR TAECHANG_UI_CO_CANCEL_BTN         = L"취소";

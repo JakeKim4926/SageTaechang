@@ -124,6 +124,10 @@ void CSageButton::DrawIconAt(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon) 
 		DrawAddIcon(dc, ptCenter, clrIcon);
 	else if (m_nIcon == SAGE_BUTTON_ICON_CLOSE)
 		DrawCloseIcon(dc, ptCenter, clrIcon);
+	else if (m_nIcon == SAGE_BUTTON_ICON_MOVE_UP)
+		DrawArrowIcon(dc, ptCenter, clrIcon, TRUE);
+	else if (m_nIcon == SAGE_BUTTON_ICON_MOVE_DOWN)
+		DrawArrowIcon(dc, ptCenter, clrIcon, FALSE);
 	else
 		DrawResetIcon(dc, ptCenter, clrIcon);
 }
@@ -151,6 +155,25 @@ void CSageButton::DrawCloseIcon(CDC& dc, const CPoint& ptCenter, COLORREF clrIco
 	dc.LineTo(ptCenter.x + nHalfSpan, ptCenter.y + nHalfSpan);
 	dc.MoveTo(ptCenter.x + nHalfSpan, ptCenter.y - nHalfSpan);
 	dc.LineTo(ptCenter.x - nHalfSpan, ptCenter.y + nHalfSpan);
+
+	if (pOldPen)
+		dc.SelectObject(pOldPen);
+}
+
+void CSageButton::DrawArrowIcon(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon, BOOL bUp) {
+	CPen pen(PS_SOLID, TAECHANG_ICON_STROKE, clrIcon);
+	CPen* pOldPen = dc.SelectObject(&pen);
+
+	int nTipY = bUp
+		? ptCenter.y - TAECHANG_ICON_ARROW_HALF_HEIGHT
+		: ptCenter.y + TAECHANG_ICON_ARROW_HALF_HEIGHT;
+	int nTailY = bUp
+		? ptCenter.y + TAECHANG_ICON_ARROW_HALF_HEIGHT
+		: ptCenter.y - TAECHANG_ICON_ARROW_HALF_HEIGHT;
+
+	dc.MoveTo(ptCenter.x - TAECHANG_ICON_ARROW_HALF_WIDTH, nTailY);
+	dc.LineTo(ptCenter.x, nTipY);
+	dc.LineTo(ptCenter.x + TAECHANG_ICON_ARROW_HALF_WIDTH, nTailY);
 
 	if (pOldPen)
 		dc.SelectObject(pOldPen);

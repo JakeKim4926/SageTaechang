@@ -13,7 +13,9 @@ enum SageButtonIcon {
 	SAGE_BUTTON_ICON_CALCULATE,
 	SAGE_BUTTON_ICON_RESET,
 	SAGE_BUTTON_ICON_ADD,
-	SAGE_BUTTON_ICON_CLOSE
+	SAGE_BUTTON_ICON_CLOSE,
+	SAGE_BUTTON_ICON_MOVE_UP,
+	SAGE_BUTTON_ICON_MOVE_DOWN
 };
 
 class CSageButton : public CButton
@@ -37,6 +39,7 @@ private:
 	void DrawResetIcon(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon);
 	void DrawAddIcon(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon);
 	void DrawCloseIcon(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon);
+	void DrawArrowIcon(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon, BOOL bUp);
 
 private:
 	SageButtonVariant m_nVariant;

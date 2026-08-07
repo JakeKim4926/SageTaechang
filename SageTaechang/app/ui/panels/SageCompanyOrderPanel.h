@@ -30,6 +30,8 @@ protected:
     afx_msg void OnDelete();
     afx_msg void OnCancel();
     afx_msg void OnSearch();
+    afx_msg void OnMoveUp();
+    afx_msg void OnMoveDown();
     afx_msg void OnListSelChanged(NMHDR* pNMHDR, LRESULT* pResult);
     DECLARE_MESSAGE_MAP()
 
@@ -47,6 +49,8 @@ private:
     int  LayoutEditCard(int nLeft, int nWidth);
     void FillEditFromSelection();
     void AddCompanyOrder(const CString& strCompanyName, const CString& strOrder);
+    void MoveSelected(int nOffset);
+    int  FindSelectedIndex() const;
     BOOL FindSelectedDto(TaechangReceivableCompanyOrderDto& outDto) const;
 
 private:
@@ -56,6 +60,8 @@ private:
     CSageButton m_wndSaveBtn;
     CSageButton m_wndDeleteBtn;
     CSageButton m_wndCancelBtn;
+    CSageButton m_wndMoveUpBtn;
+    CSageButton m_wndMoveDownBtn;
     CSageSearchBox m_wndSearch;
     CSageLabel m_wndOrderLabel;
     CEdit m_wndOrderEdit;

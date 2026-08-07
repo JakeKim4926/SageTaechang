@@ -14,6 +14,8 @@ BEGIN_MESSAGE_MAP(SageCompanyOrderPanel, CWnd)
 	ON_BN_CLICKED(ID_COORDER_DELETE_BTN, &SageCompanyOrderPanel::OnDelete)
 	ON_BN_CLICKED(ID_COORDER_CANCEL_BTN, &SageCompanyOrderPanel::OnCancel)
 	ON_BN_CLICKED(ID_COORDER_SEARCH_BTN, &SageCompanyOrderPanel::OnSearch)
+	ON_BN_CLICKED(ID_COORDER_MOVE_UP_BTN, &SageCompanyOrderPanel::OnMoveUp)
+	ON_BN_CLICKED(ID_COORDER_MOVE_DOWN_BTN, &SageCompanyOrderPanel::OnMoveDown)
 	ON_NOTIFY(LVN_ITEMCHANGED, ID_COORDER_LIST, &SageCompanyOrderPanel::OnListSelChanged)
 END_MESSAGE_MAP()
 
@@ -71,6 +73,12 @@ void SageCompanyOrderPanel::CreateControls() {
 	m_wndDeleteBtn.Create(TAECHANG_UI_CO_DELETE_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_COORDER_DELETE_BTN);
 	m_wndDeleteBtn.SetVariant(SAGE_BUTTON_DANGER);
 	m_wndCancelBtn.Create(TAECHANG_UI_CO_CANCEL_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_COORDER_CANCEL_BTN);
+	m_wndMoveUpBtn.Create(L"", WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_COORDER_MOVE_UP_BTN);
+	m_wndMoveUpBtn.SetIcon(SAGE_BUTTON_ICON_MOVE_UP);
+	m_wndMoveUpBtn.SetTooltip(TAECHANG_UI_TIP_MOVE_UP);
+	m_wndMoveDownBtn.Create(L"", WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_COORDER_MOVE_DOWN_BTN);
+	m_wndMoveDownBtn.SetIcon(SAGE_BUTTON_ICON_MOVE_DOWN);
+	m_wndMoveDownBtn.SetTooltip(TAECHANG_UI_TIP_MOVE_DOWN);
 	m_wndSearch.CreateBox(this, ID_COORDER_SEARCH_BOX, ID_COORDER_SEARCH_EDIT);
 	m_wndSearch.SetCommand(ID_COORDER_SEARCH_BTN);
 	m_wndSearch.SetPlaceholder(TAECHANG_UI_CO_SEARCH_PLACEHOLDER);
@@ -207,6 +215,13 @@ int SageCompanyOrderPanel::LayoutEditCard(int nLeft, int nWidth) {
 		TAECHANG_CO_ORDER_EDIT_WIDTH, TAECHANG_EDIT_HEIGHT);
 	ApplyOrderEditTextRect();
 
+	int nMoveLeft = nContentLeft + TAECHANG_CO_FORM_LABEL_WIDTH + TAECHANG_CARD_ROW_GAP
+		+ TAECHANG_CO_ORDER_EDIT_WIDTH + TAECHANG_ACTION_GAP;
+	m_wndMoveUpBtn.MoveWindow(nMoveLeft, nTop, TAECHANG_ICON_BUTTON_SIZE, TAECHANG_ICON_BUTTON_SIZE);
+	m_wndMoveDownBtn.MoveWindow(
+		nMoveLeft + TAECHANG_ICON_BUTTON_SIZE + TAECHANG_ACTION_GAP, nTop,
+		TAECHANG_ICON_BUTTON_SIZE, TAECHANG_ICON_BUTTON_SIZE);
+
 	nTop += TAECHANG_EDIT_HEIGHT + TAECHANG_CARD_ROW_GAP;
 	m_wndNameLabel.MoveWindow(
 		nContentLeft, nTop, TAECHANG_CO_FORM_LABEL_WIDTH, TAECHANG_EDIT_HEIGHT);
@@ -323,6 +338,12 @@ void SageCompanyOrderPanel::UpdatePanelState() {
 	m_wndOrderEdit.EnableWindow((bAdding || bHasSelection) ? TRUE : FALSE);
 	m_wndCompanyEdit.EnableWindow((bAdding || bHasSelection) ? TRUE : FALSE);
 	m_wndSearch.EnableWindow(!bAdding ? TRUE : FALSE);
+
+	int nSelectedIndex = FindSelectedIndex();
+	BOOL bCanMove = (!bAdding && nSelectedIndex != TAECHANG_LIST_NO_ITEM) ? TRUE : FALSE;
+	m_wndMoveUpBtn.EnableWindow((bCanMove && nSelectedIndex > 0) ? TRUE : FALSE);
+	m_wndMoveDownBtn.EnableWindow(
+		(bCanMove && nSelectedIndex < m_arrOrders.GetSize() - 1) ? TRUE : FALSE);
 
 	CString strCount;
 	strCount.Format(TAECHANG_UI_CO_COUNT_FORMAT, static_cast<int>(m_arrOrders.GetSize()));
@@ -515,6 +536,41 @@ void SageCompanyOrderPanel::OnCancel() {
 	FillEditFromSelection();
 	UpdatePanelState();
 	Invalidate(FALSE);
+}
+
+int SageCompanyOrderPanel::FindSelectedIndex() const {
+	for (int i = 0; i < m_arrOrders.GetSize(); ++i) {
+		if (m_arrOrders[i].nOrderId == m_nSelectedOrderId)
+			return i;
+	}
+	return TAECHANG_LIST_NO_ITEM;
+}
+
+void SageCompanyOrderPanel::MoveSelected(int nOffset) {
+	int nIndex = FindSelectedIndex();
+	if (nIndex == TAECHANG_LIST_NO_ITEM)
+		return;
+
+	int nTargetIndex = nIndex + nOffset;
+	if (nTargetIndex < 0 || nTargetIndex >= m_arrOrders.GetSize())
+		return;
+
+	CString strError;
+	if (sageDBMgr.GetReceivableCompanyOrderService()->SwapCompanyOrder(
+		m_arrOrders[nIndex], m_arrOrders[nTargetIndex], strError) == FALSE) {
+		AfxMessageBox(strError);
+		return;
+	}
+	RefreshList();
+	FillEditFromSelection();
+}
+
+void SageCompanyOrderPanel::OnMoveUp() {
+	MoveSelected(-1);
+}
+
+void SageCompanyOrderPanel::OnMoveDown() {
+	MoveSelected(1);
 }
 
 void SageCompanyOrderPanel::OnSearch() {

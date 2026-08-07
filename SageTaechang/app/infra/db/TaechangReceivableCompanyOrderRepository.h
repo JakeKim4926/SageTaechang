@@ -14,6 +14,10 @@ public:
     BOOL SelectAll(CArray<TaechangReceivableCompanyOrderDto, TaechangReceivableCompanyOrderDto&>& arrOrder, CString& strError);
     BOOL SelectByCompanyName(const CString& strCompanyName, TaechangReceivableCompanyOrderDto& dto, BOOL& bFound, CString& strError);
     BOOL Update(const TaechangReceivableCompanyOrderDto& dto, int& nAffectedCount, CString& strError);
+    BOOL SwapSortOrder(
+        const TaechangReceivableCompanyOrderDto& dtoFirst,
+        const TaechangReceivableCompanyOrderDto& dtoSecond,
+        CString& strError);
     BOOL DeleteByOrderId(int nOrderId, int& nAffectedCount, CString& strError);
     BOOL DeleteByCompanyName(const CString& strCompanyName, int& nAffectedCount, CString& strError);
     BOOL ExistsByCompanyName(const CString& strCompanyName, int nExceptOrderId, BOOL& bExists, CString& strError);

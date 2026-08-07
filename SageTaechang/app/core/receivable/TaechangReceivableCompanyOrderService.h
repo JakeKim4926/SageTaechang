@@ -14,6 +14,10 @@ public:
     BOOL LoadAllCompanyOrders(CArray<TaechangReceivableCompanyOrderDto, TaechangReceivableCompanyOrderDto&>& arrOrder, CString& strError);
     BOOL LoadCompanyOrder(const CString& strCompanyName, TaechangReceivableCompanyOrderDto& dto, BOOL& bFound, CString& strError);
     BOOL ChangeCompanyOrder(const TaechangReceivableCompanyOrderDto& dto, CString& strError);
+    BOOL SwapCompanyOrder(
+        const TaechangReceivableCompanyOrderDto& dtoFirst,
+        const TaechangReceivableCompanyOrderDto& dtoSecond,
+        CString& strError);
     BOOL RemoveCompanyOrder(int nOrderId, CString& strError);
     BOOL RemoveCompanyOrderByName(const CString& strCompanyName, CString& strError);
 
