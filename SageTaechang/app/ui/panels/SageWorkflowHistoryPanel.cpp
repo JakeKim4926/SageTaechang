@@ -35,6 +35,7 @@ constexpr int SAGE_HISTORY_COLUMN_REASON = 4;
 BEGIN_MESSAGE_MAP(SageWorkflowHistoryPanel, CWnd)
 	ON_WM_CREATE()
 	ON_WM_ERASEBKGND()
+	ON_BN_CLICKED(ID_TAECHANG_DETAIL_FILTER, &SageWorkflowHistoryPanel::OnFilterChanged)
 END_MESSAGE_MAP()
 
 BOOL SageWorkflowHistoryPanel::Create(CWnd* pParent, UINT nId) {
@@ -65,10 +66,59 @@ int SageWorkflowHistoryPanel::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	m_wndEmpty.Create(L"", WS_CHILD | SS_OWNERDRAW, r, this, ID_TAECHANG_DETAIL_EMPTY);
 	m_wndEmpty.SetContent(TAECHANG_UI_HISTORY_EMPTY_TITLE, TAECHANG_UI_HISTORY_EMPTY_DESC);
 
+	m_wndFilterPills.Create(L"", WS_CHILD | SS_OWNERDRAW | SS_NOTIFY, r, this, ID_TAECHANG_DETAIL_FILTER);
+	m_wndFilterPills.SetCommand(ID_TAECHANG_DETAIL_FILTER);
+
 	CreateColumns();
 	ApplyRowStyles();
+	UpdateFilterLabels();
 	UpdateEmptyState();
 	return 0;
+}
+
+void SageWorkflowHistoryPanel::UpdateFilterLabels() {
+	int nSuccessCount = 0;
+	for (int i = 0; i < static_cast<int>(m_arrRows.size()); ++i) {
+		if (m_arrRows[i].bSuccess)
+			++nSuccessCount;
+	}
+	int nTotalCount = static_cast<int>(m_arrRows.size());
+
+	std::vector<CString> arrLabels;
+	CString strLabel;
+	strLabel.Format(TAECHANG_UI_HISTORY_FILTER_ALL, nTotalCount);
+	arrLabels.push_back(strLabel);
+	strLabel.Format(TAECHANG_UI_HISTORY_FILTER_SUCCESS, nSuccessCount);
+	arrLabels.push_back(strLabel);
+	strLabel.Format(TAECHANG_UI_HISTORY_FILTER_FAILED, nTotalCount - nSuccessCount);
+	arrLabels.push_back(strLabel);
+	m_wndFilterPills.SetLabels(arrLabels);
+}
+
+BOOL SageWorkflowHistoryPanel::IsRowVisible(const SageHistoryRow& row) const {
+	int nFilter = m_wndFilterPills.GetSelectedIndex();
+	if (nFilter == TAECHANG_HISTORY_FILTER_SUCCESS)
+		return row.bSuccess;
+	if (nFilter == TAECHANG_HISTORY_FILTER_FAILED)
+		return row.bSuccess ? FALSE : TRUE;
+	return TRUE;
+}
+
+void SageWorkflowHistoryPanel::RebuildVisibleRows() {
+	m_wndList.DeleteAllItems();
+	int nItem = 0;
+	for (int i = 0; i < static_cast<int>(m_arrRows.size()); ++i) {
+		if (!IsRowVisible(m_arrRows[i]))
+			continue;
+		InsertRow(nItem, m_arrRows[i]);
+		++nItem;
+	}
+	UpdateEmptyState();
+	LayoutChildren();
+}
+
+void SageWorkflowHistoryPanel::OnFilterChanged() {
+	RebuildVisibleRows();
 }
 
 void SageWorkflowHistoryPanel::CreateColumns() {
@@ -91,6 +141,10 @@ void SageWorkflowHistoryPanel::ApplyRowStyles() {
 
 void SageWorkflowHistoryPanel::Layout(const CRect& rectPanel) {
 	MoveWindow(rectPanel);
+	LayoutChildren();
+}
+
+void SageWorkflowHistoryPanel::LayoutChildren() {
 	if (!::IsWindow(m_wndList.GetSafeHwnd()))
 		return;
 
@@ -99,8 +153,12 @@ void SageWorkflowHistoryPanel::Layout(const CRect& rectPanel) {
 	if (rectClient.IsRectEmpty())
 		return;
 
-	m_wndList.MoveWindow(0, 0, rectClient.Width(), rectClient.Height());
-	m_wndEmpty.MoveWindow(0, 0, rectClient.Width(), rectClient.Height());
+	int nTableTop = m_arrRows.empty()
+		? 0
+		: TAECHANG_PILL_HEIGHT + TAECHANG_CARD_ROW_GAP;
+	m_wndFilterPills.MoveWindow(0, 0, rectClient.Width(), TAECHANG_PILL_HEIGHT);
+	m_wndList.MoveWindow(0, nTableTop, rectClient.Width(), rectClient.Height() - nTableTop);
+	m_wndEmpty.MoveWindow(0, nTableTop, rectClient.Width(), rectClient.Height() - nTableTop);
 	UpdateColumnWidths();
 }
 
@@ -121,9 +179,18 @@ void SageWorkflowHistoryPanel::UpdateColumnWidths() {
 }
 
 void SageWorkflowHistoryPanel::UpdateEmptyState() {
-	BOOL bHasRows = m_arrRows.empty() ? FALSE : TRUE;
-	m_wndList.ShowWindow(bHasRows ? SW_SHOW : SW_HIDE);
-	m_wndEmpty.ShowWindow(bHasRows ? SW_HIDE : SW_SHOW);
+	BOOL bHasHistory = m_arrRows.empty() ? FALSE : TRUE;
+	BOOL bHasVisibleRows = (m_wndList.GetItemCount() > 0) ? TRUE : FALSE;
+
+	m_wndFilterPills.ShowWindow(bHasHistory ? SW_SHOW : SW_HIDE);
+	m_wndList.ShowWindow(bHasVisibleRows ? SW_SHOW : SW_HIDE);
+	m_wndEmpty.ShowWindow(bHasVisibleRows ? SW_HIDE : SW_SHOW);
+	if (bHasVisibleRows)
+		return;
+
+	m_wndEmpty.SetContent(
+		bHasHistory ? TAECHANG_UI_HISTORY_FILTER_EMPTY_TITLE : TAECHANG_UI_HISTORY_EMPTY_TITLE,
+		bHasHistory ? TAECHANG_UI_HISTORY_FILTER_EMPTY_DESC : TAECHANG_UI_HISTORY_EMPTY_DESC);
 }
 
 SageHistoryRow SageWorkflowHistoryPanel::BuildRow(
@@ -170,9 +237,8 @@ void SageWorkflowHistoryPanel::AppendEntry(
 	if (!::IsWindow(m_wndList.GetSafeHwnd()))
 		return;
 
-	InsertRow(0, row);
-	UpdateEmptyState();
-	UpdateColumnWidths();
+	UpdateFilterLabels();
+	RebuildVisibleRows();
 }
 
 BOOL SageWorkflowHistoryPanel::OnEraseBkgnd(CDC* pDC) {
