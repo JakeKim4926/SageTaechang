@@ -5,6 +5,12 @@
 
 ## 열린 항목
 
+### [2026-08-08] 기존부채 — `m_brushListHeader`가 만들어지기만 하고 쓰이지 않는다
+- 위치: `app/ui/view/SageTaechangView.h` · `.cpp` 생성자
+- 설명: 생성자에서 `CreateSolidBrush`만 하고 참조하는 곳이 없다. **3-B-5b 이전부터 그랬다**(`develop`에서 확인). `CLAUDE.md` 3장에 따라 기존 dead code는 지우지 않고 알린다.
+- 위험도: 낮음
+- 후속: 사용자 확인 후 제거한다
+
 ### [2026-08-08] 목업이탈 — 사이드바 그룹 라벨의 위아래 여백을 재현하지 못한다
 - 위치: `app/ui/drawing/SageSidebarTree.cpp` `DrawTreeItem`
 - 설명: 목업 3-1의 그룹 라벨은 `padding:6px 20px 8px`(두 번째 그룹부터 위 18px)로 **항목보다 낮은 행**인데, `CTreeCtrl`은 `SetItemHeight`로 **모든 행이 같은 높이**(34)다. 그룹 라벨이 항목과 같은 34px 행을 차지해 목업보다 성기게 보인다.
