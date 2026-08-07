@@ -283,6 +283,8 @@ if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templ
     <ClInclude Include="app\ui\panels\SageWorkflowInputPanel.h" />
     <ClInclude Include="app\ui\panels\SageWorkflowResultPanel.h" />
     <ClInclude Include="app\ui\panels\SageWorkflowHistoryPanel.h" />
+    <ClInclude Include="app\ui\drawing\SageBadge.h" />
+    <ClInclude Include="app\ui\panels\SageHeaderPanel.h" />
     <ClInclude Include="app\ui\panels\SageSidebarPanel.h" />
     <ClInclude Include="app\ui\panels\SageWorkspacePanel.h" />
     <ClInclude Include="app\ui\panels\SageCompanyOrderPanel.h" />
@@ -353,6 +355,8 @@ if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templ
     <ClCompile Include="app\ui\panels\SageWorkflowInputPanel.cpp" />
     <ClCompile Include="app\ui\panels\SageWorkflowResultPanel.cpp" />
     <ClCompile Include="app\ui\panels\SageWorkflowHistoryPanel.cpp" />
+    <ClCompile Include="app\ui\drawing\SageBadge.cpp" />
+    <ClCompile Include="app\ui\panels\SageHeaderPanel.cpp" />
     <ClCompile Include="app\ui\panels\SageSidebarPanel.cpp" />
     <ClCompile Include="app\ui\panels\SageWorkspacePanel.cpp" />
     <ClCompile Include="app\ui\panels\SageCompanyOrderPanel.cpp" />

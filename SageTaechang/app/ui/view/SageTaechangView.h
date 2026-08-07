@@ -3,9 +3,9 @@
 
 #include "TaechangDefine.h"
 #include "app/ui/panels/SageWorkspacePanel.h"
-#include "app/ui/drawing/SageButton.h"
 #include "app/ui/drawing/SageLabel.h"
 #include "app/ui/drawing/SageUiResources.h"
+#include "app/ui/panels/SageHeaderPanel.h"
 #include "app/ui/panels/SageSidebarPanel.h"
 
 class ISageWorkflowHandler;
@@ -32,33 +32,19 @@ public:
 #endif
 
 protected:
-    CSageLabel m_wndHeaderTitle;
-    CStatic m_wndHeaderStatus;
     CBrush m_brushListHeader;
     int m_nCurrentWorkflow;
-    COLORREF m_colorHeaderStatus;
-    SageBackgroundRole m_nHeaderStatusBgRole;
 
-    CSageButton m_wndLoginBtn;
-    CSageButton m_wndLogoutBtn;
-    CSageLabel m_wndUserLabel;
-    int m_nAuthDividerX;
-
+    SageHeaderPanel m_panelHeader;
     SageSidebarPanel m_panelSidebar;
     SageWorkspacePanel m_panelWorkspace;
 
 protected:
     void CreateChildControls();
-    void ApplyControlFonts();
-    void ApplyLabelRoles();
     void LayoutChildControls();
-    void UpdateAuthState();
     void SetStatusText(const CString& strStatus);
     int GetSelectedWorkflow() const;
     ISageWorkflowHandler* FindCurrentHandler() const;
-    COLORREF ResolveStatusColor(const CString& strStatus) const;
-    SageBackgroundRole ResolveStatusBgRole(const CString& strStatus) const;
-    void DrawShellBands(CDC* pDC, const CRect& rectClient);
     void InvalidateContentArea();
     void EnableFileDropForWindow(CWnd& wnd);
 
@@ -74,8 +60,6 @@ protected:
     afx_msg LRESULT OnWorkspaceStatus(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnWorkspaceStateChanged(WPARAM wParam, LPARAM lParam);
     afx_msg void OnDropFiles(HDROP hDropInfo);
-    afx_msg void OnLogin();
-    afx_msg void OnLogout();
 
     DECLARE_MESSAGE_MAP()
 };

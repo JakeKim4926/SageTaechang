@@ -261,6 +261,12 @@
     <ClCompile Include="app\ui\panels\SageSidebarPanel.cpp">
       <Filter>소스 파일\app\ui\panels</Filter>
     </ClCompile>
+    <ClCompile Include="app\ui\panels\SageHeaderPanel.cpp">
+      <Filter>소스 파일\app\ui\panels</Filter>
+    </ClCompile>
+    <ClCompile Include="app\ui\drawing\SageBadge.cpp">
+      <Filter>소스 파일\app\ui\drawing</Filter>
+    </ClCompile>
     <ClCompile Include="app\ui\panels\SageWorkspacePanel.cpp">
       <Filter>소스 파일\app\ui\panels</Filter>
     </ClCompile>
@@ -556,6 +562,12 @@
     </ClInclude>
     <ClInclude Include="app\ui\panels\SageSidebarPanel.h">
       <Filter>헤더 파일\app\ui\panels</Filter>
+    </ClInclude>
+    <ClInclude Include="app\ui\panels\SageHeaderPanel.h">
+      <Filter>헤더 파일\app\ui\panels</Filter>
+    </ClInclude>
+    <ClInclude Include="app\ui\drawing\SageBadge.h">
+      <Filter>헤더 파일\app\ui\drawing</Filter>
     </ClInclude>
     <ClInclude Include="app\ui\panels\SageWorkspacePanel.h">
       <Filter>헤더 파일\app\ui\panels</Filter>
