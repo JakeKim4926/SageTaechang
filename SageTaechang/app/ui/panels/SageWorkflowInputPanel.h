@@ -41,7 +41,6 @@ protected:
     afx_msg void OnTimer(UINT_PTR nIDEvent);
     afx_msg void OnSelectInput();
     afx_msg void OnSelectOutput();
-    afx_msg void OnLoadWorkflow();
     afx_msg void OnGenerateWorkflow();
     afx_msg void OnInputReset();
     afx_msg LRESULT OnResultTableChanged(WPARAM wParam, LPARAM lParam);
@@ -51,11 +50,14 @@ protected:
 private:
     void CreateControls();
     void ApplyControlFonts();
-    void LayoutInputSection(int nWidth);
+    void ApplyLabelRoles();
+    void LayoutInputCard(int nWidth);
     void LayoutActionSection();
     void LayoutTableArea();
     int  GetContentWidth() const;
+    int  GetInputCardHeight() const;
     int  GetTableAreaTop() const;
+    void LayoutFormRow(int nTop, int nWidth, CSageLabel& wndLabel, CEdit& wndEdit, CSageButton& wndButton);
     LRESULT ForwardToParent(UINT nMessage, WPARAM wParam, LPARAM lParam);
     void ApplyEditTextRect(CEdit& wndEdit);
     void DrawEditBorder(CDC* pDC, CWnd& wnd);
@@ -63,16 +65,13 @@ private:
     void RequestRun(int nTaskType);
 
 private:
-    CSageSectionLabel m_wndInputSection;
-    CSageSectionLabel m_wndOutputSection;
-    CSageLabel m_wndWorkflowLabel;
+    CSageSectionLabel m_wndCardHeader;
     CSageLabel m_wndInputLabel;
     CSageLabel m_wndOutputLabel;
     CEdit m_wndInputPath;
     CEdit m_wndOutputFolder;
     CSageButton m_wndSelectInput;
     CSageButton m_wndSelectOutput;
-    CSageButton m_wndLoad;
     CSageButton m_wndGenerate;
     CSageButton m_wndInputReset;
     CProgressCtrl m_wndProgress;
