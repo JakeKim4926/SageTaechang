@@ -23,6 +23,7 @@ protected:
 
 private:
 	CRect GetIconCellRect(const CRect& rectClient) const;
+	int  GetTextLineHeight();
 	void LayoutEdit();
 
 private:

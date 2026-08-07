@@ -67,6 +67,15 @@ CRect CSageSearchBox::GetIconCellRect(const CRect& rectClient) const {
 	return rectCell;
 }
 
+int CSageSearchBox::GetTextLineHeight() {
+	CClientDC dc(this);
+	CFont* pOldFont = dc.SelectObject(SageUiResources::GetFont(SAGE_FONT_CONTENT));
+	TEXTMETRIC tm = {};
+	dc.GetTextMetrics(&tm);
+	dc.SelectObject(pOldFont);
+	return tm.tmHeight;
+}
+
 void CSageSearchBox::LayoutEdit() {
 	if (!::IsWindow(m_wndEdit.GetSafeHwnd()))
 		return;
@@ -78,11 +87,12 @@ void CSageSearchBox::LayoutEdit() {
 	if (nEditRight < nEditLeft)
 		nEditRight = nEditLeft;
 
+	int nEditHeight = GetTextLineHeight();
 	m_wndEdit.MoveWindow(
 		nEditLeft,
-		rectClient.top + (rectClient.Height() - TAECHANG_SEARCH_EDIT_HEIGHT) / 2,
+		rectClient.top + (rectClient.Height() - nEditHeight) / 2,
 		nEditRight - nEditLeft,
-		TAECHANG_SEARCH_EDIT_HEIGHT);
+		nEditHeight);
 }
 
 void CSageSearchBox::OnSize(UINT nType, int cx, int cy) {
