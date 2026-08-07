@@ -291,11 +291,18 @@ LRESULT SageWorkspacePanel::ForwardToParent(UINT nMessage, WPARAM wParam, LPARAM
 }
 
 LRESULT SageWorkspacePanel::OnResultTableChanged(WPARAM wParam, LPARAM lParam) {
-	return ForwardToParent(WM_TAECHANG_RESULT_TABLE_CHANGED, wParam, lParam);
+	UNREFERENCED_PARAMETER(wParam);
+	UNREFERENCED_PARAMETER(lParam);
+	UpdateResultSummary();
+	UpdateActionButtonState();
+	ForwardToParent(WM_TAECHANG_WORKSPACE_STATE_CHANGED, 0, 0);
+	return 0;
 }
 
 LRESULT SageWorkspacePanel::OnResultSelectionChanged(WPARAM wParam, LPARAM lParam) {
-	return ForwardToParent(WM_TAECHANG_RESULT_SELECTION_CHANGED, wParam, lParam);
+	UNREFERENCED_PARAMETER(lParam);
+	ApplyActionButtonState(static_cast<int>(wParam));
+	return 0;
 }
 
 LRESULT SageWorkspacePanel::OnWorkflowRunRequested(WPARAM wParam, LPARAM lParam) {
