@@ -40,6 +40,7 @@ private:
     void UpdateListColumns();
     void UpdatePanelState();
     void ApplyEditTextRect(CEdit& wndEdit, int nLeftPad);
+    void ApplyOrderEditTextRect();
     void SetCardRects(const CRect& rectList, const CRect& rectEdit);
     void DrawEditBorder(CDC* pDC, CWnd& wnd);
     void LayoutListCard(const CRect& rectCard);

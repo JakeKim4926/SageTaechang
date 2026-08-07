@@ -76,7 +76,7 @@ void SageCompanyOrderPanel::CreateControls() {
 	m_wndSearch.SetPlaceholder(TAECHANG_UI_CO_SEARCH_PLACEHOLDER);
 	m_wndSearch.SetMaxLength(TAECHANG_CO_COMPANY_NAME_MAX);
 	m_wndOrderLabel.Create(TAECHANG_UI_CO_ORDER_LABEL, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, r, this);
-	m_wndOrderEdit.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_NUMBER, r, this, ID_COORDER_ORDER_EDIT);
+	m_wndOrderEdit.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_NUMBER | ES_RIGHT, r, this, ID_COORDER_ORDER_EDIT);
 	m_wndOrderEdit.LimitText(TAECHANG_CO_ORDER_TEXT_MAX);
 	m_wndNameLabel.Create(TAECHANG_UI_CO_NAME_LABEL, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, r, this);
 	m_wndCompanyEdit.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOHSCROLL, r, this, ID_COORDER_COMPANY_EDIT);
@@ -125,6 +125,14 @@ void SageCompanyOrderPanel::ApplyLabelRoles() {
 	m_wndGuide.SetFontRole(SAGE_FONT_CAPTION);
 }
 
+void SageCompanyOrderPanel::ApplyOrderEditTextRect() {
+	CRect rcFmt;
+	m_wndOrderEdit.GetClientRect(&rcFmt);
+	rcFmt.DeflateRect(TAECHANG_EDIT_TEXT_LEFT_PAD, 0);
+	rcFmt.top += TAECHANG_EDIT_TEXT_TOP_PAD;
+	m_wndOrderEdit.SendMessage(EM_SETRECT, 0, reinterpret_cast<LPARAM>(&rcFmt));
+}
+
 void SageCompanyOrderPanel::ApplyEditTextRect(CEdit& wndEdit, int nLeftPad) {
 	CRect rcFmt;
 	wndEdit.GetClientRect(&rcFmt);
@@ -144,10 +152,10 @@ void SageCompanyOrderPanel::Layout(const CRect& rectPanel) {
 	if (rectClient.IsRectEmpty())
 		return;
 
-	int nEditCardLeft = rectClient.Width() - TAECHANG_CO_EDIT_CARD_WIDTH;
-	int nListCardWidth = nEditCardLeft - TAECHANG_CO_CARD_GAP;
+	int nListCardWidth = rectClient.Width() - TAECHANG_CO_CARD_GAP - TAECHANG_CO_EDIT_CARD_WIDTH;
 	if (nListCardWidth > TAECHANG_CO_LIST_CARD_WIDTH)
 		nListCardWidth = TAECHANG_CO_LIST_CARD_WIDTH;
+	int nEditCardLeft = nListCardWidth + TAECHANG_CO_CARD_GAP;
 
 	CRect rectListCard(0, 0, nListCardWidth, rectClient.Height());
 	LayoutListCard(rectListCard);
@@ -193,17 +201,15 @@ int SageCompanyOrderPanel::LayoutEditCard(int nLeft, int nWidth) {
 	int nTop = TAECHANG_CARD_HEADER_HEIGHT + TAECHANG_CARD_PADDING;
 
 	m_wndOrderLabel.MoveWindow(
-		nContentLeft, nTop + TAECHANG_LABEL_VERT_OFFSET,
-		TAECHANG_CO_FORM_LABEL_WIDTH, TAECHANG_EDIT_HEIGHT);
+		nContentLeft, nTop, TAECHANG_CO_FORM_LABEL_WIDTH, TAECHANG_EDIT_HEIGHT);
 	m_wndOrderEdit.MoveWindow(
 		nContentLeft + TAECHANG_CO_FORM_LABEL_WIDTH + TAECHANG_CARD_ROW_GAP, nTop,
 		TAECHANG_CO_ORDER_EDIT_WIDTH, TAECHANG_EDIT_HEIGHT);
-	ApplyEditTextRect(m_wndOrderEdit, TAECHANG_CO_ORDER_TEXT_LEFT_PAD);
+	ApplyOrderEditTextRect();
 
 	nTop += TAECHANG_EDIT_HEIGHT + TAECHANG_CARD_ROW_GAP;
 	m_wndNameLabel.MoveWindow(
-		nContentLeft, nTop + TAECHANG_LABEL_VERT_OFFSET,
-		TAECHANG_CO_FORM_LABEL_WIDTH, TAECHANG_EDIT_HEIGHT);
+		nContentLeft, nTop, TAECHANG_CO_FORM_LABEL_WIDTH, TAECHANG_EDIT_HEIGHT);
 	int nNameEditLeft = nContentLeft + TAECHANG_CO_FORM_LABEL_WIDTH + TAECHANG_CARD_ROW_GAP;
 	m_wndCompanyEdit.MoveWindow(
 		nNameEditLeft, nTop, nContentRight - nNameEditLeft, TAECHANG_EDIT_HEIGHT);

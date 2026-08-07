@@ -80,9 +80,9 @@ void CSageSearchBox::LayoutEdit() {
 
 	m_wndEdit.MoveWindow(
 		nEditLeft,
-		rectClient.top + TAECHANG_EDIT_BORDER_WIDTH,
+		rectClient.top + (rectClient.Height() - TAECHANG_SEARCH_EDIT_HEIGHT) / 2,
 		nEditRight - nEditLeft,
-		rectClient.Height() - TAECHANG_EDIT_BORDER_WIDTH * 2);
+		TAECHANG_SEARCH_EDIT_HEIGHT);
 }
 
 void CSageSearchBox::OnSize(UINT nType, int cx, int cy) {
