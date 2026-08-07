@@ -283,7 +283,6 @@ void CSageListCtrl::DrawGroupColumn(int nItem, BOOL bSelected, NMLVCUSTOMDRAW* p
 	CRect rcItem;
 	GetSubItemRect(nItem, m_nGroupColumn, LVIR_LABEL, rcItem);
 	pDC->FillSolidRect(&rcItem, clrBk);
-	rcItem.left += TAECHANG_LIST_CELL_LEFT_PAD;
 
 	BOOL bGroupStart = IsGroupStartRow(nItem);
 	CFont* pOldFont = pDC->SelectObject(SageUiResources::GetFont(
@@ -293,7 +292,7 @@ void CSageListCtrl::DrawGroupColumn(int nItem, BOOL bSelected, NMLVCUSTOMDRAW* p
 	int nOldBkMode = pDC->SetBkMode(TRANSPARENT);
 
 	pDC->DrawText(bGroupStart ? GetItemText(nItem, m_nGroupColumn) : CString(TAECHANG_UI_REPEAT_MARK),
-		&rcItem, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
+		&rcItem, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
 
 	pDC->SetBkMode(nOldBkMode);
 	pDC->SetTextColor(clrOldText);

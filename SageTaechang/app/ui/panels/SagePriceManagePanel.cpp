@@ -65,14 +65,14 @@ void SagePriceManagePanel::CreateControls() {
 
 	m_wndCopiesList.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS, r, this, ID_PRICE_COPIES_LIST);
 	m_wndCopiesList.SetAlternateRowColor(TRUE);
-	m_wndCopiesList.SetFirstColumnAlign(SAGE_LIST_FIRST_COLUMN_RIGHT);
+	m_wndCopiesList.SetFirstColumnAlign(SAGE_LIST_FIRST_COLUMN_CENTER);
 	m_wndCopiesList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
 	m_wndCopiesList.SetRowSeparator(TRUE);
 	m_wndCopiesList.SetMutedText(TAECHANG_UI_PRICE_MAX_COPIES_NONE, TAECHANG_COLOR_SECONDARY_TEXT);
-	m_wndCopiesList.InsertColumn(0, TAECHANG_UI_PRICE_COL_MIN_COPIES, LVCFMT_RIGHT, TAECHANG_PRICE_COL_MIN_WIDTH);
-	m_wndCopiesList.InsertColumn(1, TAECHANG_UI_PRICE_COL_MAX_COPIES, LVCFMT_RIGHT, TAECHANG_PRICE_COL_MAX_WIDTH);
-	m_wndCopiesList.InsertColumn(2, TAECHANG_UI_PRICE_COL_PRINT_PRICE, LVCFMT_RIGHT, TAECHANG_PRICE_COL_PRINT_WIDTH);
-	m_wndCopiesList.InsertColumn(3, TAECHANG_UI_PRICE_COL_COVER_PRICE, LVCFMT_RIGHT, TAECHANG_PRICE_COL_COVER_WIDTH);
+	m_wndCopiesList.InsertColumn(0, TAECHANG_UI_PRICE_COL_MIN_COPIES, LVCFMT_CENTER, TAECHANG_PRICE_COL_MIN_WIDTH);
+	m_wndCopiesList.InsertColumn(1, TAECHANG_UI_PRICE_COL_MAX_COPIES, LVCFMT_CENTER, TAECHANG_PRICE_COL_MAX_WIDTH);
+	m_wndCopiesList.InsertColumn(2, TAECHANG_UI_PRICE_COL_PRINT_PRICE, LVCFMT_CENTER, TAECHANG_PRICE_COL_PRINT_WIDTH);
+	m_wndCopiesList.InsertColumn(3, TAECHANG_UI_PRICE_COL_COVER_PRICE, LVCFMT_CENTER, TAECHANG_PRICE_COL_COVER_WIDTH);
 	if (CHeaderCtrl* pHeader = m_wndCopiesList.GetHeaderCtrl()) {
 		m_wndCopiesHeader.SubclassWindow(pHeader->GetSafeHwnd());
 		SetWindowTheme(m_wndCopiesHeader.GetSafeHwnd(), L"", L"");

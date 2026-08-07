@@ -7,7 +7,8 @@ struct TaechangResultRow;
 enum SageColumnAlign
 {
     SAGE_COLUMN_ALIGN_LEFT,
-    SAGE_COLUMN_ALIGN_RIGHT
+    SAGE_COLUMN_ALIGN_RIGHT,
+    SAGE_COLUMN_ALIGN_CENTER
 };
 
 enum SageResultField

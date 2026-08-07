@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "app/ui/drawing/SageUiResources.h"
+#include "app/core/workflow/SageWorkflowResultTable.h"
 
 enum SageTotalBarCellStyle
 {
@@ -15,14 +16,14 @@ struct SageTableTotalBarCell
 	SageTableTotalBarCell() {
 		nLeft = 0;
 		nWidth = 0;
-		bRightAlign = FALSE;
+		nAlign = SAGE_COLUMN_ALIGN_LEFT;
 		nStyle = SAGE_TOTAL_BAR_LABEL;
 	}
 
 	CString strText;
 	int nLeft;
 	int nWidth;
-	BOOL bRightAlign;
+	SageColumnAlign nAlign;
 	SageTotalBarCellStyle nStyle;
 };
 

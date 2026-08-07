@@ -92,11 +92,11 @@ void SageCompanyOrderPanel::CreateControls() {
 	m_wndGuide.Create(TAECHANG_UI_CO_GUIDE, WS_CHILD | WS_VISIBLE | SS_LEFT, r, this);
 	m_wndList.Create(WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SHOWSELALWAYS | LVS_SINGLESEL, r, this, ID_COORDER_LIST);
 	m_wndList.SetAlternateRowColor(TRUE);
-	m_wndList.SetFirstColumnAlign(SAGE_LIST_FIRST_COLUMN_RIGHT);
+	m_wndList.SetFirstColumnAlign(SAGE_LIST_FIRST_COLUMN_CENTER);
 	m_wndList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
 	m_wndList.SetRowSeparator(TRUE);
-	m_wndList.InsertColumn(0, TAECHANG_UI_CO_COL_ORDER, LVCFMT_RIGHT, TAECHANG_CO_ORDER_COL_WIDTH);
-	m_wndList.InsertColumn(1, TAECHANG_UI_CO_COL_COMPANY, LVCFMT_LEFT, TAECHANG_CO_ORDER_COL_WIDTH);
+	m_wndList.InsertColumn(0, TAECHANG_UI_CO_COL_ORDER, LVCFMT_CENTER, TAECHANG_CO_ORDER_COL_WIDTH);
+	m_wndList.InsertColumn(1, TAECHANG_UI_CO_COL_COMPANY, LVCFMT_CENTER, TAECHANG_CO_ORDER_COL_WIDTH);
 
 	CHeaderCtrl* pHeader = m_wndList.GetHeaderCtrl();
 	if (pHeader == NULL)

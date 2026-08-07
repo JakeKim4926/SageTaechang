@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "app/ui/panels/SageWorkflowHistoryPanel.h"
 #include "app/ui/drawing/SageUiResources.h"
 #include "app/core/workflow/SageWorkflowResultTable.h"
@@ -53,6 +53,7 @@ int SageWorkflowHistoryPanel::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	m_wndList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
 	m_wndList.SetAlternateRowColor(TRUE);
 	m_wndList.SetRowSeparator(TRUE);
+	m_wndList.SetFirstColumnAlign(SAGE_LIST_FIRST_COLUMN_CENTER);
 	m_wndList.SetBadgeColumn(SAGE_HISTORY_COLUMN_RESULT);
 	m_wndList.SetMutedText(TAECHANG_UI_HISTORY_NO_OUTPUT, TAECHANG_COLOR_TEXT_PLACEHOLDER);
 	m_wndList.SetFont(SageUiResources::GetFont(SAGE_FONT_LIST));
@@ -123,7 +124,7 @@ void SageWorkflowHistoryPanel::OnFilterChanged() {
 
 void SageWorkflowHistoryPanel::CreateColumns() {
 	for (int i = 0; i < SAGE_HISTORY_COLUMN_COUNT; ++i)
-		m_wndList.InsertColumn(i, g_historyColumns[i].pszLabel, LVCFMT_LEFT, g_historyColumns[i].nWidth);
+		m_wndList.InsertColumn(i, g_historyColumns[i].pszLabel, LVCFMT_CENTER, g_historyColumns[i].nWidth);
 }
 
 void SageWorkflowHistoryPanel::ApplyRowStyles() {

@@ -37,7 +37,10 @@ void CSageTableTotalBar::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 
 		CRect rectCell(cell.nLeft, rectClient.top, cell.nLeft + cell.nWidth, rectClient.bottom);
 		UINT nFormat = DT_VCENTER | DT_SINGLELINE;
-		if (cell.bRightAlign) {
+		if (cell.nAlign == SAGE_COLUMN_ALIGN_CENTER) {
+			nFormat |= DT_CENTER;
+		}
+		else if (cell.nAlign == SAGE_COLUMN_ALIGN_RIGHT) {
 			rectCell.right -= TAECHANG_LIST_CELL_RIGHT_PAD;
 			nFormat |= DT_RIGHT;
 		}

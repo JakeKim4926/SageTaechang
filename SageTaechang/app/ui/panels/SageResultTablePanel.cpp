@@ -104,6 +104,7 @@ void SageResultTablePanel::CreateControls() {
 
 	m_wndList.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SINGLESEL, r, this, ID_TAECHANG_RESULT_LIST);
 	m_wndList.SetAlternateRowColor(TRUE);
+	m_wndList.SetFirstColumnAlign(SAGE_LIST_FIRST_COLUMN_CENTER);
 	CHeaderCtrl* pHeader = m_wndList.GetHeaderCtrl();
 	if (pHeader != NULL && pHeader->GetSafeHwnd() != NULL) {
 		m_wndHeader.SubclassWindow(pHeader->GetSafeHwnd());
@@ -363,7 +364,11 @@ void SageResultTablePanel::SetColumns(const std::vector<SageWorkflowColumn>& arr
 
 	for (int i = 0; i < static_cast<int>(m_arrColumns.size()); ++i) {
 		const SageWorkflowColumn& column = m_arrColumns[i];
-		int nFormat = (column.nAlign == SAGE_COLUMN_ALIGN_RIGHT) ? LVCFMT_RIGHT : LVCFMT_LEFT;
+		int nFormat = LVCFMT_LEFT;
+		if (column.nAlign == SAGE_COLUMN_ALIGN_RIGHT)
+			nFormat = LVCFMT_RIGHT;
+		else if (column.nAlign == SAGE_COLUMN_ALIGN_CENTER)
+			nFormat = LVCFMT_CENTER;
 		m_wndList.InsertColumn(i, column.pszLabel, nFormat, column.nWidth);
 	}
 	UpdateColumnWidths();
@@ -416,7 +421,7 @@ void SageResultTablePanel::UpdateTotalBarCells() {
 		barCell.strText = cell.strText;
 		barCell.nLeft = rectListClient.left + GetColumnLeft(cell.nColumn);
 		barCell.nWidth = m_wndList.GetColumnWidth(cell.nColumn);
-		barCell.bRightAlign = (m_arrColumns[cell.nColumn].nAlign == SAGE_COLUMN_ALIGN_RIGHT) ? TRUE : FALSE;
+		barCell.nAlign = m_arrColumns[cell.nColumn].nAlign;
 		barCell.nStyle = ToTotalBarCellStyle(cell.nRole);
 		arrBarCells.push_back(barCell);
 	}
