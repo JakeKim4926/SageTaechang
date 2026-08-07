@@ -5,11 +5,11 @@
 
 ## 열린 항목
 
-### [2026-08-07] 임시구현 — `SageWorkspaceVisibility`는 4d-1과 4d-3 사이의 다리다
-- 위치: `app/ui/panels/SageWorkspacePanel.h` `SageWorkspaceVisibility` · `app/ui/view/SageTaechangView.cpp` `UpdateTaskTabVisibility`
-- 설명: 가시성 판정이 **탭 선택(UI)** 과 **실행 결과(`m_nLastWorkflowType`·`m_nLastTaskType`·`m_bRunning`)** 두 상태에 걸쳐 있다. 앞의 것은 4d-1에서 워크스페이스로 갔지만 뒤의 것은 컨트롤러 몫이라 View에 남았다. 그래서 **View가 판정 결과 5개를 구조체로 묶어 넘기고** 워크스페이스가 자식에 배분한다. 설계 단계에서 예고한 임시 구조다.
-- 위험도: 낮음 — 동작에는 문제가 없고 API가 하나로 묶여 있어 추적이 쉽다
-- 후속: **4d-3**에서 `SageWorkflowController`가 실행 상태를 소유하면 워크스페이스가 직접 물으면 되므로 이 구조체가 사라진다
+### [2026-08-07] 구조불일치 — 워크플로 컨트롤러가 `ui → infra`를 직접 부른다
+- 위치: `app/ui/workflow/SageWorkflowController.cpp` — `TaechangDeliveryExcelService` · `TaechangEstimateExcelService` · `TaechangReceivablesExcelService`
+- 설명: 워커가 Excel 서비스를 직접 생성해 호출한다. `coding-design`의 계층 방향(`ui → core ← infra`)을 어긴다. **4d-3 이전부터 View에 있던 위반이고 이번 이동은 위치만 바꿨다** — 그 대가로 **View의 `app/infra` include가 6줄에서 0줄이 됐다.**
+- 위험도: 중 — 워크플로를 하나 더 추가하면 이 `if` 사슬을 또 고쳐야 한다. 실행 경로가 서비스 구현에 묶여 있다
+- 후속: Step 4 계열에서 `core`가 「워크플로 실행」 인터페이스를 정의하고 `infra`가 구현하게 한다. 그러면 워커의 워크플로 분기 3중 `if`도 함께 사라진다. 데이터 관리 패널·실행 기록 패널의 부채와 같은 뿌리다
 
 ### [2026-08-07] 구조불일치 — 데이터 관리 패널이 `ui → infra`를 직접 부른다
 - 위치: `app/ui/panels/SageCompanyOrderPanel.cpp` — `sageDBMgr.GetReceivableCompanyOrderService()`의 `LoadAll` · `Add` · `Change` · `Remove` 4곳
@@ -28,12 +28,6 @@
 - 설명: D7-11에서 `nHeight`가 `nContentBottom - nContentTop`(하단 패딩이 이미 빠진 정확한 남은 높이)으로 바뀌었는데 여기서 `TAECHANG_MARGIN`을 **또** 뺀다. 결과로 데이터 관리 탭 리스트 하단 여백만 다른 화면보다 16px 크다. 기존 대비 변화는 4px뿐이어서 화면 확인을 통과했다.
 - 위험도: 낮음 — 여백이 넓을 뿐 잘리거나 겹치지 않는다
 - 후속: D7-6(데이터 관리, 목업 3-6)에서 `- TAECHANG_MARGIN`을 걷어낸다. 그때 카드 내부 패딩(`nPad = TAECHANG_MARGIN`)이 목업과 맞는지도 함께 본다
-
-### [2026-08-07] 구조불일치 — `m_bRunning`이 View와 입력 패널에 이중으로 존재한다
-- 위치: `app/ui/view/SageTaechangView.cpp` `SetRunningState` · `app/ui/panels/SageWorkflowInputPanel.cpp` `SetRunningState`
-- 설명: 실행 상태의 소유자는 View인데 패널도 자기 사본을 든다. 패널이 **진행바 타이머**와 **액션 영역 가시성**(진행바·% ·완료 텍스트)을 스스로 판단해야 하기 때문이다. 지금은 View의 `SetRunningState` 하나가 두 값을 함께 갱신하는 단일 진입점이라 어긋나지 않지만, 패널 쪽을 다른 데서 부르면 조용히 갈라진다.
-- 위험도: 중 — 갈라지면 실행 중인데 진행바가 안 보이거나 그 반대가 되고, 화면만 봐서는 원인을 못 찾는다
-- 후속: 3-B-4d에서 `SageWorkflowController`가 실행 상태를 단독 소유하면 사라진다. 그때까지 패널의 `SetRunningState` 호출처를 늘리지 않는다
 
 ### [2026-08-07] 기존부채 — View의 `ON_WM_DROPFILES`는 도달할 수 없고 프레임 드롭 등록은 무동작이다
 - 위치: `app/ui/view/SageTaechangView.cpp` 메시지맵 `ON_WM_DROPFILES` · `PreTranslateMessage` · `OnCreate`의 `EnableFileDropForWindow(*pFrame)`
@@ -326,6 +320,18 @@
 - 후속: Step 4에서 core Service 경유로 전환
 
 ## 해결됨
+
+### [2026-08-07] 해결 — `m_bRunning`이 View와 입력 패널에 이중으로 존재했다
+- 등록: 2026-08-07 (4d-1 이전) / 해결: 2026-08-07 (4d-3)
+- 내용: 실행 상태 소유자가 View인데 입력 패널도 사본을 들었다. 갈라지면 「실행 중인데 진행바가 안 보인다」가 되고 화면만 봐서는 원인을 못 찾는 종류였다.
+- 해결: `SageWorkflowController`가 실행 상태를 **단독 소유**하게 됐다. 입력 패널의 `m_bRunning`은 진행바 타이머와 액션 영역 가시성 판단에만 쓰이는 **표시용 사본**으로 역할이 좁아졌고, 워크스페이스의 `SetRunningState` 하나가 유일한 진입점이다.
+- 교훈: **후속에 「어느 Step에서 사라진다」를 적어두면 그 Step에서 실제로 회수된다.** 위험도 중이었지만 회수 지점이 명시돼 있어 두 Step을 안심하고 지날 수 있었다.
+
+### [2026-08-07] 해결 — `SageWorkspaceVisibility`가 View와 워크스페이스 사이의 다리였다
+- 등록: 2026-08-07 (4d-1) / 해결: 2026-08-07 (4d-3)
+- 내용: 가시성 판정이 탭 선택(워크스페이스)과 실행 결과(View) 두 상태에 걸쳐 있어, View가 판정 결과 5개를 구조체로 묶어 넘겼다. 설계 단계에서 임시임을 예고했다.
+- 해결: 실행 결과 상태가 컨트롤러로 가면서 워크스페이스가 **양쪽을 다 알게 됐다.** `RefreshVisibility()`가 자기 안에서 판정해 구조체를 만들므로 **View는 이 구조체를 모른다.** 구조체 자체는 워크스페이스 내부 전달 수단으로 남았고 계층을 넘지 않는다.
+- 교훈: 임시 구조를 남길 때 **무엇이 갖춰지면 사라지는지**를 후속에 적어두면 판단이 반복되지 않는다.
 
 ### [2026-08-07] 해결 — 데이터 관리 패널이 워크스페이스 위에 겹쳐 그려졌다
 - 등록: 2026-08-07 (4d-1) / 해결: 2026-08-07 (`0f17bc4`, 4d-2)
