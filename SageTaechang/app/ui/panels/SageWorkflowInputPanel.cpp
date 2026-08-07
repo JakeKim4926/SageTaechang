@@ -12,6 +12,8 @@ BEGIN_MESSAGE_MAP(SageWorkflowInputPanel, CWnd)
 	ON_BN_CLICKED(ID_TAECHANG_SELECT_OUTPUT, &SageWorkflowInputPanel::OnSelectOutput)
 	ON_BN_CLICKED(ID_TAECHANG_GENERATE_WORKFLOW, &SageWorkflowInputPanel::OnGenerateWorkflow)
 	ON_BN_CLICKED(ID_TAECHANG_INPUT_RESET_BTN, &SageWorkflowInputPanel::OnInputReset)
+	ON_BN_CLICKED(ID_TAECHANG_OPEN_OUTPUT_FOLDER, &SageWorkflowInputPanel::OnOpenOutputFolder)
+	ON_BN_CLICKED(ID_TAECHANG_VIEW_RESULT_TAB, &SageWorkflowInputPanel::OnViewResultTab)
 	ON_MESSAGE(WM_TAECHANG_RESULT_TABLE_CHANGED, &SageWorkflowInputPanel::OnResultTableChanged)
 	ON_MESSAGE(WM_TAECHANG_RESULT_SELECTION_CHANGED, &SageWorkflowInputPanel::OnResultSelectionChanged)
 END_MESSAGE_MAP()
@@ -79,6 +81,7 @@ void SageWorkflowInputPanel::CreateControls() {
 	m_wndInputReset.SetVariant(SAGE_BUTTON_GHOST);
 	m_wndInputReset.SetSurfaceColor(TAECHANG_COLOR_PANEL);
 	m_wndStatusCard.Create(L"", WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, r, this, ID_TAECHANG_STATUS_CARD);
+	m_wndStatusCard.SetActionCommands(ID_TAECHANG_OPEN_OUTPUT_FOLDER, ID_TAECHANG_VIEW_RESULT_TAB);
 	m_wndStatusCard.SetIdle(TAECHANG_UI_STATUS_CARD_IDLE);
 	m_wndEmptyStateHint.Create(TAECHANG_UI_EMPTY_STATE_HINT, WS_CHILD | WS_VISIBLE | SS_CENTER | SS_CENTERIMAGE, r, this);
 	m_wndEmptyStateHint.SetTextColorRole(SAGE_TEXT_SECONDARY);
@@ -352,8 +355,8 @@ void SageWorkflowInputPanel::ResetStatusCard() {
 	m_wndStatusCard.SetIdle(TAECHANG_UI_STATUS_CARD_IDLE);
 }
 
-void SageWorkflowInputPanel::SetStatusResult(BOOL bSuccess, const CString& strMessage, const CString& strDetail) {
-	m_wndStatusCard.SetResult(bSuccess, strMessage, strDetail);
+void SageWorkflowInputPanel::SetStatusResult(BOOL bSuccess, const CString& strMessage, const CString& strDetail, BOOL bViewResultEnabled) {
+	m_wndStatusCard.SetResult(bSuccess, strMessage, strDetail, bViewResultEnabled);
 }
 
 void SageWorkflowInputPanel::UpdateProgressPercent(int nPercent) {
@@ -404,8 +407,13 @@ void SageWorkflowInputPanel::OnGenerateWorkflow() {
 }
 
 void SageWorkflowInputPanel::OnInputReset() {
-	CWnd* pParent = GetParent();
-	if (pParent == NULL || !::IsWindow(pParent->GetSafeHwnd()))
-		return;
-	pParent->SendMessage(WM_TAECHANG_WORKFLOW_INPUT_RESET, 0, 0);
+	ForwardToParent(WM_TAECHANG_WORKFLOW_INPUT_RESET, 0, 0);
+}
+
+void SageWorkflowInputPanel::OnOpenOutputFolder() {
+	ForwardToParent(WM_TAECHANG_OPEN_OUTPUT_FOLDER, 0, 0);
+}
+
+void SageWorkflowInputPanel::OnViewResultTab() {
+	ForwardToParent(WM_TAECHANG_VIEW_RESULT_TAB, 0, 0);
 }

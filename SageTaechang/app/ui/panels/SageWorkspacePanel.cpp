@@ -16,6 +16,8 @@ BEGIN_MESSAGE_MAP(SageWorkspacePanel, CWnd)
 	ON_MESSAGE(WM_TAECHANG_RESULT_SELECTION_CHANGED, &SageWorkspacePanel::OnResultSelectionChanged)
 	ON_MESSAGE(WM_TAECHANG_WORKFLOW_RUN_REQUESTED, &SageWorkspacePanel::OnWorkflowRunRequested)
 	ON_MESSAGE(WM_TAECHANG_WORKFLOW_INPUT_RESET, &SageWorkspacePanel::OnWorkflowInputReset)
+	ON_MESSAGE(WM_TAECHANG_OPEN_OUTPUT_FOLDER, &SageWorkspacePanel::OnOpenOutputFolder)
+	ON_MESSAGE(WM_TAECHANG_VIEW_RESULT_TAB, &SageWorkspacePanel::OnViewResultTab)
 	ON_MESSAGE(WM_TAECHANG_WORKFLOW_COMPLETE, &SageWorkspacePanel::OnWorkflowComplete)
 END_MESSAGE_MAP()
 
@@ -126,7 +128,7 @@ void SageWorkspacePanel::SetWorkflow(int nWorkflowType, ISageWorkflowHandler* pH
 	if (!::IsWindow(GetSafeHwnd()))
 		return;
 
-	m_panelWorkflowInput.ResetStatusCard();
+	ClearStatusCard();
 	Invalidate();
 	if (!::IsWindow(m_wndTaskTabs.GetSafeHwnd()))
 		return;
@@ -550,7 +552,7 @@ void SageWorkspacePanel::ResetInput() {
 		return;
 
 	m_panelWorkflowInput.SetInputPath(CString());
-	m_panelWorkflowInput.ResetStatusCard();
+	ClearStatusCard();
 	pPanel->RestoreFilter(CString(), pPanel->GetFilterCriteria());
 	pPanel->SetOnePageChecked(FALSE);
 	pPanel->ClearRows();
@@ -631,6 +633,7 @@ void SageWorkspacePanel::ApplyStatusCardResult(
 	if (pHandler == NULL)
 		return;
 
+	m_strLastOutputPath.Empty();
 	CString strMessage;
 	CString strDetail;
 	if (!bSuccess) {
@@ -641,7 +644,7 @@ void SageWorkspacePanel::ApplyStatusCardResult(
 		strDetail = JsonExtractString(strResponseJson, TAECHANG_JSON_KEY_MESSAGE);
 		if (strDetail.IsEmpty())
 			strDetail = JsonExtractString(strResponseJson, TAECHANG_JSON_KEY_CODE);
-		m_panelWorkflowInput.SetStatusResult(FALSE, strMessage, strDetail);
+		m_panelWorkflowInput.SetStatusResult(FALSE, strMessage, strDetail, FALSE);
 		return;
 	}
 
@@ -653,7 +656,62 @@ void SageWorkspacePanel::ApplyStatusCardResult(
 	strDetail = JsonExtractString(strResponseJson, TAECHANG_JSON_KEY_FILE_PATH);
 	if (strDetail.IsEmpty())
 		strDetail = JsonExtractString(strResponseJson, TAECHANG_JSON_KEY_OUTPUT_FOLDER);
-	m_panelWorkflowInput.SetStatusResult(TRUE, strMessage, strDetail);
+	m_strLastOutputPath = strDetail;
+	m_panelWorkflowInput.SetStatusResult(TRUE, strMessage, strDetail, HasResultTab());
+}
+
+BOOL SageWorkspacePanel::HasResultTab() const {
+	if (m_pHandler == NULL)
+		return FALSE;
+	int nTabCount = m_pHandler->GetTabCount();
+	for (int nVisualTabIndex = 0; nVisualTabIndex < nTabCount; ++nVisualTabIndex) {
+		if (m_pHandler->GetTab(nVisualTabIndex).nSemanticIndex == TAECHANG_TAB_INDEX_DOCUMENT_RESULT)
+			return TRUE;
+	}
+	return FALSE;
+}
+
+void SageWorkspacePanel::ClearStatusCard() {
+	m_strLastOutputPath.Empty();
+	m_panelWorkflowInput.ResetStatusCard();
+}
+
+LRESULT SageWorkspacePanel::OnOpenOutputFolder(WPARAM wParam, LPARAM lParam) {
+	UNREFERENCED_PARAMETER(wParam);
+	UNREFERENCED_PARAMETER(lParam);
+	if (m_strLastOutputPath.IsEmpty())
+		return 0;
+
+	DWORD dwAttributes = ::GetFileAttributesW(m_strLastOutputPath);
+	if (dwAttributes == INVALID_FILE_ATTRIBUTES) {
+		AfxMessageBox(TAECHANG_UI_OUTPUT_PATH_MISSING, MB_ICONWARNING);
+		return 0;
+	}
+
+	if ((dwAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0) {
+		::ShellExecuteW(GetSafeHwnd(), TAECHANG_UI_EXPLORER_VERB_OPEN,
+			m_strLastOutputPath, NULL, NULL, SW_SHOWNORMAL);
+		return 0;
+	}
+
+	CString strArguments;
+	strArguments.Format(TAECHANG_UI_EXPLORER_SELECT_FORMAT, static_cast<LPCWSTR>(m_strLastOutputPath));
+	::ShellExecuteW(GetSafeHwnd(), NULL, TAECHANG_UI_EXPLORER_COMMAND,
+		strArguments, NULL, SW_SHOWNORMAL);
+	return 0;
+}
+
+LRESULT SageWorkspacePanel::OnViewResultTab(WPARAM wParam, LPARAM lParam) {
+	UNREFERENCED_PARAMETER(wParam);
+	UNREFERENCED_PARAMETER(lParam);
+	if (!HasResultTab())
+		return 0;
+
+	SelectTab(TAECHANG_TAB_INDEX_DOCUMENT_RESULT);
+	RefreshVisibility();
+	LayoutActivePanel();
+	ForwardToParent(WM_TAECHANG_WORKSPACE_TAB_CHANGED, 0, 0);
+	return 0;
 }
 
 void SageWorkspacePanel::NotifyStatus(LPCWSTR pszStatus) {
