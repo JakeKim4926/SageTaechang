@@ -124,7 +124,7 @@ void CSageTaechangView::CreateChildControls() {
 
 	ApplyControlFonts();
 	ApplyLabelRoles();
-	m_panelWorkspace.SetWorkflow(m_nCurrentWorkflow, FindCurrentHandler());
+	OnWorkflowChanged();
 	BuildSidebarTree();
 }
 
