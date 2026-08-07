@@ -5,6 +5,18 @@
 
 ## 열린 항목
 
+### [2026-08-07] 검증누락 — D7-4 1단계가 빌드·화면 확인 없이 `develop`에 있다
+- 위치: `develop` `35fb4e3`(style) · `7e03122`(docs)
+- 설명: 사용자 요청으로 확인 전에 머지했다. **특히 `CSageSectionLabel`을 통째로 카드 헤더 규격으로 바꿨으므로 사용처 6곳이 동시에 변한다** — 입력 카드 · 결과 표 제목 · 실행 기록 · 데이터 관리 2곳 · 단가 계산 기록. 밴드가 흰 카드 위가 아닌 곳에서는 아이보리 사각형이 떠 보일 수 있고, 밴드 높이도 각 화면의 기존 라벨 높이를 따라 38px이 아니다.
+- 위험도: 중 — 다음 작업을 얹으면 실패 원인을 가릴 수 없다
+- 후속: **D7-4 2단계 착수 전에** 빌드 + 위 6곳 화면 확인을 받는다. `DESIGN_PLAN` 상단에 같은 표시를 남겼다
+
+### [2026-08-07] 구조불일치 — 아이콘 버튼 2곳이 규격 상수를 쓰지 않는다
+- 위치: `app/ui/panels/SageResultTablePanel.cpp`(필터 초기화) · `app/ui/panels/SagePriceCalcPanel.cpp`(계산 초기화)
+- 설명: `sagetaechang-ui`는 「아이콘 단독 버튼은 `TAECHANG_ICON_BUTTON_SIZE`(32) 정사각」으로 규정하는데, D7-4 1단계에서 입력 패널의 초기화를 텍스트 버튼으로 바꾸자 **이 상수의 사용처가 0곳이 됐다.** 즉 남은 아이콘 버튼 2곳은 처음부터 규격 상수를 거치지 않고 각자 값을 쓰고 있었다. 내 변경이 만든 orphan이지만 **스킬이 규정하는 상수를 지우면 규칙과 코드가 어긋나므로** 남겼다.
+- 위험도: 낮음 — 현재 크기는 우연히 맞다
+- 후속: 두 곳이 `TAECHANG_ICON_BUTTON_SIZE`를 쓰게 바꾼다. 아이콘 버튼을 다루는 Step(D7-1 필터 · D7-2 단가 계산)에서 함께 처리한다
+
 ### [2026-08-07] 구조불일치 — 워크플로 컨트롤러가 `ui → infra`를 직접 부른다
 - 위치: `app/ui/workflow/SageWorkflowController.cpp` — `TaechangDeliveryExcelService` · `TaechangEstimateExcelService` · `TaechangReceivablesExcelService`
 - 설명: 워커가 Excel 서비스를 직접 생성해 호출한다. `coding-design`의 계층 방향(`ui → core ← infra`)을 어긴다. **4d-3 이전부터 View에 있던 위반이고 이번 이동은 위치만 바꿨다** — 그 대가로 **View의 `app/infra` include가 6줄에서 0줄이 됐다.**
@@ -40,12 +52,6 @@
 - 설명: 컨트롤 **바깥** 1px에 테두리를 그리는 같은 함수가 화면마다 복사돼 있다. 패널은 자기 에디트를 스스로 그려야 하므로 이번에 세 번째가 생겼다. 같은 이유로 입력 패널의 rect가 오른쪽으로 1px 넓다(`TAECHANG_EDIT_BORDER_WIDTH`) — 그렇지 않으면 우측 세로선이 클리핑된다.
 - 위험도: 낮음 — 세 복사본이 아직 동일하다
 - 후속: `CSageEdit` 승격(패널·View 16곳)이 끝나면 셋 다 사라지고 1px 보정도 함께 없어진다. `sagetaechang-ui` > *`CSageEdit`은 화면에 따라 갈린다*
-
-### [2026-08-07] 기존부채 — 화면에 뜨지 않는 컨트롤 4개를 입력 패널로 그대로 옮겼다
-- 위치: `app/ui/panels/SageWorkflowInputPanel.h` — `m_wndWorkflowLabel` · `m_wndInputLabel` · `m_wndOutputLabel` · `m_wndLoad`
-- 설명: 넷 다 생성만 되고 화면에 나타나지 않는다. 앞의 셋은 `UpdateActionVisibility`가 매번 `SW_HIDE`로 되돌리고, `m_wndWorkflowLabel`은 `WS_VISIBLE` 없이 만들어진 뒤 배치조차 되지 않는다. 3-B-4c가 「옮기기만 한다」였으므로 필요 여부 판단을 보류하고 그대로 가져왔다.
-- 위험도: 낮음
-- 후속: D7-4에서 입력 탭을 목업 3-4에 맞출 때 정한다 — 라벨을 살릴지(폼 라벨 폭 80은 아직 화면에 없는 「입력 파일」·「저장 위치」 몫이다) 지울지
 
 ### [2026-08-06] 구조불일치 — `TAECHANG_CALC_MAX_HISTORY`가 실제 상한이 아니다
 - 위치: `app/ui/panels/SagePriceCalcPanel.cpp` `GetHistoryVisibleCapacity` · `TrimHistoryToVisibleCapacity`
@@ -320,6 +326,12 @@
 - 후속: Step 4에서 core Service 경유로 전환
 
 ## 해결됨
+
+### [2026-08-07] 해결 — 화면에 뜨지 않는 컨트롤 4개를 입력 패널로 그대로 옮겼다
+- 등록: 2026-08-07 (3-B-4c) / 해결: 2026-08-07 (`35fb4e3`, D7-4 1단계)
+- 내용: `m_wndWorkflowLabel` · `m_wndInputLabel` · `m_wndOutputLabel` · `m_wndLoad` 넷이 생성만 되고 화면에 나타나지 않았다. 3-B-4c가 「옮기기만 한다」였으므로 필요 여부 판단을 D7-4로 미뤘다.
+- 해결: 후속에 적어둔 대로 **D7-4 1단계에서 목업 3-4를 실측해 갈랐다.** `m_wndInputLabel` · `m_wndOutputLabel`은 **살렸다** — 목업의 80px 폼 라벨 「입력 파일」·「저장 위치」가 바로 이 둘이다(`DESIGN_PLAN` D3b가 「80px는 현재 화면에 없는 라벨」이라고 적어둔 그 라벨). `m_wndWorkflowLabel`과 `m_wndLoad`(「미리보기」)는 **지웠다** — 목업에 없고 이미 항상 `SW_HIDE`였다. `m_wndLoad`만 쏘던 `OnLoadWorkflow`와 메시지맵 항목도 함께 걷어냈다.
+- 교훈: **「지금은 판단하지 않는다」를 부채로 남길 때 판단할 Step을 지정한 것이 정확히 작동했다.** D7-4에 와서 목업을 재니 넷 중 둘은 살릴 것이고 둘은 죽은 것이었다 — 4c 시점에 추측으로 지웠으면 폼 라벨을 다시 만들었을 것이다.
 
 ### [2026-08-07] 해결 — `m_bRunning`이 View와 입력 패널에 이중으로 존재했다
 - 등록: 2026-08-07 (4d-1 이전) / 해결: 2026-08-07 (4d-3)
