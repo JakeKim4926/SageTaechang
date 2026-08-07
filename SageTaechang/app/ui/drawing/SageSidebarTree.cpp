@@ -7,6 +7,49 @@ BEGIN_MESSAGE_MAP(CSageSidebarTree, CTreeCtrl)
 	ON_NOTIFY_REFLECT(NM_CUSTOMDRAW, &CSageSidebarTree::OnNMCustomDraw)
 END_MESSAGE_MAP()
 
+void CSageSidebarTree::DrawTreeItem(HTREEITEM hItem, BOOL bSelected, NMTVCUSTOMDRAW* pCD) {
+	CDC* pDC = CDC::FromHandle(pCD->nmcd.hdc);
+	BOOL bGroupHeader = (GetParentItem(hItem) == NULL) ? TRUE : FALSE;
+
+	CRect rcRow;
+	if (!GetItemRect(hItem, &rcRow, FALSE))
+		return;
+
+	CRect rcClient;
+	GetClientRect(&rcClient);
+	rcRow.left = rcClient.left;
+	rcRow.right = rcClient.right;
+
+	BOOL bHighlight = (!bGroupHeader && bSelected) ? TRUE : FALSE;
+	pDC->FillSolidRect(rcRow,
+		bHighlight ? TAECHANG_COLOR_SIDEBAR_SELECTED : TAECHANG_COLOR_SIDEBAR);
+	if (bHighlight) {
+		pDC->FillSolidRect(
+			rcRow.left, rcRow.top, TAECHANG_SELECTION_ACCENT_WIDTH, rcRow.Height(),
+			TAECHANG_COLOR_PRIMARY);
+	}
+
+	CFont* pOldFont = pDC->SelectObject(SageUiResources::GetFont(
+		bGroupHeader ? SAGE_FONT_CAPTION
+		: (bSelected ? SAGE_FONT_CONTENT_SEMIBOLD : SAGE_FONT_CONTROL)));
+	int nOldBkMode = pDC->SetBkMode(TRANSPARENT);
+	COLORREF clrOldText = pDC->SetTextColor(bGroupHeader
+		? TAECHANG_COLOR_SIDEBAR_CATEGORY
+		: (bSelected ? TAECHANG_COLOR_SIDEBAR_SELECTED_TEXT : TAECHANG_COLOR_SIDEBAR_TEXT));
+	int nOldCharExtra = pDC->SetTextCharacterExtra(
+		bGroupHeader ? TAECHANG_SIDEBAR_CATEGORY_CHAR_EXTRA : 0);
+
+	CRect rcText(rcRow);
+	rcText.left += TAECHANG_SIDEBAR_PAD_X;
+	pDC->DrawText(GetItemText(hItem), &rcText, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
+
+	pDC->SetTextCharacterExtra(nOldCharExtra);
+	pDC->SetTextColor(clrOldText);
+	pDC->SetBkMode(nOldBkMode);
+	if (pOldFont)
+		pDC->SelectObject(pOldFont);
+}
+
 void CSageSidebarTree::OnNMCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
 	NMTVCUSTOMDRAW* pCD = reinterpret_cast<NMTVCUSTOMDRAW*>(pNMHDR);
 	*pResult = CDRF_DODEFAULT;
@@ -17,33 +60,8 @@ void CSageSidebarTree::OnNMCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
 		case CDDS_ITEMPREPAINT:
 		{
 			HTREEITEM hItem = reinterpret_cast<HTREEITEM>(pCD->nmcd.dwItemSpec);
-			BOOL bIsGroupHeader = (GetParentItem(hItem) == NULL);
-			BOOL bIsSelected = (pCD->nmcd.uItemState & CDIS_SELECTED) != 0;
-			CDC* pItemDC = CDC::FromHandle(pCD->nmcd.hdc);
-			if (bIsGroupHeader) {
-				pItemDC->SelectObject(SageUiResources::GetFont(SAGE_FONT_CAPTION));
-				pCD->clrText = TAECHANG_COLOR_SIDEBAR_CATEGORY;
-				pCD->clrTextBk = TAECHANG_COLOR_SIDEBAR;
-				*pResult = CDRF_NEWFONT;
-			} else {
-				pItemDC->SelectObject(SageUiResources::GetFont(
-					bIsSelected ? SAGE_FONT_CONTENT_SEMIBOLD : SAGE_FONT_CONTROL));
-				pCD->clrText = bIsSelected
-					? TAECHANG_COLOR_SIDEBAR_SELECTED_TEXT : TAECHANG_COLOR_SIDEBAR_TEXT;
-				pCD->clrTextBk = bIsSelected ? TAECHANG_COLOR_SIDEBAR_SELECTED : TAECHANG_COLOR_SIDEBAR;
-				*pResult = CDRF_NEWFONT;
-				if (bIsSelected)
-					*pResult |= CDRF_NOTIFYPOSTPAINT;
-			}
-			break;
-		}
-		case CDDS_ITEMPOSTPAINT:
-		{
-			if (pCD->nmcd.uItemState & CDIS_SELECTED) {
-				CDC* pItemDC = CDC::FromHandle(pCD->nmcd.hdc);
-				CRect rcItem(pCD->nmcd.rc);
-				pItemDC->FillSolidRect(rcItem.left, rcItem.top, TAECHANG_SELECTION_ACCENT_WIDTH, rcItem.Height(), TAECHANG_COLOR_PRIMARY);
-			}
+			DrawTreeItem(hItem, (pCD->nmcd.uItemState & CDIS_SELECTED) != 0, pCD);
+			*pResult = CDRF_SKIPDEFAULT;
 			break;
 		}
 	}

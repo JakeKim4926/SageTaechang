@@ -6,4 +6,7 @@ class CSageSidebarTree : public CTreeCtrl
 
 protected:
 	afx_msg void OnNMCustomDraw(NMHDR* pNMHDR, LRESULT* pResult);
+
+private:
+	void DrawTreeItem(HTREEITEM hItem, BOOL bSelected, NMTVCUSTOMDRAW* pCD);
 };
