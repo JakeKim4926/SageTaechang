@@ -2,7 +2,7 @@
 - **목적**: 4d-2 — 데이터 관리 탭을 `SageCompanyOrderPanel`로 분리해 워크스페이스 하위에 둔다
 - **변경 내용**: 컨트롤 13 · 상태 5 · 메시지맵 6 · 핸들러 6 · 함수 6을 옮겼다. **View에 얽혀 있던 셋을 함께 풀었다** — ① `PreTranslateMessage`의 Enter(검색)·Tab(순서↔법인명 순환)이 패널로 갔고, 자식이 부모보다 먼저 보므로(`WalkPreTranslateTree`) 그대로 동작한다 ② `OnDraw`의 카드 배경·테두리와 `DrawEditBorder` 3개가 패널의 `OnEraseBkgnd`로 갔다. `SetCardRect`도 데이터 관리 전용이라 함께 옮겼다 ③ **`#include "app/infra/db/SageDBMgr.h"`가 View에서 사라졌다** — `sageDBMgr` 사용처가 데이터 관리뿐이었다. 기준 B에서 **View 자체는 DB 매니저를 모르게 됐고**, 위반은 패널로 이동해 `DEBT_LOG`에 올렸다. **하드코딩 6개를 옮기는 김에 상수화했다** — `LimitText(6)` · `left += 4` · `left += 6` · `80` · `L"%d"` · `nSortOrder = 1`. **빌드 오류 1건을 냈다**: `OnWorkspaceTabChanged`에 `RefreshCompanyOrderList()` 호출이 남았다(정의만 지우고 호출부를 놓쳤다). 옮긴 이름 30개로 전수 grep해 나머지가 없음을 확인했고, **교훈으로 「정의를 지운 뒤에는 그 이름으로 전수 검색한다」**를 남겼다. **잠재 버그도 함께 고쳤다**: `OnWorkflowChanged`가 `RestoreWorkflowUiState`(→`SelectTab`)를 `SetWorkflow`보다 먼저 불러서, `SelectTab`의 `IsDataManageTab()` 판정이 낡은 워크플로를 봤다. 빌드로는 안 잡히고 「탭을 열었는데 목록이 비어 있다」로 나올 종류였다. 결과: View **1,492 → 1,025줄**, 컨트롤 멤버 23 → **8**(전부 셸, 업무 컨트롤 0), 메시지맵 20 → 14, `app/infra` include 6 → 5줄. 4d-1이 남긴 **「데이터 관리가 워크스페이스 위에 겹쳐 그려진다」 부채가 해소**됐다
 - **PR 링크**: 없음
-- **결과**: pending — 커밋 `0f17bc4`. **빌드 확인 완료, 화면 미검증**
+- **결과**: merged — `develop`에 fast-forward 머지. 커밋 2개(`refactor`·`docs`). 작업 브랜치 삭제. 빌드·화면 확인 완료
 
 ## [2026-08-07] refactor/workspace-panel
 - **목적**: 4d-1 — `SageWorkspacePanel` 신설 + 패널 5종(입력·결과·기록·단가2) 재배치
