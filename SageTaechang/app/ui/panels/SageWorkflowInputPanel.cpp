@@ -158,13 +158,13 @@ void SageWorkflowInputPanel::LayoutTableArea() {
 
 void SageWorkflowInputPanel::LayoutFormRow(int nTop, int nWidth, CSageLabel& wndLabel, CEdit& wndEdit, CSageButton& wndButton) {
 	int nLabelLeft = TAECHANG_CARD_PADDING;
-	int nEditLeft = nLabelLeft + TAECHANG_FORM_LABEL_WIDTH_WIDE + TAECHANG_CARD_ROW_GAP;
+	int nEditLeft = nLabelLeft + TAECHANG_FORM_LABEL_WIDTH + TAECHANG_CARD_ROW_GAP;
 	int nButtonLeft = nWidth - TAECHANG_CARD_PADDING - TAECHANG_BUTTON_WIDTH;
 	int nEditWidth = nButtonLeft - TAECHANG_CARD_ROW_GAP - nEditLeft;
 	if (nEditWidth < TAECHANG_CO_COMPANY_EDIT_MIN_WIDTH)
 		nEditWidth = TAECHANG_CO_COMPANY_EDIT_MIN_WIDTH;
 
-	wndLabel.MoveWindow(nLabelLeft, nTop, TAECHANG_FORM_LABEL_WIDTH_WIDE, TAECHANG_EDIT_HEIGHT);
+	wndLabel.MoveWindow(nLabelLeft, nTop, TAECHANG_FORM_LABEL_WIDTH, TAECHANG_EDIT_HEIGHT);
 	wndEdit.MoveWindow(nEditLeft, nTop, nEditWidth, TAECHANG_EDIT_HEIGHT);
 	ApplyEditTextRect(wndEdit);
 	wndButton.MoveWindow(nButtonLeft, nTop, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
@@ -189,7 +189,7 @@ void SageWorkflowInputPanel::LayoutActionSection() {
 
 	int nActionTop = TAECHANG_CARD_HEADER_HEIGHT + TAECHANG_CARD_PADDING
 		+ (TAECHANG_EDIT_HEIGHT + TAECHANG_CARD_ROW_GAP) * 2;
-	int nX = TAECHANG_CARD_PADDING + TAECHANG_FORM_LABEL_WIDTH_WIDE + TAECHANG_CARD_ROW_GAP;
+	int nX = TAECHANG_CARD_PADDING + TAECHANG_FORM_LABEL_WIDTH + TAECHANG_CARD_ROW_GAP;
 	m_wndGenerate.MoveWindow(nX, nActionTop, TAECHANG_BUTTON_WIDTH, TAECHANG_CARD_ACTION_BUTTON_HEIGHT);
 	nX += TAECHANG_BUTTON_WIDTH + TAECHANG_ACTION_GAP;
 	if (m_bInputResetVisible)
@@ -205,6 +205,7 @@ void SageWorkflowInputPanel::LayoutActionSection() {
 void SageWorkflowInputPanel::ApplyEditTextRect(CEdit& wndEdit) {
 	CRect rcFmt;
 	wndEdit.GetClientRect(&rcFmt);
+	rcFmt.left += TAECHANG_EDIT_TEXT_LEFT_PAD;
 	rcFmt.top += TAECHANG_EDIT_TEXT_TOP_PAD;
 	rcFmt.right = TAECHANG_EDIT_FORMAT_MAX_WIDTH;
 	wndEdit.SendMessage(EM_SETRECT, 0, reinterpret_cast<LPARAM>(&rcFmt));
