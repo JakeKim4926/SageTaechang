@@ -5,6 +5,12 @@
 
 ## 열린 항목
 
+### [2026-08-08] 목업이탈 — 사이드바 그룹 라벨의 위아래 여백을 재현하지 못한다
+- 위치: `app/ui/drawing/SageSidebarTree.cpp` `DrawTreeItem`
+- 설명: 목업 3-1의 그룹 라벨은 `padding:6px 20px 8px`(두 번째 그룹부터 위 18px)로 **항목보다 낮은 행**인데, `CTreeCtrl`은 `SetItemHeight`로 **모든 행이 같은 높이**(34)다. 그룹 라벨이 항목과 같은 34px 행을 차지해 목업보다 성기게 보인다.
+- 위험도: 낮음 — 크기·색·자간은 맞췄다
+- 후속: `TVS_NONEVENHEIGHT`로 행별 높이를 주거나, 사이드바를 트리가 아닌 커스텀 목록으로 바꾼다. **후자는 3-B-5a 범위를 크게 넘는다**
+
 ### [2026-08-08] 미완성 — 결과 표 필터가 아직 통합 검색 박스가 아니다
 - 위치: `app/ui/panels/SageResultTablePanel.cpp` — `m_wndCriteria` · `m_wndFilter` · `m_wndSearchBtn`
 - 설명: D7-6에서 `CSageSearchBox`를 만들어 데이터 관리에 적용했지만, **결과 표(목업 3-1)는 같은 테두리 안에 「기준 ▾」 칸이 하나 더 있는 3분할**이라 콤보를 박스 안으로 넣어야 한다. 지금은 두 화면의 검색 모양이 다르다.
