@@ -3,14 +3,9 @@
 
 #include "TaechangDefine.h"
 #include "app/core/receivable/TaechangReceivableCompanyOrderDto.h"
-#include "app/ui/panels/SagePriceCalcPanel.h"
-#include "app/ui/panels/SagePriceManagePanel.h"
 #include "app/ui/panels/SageResultTablePanel.h"
-#include "app/ui/panels/SageWorkflowInputPanel.h"
-#include "app/ui/panels/SageWorkflowResultPanel.h"
-#include "app/ui/panels/SageWorkflowHistoryPanel.h"
+#include "app/ui/panels/SageWorkspacePanel.h"
 #include "app/ui/drawing/SageHeaderCtrl.h"
-#include "app/ui/drawing/SageTabCtrl.h"
 #include "app/ui/drawing/SageButton.h"
 #include "app/ui/drawing/SageSectionLabel.h"
 #include "app/ui/drawing/SageLabel.h"
@@ -71,11 +66,9 @@ protected:
     CSageSidebarTree m_wndSidebarTree;
     CSageLabel m_wndHeaderTitle;
     CStatic m_wndHeaderStatus;
-    CSageTabCtrl m_wndTaskTabs;
     CSageLabel m_wndTitle;
     CBrush m_brushListHeader;
     BOOL m_bRunning;
-    int m_nSelectedTaskTab;
     int m_nLastWorkflowType;
     int m_nLastTaskType;
     int m_nCurrentWorkflow;
@@ -94,11 +87,7 @@ protected:
     CSageLabel m_wndUserLabel;
     int m_nAuthDividerX;
 
-    SagePriceManagePanel m_panelPriceManage;
-    SagePriceCalcPanel m_panelPriceCalc;
-    SageWorkflowInputPanel m_panelWorkflowInput;
-    SageWorkflowResultPanel m_panelWorkflowResult;
-    SageWorkflowHistoryPanel m_panelWorkflowHistory;
+    SageWorkspacePanel m_panelWorkspace;
 
     // ── 법인 순서 데이터 관리 패널 ───────────────────────────────────────────
     CSageButton         m_wndCoAddBtn;
@@ -127,22 +116,14 @@ protected:
     void BuildSidebarTree();
     void ApplyControlFonts();
     void ApplyLabelRoles();
-    void ApplyWorkflowTabs();
     void UpdateTaskTabVisibility();
     void LayoutChildControls();
-    void LayoutResultSection(int nLeft, int nTop, int nWidth, int nHeight);
     void SetRunningState(BOOL bRunning);
     void UpdateAuthState();
     void SetStatusText(const CString& strStatus);
     int GetSelectedWorkflow() const;
     ISageWorkflowHandler* FindCurrentHandler() const;
     void UpdateWorkflowLabels();
-    BOOL IsInputTabSelected() const;
-    BOOL IsResultTab() const;
-    BOOL IsDetailTab() const;
-    BOOL IsActionTabVisible() const;
-    int GetTaskTabVisualIndex(int nSemanticTabIndex) const;
-    int GetTaskTabSemanticIndex(int nVisualTabIndex) const;
     BOOL IsInputTableVisible() const;
     BOOL IsOnePageOptionVisible() const;
     BOOL IsInputResetVisible() const;
@@ -175,7 +156,6 @@ protected:
     void CreateCompanyOrderPanel();
     void LayoutCompanyOrderPanel(int nLeft, int nTop, int nWidth, int nHeight);
     void ShowCompanyOrderPanel(BOOL bShow);
-    BOOL IsDataManageTab() const;
     void RefreshCompanyOrderList();
     void UpdateCoListColumns();
     void UpdateCoPanelState();
@@ -187,7 +167,7 @@ protected:
     afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
     afx_msg void OnWorkflowChanged();
     afx_msg void OnSidebarSelectionChanged(NMHDR* pNMHDR, LRESULT* pResult);
-    afx_msg void OnTaskTabChanged(NMHDR* pNMHDR, LRESULT* pResult);
+    afx_msg LRESULT OnWorkspaceTabChanged(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnWorkflowComplete(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnWorkflowRunRequested(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnWorkflowInputReset(WPARAM wParam, LPARAM lParam);
