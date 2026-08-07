@@ -17,17 +17,16 @@ class CSageStatusCard : public CStatic
 public:
 	CSageStatusCard();
 
-	void SetActionCommands(UINT nOpenFolderCommandId, UINT nViewResultCommandId);
+	void SetOpenFolderCommand(UINT nCommandId);
 	void SetIdle(const CString& strMessage);
 	void SetRunning(const CString& strMessage);
 	void SetProgressPercent(int nPercent);
-	void SetResult(BOOL bSuccess, const CString& strMessage, const CString& strDetail, BOOL bViewResultEnabled);
+	void SetResult(BOOL bSuccess, const CString& strMessage, const CString& strDetail);
 
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnOpenFolderClicked();
-	afx_msg void OnViewResultClicked();
 	virtual void DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct);
 
 private:
@@ -41,8 +40,7 @@ private:
 	COLORREF GetBorderColor() const;
 	COLORREF GetAccentColor() const;
 	COLORREF GetMessageColor() const;
-	void LayoutActionButtons();
-	void ForwardCommand(UINT nCommandId);
+	void LayoutOpenFolderButton();
 	int  GetActionAreaWidth() const;
 
 private:
@@ -50,9 +48,6 @@ private:
 	CString m_strMessage;
 	CString m_strDetail;
 	int m_nProgressPercent;
-	BOOL m_bViewResultEnabled;
 	UINT m_nOpenFolderCommandId;
-	UINT m_nViewResultCommandId;
 	CSageButton m_wndOpenFolder;
-	CSageButton m_wndViewResult;
 };

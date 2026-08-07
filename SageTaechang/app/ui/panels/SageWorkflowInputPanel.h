@@ -32,7 +32,7 @@ public:
     void UpdateInputTableVisibility(BOOL bTableVisible, BOOL bOnePageVisible, BOOL bFilterVisible);
     void EnableGenerateButton(BOOL bEnable);
     void ResetStatusCard();
-    void SetStatusResult(BOOL bSuccess, const CString& strMessage, const CString& strDetail, BOOL bViewResultEnabled);
+    void SetStatusResult(BOOL bSuccess, const CString& strMessage, const CString& strDetail);
 
     SageResultTablePanel& GetInputTable();
 
@@ -46,7 +46,6 @@ protected:
     afx_msg void OnGenerateWorkflow();
     afx_msg void OnInputReset();
     afx_msg void OnOpenOutputFolder();
-    afx_msg void OnViewResultTab();
     afx_msg LRESULT OnResultTableChanged(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnResultSelectionChanged(WPARAM wParam, LPARAM lParam);
     DECLARE_MESSAGE_MAP()

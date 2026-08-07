@@ -17,7 +17,6 @@ BEGIN_MESSAGE_MAP(SageWorkspacePanel, CWnd)
 	ON_MESSAGE(WM_TAECHANG_WORKFLOW_RUN_REQUESTED, &SageWorkspacePanel::OnWorkflowRunRequested)
 	ON_MESSAGE(WM_TAECHANG_WORKFLOW_INPUT_RESET, &SageWorkspacePanel::OnWorkflowInputReset)
 	ON_MESSAGE(WM_TAECHANG_OPEN_OUTPUT_FOLDER, &SageWorkspacePanel::OnOpenOutputFolder)
-	ON_MESSAGE(WM_TAECHANG_VIEW_RESULT_TAB, &SageWorkspacePanel::OnViewResultTab)
 	ON_MESSAGE(WM_TAECHANG_WORKFLOW_COMPLETE, &SageWorkspacePanel::OnWorkflowComplete)
 END_MESSAGE_MAP()
 
@@ -644,7 +643,7 @@ void SageWorkspacePanel::ApplyStatusCardResult(
 		strDetail = JsonExtractString(strResponseJson, TAECHANG_JSON_KEY_MESSAGE);
 		if (strDetail.IsEmpty())
 			strDetail = JsonExtractString(strResponseJson, TAECHANG_JSON_KEY_CODE);
-		m_panelWorkflowInput.SetStatusResult(FALSE, strMessage, strDetail, FALSE);
+		m_panelWorkflowInput.SetStatusResult(FALSE, strMessage, strDetail);
 		return;
 	}
 
@@ -657,18 +656,7 @@ void SageWorkspacePanel::ApplyStatusCardResult(
 	if (strDetail.IsEmpty())
 		strDetail = JsonExtractString(strResponseJson, TAECHANG_JSON_KEY_OUTPUT_FOLDER);
 	m_strLastOutputPath = strDetail;
-	m_panelWorkflowInput.SetStatusResult(TRUE, strMessage, strDetail, HasResultTab());
-}
-
-BOOL SageWorkspacePanel::HasResultTab() const {
-	if (m_pHandler == NULL)
-		return FALSE;
-	int nTabCount = m_pHandler->GetTabCount();
-	for (int nVisualTabIndex = 0; nVisualTabIndex < nTabCount; ++nVisualTabIndex) {
-		if (m_pHandler->GetTab(nVisualTabIndex).nSemanticIndex == TAECHANG_TAB_INDEX_DOCUMENT_RESULT)
-			return TRUE;
-	}
-	return FALSE;
+	m_panelWorkflowInput.SetStatusResult(TRUE, strMessage, strDetail);
 }
 
 void SageWorkspacePanel::ClearStatusCard() {
@@ -698,19 +686,6 @@ LRESULT SageWorkspacePanel::OnOpenOutputFolder(WPARAM wParam, LPARAM lParam) {
 	strArguments.Format(TAECHANG_UI_EXPLORER_SELECT_FORMAT, static_cast<LPCWSTR>(m_strLastOutputPath));
 	::ShellExecuteW(GetSafeHwnd(), NULL, TAECHANG_UI_EXPLORER_COMMAND,
 		strArguments, NULL, SW_SHOWNORMAL);
-	return 0;
-}
-
-LRESULT SageWorkspacePanel::OnViewResultTab(WPARAM wParam, LPARAM lParam) {
-	UNREFERENCED_PARAMETER(wParam);
-	UNREFERENCED_PARAMETER(lParam);
-	if (!HasResultTab())
-		return 0;
-
-	SelectTab(TAECHANG_TAB_INDEX_DOCUMENT_RESULT);
-	RefreshVisibility();
-	LayoutActivePanel();
-	ForwardToParent(WM_TAECHANG_WORKSPACE_TAB_CHANGED, 0, 0);
 	return 0;
 }
 

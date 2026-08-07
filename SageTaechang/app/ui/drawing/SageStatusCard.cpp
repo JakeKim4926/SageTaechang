@@ -7,15 +7,12 @@ BEGIN_MESSAGE_MAP(CSageStatusCard, CStatic)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
 	ON_BN_CLICKED(ID_STATUS_CARD_OPEN_FOLDER, &CSageStatusCard::OnOpenFolderClicked)
-	ON_BN_CLICKED(ID_STATUS_CARD_VIEW_RESULT, &CSageStatusCard::OnViewResultClicked)
 END_MESSAGE_MAP()
 
 CSageStatusCard::CSageStatusCard()
 	: m_nState(SAGE_STATUS_CARD_IDLE)
 	, m_nProgressPercent(0)
-	, m_bViewResultEnabled(FALSE)
-	, m_nOpenFolderCommandId(0)
-	, m_nViewResultCommandId(0) {
+	, m_nOpenFolderCommandId(0) {
 }
 
 int CSageStatusCard::OnCreate(LPCREATESTRUCT lpCreateStruct) {
@@ -27,36 +24,22 @@ int CSageStatusCard::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 		rectEmpty, this, ID_STATUS_CARD_OPEN_FOLDER);
 	m_wndOpenFolder.SetVariant(SAGE_BUTTON_SECONDARY);
 	m_wndOpenFolder.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-
-	m_wndViewResult.Create(TAECHANG_UI_STATUS_CARD_VIEW_RESULT, WS_CHILD | BS_OWNERDRAW,
-		rectEmpty, this, ID_STATUS_CARD_VIEW_RESULT);
-	m_wndViewResult.SetVariant(SAGE_BUTTON_SECONDARY);
-	m_wndViewResult.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	return 0;
 }
 
 void CSageStatusCard::OnSize(UINT nType, int cx, int cy) {
 	CStatic::OnSize(nType, cx, cy);
-	LayoutActionButtons();
+	LayoutOpenFolderButton();
 }
 
-void CSageStatusCard::SetActionCommands(UINT nOpenFolderCommandId, UINT nViewResultCommandId) {
-	m_nOpenFolderCommandId = nOpenFolderCommandId;
-	m_nViewResultCommandId = nViewResultCommandId;
-}
-
-void CSageStatusCard::ForwardCommand(UINT nCommandId) {
-	if (nCommandId == 0)
-		return;
-	GetParent()->SendMessage(WM_COMMAND, MAKEWPARAM(nCommandId, BN_CLICKED), 0);
+void CSageStatusCard::SetOpenFolderCommand(UINT nCommandId) {
+	m_nOpenFolderCommandId = nCommandId;
 }
 
 void CSageStatusCard::OnOpenFolderClicked() {
-	ForwardCommand(m_nOpenFolderCommandId);
-}
-
-void CSageStatusCard::OnViewResultClicked() {
-	ForwardCommand(m_nViewResultCommandId);
+	if (m_nOpenFolderCommandId == 0)
+		return;
+	GetParent()->SendMessage(WM_COMMAND, MAKEWPARAM(m_nOpenFolderCommandId, BN_CLICKED), 0);
 }
 
 void CSageStatusCard::SetIdle(const CString& strMessage) {
@@ -64,9 +47,8 @@ void CSageStatusCard::SetIdle(const CString& strMessage) {
 	m_strMessage = strMessage;
 	m_strDetail.Empty();
 	m_nProgressPercent = 0;
-	m_bViewResultEnabled = FALSE;
 	if (::IsWindow(GetSafeHwnd())) {
-		LayoutActionButtons();
+		LayoutOpenFolderButton();
 		Invalidate();
 	}
 }
@@ -76,9 +58,8 @@ void CSageStatusCard::SetRunning(const CString& strMessage) {
 	m_strMessage = strMessage;
 	m_strDetail.Empty();
 	m_nProgressPercent = 0;
-	m_bViewResultEnabled = FALSE;
 	if (::IsWindow(GetSafeHwnd())) {
-		LayoutActionButtons();
+		LayoutOpenFolderButton();
 		Invalidate();
 	}
 }
@@ -91,13 +72,12 @@ void CSageStatusCard::SetProgressPercent(int nPercent) {
 		Invalidate();
 }
 
-void CSageStatusCard::SetResult(BOOL bSuccess, const CString& strMessage, const CString& strDetail, BOOL bViewResultEnabled) {
+void CSageStatusCard::SetResult(BOOL bSuccess, const CString& strMessage, const CString& strDetail) {
 	m_nState = bSuccess ? SAGE_STATUS_CARD_COMPLETED : SAGE_STATUS_CARD_FAILED;
 	m_strMessage = strMessage;
 	m_strDetail = strDetail;
-	m_bViewResultEnabled = bViewResultEnabled;
 	if (::IsWindow(GetSafeHwnd())) {
-		LayoutActionButtons();
+		LayoutOpenFolderButton();
 		Invalidate();
 	}
 }
@@ -105,37 +85,26 @@ void CSageStatusCard::SetResult(BOOL bSuccess, const CString& strMessage, const 
 int CSageStatusCard::GetActionAreaWidth() const {
 	if (!::IsWindow(m_wndOpenFolder.GetSafeHwnd()) || !m_wndOpenFolder.IsWindowVisible())
 		return 0;
-
-	int nWidth = TAECHANG_STATUS_CARD_ACTION_WIDTH;
-	if (m_wndViewResult.IsWindowVisible())
-		nWidth += TAECHANG_STATUS_CARD_ACTION_GAP + TAECHANG_STATUS_CARD_ACTION_WIDTH;
-	return nWidth + TAECHANG_STATUS_CARD_ACTION_GAP;
+	return TAECHANG_STATUS_CARD_ACTION_AREA_WIDTH;
 }
 
-void CSageStatusCard::LayoutActionButtons() {
+void CSageStatusCard::LayoutOpenFolderButton() {
 	if (!::IsWindow(m_wndOpenFolder.GetSafeHwnd()))
 		return;
 
 	BOOL bShowOpenFolder = (m_nState == SAGE_STATUS_CARD_COMPLETED && !m_strDetail.IsEmpty())
 		? TRUE : FALSE;
-	BOOL bShowViewResult = (bShowOpenFolder && m_bViewResultEnabled) ? TRUE : FALSE;
 	m_wndOpenFolder.ShowWindow(bShowOpenFolder ? SW_SHOW : SW_HIDE);
-	m_wndViewResult.ShowWindow(bShowViewResult ? SW_SHOW : SW_HIDE);
 	if (!bShowOpenFolder)
 		return;
 
 	CRect rectClient;
 	GetClientRect(&rectClient);
-	int nTop = rectClient.top + (rectClient.Height() - TAECHANG_BUTTON_HEIGHT) / 2;
-	int nRight = rectClient.right - TAECHANG_CARD_PADDING;
-
-	if (bShowViewResult) {
-		m_wndViewResult.MoveWindow(nRight - TAECHANG_STATUS_CARD_ACTION_WIDTH, nTop,
-			TAECHANG_STATUS_CARD_ACTION_WIDTH, TAECHANG_BUTTON_HEIGHT);
-		nRight -= TAECHANG_STATUS_CARD_ACTION_WIDTH + TAECHANG_STATUS_CARD_ACTION_GAP;
-	}
-	m_wndOpenFolder.MoveWindow(nRight - TAECHANG_STATUS_CARD_ACTION_WIDTH, nTop,
-		TAECHANG_STATUS_CARD_ACTION_WIDTH, TAECHANG_BUTTON_HEIGHT);
+	m_wndOpenFolder.MoveWindow(
+		rectClient.right - TAECHANG_CARD_PADDING - TAECHANG_STATUS_CARD_ACTION_WIDTH,
+		rectClient.top + (rectClient.Height() - TAECHANG_BUTTON_HEIGHT) / 2,
+		TAECHANG_STATUS_CARD_ACTION_WIDTH,
+		TAECHANG_BUTTON_HEIGHT);
 }
 
 COLORREF CSageStatusCard::GetSurfaceColor() const {

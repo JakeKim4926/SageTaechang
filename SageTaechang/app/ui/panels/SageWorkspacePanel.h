@@ -89,7 +89,6 @@ protected:
     afx_msg LRESULT OnWorkflowRunRequested(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnWorkflowInputReset(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnOpenOutputFolder(WPARAM wParam, LPARAM lParam);
-    afx_msg LRESULT OnViewResultTab(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnWorkflowComplete(WPARAM wParam, LPARAM lParam);
     DECLARE_MESSAGE_MAP()
 
@@ -118,7 +117,6 @@ private:
         const CString& strResponseJson,
         BOOL bSuccess,
         int nResultCount);
-    BOOL HasResultTab() const;
     void ClearStatusCard();
     BOOL IsInputTableVisible() const;
     BOOL IsOnePageOptionVisible() const;
