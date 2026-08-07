@@ -29,7 +29,6 @@ private:
 
 private:
     CSageLabel m_wndTitle;
-    CSageLabel m_wndMenuLabel;
     CSageSidebarTree m_wndTree;
 
 private:

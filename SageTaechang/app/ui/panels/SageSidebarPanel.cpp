@@ -31,8 +31,7 @@ int SageSidebarPanel::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 
 void SageSidebarPanel::CreateControls() {
 	CRect rectEmpty(0, 0, 0, 0);
-	m_wndTitle.Create(TAECHANG_UI_APP_TITLE, WS_CHILD | WS_VISIBLE | SS_CENTER | SS_CENTERIMAGE, rectEmpty, this);
-	m_wndMenuLabel.Create(TAECHANG_UI_SIDEBAR_TITLE, WS_CHILD | WS_VISIBLE | SS_CENTERIMAGE, rectEmpty, this);
+	m_wndTitle.Create(TAECHANG_UI_APP_TITLE, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, rectEmpty, this);
 	m_wndTree.Create(
 		WS_CHILD | WS_VISIBLE | WS_BORDER | TVS_FULLROWSELECT | TVS_SHOWSELALWAYS
 		| TVS_DISABLEDRAGDROP | TVS_NOSCROLL,
@@ -46,10 +45,6 @@ void SageSidebarPanel::CreateControls() {
 	m_wndTitle.SetTextColorRole(SAGE_TEXT_SIDEBAR);
 	m_wndTitle.SetBackgroundRole(SAGE_BG_SIDEBAR);
 	m_wndTitle.SetFontRole(SAGE_FONT_LOGO);
-
-	m_wndMenuLabel.SetTextColorRole(SAGE_TEXT_SIDEBAR_CATEGORY);
-	m_wndMenuLabel.SetBackgroundRole(SAGE_BG_SIDEBAR);
-	m_wndMenuLabel.SetFontRole(SAGE_FONT_CONTROL);
 }
 
 void SageSidebarPanel::BuildTree() {
@@ -107,15 +102,12 @@ void SageSidebarPanel::Layout(const CRect& rectPanel) {
 	if (rectClient.IsRectEmpty())
 		return;
 
-	int nInnerWidth = rectClient.Width() - TAECHANG_MARGIN * 2;
-	m_wndTitle.MoveWindow(TAECHANG_MARGIN, 0, nInnerWidth, TAECHANG_HEADER_HEIGHT);
-	m_wndMenuLabel.MoveWindow(
-		TAECHANG_MARGIN, TAECHANG_HEADER_HEIGHT, nInnerWidth, TAECHANG_SIDEBAR_TITLE_HEIGHT);
+	int nTreeTop = TAECHANG_HEADER_HEIGHT + TAECHANG_SIDEBAR_TREE_TOP_PAD;
+	m_wndTitle.MoveWindow(
+		TAECHANG_SIDEBAR_PAD_X, 0,
+		rectClient.Width() - TAECHANG_SIDEBAR_PAD_X, TAECHANG_HEADER_HEIGHT);
 	m_wndTree.MoveWindow(
-		TAECHANG_MARGIN,
-		TAECHANG_HEADER_HEIGHT + TAECHANG_SIDEBAR_TITLE_HEIGHT,
-		nInnerWidth,
-		rectClient.Height() - TAECHANG_HEADER_HEIGHT - TAECHANG_SIDEBAR_TITLE_HEIGHT - TAECHANG_MARGIN);
+		0, nTreeTop, rectClient.Width(), rectClient.Height() - nTreeTop - TAECHANG_MARGIN);
 }
 
 BOOL SageSidebarPanel::OnEraseBkgnd(CDC* pDC) {
