@@ -5,6 +5,18 @@
 
 ## 열린 항목
 
+### [2026-08-07] 임시구현 — `SageWorkspaceVisibility`는 4d-1과 4d-3 사이의 다리다
+- 위치: `app/ui/panels/SageWorkspacePanel.h` `SageWorkspaceVisibility` · `app/ui/view/SageTaechangView.cpp` `UpdateTaskTabVisibility`
+- 설명: 가시성 판정이 **탭 선택(UI)** 과 **실행 결과(`m_nLastWorkflowType`·`m_nLastTaskType`·`m_bRunning`)** 두 상태에 걸쳐 있다. 앞의 것은 4d-1에서 워크스페이스로 갔지만 뒤의 것은 컨트롤러 몫이라 View에 남았다. 그래서 **View가 판정 결과 5개를 구조체로 묶어 넘기고** 워크스페이스가 자식에 배분한다. 설계 단계에서 예고한 임시 구조다.
+- 위험도: 낮음 — 동작에는 문제가 없고 API가 하나로 묶여 있어 추적이 쉽다
+- 후속: **4d-3**에서 `SageWorkflowController`가 실행 상태를 소유하면 워크스페이스가 직접 물으면 되므로 이 구조체가 사라진다
+
+### [2026-08-07] 구조불일치 — 데이터 관리 패널이 워크스페이스 위에 겹쳐 그려진다
+- 위치: `app/ui/view/SageTaechangView.cpp` `LayoutCompanyOrderPanel` 호출부 · `CreateCompanyOrderPanel`
+- 설명: 4d-1에서 패널 5종은 워크스페이스 하위로 갔지만 **데이터 관리 컨트롤 13개는 여전히 View 자식**이다. 워크스페이스가 콘텐츠 영역을 차지하므로 데이터 관리 탭에서는 그 **위에 겹쳐** 그려진다. 생성 순서상 CoPanel이 나중이어서 Z-order로 위에 오기 때문에 동작은 한다. R8이 「부모를 두 번 바꾸지 말라」고 해서 4d-2로 미룬 결과다.
+- 위험도: 중 — Z-order에 의존하는 상태이고, 생성 순서가 바뀌면 조용히 가려진다
+- 후속: **4d-2**에서 `SageCompanyOrderPanel`을 신설해 워크스페이스 하위로 넣는다
+
 ### [2026-08-07] 구조불일치 — 실행 기록 패널이 응답 JSON을 직접 파싱한다
 - 위치: `app/ui/panels/SageWorkflowHistoryPanel.cpp` `BuildEntryLine` — `JsonExtractString` 4회
 - 설명: `coding-design`은 「`ui`에 파싱·변환 코드가 들어가지 않았는가」를 묻는데 기록 한 줄을 만들려고 응답 JSON에서 파일 경로·메시지·코드를 직접 꺼낸다. **3-B-4c 이전부터 View에 있던 위반이고 이번 이동은 위치만 바꿨다** — 이번 Step 원칙이 「옮기기만 한다」였으므로 그대로 가져왔다.
