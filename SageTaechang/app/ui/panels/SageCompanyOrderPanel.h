@@ -25,7 +25,7 @@ protected:
     afx_msg BOOL OnEraseBkgnd(CDC* pDC);
     afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
     afx_msg void OnAdd();
-    afx_msg void OnModify();
+    afx_msg void OnSave();
     afx_msg void OnDelete();
     afx_msg void OnCancel();
     afx_msg void OnSearch();
@@ -39,15 +39,19 @@ private:
     void UpdateListColumns();
     void UpdatePanelState();
     void ApplyEditTextRect(CEdit& wndEdit, int nLeftPad);
-    void SetCardRect(const CRect& rectNew);
+    void SetCardRects(const CRect& rectList, const CRect& rectEdit);
     void DrawEditBorder(CDC* pDC, CWnd& wnd);
+    void LayoutListCard(const CRect& rectCard);
+    int  LayoutEditCard(int nLeft, int nWidth);
+    void FillEditFromSelection();
+    void AddCompanyOrder(const CString& strCompanyName, const CString& strOrder);
     BOOL FindSelectedDto(TaechangReceivableCompanyOrderDto& outDto) const;
 
 private:
     CSageSectionLabel m_wndCrudSection;
     CSageSectionLabel m_wndListSection;
     CSageButton m_wndAddBtn;
-    CSageButton m_wndModifyBtn;
+    CSageButton m_wndSaveBtn;
     CSageButton m_wndDeleteBtn;
     CSageButton m_wndCancelBtn;
     CSageLabel m_wndSearchLabel;
@@ -57,11 +61,14 @@ private:
     CEdit m_wndOrderEdit;
     CSageLabel m_wndNameLabel;
     CEdit m_wndCompanyEdit;
+    CSageLabel m_wndGuide;
     CSageHeaderCtrl m_wndListHeader;
     CSageListCtrl m_wndList;
 
 private:
-    CRect m_rectCard;
+    CRect m_rectListCard;
+    CRect m_rectEditCard;
+    int m_nDividerTop;
     int m_nPanelState;
     CString m_strSearchKeyword;
     int m_nSelectedOrderId;
