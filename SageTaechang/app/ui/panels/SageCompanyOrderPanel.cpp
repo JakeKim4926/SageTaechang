@@ -42,7 +42,7 @@ int SageCompanyOrderPanel::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 
 BOOL SageCompanyOrderPanel::PreTranslateMessage(MSG* pMsg) {
 	if (pMsg != NULL && pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_RETURN &&
-		pMsg->hwnd == m_wndSearchEdit.GetSafeHwnd()) {
+		m_wndSearch.IsEditMessage(pMsg)) {
 		OnSearch();
 		return TRUE;
 	}
@@ -71,11 +71,10 @@ void SageCompanyOrderPanel::CreateControls() {
 	m_wndDeleteBtn.Create(TAECHANG_UI_CO_DELETE_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_COORDER_DELETE_BTN);
 	m_wndDeleteBtn.SetVariant(SAGE_BUTTON_DANGER);
 	m_wndCancelBtn.Create(TAECHANG_UI_CO_CANCEL_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_COORDER_CANCEL_BTN);
-	m_wndSearchLabel.Create(TAECHANG_UI_CO_SEARCH_LABEL, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, r, this);
-	m_wndSearchEdit.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOHSCROLL, r, this, ID_COORDER_SEARCH_EDIT);
-	m_wndSearchBtn.Create(L"", WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_COORDER_SEARCH_BTN);
-	m_wndSearchBtn.SetIcon(SAGE_BUTTON_ICON_SEARCH);
-	m_wndSearchBtn.SetTooltip(TAECHANG_UI_TIP_SEARCH);
+	m_wndSearch.CreateBox(this, ID_COORDER_SEARCH_BOX, ID_COORDER_SEARCH_EDIT);
+	m_wndSearch.SetCommand(ID_COORDER_SEARCH_BTN);
+	m_wndSearch.SetPlaceholder(TAECHANG_UI_CO_SEARCH_PLACEHOLDER);
+	m_wndSearch.SetMaxLength(TAECHANG_CO_COMPANY_NAME_MAX);
 	m_wndOrderLabel.Create(TAECHANG_UI_CO_ORDER_LABEL, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, r, this);
 	m_wndOrderEdit.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_NUMBER, r, this, ID_COORDER_ORDER_EDIT);
 	m_wndOrderEdit.LimitText(TAECHANG_CO_ORDER_TEXT_MAX);
@@ -96,11 +95,6 @@ void SageCompanyOrderPanel::CreateControls() {
 		return;
 	m_wndListHeader.SubclassWindow(pHeader->GetSafeHwnd());
 	SetWindowTheme(m_wndListHeader.GetSafeHwnd(), L"", L"");
-	HDITEM hdi = {};
-	hdi.mask = HDI_FORMAT;
-	m_wndListHeader.GetItem(1, &hdi);
-	hdi.fmt = (hdi.fmt & ~HDF_JUSTIFYMASK) | HDF_CENTER;
-	m_wndListHeader.SetItem(1, &hdi);
 }
 
 void SageCompanyOrderPanel::ApplyControlFonts() {
@@ -110,8 +104,6 @@ void SageCompanyOrderPanel::ApplyControlFonts() {
 	m_wndSaveBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndDeleteBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndCancelBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndSearchEdit.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndSearchBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndOrderEdit.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndCompanyEdit.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndList.SetFont(SageUiResources::GetFont(SAGE_FONT_LIST));
@@ -120,10 +112,7 @@ void SageCompanyOrderPanel::ApplyControlFonts() {
 }
 
 void SageCompanyOrderPanel::ApplyLabelRoles() {
-	m_wndSearchLabel.SetTextColorRole(SAGE_TEXT_SECONDARY);
-	m_wndSearchLabel.SetFontRole(SAGE_FONT_CONTENT);
-
-	m_wndOrderLabel.SetTextColorRole(SAGE_TEXT_SECONDARY);
+	m_wndOrderLabel.SetTextColorRole(SAGE_TEXT_MUTED);
 	m_wndOrderLabel.SetBackgroundRole(SAGE_BG_PANEL);
 	m_wndOrderLabel.SetFontRole(SAGE_FONT_CONTENT);
 
@@ -131,7 +120,6 @@ void SageCompanyOrderPanel::ApplyLabelRoles() {
 	m_wndNameLabel.SetBackgroundRole(SAGE_BG_PANEL);
 	m_wndNameLabel.SetFontRole(SAGE_FONT_CONTENT);
 
-	m_wndOrderLabel.SetTextColorRole(SAGE_TEXT_MUTED);
 	m_wndGuide.SetTextColorRole(SAGE_TEXT_SECONDARY);
 	m_wndGuide.SetBackgroundRole(SAGE_BG_PANEL);
 	m_wndGuide.SetFontRole(SAGE_FONT_CAPTION);
@@ -158,8 +146,8 @@ void SageCompanyOrderPanel::Layout(const CRect& rectPanel) {
 
 	int nEditCardLeft = rectClient.Width() - TAECHANG_CO_EDIT_CARD_WIDTH;
 	int nListCardWidth = nEditCardLeft - TAECHANG_CO_CARD_GAP;
-	if (nListCardWidth < TAECHANG_CO_EDIT_CARD_WIDTH)
-		nListCardWidth = TAECHANG_CO_EDIT_CARD_WIDTH;
+	if (nListCardWidth > TAECHANG_CO_LIST_CARD_WIDTH)
+		nListCardWidth = TAECHANG_CO_LIST_CARD_WIDTH;
 
 	CRect rectListCard(0, 0, nListCardWidth, rectClient.Height());
 	LayoutListCard(rectListCard);
@@ -181,14 +169,9 @@ void SageCompanyOrderPanel::LayoutListCard(const CRect& rectCard) {
 	int nAddBtnLeft = nContentRight - TAECHANG_CO_ADD_BTN_WIDTH;
 	m_wndAddBtn.MoveWindow(nAddBtnLeft, nSearchTop, TAECHANG_CO_ADD_BTN_WIDTH, TAECHANG_BUTTON_HEIGHT);
 
-	int nSearchBtnLeft = nAddBtnLeft - TAECHANG_ACTION_GAP - TAECHANG_RESULT_SEARCH_WIDTH;
-	int nSearchEditLeft = nSearchBtnLeft - TAECHANG_ACTION_GAP - TAECHANG_RESULT_FILTER_WIDTH;
-	m_wndSearchLabel.MoveWindow(
-		nContentLeft, nSearchTop + TAECHANG_LABEL_VERT_OFFSET,
-		TAECHANG_CO_SEARCH_LABEL_W, TAECHANG_EDIT_HEIGHT);
-	m_wndSearchEdit.MoveWindow(nSearchEditLeft, nSearchTop, TAECHANG_RESULT_FILTER_WIDTH, TAECHANG_EDIT_HEIGHT);
-	ApplyEditTextRect(m_wndSearchEdit, TAECHANG_CO_NAME_TEXT_LEFT_PAD);
-	m_wndSearchBtn.MoveWindow(nSearchBtnLeft, nSearchTop, TAECHANG_RESULT_SEARCH_WIDTH, TAECHANG_BUTTON_HEIGHT);
+	m_wndSearch.MoveWindow(
+		nContentLeft, nSearchTop,
+		nAddBtnLeft - TAECHANG_ACTION_GAP - nContentLeft, TAECHANG_EDIT_HEIGHT);
 
 	int nListTop = nRowTop + TAECHANG_CO_SEARCH_ROW_HEIGHT;
 	int nListHeight = rectCard.bottom - nListTop - TAECHANG_EDIT_BORDER_WIDTH;
@@ -279,7 +262,6 @@ BOOL SageCompanyOrderPanel::OnEraseBkgnd(CDC* pDC) {
 			TAECHANG_CO_DIVIDER_HEIGHT,
 			TAECHANG_COLOR_LIST_GRID);
 	}
-	DrawEditBorder(pDC, m_wndSearchEdit);
 	DrawEditBorder(pDC, m_wndOrderEdit);
 	DrawEditBorder(pDC, m_wndCompanyEdit);
 	return TRUE;
@@ -334,8 +316,7 @@ void SageCompanyOrderPanel::UpdatePanelState() {
 	m_wndCancelBtn.EnableWindow((bAdding || bHasSelection) ? TRUE : FALSE);
 	m_wndOrderEdit.EnableWindow((bAdding || bHasSelection) ? TRUE : FALSE);
 	m_wndCompanyEdit.EnableWindow((bAdding || bHasSelection) ? TRUE : FALSE);
-	m_wndSearchEdit.EnableWindow(!bAdding ? TRUE : FALSE);
-	m_wndSearchBtn.EnableWindow(!bAdding ? TRUE : FALSE);
+	m_wndSearch.EnableWindow(!bAdding ? TRUE : FALSE);
 
 	CString strCount;
 	strCount.Format(TAECHANG_UI_CO_COUNT_FORMAT, static_cast<int>(m_arrOrders.GetSize()));
@@ -531,7 +512,7 @@ void SageCompanyOrderPanel::OnCancel() {
 }
 
 void SageCompanyOrderPanel::OnSearch() {
-	m_wndSearchEdit.GetWindowTextW(m_strSearchKeyword);
+	m_strSearchKeyword = m_wndSearch.GetKeyword();
 	m_strSearchKeyword.Trim();
 	m_nSelectedOrderId = 0;
 	m_wndOrderEdit.SetWindowTextW(CString());

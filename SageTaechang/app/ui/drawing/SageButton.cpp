@@ -128,22 +128,7 @@ void CSageButton::DrawIconAt(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon) 
 }
 
 void CSageButton::DrawSearchIcon(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon) {
-	CPen pen(PS_SOLID, TAECHANG_ICON_STROKE, clrIcon);
-	CPen* pOldPen = dc.SelectObject(&pen);
-	CBrush* pOldBrush = (CBrush*)dc.SelectStockObject(NULL_BRUSH);
-
-	int nLensCx = ptCenter.x - TAECHANG_ICON_SEARCH_HANDLE / 2;
-	int nLensCy = ptCenter.y - TAECHANG_ICON_SEARCH_HANDLE / 2;
-	dc.Ellipse(nLensCx - TAECHANG_ICON_SEARCH_RADIUS, nLensCy - TAECHANG_ICON_SEARCH_RADIUS,
-		nLensCx + TAECHANG_ICON_SEARCH_RADIUS, nLensCy + TAECHANG_ICON_SEARCH_RADIUS);
-	dc.MoveTo(nLensCx + TAECHANG_ICON_SEARCH_RADIUS - 1, nLensCy + TAECHANG_ICON_SEARCH_RADIUS - 1);
-	dc.LineTo(nLensCx + TAECHANG_ICON_SEARCH_RADIUS + TAECHANG_ICON_SEARCH_HANDLE,
-		nLensCy + TAECHANG_ICON_SEARCH_RADIUS + TAECHANG_ICON_SEARCH_HANDLE);
-
-	if (pOldBrush)
-		dc.SelectObject(pOldBrush);
-	if (pOldPen)
-		dc.SelectObject(pOldPen);
+	SageUiStyle::DrawSearchIcon(dc, ptCenter, clrIcon);
 }
 
 void CSageButton::DrawAddIcon(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon) {

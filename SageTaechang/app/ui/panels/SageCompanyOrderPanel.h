@@ -7,6 +7,7 @@
 #include "app/ui/drawing/SageLabel.h"
 #include "app/ui/drawing/SageListCtrl.h"
 #include "app/ui/drawing/SageSectionLabel.h"
+#include "app/ui/drawing/SageSearchBox.h"
 
 class SageCompanyOrderPanel : public CWnd {
 public:
@@ -54,9 +55,7 @@ private:
     CSageButton m_wndSaveBtn;
     CSageButton m_wndDeleteBtn;
     CSageButton m_wndCancelBtn;
-    CSageLabel m_wndSearchLabel;
-    CEdit m_wndSearchEdit;
-    CSageButton m_wndSearchBtn;
+    CSageSearchBox m_wndSearch;
     CSageLabel m_wndOrderLabel;
     CEdit m_wndOrderEdit;
     CSageLabel m_wndNameLabel;

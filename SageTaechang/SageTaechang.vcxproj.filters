@@ -186,6 +186,9 @@
     <ClCompile Include="app\ui\drawing\SageFilterPillBar.cpp">
       <Filter>소스 파일\app\ui\drawing</Filter>
     </ClCompile>
+    <ClCompile Include="app\ui\drawing\SageSearchBox.cpp">
+      <Filter>소스 파일\app\ui\drawing</Filter>
+    </ClCompile>
     <ClCompile Include="app\ui\dialogs\SageDialogSizer.cpp">
       <Filter>소스 파일\app\ui\dialogs</Filter>
     </ClCompile>
@@ -408,6 +411,9 @@
       <Filter>헤더 파일\app\ui\drawing</Filter>
     </ClInclude>
     <ClInclude Include="app\ui\drawing\SageFilterPillBar.h">
+      <Filter>헤더 파일\app\ui\drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="app\ui\drawing\SageSearchBox.h">
       <Filter>헤더 파일\app\ui\drawing</Filter>
     </ClInclude>
     <ClInclude Include="app\ui\dialogs\SageDialogSizer.h">
