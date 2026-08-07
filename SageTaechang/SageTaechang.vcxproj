@@ -282,6 +282,7 @@ if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templ
     <ClInclude Include="app\ui\panels\SageWorkflowHistoryPanel.h" />
     <ClInclude Include="app\ui\panels\SageWorkspacePanel.h" />
     <ClInclude Include="app\ui\panels\SageCompanyOrderPanel.h" />
+    <ClInclude Include="app\ui\workflow\SageWorkflowController.h" />
     <ClInclude Include="app\common\TaechangJson.h" />
     <ClInclude Include="app\infra\file\TaechangFileUtils.h" />
     <ClInclude Include="app\common\TaechangDialogHelper.h" />
@@ -347,6 +348,7 @@ if exist "$(ProjectDir)templates" xcopy "$(ProjectDir)templates" "$(OutDir)templ
     <ClCompile Include="app\ui\panels\SageWorkflowHistoryPanel.cpp" />
     <ClCompile Include="app\ui\panels\SageWorkspacePanel.cpp" />
     <ClCompile Include="app\ui\panels\SageCompanyOrderPanel.cpp" />
+    <ClCompile Include="app\ui\workflow\SageWorkflowController.cpp" />
     <ClCompile Include="app\common\TaechangJson.cpp" />
     <ClCompile Include="app\infra\file\TaechangFileUtils.cpp" />
     <ClCompile Include="app\common\TaechangDialogHelper.cpp" />

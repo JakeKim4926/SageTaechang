@@ -2,6 +2,9 @@
 #include "app/ui/panels/SageWorkspacePanel.h"
 #include "app/ui/drawing/SageUiResources.h"
 #include "app/core/workflow/ISageWorkflowHandler.h"
+#include "app/core/workflow/SageWorkflowRegistry.h"
+#include "app/core/workflow/SageWorkflowResultTable.h"
+#include "app/core/workflow/TaechangWorkflowResultPresenter.h"
 #include "TaechangDefine.h"
 
 BEGIN_MESSAGE_MAP(SageWorkspacePanel, CWnd)
@@ -12,6 +15,7 @@ BEGIN_MESSAGE_MAP(SageWorkspacePanel, CWnd)
 	ON_MESSAGE(WM_TAECHANG_RESULT_SELECTION_CHANGED, &SageWorkspacePanel::OnResultSelectionChanged)
 	ON_MESSAGE(WM_TAECHANG_WORKFLOW_RUN_REQUESTED, &SageWorkspacePanel::OnWorkflowRunRequested)
 	ON_MESSAGE(WM_TAECHANG_WORKFLOW_INPUT_RESET, &SageWorkspacePanel::OnWorkflowInputReset)
+	ON_MESSAGE(WM_TAECHANG_WORKFLOW_COMPLETE, &SageWorkspacePanel::OnWorkflowComplete)
 END_MESSAGE_MAP()
 
 SageWorkspacePanel::SageWorkspacePanel()
@@ -292,9 +296,401 @@ LRESULT SageWorkspacePanel::OnResultSelectionChanged(WPARAM wParam, LPARAM lPara
 }
 
 LRESULT SageWorkspacePanel::OnWorkflowRunRequested(WPARAM wParam, LPARAM lParam) {
-	return ForwardToParent(WM_TAECHANG_WORKFLOW_RUN_REQUESTED, wParam, lParam);
+	UNREFERENCED_PARAMETER(lParam);
+	RequestRun(static_cast<int>(wParam));
+	return 0;
 }
 
 LRESULT SageWorkspacePanel::OnWorkflowInputReset(WPARAM wParam, LPARAM lParam) {
-	return ForwardToParent(WM_TAECHANG_WORKFLOW_INPUT_RESET, wParam, lParam);
+	UNREFERENCED_PARAMETER(wParam);
+	UNREFERENCED_PARAMETER(lParam);
+	ResetInput();
+	return 0;
+}
+
+LRESULT SageWorkspacePanel::OnWorkflowComplete(WPARAM wParam, LPARAM lParam) {
+	UNREFERENCED_PARAMETER(wParam);
+	SageWorkflowResult* pResult = reinterpret_cast<SageWorkflowResult*>(lParam);
+	if (pResult != NULL) {
+		DisplayResponse(pResult->m_nWorkflowType, pResult->m_nTaskType, pResult->m_strResponseJson);
+		delete pResult;
+	}
+	SetRunningState(FALSE);
+	return 0;
+}
+
+SageResultTablePanel* SageWorkspacePanel::FindResultTable() {
+	if (m_pHandler == NULL)
+		return NULL;
+	return m_pHandler->UsesInputTable()
+		? &m_panelWorkflowInput.GetInputTable()
+		: &m_panelWorkflowResult.GetResultTable();
+}
+
+BOOL SageWorkspacePanel::IsRunning() const {
+	return m_controller.IsRunning();
+}
+
+BOOL SageWorkspacePanel::IsInputTableVisible() const {
+	if (m_pHandler == NULL || !m_pHandler->UsesInputTable())
+		return FALSE;
+	if (m_controller.GetLastWorkflowType() != m_pHandler->GetWorkflowType())
+		return FALSE;
+	return m_pHandler->UsesCustomResultTable(m_controller.GetLastTaskType());
+}
+
+BOOL SageWorkspacePanel::IsOnePageOptionVisible() const {
+	if (m_pHandler == NULL || !m_pHandler->UsesOnePageOption())
+		return FALSE;
+	return IsInputTableVisible();
+}
+
+BOOL SageWorkspacePanel::IsInputResetVisible() const {
+	if (m_controller.IsRunning() || !IsInputTabSelected())
+		return FALSE;
+	return IsInputTableVisible();
+}
+
+BOOL SageWorkspacePanel::IsResultFilterVisible() const {
+	if (m_pHandler == NULL)
+		return FALSE;
+	if (m_controller.GetLastWorkflowType() != m_pHandler->GetWorkflowType())
+		return FALSE;
+	return m_pHandler->UsesCustomResultTable(m_controller.GetLastTaskType());
+}
+
+void SageWorkspacePanel::RefreshVisibility() {
+	SageWorkspaceVisibility state;
+	state.bInputResetVisible = IsInputResetVisible();
+	state.bHasLastResult = (m_controller.GetLastTaskType() != 0) ? TRUE : FALSE;
+	state.bInputTableVisible = (IsInputTabSelected() && IsInputTableVisible()) ? TRUE : FALSE;
+	state.bOnePageVisible = IsOnePageOptionVisible();
+	state.bFilterVisible = IsResultFilterVisible();
+	UpdateVisibility(state);
+}
+
+void SageWorkspacePanel::ApplyWorkflowLabels(ISageWorkflowHandler* pHandler) {
+	if (pHandler == NULL)
+		return;
+	m_panelWorkflowInput.SetSectionLabel(pHandler->GetInputSectionLabel());
+	m_panelWorkflowInput.SetActionButtonLabel(pHandler->GetActionButtonLabel());
+	m_panelWorkflowInput.SetInputDialogTitle(pHandler->GetInputDialogTitle());
+	m_panelWorkflowInput.SetAutoLoadOnInput(pHandler->UsesInputTable());
+	m_panelWorkflowHistory.SetSectionLabel(pHandler->GetDetailSectionLabel());
+}
+
+void SageWorkspacePanel::ApplyResultTableSchema() {
+	SageResultTablePanel* pPanel = FindResultTable();
+	if (pPanel == NULL)
+		return;
+
+	int nLastTaskType = m_controller.GetLastTaskType();
+	std::vector<SageWorkflowColumn> arrColumns;
+	int nColumnCount = m_pHandler->GetResultColumnCount(nLastTaskType);
+	for (int i = 0; i < nColumnCount; ++i)
+		arrColumns.push_back(m_pHandler->GetResultColumn(nLastTaskType, i));
+
+	std::vector<SageWorkflowFilterCriteria> arrCriteria;
+	int nCriteriaCount = m_pHandler->GetFilterCriteriaCount();
+	for (int i = 0; i < nCriteriaCount; ++i)
+		arrCriteria.push_back(m_pHandler->GetFilterCriteria(i));
+
+	pPanel->SetColumns(arrColumns, m_pHandler->GetResultStyle(nLastTaskType));
+	pPanel->SetFilterCriteria(arrCriteria);
+}
+
+void SageWorkspacePanel::SetResultTableRows(const std::vector<TaechangResultRow>& arrRows) {
+	SageResultTablePanel* pPanel = FindResultTable();
+	if (pPanel == NULL)
+		return;
+	pPanel->SetRows(arrRows);
+	UpdateResultSummary();
+	UpdateActionButtonState();
+}
+
+void SageWorkspacePanel::UpdateResultSummary() {
+	SageResultTablePanel* pPanel = FindResultTable();
+	if (pPanel == NULL)
+		return;
+
+	int nLastTaskType = m_controller.GetLastTaskType();
+	std::vector<SageResultSummaryItem> arrItems;
+	if (m_pHandler->GetWorkflowType() != m_controller.GetLastWorkflowType() ||
+		!m_pHandler->BuildResultSummary(nLastTaskType, pPanel->GetVisibleRows(),
+			m_controller.GetLastResponseJson(), arrItems)) {
+		pPanel->ClearSummary();
+		pPanel->ClearTotals();
+		return;
+	}
+	pPanel->SetSummaryItems(arrItems);
+
+	std::vector<SageResultTotalCell> arrTotalCells;
+	if (!m_pHandler->BuildResultTotals(nLastTaskType, pPanel->GetVisibleRows(), arrTotalCells)) {
+		pPanel->ClearTotals();
+		return;
+	}
+	pPanel->SetTotalCells(arrTotalCells);
+}
+
+void SageWorkspacePanel::UpdateActionButtonState() {
+	if (m_pHandler == NULL)
+		return;
+	ApplyActionButtonState(m_pHandler->UsesInputTable()
+		? m_panelWorkflowInput.GetInputTable().GetCheckedRowCount()
+		: 0);
+}
+
+void SageWorkspacePanel::ApplyActionButtonState(int nSelectedCount) {
+	if (m_pHandler == NULL)
+		return;
+
+	BOOL bEnable = m_controller.IsRunning() ? FALSE : TRUE;
+	if (bEnable && m_pHandler->UsesInputTable())
+		bEnable = (nSelectedCount > 0) ? TRUE : FALSE;
+	m_panelWorkflowInput.EnableGenerateButton(bEnable);
+}
+
+void SageWorkspacePanel::SetRunningState(BOOL bRunning) {
+	m_panelWorkflowInput.SetRunningState(bRunning);
+	UpdateActionButtonState();
+	RefreshVisibility();
+	LayoutActivePanel();
+	if (bRunning)
+		NotifyStatus(TAECHANG_UI_RUNNING);
+}
+
+BOOL SageWorkspacePanel::ValidateInputPath(CString& strInputPath) const {
+	strInputPath = m_panelWorkflowInput.GetInputPath();
+	strInputPath.Trim();
+	if (!strInputPath.IsEmpty())
+		return TRUE;
+	AfxMessageBox(TAECHANG_UI_INPUT_REQUIRED, MB_ICONWARNING);
+	return FALSE;
+}
+
+BOOL SageWorkspacePanel::ValidateOutputFolder(CString& strOutputFolder) const {
+	strOutputFolder = m_panelWorkflowInput.GetOutputFolder();
+	strOutputFolder.Trim();
+	if (!strOutputFolder.IsEmpty())
+		return TRUE;
+	AfxMessageBox(TAECHANG_UI_OUTPUT_REQUIRED, MB_ICONWARNING);
+	return FALSE;
+}
+
+BOOL SageWorkspacePanel::BuildSelectedRowNums(int nTaskType, CString& strRowNums, BOOL& bOnePage) {
+	SageResultTablePanel* pPanel = FindResultTable();
+	bOnePage = (pPanel != NULL) ? pPanel->IsOnePageChecked() : FALSE;
+	strRowNums.Empty();
+	if (pPanel == NULL || !m_pHandler->UsesInputTable() || nTaskType != TAECHANG_TASK_GENERATE)
+		return TRUE;
+
+	int nSelectedCount = 0;
+	int nRowCount = pPanel->GetRowCount();
+	for (int i = 0; i < nRowCount; ++i) {
+		if (!pPanel->IsRowChecked(i))
+			continue;
+		++nSelectedCount;
+		DWORD_PTR nSourceRowIndex = pPanel->GetRowData(i);
+		if (nSourceRowIndex == 0)
+			continue;
+		CString strNum;
+		strNum.Format(TAECHANG_UI_ROW_NUM_FORMAT, static_cast<unsigned long>(nSourceRowIndex));
+		if (!strRowNums.IsEmpty())
+			strRowNums += TAECHANG_UI_ROW_NUM_SEPARATOR;
+		strRowNums += strNum;
+	}
+
+	CString strSelectionError;
+	if (m_pHandler->ValidateSelectedRows(nSelectedCount, strRowNums.IsEmpty() ? FALSE : TRUE, bOnePage, strSelectionError))
+		return TRUE;
+	AfxMessageBox(strSelectionError, MB_ICONWARNING);
+	return FALSE;
+}
+
+void SageWorkspacePanel::RequestRun(int nTaskType) {
+	if (m_controller.IsRunning() || m_pHandler == NULL)
+		return;
+
+	CString strInputPath;
+	CString strOutputFolder;
+	if (!ValidateInputPath(strInputPath))
+		return;
+	if (nTaskType == TAECHANG_TASK_GENERATE && !ValidateOutputFolder(strOutputFolder))
+		return;
+
+	CString strSelectedRowNums;
+	BOOL bOnePage = FALSE;
+	if (!BuildSelectedRowNums(nTaskType, strSelectedRowNums, bOnePage))
+		return;
+
+	SageWorkflowRunRequest request;
+	request.hNotifyWnd = GetSafeHwnd();
+	request.nWorkflowType = m_nCurrentWorkflow;
+	request.nTaskType = nTaskType;
+	request.strInputPath = strInputPath;
+	request.strOutputFolder = strOutputFolder;
+	request.strSelectedRowNums = strSelectedRowNums;
+	request.bEstimateOnePage = bOnePage;
+
+	CString strError;
+	if (!m_controller.Start(request, strError)) {
+		AfxMessageBox(strError, MB_ICONWARNING);
+		return;
+	}
+	SetRunningState(TRUE);
+}
+
+void SageWorkspacePanel::ResetInput() {
+	if (m_pHandler == NULL || !m_pHandler->UsesInputTable())
+		return;
+
+	SageResultTablePanel* pPanel = FindResultTable();
+	if (pPanel == NULL)
+		return;
+
+	m_panelWorkflowInput.SetInputPath(CString());
+	pPanel->RestoreFilter(CString(), pPanel->GetFilterCriteria());
+	pPanel->SetOnePageChecked(FALSE);
+	pPanel->ClearRows();
+	m_controller.ClearResult();
+	ApplyResultTableSchema();
+	RefreshVisibility();
+	LayoutActivePanel();
+	NotifyStatus(TAECHANG_UI_READY);
+	ForwardToParent(WM_TAECHANG_WORKSPACE_STATE_CHANGED, 0, 0);
+}
+
+void SageWorkspacePanel::ApplyDroppedInputPaths(const CString& strPaths) {
+	if (strPaths.IsEmpty() || m_controller.IsRunning() || m_pHandler == NULL)
+		return;
+
+	int nIndex = 0;
+	CString strInputPaths = strPaths.Tokenize(TAECHANG_UI_DROP_PATH_SEPARATOR, nIndex);
+	strInputPaths.Trim();
+	if (strInputPaths.IsEmpty())
+		return;
+
+	m_panelWorkflowInput.SetInputPath(strInputPaths);
+	if (!IsInputTabSelected()) {
+		SelectTab(TAECHANG_TAB_INDEX_INPUT);
+		RefreshVisibility();
+		LayoutActivePanel();
+	}
+	NotifyStatus(TAECHANG_UI_DROP_RECEIVED);
+	if (m_pHandler->UsesInputTable())
+		RequestRun(TAECHANG_TASK_LOAD);
+}
+
+void SageWorkspacePanel::DisplayResponse(int nWorkflowType, int nTaskType, const CString& strResponseJson) {
+	ISageWorkflowHandler* pHandler = SageWorkflowRegistry::FindHandler(nWorkflowType);
+	BOOL bKeepInputTable =
+		(nTaskType == TAECHANG_TASK_GENERATE && pHandler != NULL && pHandler->UsesInputTable())
+		? TRUE : FALSE;
+
+	TaechangWorkflowResultPresenter presenter;
+	std::vector<TaechangResultRow> arrRows;
+	BOOL bSuccess = presenter.BuildRows(nWorkflowType, nTaskType, strResponseJson, arrRows);
+
+	m_controller.Finish(nWorkflowType, nTaskType, strResponseJson, bSuccess, bKeepInputTable);
+	if (!bKeepInputTable)
+		ApplyResultTableSchema();
+
+	m_panelWorkflowHistory.AppendEntry(m_controller.GetRunningInputPath(), strResponseJson, bSuccess);
+	if (!bKeepInputTable)
+		SetResultTableRows(arrRows);
+
+	if (pHandler != NULL && (nTaskType == TAECHANG_TASK_LOAD || nTaskType == TAECHANG_TASK_GENERATE)) {
+		SelectTab(pHandler->UsesInputTable()
+			? TAECHANG_TAB_INDEX_INPUT
+			: TAECHANG_TAB_INDEX_DOCUMENT_RESULT);
+		RefreshVisibility();
+		LayoutActivePanel();
+		if (nTaskType == TAECHANG_TASK_GENERATE && bSuccess) {
+			LPCWSTR pszCompleted = pHandler->FindGenerateCompletedMessage();
+			if (pszCompleted != NULL)
+				AfxMessageBox(pszCompleted, MB_ICONINFORMATION);
+		}
+	}
+
+	m_panelWorkflowInput.SetActionStatusText(
+		bSuccess ? TAECHANG_UI_ACTION_STATUS_COMPLETED : TAECHANG_UI_ACTION_STATUS_FAILED, bSuccess);
+	NotifyStatus(bSuccess ? TAECHANG_UI_COMPLETED : TAECHANG_UI_FAILED);
+	ForwardToParent(WM_TAECHANG_WORKSPACE_STATE_CHANGED, 0, 0);
+}
+
+void SageWorkspacePanel::NotifyStatus(LPCWSTR pszStatus) {
+	CWnd* pParent = GetParent();
+	if (pParent == NULL || !::IsWindow(pParent->GetSafeHwnd()))
+		return;
+	pParent->SendMessage(WM_TAECHANG_WORKSPACE_STATUS, 0, reinterpret_cast<LPARAM>(pszStatus));
+}
+
+SageWorkflowUiState& SageWorkspacePanel::GetWorkflowState(int nWorkflowType) {
+	if (nWorkflowType == TAECHANG_WORKFLOW_DELIVERY)
+		return m_stateDelivery;
+	if (nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE)
+		return m_stateEstimate;
+	return m_stateReceivables;
+}
+
+void SageWorkspacePanel::SaveWorkflowState(int nWorkflowType) {
+	if (SageWorkflowRegistry::FindHandler(nWorkflowType) == NULL)
+		return;
+
+	SageWorkflowUiState& state = GetWorkflowState(nWorkflowType);
+	state.nSelectedTaskTab = m_nSelectedTaskTab;
+	state.result = m_controller.CaptureResult();
+	state.strInputPath = m_panelWorkflowInput.GetInputPath();
+	state.strOutputFolder = m_panelWorkflowInput.GetOutputFolder();
+
+	SageResultTablePanel* pPanel = FindResultTable();
+	state.strCheckedRowNums.Empty();
+	if (pPanel == NULL)
+		return;
+	state.strResultFilterKeyword = pPanel->GetFilterKeyword();
+	state.nResultFilterCriteria = pPanel->GetFilterCriteria();
+	state.bEstimateOnePage = pPanel->IsOnePageChecked();
+	if (IsInputTableVisible())
+		state.strCheckedRowNums = pPanel->GetCheckedRowNums();
+}
+
+void SageWorkspacePanel::RestoreWorkflowState(int nWorkflowType) {
+	if (SageWorkflowRegistry::FindHandler(nWorkflowType) == NULL) {
+		SelectTab(TAECHANG_TAB_INDEX_INPUT);
+		m_controller.ClearResult();
+		return;
+	}
+
+	SageWorkflowUiState& state = GetWorkflowState(nWorkflowType);
+	SelectTab(state.nSelectedTaskTab);
+	m_controller.RestoreResult(state.result);
+	m_panelWorkflowInput.SetInputPath(state.strInputPath);
+	m_panelWorkflowInput.SetOutputFolder(state.strOutputFolder);
+
+	SageResultTablePanel* pPanel = FindResultTable();
+	if (pPanel == NULL)
+		return;
+	pPanel->RestoreFilter(state.strResultFilterKeyword, state.nResultFilterCriteria);
+	pPanel->SetOnePageChecked(state.bEstimateOnePage);
+}
+
+void SageWorkspacePanel::RebuildResultTable() {
+	SageResultTablePanel* pPanel = FindResultTable();
+	if (pPanel != NULL)
+		pPanel->BeginBatchUpdate();
+
+	ApplyResultTableSchema();
+	if (IsResultFilterVisible()) {
+		TaechangWorkflowResultPresenter presenter;
+		std::vector<TaechangResultRow> arrRows;
+		presenter.BuildRows(m_controller.GetLastWorkflowType(), m_controller.GetLastTaskType(),
+			m_controller.GetLastResponseJson(), arrRows);
+		SetResultTableRows(arrRows);
+		if (IsInputTableVisible() && pPanel != NULL)
+			pPanel->RestoreCheckedRowNums(GetWorkflowState(m_nCurrentWorkflow).strCheckedRowNums);
+	}
+	UpdateActionButtonState();
+
+	if (pPanel != NULL)
+		pPanel->EndBatchUpdate();
 }
