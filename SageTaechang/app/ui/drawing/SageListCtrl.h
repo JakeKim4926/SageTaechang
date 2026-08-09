@@ -50,6 +50,8 @@ private:
 	void DrawGroupColumn(int nItem, BOOL bSelected, NMLVCUSTOMDRAW* pCD);
 	COLORREF ResolveSubItemTextColor(int nItem, int nSubItem, BOOL bHighlight) const;
 	void ApplyFixedRowHeight();
+	BOOL HasCheckboxes() const;
+	BOOL FindCheckImageRect(const CRect& rcColumn, CRect& rectCheckImage) const;
 	BOOL BuildCheckStateImages(CImageList& imgState);
 	void DrawCheckBox(CDC* pDC, const CRect& rectImage, BOOL bChecked);
 	void DrawRowSeparator(int nItem, NMLVCUSTOMDRAW* pCD);

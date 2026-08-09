@@ -80,8 +80,8 @@ void CSageListCtrl::ApplyFixedRowHeight() {
 void CSageListCtrl::DrawCheckBox(CDC* pDC, const CRect& rectImage, BOOL bChecked) {
 	CRect rectBox(0, 0, TAECHANG_LIST_CHECK_BOX_SIZE, TAECHANG_LIST_CHECK_BOX_SIZE);
 	rectBox.OffsetRect(
-		(rectImage.Width() - TAECHANG_LIST_CHECK_BOX_SIZE) / 2,
-		(rectImage.Height() - TAECHANG_LIST_CHECK_BOX_SIZE) / 2);
+		rectImage.left + (rectImage.Width() - TAECHANG_LIST_CHECK_BOX_SIZE) / 2,
+		rectImage.top + (rectImage.Height() - TAECHANG_LIST_CHECK_BOX_SIZE) / 2);
 	SageUiStyle::DrawCheckBox(*pDC, rectBox, bChecked);
 }
 
@@ -106,6 +106,31 @@ BOOL CSageListCtrl::BuildCheckStateImages(CImageList& imgState) {
 		dcMem.SelectObject(pOldBitmap);
 		imgState.Add(&bmpState, TAECHANG_COLOR_IMAGE_MASK);
 	}
+	return TRUE;
+}
+
+BOOL CSageListCtrl::HasCheckboxes() const {
+	return ((GetExtendedStyle() & LVS_EX_CHECKBOXES) != 0) ? TRUE : FALSE;
+}
+
+BOOL CSageListCtrl::FindCheckImageRect(const CRect& rcColumn, CRect& rectCheckImage) const {
+	if (!HasCheckboxes())
+		return FALSE;
+
+	CImageList* pStateImages = GetImageList(LVSIL_STATE);
+	if (pStateImages == NULL || pStateImages->GetSafeHandle() == NULL)
+		return FALSE;
+
+	int nImageWidth = 0;
+	int nImageHeight = 0;
+	if (!::ImageList_GetIconSize(pStateImages->GetSafeHandle(), &nImageWidth, &nImageHeight))
+		return FALSE;
+
+	rectCheckImage.SetRect(
+		rcColumn.left + TAECHANG_SELECTION_ACCENT_WIDTH + TAECHANG_LIST_CHECK_ACCENT_GAP,
+		rcColumn.top,
+		rcColumn.left + nImageWidth,
+		rcColumn.bottom);
 	return TRUE;
 }
 
@@ -248,23 +273,37 @@ COLORREF CSageListCtrl::ResolveSubItemTextColor(int nItem, int nSubItem, BOOL bH
 }
 
 void CSageListCtrl::DrawFirstColumn(int nItem, BOOL bSelected, NMLVCUSTOMDRAW* pCD) {
+	CRect rcRow;
+	if (!GetItemRect(nItem, rcRow, LVIR_BOUNDS))
+		return;
+
 	CDC* pDC = CDC::FromHandle(pCD->nmcd.hdc);
 	COLORREF clrBk = bSelected ? TAECHANG_COLOR_LIST_ROW_SELECTED : GetRowBackColor(nItem);
 
-	CRect rcItem;
-	GetSubItemRect(nItem, 0, LVIR_LABEL, rcItem);
-	pDC->FillSolidRect(&rcItem, clrBk);
+	CRect rcColumn(rcRow.left, rcRow.top, rcRow.left + GetColumnWidth(0), rcRow.bottom);
+	pDC->FillSolidRect(&rcColumn, clrBk);
+
+	CRect rcText(rcColumn);
+	CRect rectCheckImage;
+	if (FindCheckImageRect(rcColumn, rectCheckImage)) {
+		DrawCheckBox(pDC, rectCheckImage, GetCheck(nItem));
+		rcText.DeflateRect(rectCheckImage.right - rcColumn.left, 0);
+	}
 
 	UINT nAlignFormat = DT_CENTER;
 	if (m_nFirstColumnAlign == SAGE_LIST_FIRST_COLUMN_RIGHT) {
 		nAlignFormat = DT_RIGHT;
-		rcItem.right -= TAECHANG_LIST_CELL_RIGHT_PAD;
+		rcText.right -= TAECHANG_LIST_CELL_RIGHT_PAD;
 	}
 
-	pDC->SetTextColor(TAECHANG_COLOR_TEXT);
-	pDC->SetBkMode(TRANSPARENT);
-	pDC->DrawText(GetItemText(nItem, 0), &rcItem,
+	COLORREF clrOldText = pDC->SetTextColor(TAECHANG_COLOR_TEXT);
+	int nOldBkMode = pDC->SetBkMode(TRANSPARENT);
+
+	pDC->DrawText(GetItemText(nItem, 0), &rcText,
 		nAlignFormat | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
+
+	pDC->SetBkMode(nOldBkMode);
+	pDC->SetTextColor(clrOldText);
 }
 
 BOOL CSageListCtrl::IsGroupStartRow(int nItem) const {
