@@ -6,6 +6,7 @@
 
 BEGIN_MESSAGE_MAP(CSageListCtrl, CListCtrl)
 	ON_WM_CREATE()
+	ON_WM_DESTROY()
 	ON_NOTIFY_REFLECT(NM_CUSTOMDRAW, &CSageListCtrl::OnNMCustomDraw)
 	ON_NOTIFY_REFLECT_EX(LVN_ITEMCHANGED, &CSageListCtrl::OnSelectionChanged)
 END_MESSAGE_MAP()
@@ -35,6 +36,12 @@ int CSageListCtrl::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 		return -1;
 	ApplyFixedRowHeight();
 	return 0;
+}
+
+void CSageListCtrl::OnDestroy() {
+	DetachStateImages();
+	SetImageList(NULL, LVSIL_SMALL);
+	CListCtrl::OnDestroy();
 }
 
 CSageListCtrl::CSageListCtrl()
@@ -152,18 +159,29 @@ void CSageListCtrl::SetCheckboxes(BOOL bEnable) {
 
 	DWORD dwStyle = GetExtendedStyle();
 	if (!bEnable) {
+		DetachStateImages();
 		SetExtendedStyle(dwStyle & ~LVS_EX_CHECKBOXES);
 		return;
 	}
 
 	SetExtendedStyle(dwStyle | LVS_EX_CHECKBOXES);
 
-	CImageList imgState;
-	if (!BuildCheckStateImages(imgState))
+	if (m_imgCheckState.GetSafeHandle() == NULL && !BuildCheckStateImages(m_imgCheckState))
 		return;
-	SetImageList(&imgState, LVSIL_STATE);
-	imgState.Detach();
+
+	HIMAGELIST hPrevious = ListView_SetImageList(GetSafeHwnd(),
+		m_imgCheckState.GetSafeHandle(), LVSIL_STATE);
+	if (hPrevious != NULL && hPrevious != m_imgCheckState.GetSafeHandle())
+		::ImageList_Destroy(hPrevious);
 	Invalidate();
+}
+
+void CSageListCtrl::DetachStateImages() {
+	if (!::IsWindow(GetSafeHwnd()))
+		return;
+	HIMAGELIST hPrevious = ListView_SetImageList(GetSafeHwnd(), NULL, LVSIL_STATE);
+	if (hPrevious != NULL && hPrevious != m_imgCheckState.GetSafeHandle())
+		::ImageList_Destroy(hPrevious);
 }
 
 void CSageListCtrl::SetRowSeparator(BOOL bEnable) {

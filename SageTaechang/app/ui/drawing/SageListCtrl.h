@@ -38,6 +38,7 @@ public:
 
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg void OnDestroy();
 	afx_msg void OnNMCustomDraw(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg BOOL OnSelectionChanged(NMHDR* pNMHDR, LRESULT* pResult);
 
@@ -51,6 +52,7 @@ private:
 	BOOL FindColumnRect(int nItem, int nColumn, CRect& rectColumn) const;
 	BOOL FindCheckImageRect(int nColumn, const CRect& rcColumn, CRect& rectCheckImage) const;
 	BOOL BuildCheckStateImages(CImageList& imgState);
+	void DetachStateImages();
 	void DrawCheckBox(CDC* pDC, const CRect& rectImage, BOOL bChecked);
 	void DrawRowSeparator(int nItem, NMLVCUSTOMDRAW* pCD);
 	void DrawSelectionAccent(int nItem, NMLVCUSTOMDRAW* pCD);
@@ -68,5 +70,6 @@ private:
 	CString m_strMutedText;
 	COLORREF m_clrMutedText;
 	CImageList m_imgRowSpacer;
+	CImageList m_imgCheckState;
 	std::vector<SageListRowStyle> m_arrRowStyles;
 };
