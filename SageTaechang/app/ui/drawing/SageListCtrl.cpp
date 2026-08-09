@@ -125,8 +125,8 @@ BOOL CSageListCtrl::FindColumnRect(int nItem, int nColumn, CRect& rectColumn) co
 	return TRUE;
 }
 
-BOOL CSageListCtrl::FindCheckImageRect(const CRect& rcColumn, CRect& rectCheckImage) const {
-	if (!HasCheckboxes())
+BOOL CSageListCtrl::FindCheckImageRect(int nColumn, const CRect& rcColumn, CRect& rectCheckImage) const {
+	if (nColumn != 0 || !HasCheckboxes())
 		return FALSE;
 
 	CImageList* pStateImages = GetImageList(LVSIL_STATE);
@@ -230,10 +230,19 @@ COLORREF CSageListCtrl::GetRowBackColor(int nItem) const {
 }
 
 void CSageListCtrl::DrawBadgeColumn(int nItem, BOOL bSelected, NMLVCUSTOMDRAW* pCD) {
+	CRect rcColumn;
+	if (!FindColumnRect(nItem, m_nBadgeColumn, rcColumn))
+		return;
+
 	CDC* pDC = CDC::FromHandle(pCD->nmcd.hdc);
-	CRect rcItem;
-	GetSubItemRect(nItem, m_nBadgeColumn, LVIR_LABEL, rcItem);
-	pDC->FillSolidRect(&rcItem, bSelected ? TAECHANG_COLOR_LIST_ROW_SELECTED : GetRowBackColor(nItem));
+	pDC->FillSolidRect(&rcColumn, bSelected ? TAECHANG_COLOR_LIST_ROW_SELECTED : GetRowBackColor(nItem));
+
+	CRect rcContent(rcColumn);
+	CRect rectCheckImage;
+	if (FindCheckImageRect(m_nBadgeColumn, rcColumn, rectCheckImage)) {
+		DrawCheckBox(pDC, rectCheckImage, GetCheck(nItem));
+		rcContent.left = rectCheckImage.right;
+	}
 
 	const SageListRowStyle* pStyle = FindRowStyle(nItem);
 	if (pStyle == NULL || pStyle->clrBadgeBackground == CLR_NONE)
@@ -246,10 +255,11 @@ void CSageListCtrl::DrawBadgeColumn(int nItem, BOOL bSelected, NMLVCUSTOMDRAW* p
 	CFont* pOldFont = pDC->SelectObject(SageUiResources::GetFont(SAGE_FONT_CAPTION));
 	CSize sizeText = pDC->GetTextExtent(strText);
 
-	CRect rectBadge(rcItem);
-	rectBadge.left += TAECHANG_LIST_CELL_LEFT_PAD;
-	rectBadge.right = rectBadge.left + sizeText.cx + TAECHANG_LIST_BADGE_PAD_X * 2;
-	rectBadge.top += (rcItem.Height() - TAECHANG_LIST_BADGE_HEIGHT) / 2;
+	int nBadgeWidth = sizeText.cx + TAECHANG_LIST_BADGE_PAD_X * 2;
+	CRect rectBadge(rcContent);
+	rectBadge.left += (rcContent.Width() - nBadgeWidth) / 2;
+	rectBadge.right = rectBadge.left + nBadgeWidth;
+	rectBadge.top += (rcContent.Height() - TAECHANG_LIST_BADGE_HEIGHT) / 2;
 	rectBadge.bottom = rectBadge.top + TAECHANG_LIST_BADGE_HEIGHT;
 
 	CBrush brushBadge(pStyle->clrBadgeBackground);
@@ -289,7 +299,7 @@ void CSageListCtrl::DrawFirstColumn(int nItem, BOOL bSelected, NMLVCUSTOMDRAW* p
 
 	CRect rcText(rcColumn);
 	CRect rectCheckImage;
-	if (FindCheckImageRect(rcColumn, rectCheckImage)) {
+	if (FindCheckImageRect(0, rcColumn, rectCheckImage)) {
 		DrawCheckBox(pDC, rectCheckImage, GetCheck(nItem));
 		rcText.DeflateRect(rectCheckImage.right - rcColumn.left, 0);
 	}

@@ -49,7 +49,7 @@ private:
 	void ApplyFixedRowHeight();
 	BOOL HasCheckboxes() const;
 	BOOL FindColumnRect(int nItem, int nColumn, CRect& rectColumn) const;
-	BOOL FindCheckImageRect(const CRect& rcColumn, CRect& rectCheckImage) const;
+	BOOL FindCheckImageRect(int nColumn, const CRect& rcColumn, CRect& rectCheckImage) const;
 	BOOL BuildCheckStateImages(CImageList& imgState);
 	void DrawCheckBox(CDC* pDC, const CRect& rectImage, BOOL bChecked);
 	void DrawRowSeparator(int nItem, NMLVCUSTOMDRAW* pCD);
