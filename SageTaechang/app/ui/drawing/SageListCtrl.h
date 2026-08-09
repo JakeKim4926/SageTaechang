@@ -29,7 +29,6 @@ public:
 
 	void SetAlternateRowColor(BOOL bEnable);
 	void SetFirstColumnAlign(SageListFirstColumnAlign nAlign);
-	void SetGroupColumn(int nColumn);
 	void SetHighlightColumns(int nFirst, int nCount);
 	void SetRowSeparator(BOOL bEnable);
 	void SetCheckboxes(BOOL bEnable);
@@ -46,11 +45,10 @@ private:
 	BOOL IsHighlightColumn(int nSubItem) const;
 	COLORREF GetRowBackColor(int nItem) const;
 	void DrawFirstColumn(int nItem, BOOL bSelected, NMLVCUSTOMDRAW* pCD);
-	BOOL IsGroupStartRow(int nItem) const;
-	void DrawGroupColumn(int nItem, BOOL bSelected, NMLVCUSTOMDRAW* pCD);
 	COLORREF ResolveSubItemTextColor(int nItem, int nSubItem, BOOL bHighlight) const;
 	void ApplyFixedRowHeight();
 	BOOL HasCheckboxes() const;
+	BOOL FindColumnRect(int nItem, int nColumn, CRect& rectColumn) const;
 	BOOL FindCheckImageRect(const CRect& rcColumn, CRect& rectCheckImage) const;
 	BOOL BuildCheckStateImages(CImageList& imgState);
 	void DrawCheckBox(CDC* pDC, const CRect& rectImage, BOOL bChecked);
@@ -63,7 +61,6 @@ private:
 private:
 	BOOL m_bAlternateRow;
 	SageListFirstColumnAlign m_nFirstColumnAlign;
-	int m_nGroupColumn;
 	int m_nHighlightFirst;
 	int m_nHighlightCount;
 	BOOL m_bRowSeparator;

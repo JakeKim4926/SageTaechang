@@ -354,7 +354,6 @@ void SageResultTablePanel::SetColumns(const std::vector<SageWorkflowColumn>& arr
 	m_wndList.SetCheckboxes(style.bCheckbox);
 	m_wndList.SetRowSeparator(style.bGridLines);
 	m_wndList.SetHighlightColumns(style.nHighlightStart, style.nHighlightCount);
-	m_wndList.SetGroupColumn(style.nGroupColumn);
 
 	m_wndList.DeleteAllItems();
 	CHeaderCtrl* pHeader = m_wndList.GetHeaderCtrl();

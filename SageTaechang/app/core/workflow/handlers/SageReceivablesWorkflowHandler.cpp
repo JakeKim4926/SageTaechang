@@ -143,7 +143,6 @@ SageWorkflowResultStyle SageReceivablesWorkflowHandler::GetResultStyle(int nTask
 	style.bGridLines = TRUE;
 	style.nHighlightStart = TAECHANG_RECEIVABLES_COL_IDX_RECEIVABLE_AMOUNT;
 	style.nHighlightCount = TAECHANG_RECEIVABLES_HIGHLIGHT_COL_COUNT;
-	style.nGroupColumn = TAECHANG_RECEIVABLES_COL_IDX_COMPANY;
 	return style;
 }
 
