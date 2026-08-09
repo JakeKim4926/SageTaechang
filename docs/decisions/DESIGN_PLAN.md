@@ -88,7 +88,7 @@ D7(화면별 적용)은 목업 CSS를 계속 실측해야 한다. Claude Design 
 | D3b | 라벨 폭 통일 (64 / 96) | **완료** · 확인받음 |
 | D4a | 행 높이 34 · 가로 hairline · 선택 행 | **완료** · 확인받음 |
 | D4b | 금액 우측 정렬 · Bold · 빈 금액 `—` | **완료** · 확인받음 |
-| D4c | 반복 법인명 `〃` · 그룹 시작 행 SemiBold | **완료** · 확인받음 |
+| D4c | ~~반복 법인명 `〃` · 그룹 시작 행 SemiBold~~ | **철회** (2026-08-09) · 그룹 개념 전체 제거 |
 | D5a | 인라인 에러 + 다이얼로그 7종 검증 이관 (④) | **완료** · 확인받음 |
 | D5b | 빈 상태 → `SagePriceManagePanel` (④) | **완료** · 확인받음 |
 | D5c | 요약 바 · 선택 바 — 단독 Step 아님. D7-1 · D7-7 · D7-8에 실린다 | D7에 흡수 |
@@ -587,17 +587,18 @@ TTF는 프로젝트에 동봉하고 `AddFontResourceEx(..., FR_PRIVATE, 0)`로 �
 - 금액 컬럼: 배경 없음, 우측 정렬. **Bold는 미수금 열 하나만** — 목업 3-1 실측 결과
   합계·입금 열에는 굵기가 없고 미수금 열만 `font-weight:700` + 카멜이다
 - 빈 금액 셀은 `—`(`TAECHANG_UI_AMOUNT_EMPTY_MARK`) + `TAECHANG_COLOR_TEXT_PLACEHOLDER`
-- 반복되는 법인명은 `〃`(`TAECHANG_UI_REPEAT_MARK`) + `TEXT_PLACEHOLDER`, 그룹이 시작하는 행의
-  법인명은 `SAGE_FONT_LIST_SEMIBOLD` (목업 3-1 · 3-8). **판정은 컨트롤이 한다** —
-  `CSageListCtrl::SetGroupColumn`이 화면에 그려진 앞 행과 비교한다.
-  프리젠터가 데이터에 `〃`를 넣으면 법인명 필터가 깨지고, 필터로 그룹 첫 행이 걸러졌을 때
-  남은 행이 `〃`가 된다 (`SageTaechangView.cpp`의 결과 필터는 `m_strCompanyName`으로 검색한다)
+- ~~반복되는 법인명은 `〃` + `TEXT_PLACEHOLDER`, 그룹 시작 행은 `SAGE_FONT_LIST_SEMIBOLD`~~
+  → **2026-08-09 철회.** 반복 값을 축약하지 않는다. 법인명은 매 행 그대로 쓰고 굵기도 같다.
+  `〃` · 그룹 시작 SemiBold · `DrawGroupColumn` · `IsGroupStartRow` · `nGroupColumn`을 모두 걷어냈다
+  (사용자 결정, 브랜치 `style/remove-repeat-mark`). 근거는 `sagetaechang-ui` > *반복 값을 축약하지 않는다*
 - **공백 행은 그대로 표시한다.** `-`는 고객사 데이터 포맷의 구분 표기다 — 어긋나는 지점 #4.
   미수금 결과 표(생성 스크립트가 넣는 `isSeparator` 행)와 **견적서 입력 표**(원본 엑셀에
   찍혀 있는 `-`) 양쪽에 나온다
-- **`-` 행은 절대 `〃`가 되지 않는다.** `IsGroupStartRow`가 `TAECHANG_UI_SEPARATOR_MARK`를
-  항상 그룹 시작으로 본다. `-`가 연속으로 나올 수 있어서 필요한 가드다 (2026-08-06 사용자 확인)
-- **그룹 구분선은 만들지 않는다.** 목업에 없다 — 어긋나는 지점 #5
+- ~~**`-` 행은 절대 `〃`가 되지 않는다.**~~ → 위 철회로 함께 사라졌다. `TAECHANG_UI_SEPARATOR_MARK`
+  자체는 남는다 — 미수금 핸들러가 빈 행 판정에 독립적으로 쓴다
+- **그룹 구분선은 만들지 않는다.** 목업에 없다 — 어긋나는 지점 #5.
+  **`〃` 철회로 이 항목의 근거가 바뀌었다** — 「`〃`가 경계를 대신하므로 구분선이 불필요하다」였는데,
+  이제는 **그룹을 아예 표시하지 않기로 한 것**이다. 구분선을 다시 넣자는 뜻이 아니다
 
 `CSageHeaderCtrl::OnPaint`의 `SetTextColor(TAECHANG_COLOR_BUTTON_TEXT)` (`SageHeaderCtrl.cpp:20`)를
 반드시 함께 고친다. 배경만 밝게 하면 흰 글자가 흰 배경에 놓인다.
@@ -848,12 +849,12 @@ DPI awareness 전환 자체는 **Step D8**로 분리한다 (아래).
 - [x] `LVS_EX_GRIDLINES` 4곳 제거 (R5) + `CDDS_ITEMPOSTPAINT`로 하단 1px hairline
 - [x] 금액 컬럼 우측 정렬 + Bold. 미수금 열만 색 텍스트 — Bold도 미수금 열만으로 좁혔다
 - [x] 빈 금액 `—` 표시 (계획에 없던 항목, 목업 3-1에서 발견)
-- [x] 반복 법인명 `〃` + 그룹 시작 행 SemiBold — `CSageListCtrl::SetGroupColumn`
-- [x] 적용 대상: 미수금 결과 표(열 0) · 견적서 입력 표(열 1). 납품서는 목업에 `〃`가 없다
+- [x] ~~반복 법인명 `〃` + 그룹 시작 행 SemiBold~~ — **2026-08-09 철회 (아래 참조)**
 
 완료 기준
 - 세로 격자선이 한 곳도 없다
-- 같은 법인이 연속되는 구간에서 두 번째 행부터 법인명이 `〃`다
+- ~~같은 법인이 연속되는 구간에서 두 번째 행부터 법인명이 `〃`다~~ → **철회.**
+  이제 기준은 반대다 — **연속 구간에서도 법인명이 매 행 그대로 나오고 굵기가 같다**
 - 모든 표의 행 높이가 34다
 
 범위 밖
