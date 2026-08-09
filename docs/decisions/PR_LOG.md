@@ -1,4 +1,10 @@
-﻿## [2026-08-09] style/remove-repeat-mark
+﻿## [2026-08-09] style/badge-column-center
+- **목적**: 실행 기록의 상태 배지를 열 경계 기준으로 그리고 가운데에 놓는다. 커스텀드로우 세 함수 중 배지만 옛 방식으로 남아 있었다
+- **변경 내용**: `DrawBadgeColumn`만 `GetSubItemRect(LVIR_LABEL)`를 쓰고 있어 `FindColumnRect`로 맞췄다 — 같은 문제를 한 파일에서 두 방식으로 풀던 상태가 정리됐다. 기준점이 열 시작으로 바뀌며 배지가 6px 움직이는 것을 보고하니, 사용자가 화면(실행 기록 탭 「결과」 열)을 확인하고 **가운데 정렬로 결정**했다 — `sagetaechang-ui`의 「셀 정렬은 모든 열 가운데」가 어제 `c679136`에서 배지만 빠져 있었고, 헤더 「결과」는 가운데인데 pill만 왼쪽에 붙어 있었다. 가로를 세로와 같은 계산(`(폭 - 배지폭) / 2`)으로 두어 두 축이 같은 모양이 됐다. **`FindCheckImageRect`의 열 번호 인자를 되돌렸다** — 그룹 열 제거로 호출부가 하나만 남아 뺐던 것인데 배지가 두 번째 호출부가 되면서 다시 필요해졌다. 「체크박스는 0번 열에만 있다」가 함수 안에 있으면 호출부는 자기 열 번호만 넘기면 된다. `TAECHANG_LIST_CELL_LEFT_PAD`는 `CSageTableTotalBar`가 계속 써서 고아가 되지 않았다
+- **PR 링크**: 없음
+- **결과**: 빌드·화면 확인 완료(실행 기록 「결과」 열 배지가 헤더와 중심 일치). 머지 대기
+
+## [2026-08-09] style/remove-repeat-mark
 - **목적**: 표의 반복 값 축약(`〃`)과 그룹 표시를 없앤다. **D4c를 철회하는 작업**이다 — 완료·확인받은 디자인 결정을 되돌리는 것이므로 근거를 문서에 남기는 것이 코드 삭제만큼 중요했다
 - **변경 내용**: 사용자 지시로 시작했으나 **범위가 갈려 먼저 확인받았다** — `〃`와 그룹 시작 SemiBold는 `IsGroupStartRow()` **하나가 동시에 판정**하므로 (a) `〃`만 빼고 SemiBold 유지 (b) 그룹 개념 전체 제거 중 골라야 했다. **(b)로 결정**받았다(미리보기로 두 표 모양을 비교해 제시). 근거는 「매 행 법인명이 다 보이는데 첫 행만 굵으면 이유를 알 수 없는 강조가 된다」였다. 코드에서는 `SetGroupColumn` · `DrawGroupColumn` · `IsGroupStartRow` · `m_nGroupColumn` · 커스텀드로우 그룹 분기, core의 `SageWorkflowResultStyle::nGroupColumn`, 핸들러 2곳의 지정, 패널의 호출, 상수 3개(`TAECHANG_UI_REPEAT_MARK` · `TAECHANG_LIST_NO_GROUP_COLUMN` · `TAECHANG_ESTIMATE_COL_IDX_COMPANY`)를 지웠다. **남긴 것은 이유를 대고 남겼다** — `TAECHANG_UI_SEPARATOR_MARK`(`-`)는 미수금 핸들러가 빈 행 판정에 독립적으로 쓰고, `TAECHANG_RECEIVABLES_COL_IDX_COMPANY`는 합계 셀에서, `SAGE_FONT_LIST_SEMIBOLD`는 `CSageTableTotalBar`에서 계속 쓰인다. **문서가 이번 작업의 절반이었다** — `sagetaechang-ui`가 `〃`를 CRITICAL 규격으로 두고 있어 **코드만 고치면 다음 세션에 되살아난다.** 색상표·폰트표·표 규격 3행을 고치고 「반복 값 판정 — 컨트롤이 한다」 절을 **「반복 값을 축약하지 않는다」**로 다시 쓰면서 축약이 깨지는 세 경로(필터로 앞 행이 사라짐 · 정렬 변경으로 그룹이 흩어짐 · 행 복사 시 기호가 따라감)를 근거로 적었다. **`DESIGN_PLAN`의 「어긋나는 지점 #5」가 구분선을 만들지 않는 근거로 `〃`를 들고 있어서**(「경계는 `〃`가 끊기는 것으로 읽힌다」) 그 근거가 바뀐 것을 명시했다 — **구분선을 다시 넣자는 뜻이 아니라 그룹을 아예 표시하지 않기로 한 것**이다. D4c 완료 기준 문장은 이제 **반대**이므로 취소선과 함께 새 기준을 적었다. **직전 브랜치의 미커밋 변경을 승계했다**: `DrawGroupColumn` 열 경계화는 함수째 사라져 최종 diff에 남지 않았고, `FindColumnRect`와 커스텀드로우 분기 배타화는 `DrawFirstColumn`·`DrawBadgeColumn`이 계속 쓰므로 살아남았다. `FindCheckImageRect`의 `nColumn` 인자는 **호출부가 하나만 남아 되돌렸다**(쓰이지 않는 일반화)
 - **PR 링크**: 없음
