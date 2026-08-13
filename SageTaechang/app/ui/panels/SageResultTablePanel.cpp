@@ -494,6 +494,11 @@ void SageResultTablePanel::SetSummaryItems(const std::vector<SageResultSummaryIt
 		barItem.strValue = arrItems[i].strValue;
 		barItem.strUnit = arrItems[i].strUnit;
 		barItem.bHighlight = arrItems[i].bHighlight;
+		if (arrItems[i].bBadge) {
+			barItem.badge.clrBackground = TAECHANG_COLOR_INLINE_WARN_BG;
+			barItem.badge.clrBorder = TAECHANG_COLOR_INLINE_WARN_BORDER;
+			barItem.badge.clrText = TAECHANG_COLOR_WARNING;
+		}
 		arrBarItems.push_back(barItem);
 	}
 

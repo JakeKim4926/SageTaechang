@@ -73,12 +73,14 @@ struct SageResultSummaryItem
 {
     SageResultSummaryItem() {
         bHighlight = FALSE;
+        bBadge = FALSE;
     }
 
     CString strLabel;
     CString strValue;
     CString strUnit;
     BOOL bHighlight;
+    BOOL bBadge;
 };
 
 enum SageResultTotalRole

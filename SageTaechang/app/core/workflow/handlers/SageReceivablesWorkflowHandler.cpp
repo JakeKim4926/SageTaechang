@@ -49,12 +49,14 @@ void AddSummaryItem(
 	LPCWSTR pszLabel,
 	const CString& strValue,
 	LPCWSTR pszUnit,
-	BOOL bHighlight) {
+	BOOL bHighlight,
+	BOOL bBadge) {
 	SageResultSummaryItem item;
 	item.strLabel = pszLabel;
 	item.strValue = strValue;
 	item.strUnit = pszUnit;
 	item.bHighlight = bHighlight;
+	item.bBadge = bBadge;
 	outItems.push_back(item);
 }
 
@@ -169,11 +171,11 @@ BOOL SageReceivablesWorkflowHandler::BuildResultSummary(
 		arrMissingCompanies);
 
 	AddSummaryItem(outItems, TAECHANG_UI_RECEIVABLES_SUMMARY_TOTAL,
-		FormatCountText(totals.nRowCount), TAECHANG_UI_SUMMARY_UNIT_COUNT, FALSE);
+		FormatCountText(totals.nRowCount), TAECHANG_UI_SUMMARY_UNIT_COUNT, FALSE, FALSE);
 	AddSummaryItem(outItems, TAECHANG_UI_RECEIVABLES_SUMMARY_RECEIVABLE,
-		SageWorkflowResultTable::FormatAmountNumber(totals.nReceivableAmount), TAECHANG_UI_SUMMARY_UNIT_AMOUNT, TRUE);
+		SageWorkflowResultTable::FormatAmountNumber(totals.nReceivableAmount), TAECHANG_UI_SUMMARY_UNIT_AMOUNT, TRUE, FALSE);
 	AddSummaryItem(outItems, TAECHANG_UI_RECEIVABLES_MISSING_COMPANIES,
-		FormatCountText(static_cast<int>(arrMissingCompanies.size())), TAECHANG_UI_SUMMARY_UNIT_COUNT, FALSE);
+		FormatCountText(static_cast<int>(arrMissingCompanies.size())), TAECHANG_UI_SUMMARY_UNIT_COUNT, FALSE, TRUE);
 	return TRUE;
 }
 

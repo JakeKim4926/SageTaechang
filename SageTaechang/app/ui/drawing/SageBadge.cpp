@@ -9,7 +9,21 @@ END_MESSAGE_MAP()
 CSageBadge::CSageBadge()
 	: m_clrBackground(TAECHANG_COLOR_LIST_HEADER)
 	, m_clrBorder(TAECHANG_COLOR_LIST_HEADER_BORDER)
-	, m_clrText(TAECHANG_COLOR_PRIMARY) {
+	, m_clrText(TAECHANG_COLOR_PRIMARY)
+	, m_clrSurface(TAECHANG_COLOR_PANEL)
+	, m_nCornerRadius(TAECHANG_BADGE_HEIGHT) {
+}
+
+void CSageBadge::SetCornerRadius(int nRadius) {
+	m_nCornerRadius = nRadius;
+	if (::IsWindow(GetSafeHwnd()))
+		Invalidate();
+}
+
+void CSageBadge::SetSurfaceColor(COLORREF clrSurface) {
+	m_clrSurface = clrSurface;
+	if (::IsWindow(GetSafeHwnd()))
+		Invalidate();
 }
 
 void CSageBadge::SetBadge(
@@ -37,7 +51,7 @@ void CSageBadge::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 	CDC* pDC = CDC::FromHandle(lpDrawItemStruct->hDC);
 	CRect rectClient(lpDrawItemStruct->rcItem);
 
-	pDC->FillSolidRect(rectClient, SageUiResources::GetBackgroundColor(SAGE_BG_PANEL));
+	pDC->FillSolidRect(rectClient, m_clrSurface);
 	if (m_strText.IsEmpty())
 		return;
 
@@ -49,7 +63,7 @@ void CSageBadge::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 	CPen penBorder(PS_SOLID, TAECHANG_BORDER_THICKNESS, m_clrBorder);
 	CBrush* pOldBrush = pDC->SelectObject(&brushFill);
 	CPen* pOldPen = pDC->SelectObject(&penBorder);
-	pDC->RoundRect(rectBadge, CPoint(TAECHANG_BADGE_HEIGHT, TAECHANG_BADGE_HEIGHT));
+	pDC->RoundRect(rectBadge, CPoint(m_nCornerRadius, m_nCornerRadius));
 	pDC->SelectObject(pOldPen);
 	pDC->SelectObject(pOldBrush);
 

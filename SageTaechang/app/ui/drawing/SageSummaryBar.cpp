@@ -2,14 +2,87 @@
 #include "app/ui/drawing/SageSummaryBar.h"
 #include "TaechangDefine.h"
 
+BEGIN_MESSAGE_MAP(CSageSummaryBar, CStatic)
+	ON_WM_SIZE()
+END_MESSAGE_MAP()
+
 void CSageSummaryBar::SetItems(const std::vector<SageSummaryBarItem>& arrItems) {
 	m_arrItems = arrItems;
-	if (::IsWindow(GetSafeHwnd()))
-		Invalidate();
+	if (!::IsWindow(GetSafeHwnd()))
+		return;
+
+	ApplyBadgeItem();
+	Invalidate();
 }
 
 BOOL CSageSummaryBar::HasItems() const {
 	return m_arrItems.empty() ? FALSE : TRUE;
+}
+
+int CSageSummaryBar::FindBadgeItemIndex() const {
+	for (int i = 0; i < static_cast<int>(m_arrItems.size()); ++i) {
+		if (m_arrItems[i].badge.IsVisible())
+			return i;
+	}
+	return SAGE_SUMMARY_NO_BADGE_ITEM;
+}
+
+CString CSageSummaryBar::BuildBadgeText(const SageSummaryBarItem& item) const {
+	CString strText;
+	strText.Format(TAECHANG_UI_SUMMARY_BADGE_FORMAT,
+		static_cast<LPCWSTR>(item.strLabel),
+		static_cast<LPCWSTR>(item.strValue),
+		static_cast<LPCWSTR>(item.strUnit));
+	return strText;
+}
+
+void CSageSummaryBar::ApplyBadgeItem() {
+	int nIndex = FindBadgeItemIndex();
+	if (nIndex == SAGE_SUMMARY_NO_BADGE_ITEM) {
+		if (::IsWindow(m_wndBadge.GetSafeHwnd()))
+			m_wndBadge.ShowWindow(SW_HIDE);
+		return;
+	}
+
+	if (!::IsWindow(m_wndBadge.GetSafeHwnd())) {
+		ModifyStyle(0, WS_CLIPCHILDREN);
+		m_wndBadge.Create(L"", WS_CHILD | SS_OWNERDRAW, CRect(0, 0, 0, 0), this, ID_TAECHANG_SUMMARY_BADGE);
+		m_wndBadge.SetCornerRadius(TAECHANG_BADGE_RADIUS);
+		m_wndBadge.SetSurfaceColor(TAECHANG_COLOR_APP_BACKGROUND);
+	}
+
+	const SageSummaryBarItem& item = m_arrItems[nIndex];
+	m_wndBadge.SetBadge(BuildBadgeText(item),
+		item.badge.clrBackground, item.badge.clrBorder, item.badge.clrText);
+	m_wndBadge.ShowWindow(SW_SHOW);
+	LayoutBadge();
+}
+
+void CSageSummaryBar::LayoutBadge() {
+	int nIndex = FindBadgeItemIndex();
+	if (nIndex == SAGE_SUMMARY_NO_BADGE_ITEM || !::IsWindow(m_wndBadge.GetSafeHwnd()))
+		return;
+
+	CRect rectClient;
+	GetClientRect(&rectClient);
+
+	CClientDC dc(this);
+	int nLeft = rectClient.left;
+	for (int i = 0; i < nIndex; ++i) {
+		if (i > 0)
+			nLeft += TAECHANG_SUMMARY_ITEM_GAP + TAECHANG_BORDER_THICKNESS + TAECHANG_SUMMARY_ITEM_GAP;
+		nLeft += MeasureItemWidth(&dc, m_arrItems[i]);
+	}
+	if (nIndex > 0)
+		nLeft += TAECHANG_SUMMARY_ITEM_GAP + TAECHANG_BORDER_THICKNESS + TAECHANG_SUMMARY_ITEM_GAP;
+
+	int nWidth = MeasureItemWidth(&dc, m_arrItems[nIndex]);
+	m_wndBadge.MoveWindow(nLeft, rectClient.top, nWidth, rectClient.Height());
+}
+
+void CSageSummaryBar::OnSize(UINT nType, int cx, int cy) {
+	CStatic::OnSize(nType, cx, cy);
+	LayoutBadge();
 }
 
 int CSageSummaryBar::MeasureTextWidth(CDC* pDC, const CString& strText, SageFontRole nRole) const {
@@ -22,6 +95,9 @@ int CSageSummaryBar::MeasureTextWidth(CDC* pDC, const CString& strText, SageFont
 }
 
 int CSageSummaryBar::MeasureItemWidth(CDC* pDC, const SageSummaryBarItem& item) const {
+	if (item.badge.IsVisible())
+		return MeasureTextWidth(pDC, BuildBadgeText(item), SAGE_FONT_CAPTION) + TAECHANG_BADGE_PAD_X * 2;
+
 	int nWidth = MeasureTextWidth(pDC, item.strLabel, SAGE_FONT_CAPTION);
 	if (nWidth > 0)
 		nWidth += TAECHANG_SUMMARY_TEXT_GAP;
@@ -66,8 +142,14 @@ void CSageSummaryBar::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 		}
 
 		const SageSummaryBarItem& item = m_arrItems[i];
-		if (nLeft + MeasureItemWidth(pDC, item) > rectClient.right)
+		int nItemWidth = MeasureItemWidth(pDC, item);
+		if (nLeft + nItemWidth > rectClient.right)
 			return;
+
+		if (item.badge.IsVisible()) {
+			nLeft += nItemWidth;
+			continue;
+		}
 
 		nLeft = DrawTextSegment(pDC, nLeft, rectClient, item.strLabel, SAGE_FONT_CAPTION, TAECHANG_COLOR_SECONDARY_TEXT);
 		if (!item.strLabel.IsEmpty())
