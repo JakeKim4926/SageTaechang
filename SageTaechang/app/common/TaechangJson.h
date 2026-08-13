@@ -7,3 +7,4 @@ BOOL JsonExtractBool(const CString& strJson, const CString& strKey);
 CString JsonEscapeString(const CString& strValue);
 CString JsonExtractArray(const CString& strJson, const CString& strKey);
 void JsonSplitStringArray(const CString& strArrayJson, std::vector<CString>& outValues);
+void SplitJsonObjectArray(const CString& strArrayJson, std::vector<CString>& outObjects);

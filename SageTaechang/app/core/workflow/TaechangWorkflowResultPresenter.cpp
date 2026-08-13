@@ -5,42 +5,6 @@
 
 namespace
 {
-	void SplitJsonObjectArray(const CString& strArrayJson, std::vector<CString>& outObjects) {
-		std::string json = WideToUtf8(strArrayJson);
-		int nDepth = 0;
-		bool bInString = false;
-		bool bEscaped = false;
-		size_t nObjectStart = std::string::npos;
-		for (size_t i = 0; i < json.size(); ++i) {
-			char ch = json[i];
-			if (bEscaped) {
-				bEscaped = false;
-				continue;
-			}
-			if (ch == '\\' && bInString) {
-				bEscaped = true;
-				continue;
-			}
-			if (ch == '"') {
-				bInString = !bInString;
-				continue;
-			}
-			if (bInString)
-				continue;
-			if (ch == '{') {
-				if (nDepth == 0)
-					nObjectStart = i;
-				++nDepth;
-			} else if (ch == '}') {
-				--nDepth;
-				if (nDepth == 0 && nObjectStart != std::string::npos) {
-					outObjects.push_back(Utf8ToWide(json.substr(nObjectStart, i - nObjectStart + 1)));
-					nObjectStart = std::string::npos;
-				}
-			}
-		}
-	}
-
 	CString JsonExtractIntText(const CString& strJson, const CString& strKey) {
 		std::string json = WideToUtf8(strJson);
 		std::string key = WideToUtf8(strKey);
