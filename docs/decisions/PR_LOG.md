@@ -8,7 +8,7 @@
 - **목적**: 위 폐기 커밋에 섞여 있던 순수 리팩토링 1건만 분리해 살린다
 - **변경 내용**: `SplitJsonObjectArray`를 `TaechangWorkflowResultPresenter.cpp`에서 `app/common/TaechangJson`으로 옮겼다(+36 / −36, 동작 변경 없음). **`coding-rules`의 *쓰이지 않는 일반화* 에 걸리는 것을 알고 남긴 예외다** — 검사가 사라져 호출부가 프리젠터 3곳뿐이므로 규칙대로면 되돌리는 쪽이고, 사용자 결정으로 살렸다. 프리젠터가 이미 `app/common/TaechangJson.h`를 include하고 있어 include 추가는 없다
 - **PR 링크**: 없음
-- **결과**: 빌드 확인 대기. 머지 대기
+- **결과**: 빌드 확인 완료. merged (`develop` = `c930c6d`)
 
 ## [2026-08-13] 문서 브랜치 머지 2건 — `docs/pr-log-d8-merge` · `docs/debt-log-count`
 - **목적**: 대기 중이던 문서 전용 브랜치를 `develop`에 반영한다
