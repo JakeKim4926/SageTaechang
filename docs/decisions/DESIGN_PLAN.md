@@ -96,6 +96,7 @@ D7(화면별 적용)은 목업 CSS를 계속 실측해야 한다. Claude Design 
 | D7 | 화면별 적용 — 3장 9세트 | **진행 중** — D7-1 · D7-2 · D7-3 · D7-7 · D7-8 · D7-9 완료·확인받음. **D7-4 · D7-5 · D7-6 완료·확인받음. D7이 닫혔다.** 7-2·7-3은 **표현만** 맞췄고 화면 구조는 각 절의 *남은 목업 차이* 참조 |
 | D7-10 | 다이얼로그 프레임 전환 (7종) | **완료** 2026-08-07 · 확인받음 — D7-9에서 잘못 배제했던 상단 밴드 |
 | D8 | DPI 배율 대응 (awareness 전환 + 좌표 스케일링) | **보류** 2026-08-10 · 재개 조건은 아래 *Step D8* |
+| D9 | 모달 메시지 박스를 앱 스타일로 교체 (`AfxMessageBox` → `SageMessageBoxDlg`) | **착수 전** 2026-08-17 · 아래 *Step D9* |
 
 **D0~D6은 전부 작업 브랜치에서 하고 `develop`에 fast-forward 머지했다** (2026-08-06, 커밋 전부 보존).
 브랜치명과 머지 지점은 `reflog`로 확인한 값이며 `PR_LOG`에 항목별로 기록돼 있다.
@@ -403,7 +404,7 @@ D6 ↔ D5     빈 상태는 22px 아이콘을, 인라인 에러·경고는 14px 
 | R4 | 금액 tabular 정렬을 GDI `DrawText`로 만들 수 없다 (OpenType `tnum` 미지원) | 자릿수가 미세하게 어긋난다 | 문서 4장이 지시한 "우측 정렬 + Bold"로 대체. 그래도 어긋나면 금액 셀만 고정폭 폰트를 별도 지정 |
 | R5 | `LVS_EX_GRIDLINES`는 가로·세로가 한 플래그다. "가로 hairline만"을 이 플래그로 만들 수 없다 | 플래그 사용 4곳을 전부 커스텀 드로잉으로 옮겨야 한다 | D4에서 `CSageListCtrl`이 `CDDS_ITEMPOSTPAINT`로 하단 1px만 긋는다. 대상: `SageTaechangView.cpp:465`, `SageResultTablePanel.cpp:234`, `SagePriceManagePanel.cpp:70`, `SageTaechangView.cpp:1832` |
 | R6 | `CListCtrl`은 행 높이를 직접 지정할 수 없다 (폰트·이미지리스트 종속) | 34px 고정이 안 된다 | 1×34 더미 이미지리스트를 `SetImageList(LVSIL_SMALL)`로 물린다. 아이콘 열을 쓰지 않으므로 부작용 없음 |
-| R7 | `AfxMessageBox`가 11파일 **90곳**에 있다. 목업은 다이얼로그 검증을 인라인 라벨로 보여준다 | 전부 바꾸면 범위가 폭발한다 | **다이얼로그 입력 검증분만** 인라인으로 옮긴다. 파일 I/O 실패·DB 오류 등 화면 밖 사유는 `MessageBox` 유지 |
+| R7 | `AfxMessageBox`가 11파일 **90곳**에 있다. 목업은 다이얼로그 검증을 인라인 라벨로 보여준다 | 전부 바꾸면 범위가 폭발한다 | **다이얼로그 입력 검증분만** 인라인으로 옮긴다. 파일 I/O 실패·DB 오류 등 화면 밖 사유는 `MessageBox` 유지. **수치 정정(2026-08-17): 현재 9파일 56곳이다**(D5a·D7-8 이관 후). 남은 모달은 없애는 것이 아니라 **앱 스타일로 바꾼다** — Step D9 |
 | R8 | 앱 배경이 문서 `#F7F6F1`, 코드·스킬 `#F8F6F1`로 1/255 다르다 | 육안 차이 없음 | **현재 값 유지.** 바꾸면 코드+스킬 2곳을 건드리는데 얻는 것이 없다 |
 | R9 | 라벨 폭을 줄이면 긴 라벨이 잘린다 (「현재 비밀번호」·「새 비밀번호 확인」) | 문구가 `...`로 잘린다 | **해소 — D3b에서 실측했고 잘리는 라벨이 없다.** 최장이 「변경할 비밀번호」 88px(96에 여유 8), 나머지 폼은 최장 52px(64에 여유 12). 우려했던 **「새 비밀번호 확인」은 코드에 없는 문구다** — 실제 상수는 `변경할 비밀번호`·`비밀번호 확인`이다. 목업 문구로 바꾸는 것은 D7-4 |
 | R11 | **DPI awareness가 없다.** manifest 설정 0건, `GetDpiForWindow`/`GetDeviceCaps(LOGPIXELS*)` 호출 0곳. 반면 `CreatePointFont`는 pt→px 변환을 하므로 **폰트만 DPI에 반응한다** | awareness를 켜면 폰트는 커지고 고정 px 컨트롤은 그대로여서 글자가 버튼을 넘친다. 지금은 비트맵 확대로 흐릿하게 보인다 | C9-2 — 이번 상수를 「96dpi 논리 px」로 정의해 길만 열어두고, awareness 전환은 **Step D8**로 분리한다. **D8은 2026-08-10에 보류됐다**(작업 PC 100% — 고칠 증상이 없다). 길을 열어두는 쪽은 이미 끝났고 R11의 위험은 **켜지 않는 한 발현되지 않는다** |
@@ -1845,6 +1846,107 @@ D7-1 1단계가 「있다고 적힌 데이터가 참조 0곳이었다」로 걸�
 완료 기준: 헤더와 탭 줄이 흰 면이고 각각 하단에 1px 경계가 있다. 탭 줄 높이 40.
 선택 탭이 Bold + 하단 카멜 2px로 구분되고 **배경으로는 구분되지 않는다.**
 콘텐츠 영역에 흰 박스가 없다(요약 바 · 선택 바 모두).
+
+---
+
+# Step D9 — 모달 메시지 박스 교체 (2026-08-17 등재)
+
+## 목적
+
+D1~D7로 앱 화면은 전부 새 규격이 됐는데 **모달 창만 Windows 기본 모습이다.**
+맑은 고딕 · 시스템 파란 강조 · 시스템 버튼이 Pretendard 화면 위에 뜬다.
+목업에는 메시지 박스가 없으므로 **규격을 여기서 정한다.** 근거는 D7-10의 다이얼로그 프레임과
+`CSageStatusCard`의 상태 색이다.
+
+## 조사로 확정한 사실 (2026-08-17)
+
+**`AfxMessageBox`는 9파일 56곳이다.** R7의 「11파일 90곳」과 `DEBT_LOG`의 「View 18곳」은 낡았다 —
+`SageTaechangView.cpp`에는 **0곳**이고 그 몫이 패널로 옮겨갔다.
+
+| 파일 | 곳 |
+|---|---|
+| `app/ui/panels/SagePriceManagePanel.cpp` | 22 |
+| `app/ui/panels/SagePriceCalcPanel.cpp` | 11 |
+| `app/ui/panels/SageCompanyOrderPanel.cpp` | 9 |
+| `app/ui/panels/SageWorkspacePanel.cpp` | 6 |
+| `app/ui/dialogs/TaechangCalcEstimateDlg.cpp` | 3 |
+| `app/ui/dialogs/TaechangPasswordChangeDlg.cpp` | 2 |
+| `app/ui/dialogs/TaechangLoginDlg.cpp` · `app/ui/panels/SageSidebarPanel.cpp` · `SageTaechang.cpp` | 각 1 |
+
+쓰이는 플래그는 5종뿐이다 — 무플래그 9곳 · `MB_ICONWARNING` · `MB_ICONERROR` ·
+`MB_ICONINFORMATION`, 그리고 **`MB_YESNO` 확인창 3곳**(`SageCompanyOrderPanel.cpp:511`,
+`SagePriceManagePanel.cpp:698`·`:887`). `MB_YESNOCANCEL`·`MB_RETRYCANCEL` 류는 **0건**이므로
+지원 범위를 그만큼만 만든다.
+
+## 설계
+
+`SageFramelessDialog`가 캡션바 · 동적 템플릿 · `SizeToClient`를 이미 갖고 있어
+**새 리소스 없이 파생 하나로 끝난다.**
+
+| 항목 | 결정 |
+|---|---|
+| 배치 | `app/ui/dialogs/SageMessageBox.h/.cpp` — 클래스 `SageMessageBoxDlg : SageFramelessDialog` |
+| 진입점 | `int ShowSageMessageBox(LPCWSTR pszText, UINT nType = MB_OK, CWnd* pParent = NULL)` — 인자·반환이 `AfxMessageBox`와 호환이라 호출부는 **이름 한 줄**만 바뀐다 |
+| 창 높이 | **상수로 적지 않는다.** `DT_CALCRECT`로 본문을 재고 `LayoutControls()`가 바닥을 반환 → `SizeFramelessClient` (교훈 19) |
+| 창 폭 | 고정 상수 + 워드랩. 콘텐츠가 정하는 값이 아니다 |
+| 버튼 | `CSageButton`. 확인 = Primary / 예 = Primary · 아니오 = Secondary. `MB_DEFBUTTON2`는 포커스만 옮긴다 |
+| 삭제 확인 | 「예」를 **Danger**로 그린다 (2026-08-17 사용자 결정). 스킬의 「Danger는 삭제 계열 전용」과 일치하며, 이때 그 창에는 Primary가 없다 |
+| 취소 경로 | Esc · 캡션 X는 `IDCANCEL`이다. **`MB_YESNO`에서는 `IDNO`로 매핑한다** — 그대로 두면 삭제 확인의 반환값이 `IDYES`도 `IDNO`도 아니게 된다 |
+| 캡션 텍스트 | 유형별 `TAECHANG_UI_MSGBOX_*` 상수 (알림 · 경고 · 오류 · 확인) |
+
+### 아이콘 4종 (2026-08-17 사용자 결정 — 그린다)
+
+22px 원 · 획 2px · 유니코드 글리프 금지(D6). 색은 유형이 정한다.
+
+| 유형 | 색 | 글리프 |
+|---|---|---|
+| 정보 `MB_ICONINFORMATION` | `PRIMARY` | `i` |
+| 경고 `MB_ICONWARNING` | `WARNING` | `!` |
+| 오류 `MB_ICONERROR` | `ERROR` | `!` |
+| 질문 `MB_ICONQUESTION` | `PRIMARY` | `?` |
+
+**완료 알림을 초록 체크로 만들지 않는다.** 완료 표현은 `CSageStatusCard`가 이미 갖고 있고,
+모달까지 같은 표현을 쓰면 어느 쪽이 결과인지 갈린다. 모달은 「알림」이다.
+
+## 작업 순서
+
+- [ ] **1단계** — `SageMessageBoxDlg` · 진입 함수 신설, `vcxproj`/`filters` 등록, `TAECHANG_UI_MSGBOX_*` 상수 추가.
+      호출부는 `SageSidebarPanel.cpp:156` **1곳만** 교체
+- [ ] **2단계** — 알림 · 경고 · 오류 계열 52곳 교체
+- [ ] **3단계** — 확인창 3곳 교체 (예/아니오 · 기본 포커스 · 삭제 Danger)
+- [ ] **4단계** — `sagetaechang-ui`의 컨트롤 목록과 다이얼로그 절 갱신, 이 문서 R7 갱신,
+      `DEBT_LOG`의 낡은 「51곳」 항목 정정
+
+**1단계에서 한 곳만 바꾸고 끊는 이유**: 창 크기 계산이 틀리면 52곳을 바꾼 뒤에 드러난다.
+
+## 완료 기준
+
+| 단계 | 세어보는 값 |
+|---|---|
+| 1 | 잔여 `AfxMessageBox` **55**. 사이드바에서 로그인 없이 업무를 누르면 앱 스타일 창이 뜬다 |
+| 2 | 잔여 **4** (확인창 3 + 앱 초기화 1) |
+| 3 | 잔여 **1**. 삭제 확인에서 Esc·X가 **삭제를 실행하지 않는다** |
+| 4 | 스킬·문서의 수치가 코드와 일치 |
+
+가장 긴 메시지(스크립트 실패 `strError`)에서 창이 화면을 넘지 않는다.
+
+## 리스크
+
+| # | 내용 | 대응 |
+|---|---|---|
+| D9-1 | `SageTaechang.cpp:94`는 `InitInstance` 안이라 **메인 윈도우가 없다** (`ProcessShellCommand` 이전) | 이 1곳은 `AfxMessageBox`로 **유지**한다. 잔여 1은 누락이 아니다 |
+| D9-2 | 워커 스레드에서 부르는 곳이 있으면 커스텀 모달을 못 쓴다 | 2단계 착수 전 56곳의 호출 스레드를 확인한다 |
+| D9-3 | 스크립트 오류 메시지는 길이가 임의라 창이 화면을 넘칠 수 있다 | 폭 고정 + 워드랩 + 최대 높이 상한 |
+| D9-4 | 다이얼로그 위에서 뜨는 3파일은 부모가 `AfxGetMainWnd()`면 모달 순서가 어긋난다 | 그 3파일만 `pParent`에 `this`를 넘긴다 |
+| D9-5 | 「?」는 Arc + 획 + 점이라 세트에서 가장 그리기 어렵다 | 교훈 24(Arc는 시작·끝 순서가 호의 크기를 정한다)와 교훈 22(길이·두께 홀짝)를 먼저 적용한다 |
+
+## 범위 밖
+
+| 항목 | 사유 |
+|---|---|
+| 패널·View 입력 검증의 **인라인 이관** | `DEBT_LOG` 항목이다. 자리를 새로 잡아야 하고 목업 근거가 없다. **이번 교체가 그 결정을 막지 않는다** — 나중에 인라인으로 옮기면 그 줄이 지워질 뿐이다 |
+| 긴 오류 메시지 스크롤 · 상세 접기 | 지금 필요한 변형이 아니다. 상한을 넘는 사례가 실제로 나오면 그때 만든다 |
+| `MB_YESNOCANCEL` 등 미사용 플래그 | 호출부에 0건이다 |
 
 ---
 
