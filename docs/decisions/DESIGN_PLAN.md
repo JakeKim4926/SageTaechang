@@ -1878,6 +1878,16 @@ D1~D7로 앱 화면은 전부 새 규격이 됐는데 **모달 창만 Windows �
 `SagePriceManagePanel.cpp:698`·`:887`). `MB_YESNOCANCEL`·`MB_RETRYCANCEL` 류는 **0건**이므로
 지원 범위를 그만큼만 만든다.
 
+## 규칙 출처
+
+| 항목 | 근거 |
+|---|---|
+| 파일 배치 · vcxproj 3단계 등록 | `coding-design` > *폴더 구조* · *신규 파일 추가 절차* |
+| 클래스명 · 파일명 · 상수 접두사 · 하드코딩 금지 | `coding-rules` > *네이밍 규칙* · *하드코딩 금지* |
+| 버튼 변형 · 색 역할 · 아이콘 규격 | `sagetaechang-ui` > *버튼 변형* · *색상 시스템* · *아이콘* |
+| 창 높이를 상수로 적지 않는다 | `sagetaechang-ui` > *현재 구현된 설계 결정 > 다이얼로그* (교훈 19) |
+| 목업 근거 | **없다.** 3-9 다이얼로그 6종은 전부 입력 폼이고 알림·확인 계열은 0건이다 |
+
 ## 설계
 
 `SageFramelessDialog`가 캡션바 · 동적 템플릿 · `SizeToClient`를 이미 갖고 있어
@@ -1885,37 +1895,74 @@ D1~D7로 앱 화면은 전부 새 규격이 됐는데 **모달 창만 Windows �
 
 | 항목 | 결정 |
 |---|---|
-| 배치 | `app/ui/dialogs/SageMessageBox.h/.cpp` — 클래스 `SageMessageBoxDlg : SageFramelessDialog` |
+| 배치 | `app/ui/dialogs/SageMessageBoxDlg.h/.cpp` — 클래스 `SageMessageBoxDlg : SageFramelessDialog`. **파일명은 클래스명과 같다** |
 | 진입점 | `int ShowSageMessageBox(LPCWSTR pszText, UINT nType = MB_OK, CWnd* pParent = NULL)` — 인자·반환이 `AfxMessageBox`와 호환이라 호출부는 **이름 한 줄**만 바뀐다 |
 | 창 높이 | **상수로 적지 않는다.** `DT_CALCRECT`로 본문을 재고 `LayoutControls()`가 바닥을 반환 → `SizeFramelessClient` (교훈 19) |
-| 창 폭 | 고정 상수 + 워드랩. 콘텐츠가 정하는 값이 아니다 |
+| 창 폭 | `TAECHANG_MSGBOX_WIDTH = 360` — 기존 다이얼로그 폭(320 / 360 / 420) 중 다수값. 워드랩. 콘텐츠가 정하는 값이 아니다 |
+| 최대 높이 | `TAECHANG_MSGBOX_MAX_HEIGHT` — 넘으면 본문을 말줄임한다 (D9-3) |
+| 본문 | 본문 폰트 `TAECHANG_CONTENT_FONT_POINT_SIZE` · 색 `TAECHANG_COLOR_TEXT`. **`INLINE_ERROR_TEXT`를 쓰지 않는다** — 그 색은 12px 인라인 한 줄 전용이다 |
 | 버튼 | `CSageButton`. 확인 = Primary / 예 = Primary · 아니오 = Secondary. `MB_DEFBUTTON2`는 포커스만 옮긴다 |
-| 삭제 확인 | 「예」를 **Danger**로 그린다 (2026-08-17 사용자 결정). 스킬의 「Danger는 삭제 계열 전용」과 일치하며, 이때 그 창에는 Primary가 없다 |
+| 삭제 확인 | 「예」를 **Danger**로 그린다 (2026-08-17 사용자 결정). 이때 그 창에는 Primary가 없다 |
 | 취소 경로 | Esc · 캡션 X는 `IDCANCEL`이다. **`MB_YESNO`에서는 `IDNO`로 매핑한다** — 그대로 두면 삭제 확인의 반환값이 `IDYES`도 `IDNO`도 아니게 된다 |
 | 캡션 텍스트 | 유형별 `TAECHANG_UI_MSGBOX_*` 상수 (알림 · 경고 · 오류 · 확인) |
 
-### 아이콘 4종 (2026-08-17 사용자 결정 — 그린다)
+### Danger 판정 근거 (CRITICAL)
 
-22px 원 · 획 2px · 유니코드 글리프 금지(D6). 색은 유형이 정한다.
+**`nType`만으로는 삭제인지 알 수 없다.** 조사해보니 현재 `MB_YESNO` **3곳이 전부 삭제 확인**이라
+「`MB_YESNO`면 Danger」가 성립하지만, 이것은 **지금 호출부가 그럴 뿐**이다.
+
+| 위치 | 내용 |
+|---|---|
+| `SageCompanyOrderPanel.cpp:511` | 법인 삭제 |
+| `SagePriceManagePanel.cpp:698` | 법인 삭제 (`MB_DEFBUTTON2`) |
+| `SagePriceManagePanel.cpp:887` | 단가 삭제 |
+
+**삭제가 아닌 예/아니오가 처음 생기는 시점에 인자를 추가한다.** 지금 인자를 만들면 호출부 3곳이
+전부 같은 값을 넘기는 죽은 매개변수가 된다 (`sagetaechang-ui` — 지금 필요한 변형 하나만 만든다).
+그때 이 표를 근거로 본다.
+
+### 아이콘 3종 (2026-08-17 사용자 결정 — 그린다)
+
+`TAECHANG_MSGBOX_ICON_SIZE = 22` · 획 2px · 유니코드 글리프 금지(D6). 색은 유형이 정한다.
+값은 `TAECHANG_EMPTY_ICON_SIZE`와 같지만 **함께 바뀔 이유가 없으므로 상수를 나눈다** —
+교훈 19는 동기화가 필요한 값에 대한 규칙이다. 빈 상태 아이콘 상수를 건드리지 않는다.
 
 | 유형 | 색 | 글리프 |
 |---|---|---|
 | 정보 `MB_ICONINFORMATION` | `PRIMARY` | `i` |
 | 경고 `MB_ICONWARNING` | `WARNING` | `!` |
 | 오류 `MB_ICONERROR` | `ERROR` | `!` |
-| 질문 `MB_ICONQUESTION` | `PRIMARY` | `?` |
+
+**「?」를 만들지 않는다** (2026-08-17 사용자 결정). `MB_ICONQUESTION`은 호출부 2곳뿐이고
+둘 다 삭제 확인인데, 나머지 삭제 확인 1곳은 `MB_ICONWARNING`이라 **같은 창이 화면마다 다른
+아이콘으로 떴다.** 3단계에서 호출부를 경고로 통일하면 세트가 3종으로 줄고, 세트에서 가장
+그리기 어려운 획(Arc + 획 + 점)이 사라진다.
 
 **완료 알림을 초록 체크로 만들지 않는다.** 완료 표현은 `CSageStatusCard`가 이미 갖고 있고,
 모달까지 같은 표현을 쓰면 어느 쪽이 결과인지 갈린다. 모달은 「알림」이다.
+
+### 플래그 없는 호출 8곳은 유형을 붙인다 (2026-08-17 사용자 결정)
+
+`SageCompanyOrderPanel.cpp`의 8곳이 무플래그다. 아이콘 없는 변형을 만드는 대신 **호출부에
+유형을 붙인다** — 다른 파일에서는 같은 성격의 메시지가 이미 그 플래그를 쓰고 있다.
+
+| 대상 | 붙일 플래그 |
+|---|---|
+| `:382` · `:450` · `:493` · `:516` · `:561` (`strError`) | `MB_ICONERROR` |
+| `:467` · `:478` · `:502` (선택 · 입력 필요) | `MB_ICONWARNING` |
+
+**이것은 단순 치환이 아니라 표시 변경이다.** 교훈 9대로 항목명(「교체」)에 숨기지 않고 여기 적는다.
+`SageTaechang.cpp:94`는 유지 대상이므로 무플래그로 남는다.
 
 ## 작업 순서
 
 - [ ] **1단계** — `SageMessageBoxDlg` · 진입 함수 신설, `vcxproj`/`filters` 등록, `TAECHANG_UI_MSGBOX_*` 상수 추가.
       호출부는 `SageSidebarPanel.cpp:156` **1곳만** 교체
-- [ ] **2단계** — 알림 · 경고 · 오류 계열 52곳 교체
-- [ ] **3단계** — 확인창 3곳 교체 (예/아니오 · 기본 포커스 · 삭제 Danger)
-- [ ] **4단계** — `sagetaechang-ui`의 컨트롤 목록과 다이얼로그 절 갱신, 이 문서 R7 갱신,
-      `DEBT_LOG`의 낡은 「51곳」 항목 정정
+- [ ] **2단계** — 알림 · 경고 · 오류 계열 52곳 교체. `SageCompanyOrderPanel` 8곳은 유형 플래그를 함께 붙인다
+- [ ] **3단계** — 확인창 3곳 교체 (예/아니오 · 기본 포커스 · 삭제 Danger). `MB_ICONQUESTION` 2곳을 경고로 통일
+- [ ] **4단계** — `sagetaechang-ui`의 *현재 구현된 설계 결정 > 다이얼로그* 절에 메시지 박스 규격 추가,
+      `DEBT_LOG`의 낡은 「51곳」 항목 정정.
+      **컨트롤 목록 표에는 넣지 않는다** — 그 표는 `app/ui/drawing/` 전용이고 이것은 다이얼로그다
 
 **1단계에서 한 곳만 바꾸고 끊는 이유**: 창 크기 계산이 틀리면 52곳을 바꾼 뒤에 드러난다.
 
@@ -1938,7 +1985,8 @@ D1~D7로 앱 화면은 전부 새 규격이 됐는데 **모달 창만 Windows �
 | D9-2 | 워커 스레드에서 부르는 곳이 있으면 커스텀 모달을 못 쓴다 | 2단계 착수 전 56곳의 호출 스레드를 확인한다 |
 | D9-3 | 스크립트 오류 메시지는 길이가 임의라 창이 화면을 넘칠 수 있다 | 폭 고정 + 워드랩 + 최대 높이 상한 |
 | D9-4 | 다이얼로그 위에서 뜨는 3파일은 부모가 `AfxGetMainWnd()`면 모달 순서가 어긋난다 | 그 3파일만 `pParent`에 `this`를 넘긴다 |
-| D9-5 | 「?」는 Arc + 획 + 점이라 세트에서 가장 그리기 어렵다 | 교훈 24(Arc는 시작·끝 순서가 호의 크기를 정한다)와 교훈 22(길이·두께 홀짝)를 먼저 적용한다 |
+| D9-5 | ~~「?」 그리기~~ | **해소 — 아이콘을 3종으로 줄여 「?」가 없어졌다** (위 결정) |
+| D9-6 | 아이콘 획은 `i`·`!` 둘 다 세로획 + 점이라 **길이·두께 홀짝이 어긋나기 쉽다** | 교훈 22대로 span과 두께의 홀짝을 먼저 맞춘다. 화면이 이상하면 그리는 방법보다 치수를 먼저 본다 (교훈 23) |
 
 ## 범위 밖
 
