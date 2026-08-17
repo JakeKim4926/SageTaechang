@@ -7,7 +7,13 @@ BEGIN_MESSAGE_MAP(CSageInlineError, CStatic)
 END_MESSAGE_MAP()
 
 CSageInlineError::CSageInlineError()
-	: m_nVariant(SAGE_INLINE_ERROR) {
+	: m_nVariant(SAGE_INLINE_ERROR), m_nBackgroundRole(SAGE_BG_APP) {
+}
+
+void CSageInlineError::SetBackgroundRole(SageBackgroundRole nRole) {
+	m_nBackgroundRole = nRole;
+	if (::IsWindow(GetSafeHwnd()))
+		Invalidate();
 }
 
 void CSageInlineError::SetMessage(const CString& strMessage, SageInlineMessageVariant nVariant) {
@@ -75,7 +81,7 @@ void CSageInlineError::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 	CRect rectClient(lpDrawItemStruct->rcItem);
 
 	pDC->FillSolidRect(rectClient,
-		SageUiResources::GetBackgroundColor(SAGE_BG_APP));
+		SageUiResources::GetBackgroundColor(m_nBackgroundRole));
 
 	if (m_strMessage.IsEmpty())
 		return;

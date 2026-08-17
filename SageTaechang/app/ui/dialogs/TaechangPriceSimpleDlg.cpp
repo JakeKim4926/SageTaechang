@@ -57,7 +57,7 @@ BOOL TaechangCompanyRenameDlg::OnInitDialog() {
     CDialog::OnInitDialog();
     SetWindowText(TAECHANG_UI_PRICE_RENAME_DLG_TITLE);
 
-    m_brushBackground.CreateSolidBrush(TAECHANG_COLOR_APP_BACKGROUND);
+    m_brushBackground.CreateSolidBrush(TAECHANG_COLOR_PANEL);
     m_brushPanel.CreateSolidBrush(TAECHANG_COLOR_PANEL);
     CreateCaptionBar(TAECHANG_UI_PRICE_RENAME_DLG_TITLE);
     CreateControls();
@@ -81,6 +81,7 @@ void TaechangCompanyRenameDlg::CreateControls() {
     m_wndLabel.Create(TAECHANG_UI_PRICE_RENAME_DLG_LABEL, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, r, this);
     m_wndEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOHSCROLL, r, this, ID_PRICE_COMPANY_DLG_EDIT);
     m_wndError.Create(NULL, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, r, this);
+    m_wndError.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndHint.Create(L"", WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, r, this);
     m_wndOkBtn.Create(TAECHANG_UI_PRICE_RENAME_DLG_OK, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, IDOK);
     m_wndCancelBtn.Create(TAECHANG_UI_PRICE_COMPANY_DLG_CANCEL, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, IDCANCEL);
@@ -129,9 +130,11 @@ void TaechangCompanyRenameDlg::ApplyFont() {
     m_font.CreatePointFont(TAECHANG_CONTENT_FONT_POINT_SIZE, TAECHANG_CONTROL_FONT_FACE);
     m_wndLabel.SetFont(&m_font);
     m_wndLabel.SetTextColorRole(SAGE_TEXT_MUTED);
+    m_wndLabel.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndEdit.SetFont(&m_font);
     m_wndHint.SetFont(SageUiResources::GetFont(SAGE_FONT_CAPTION));
     m_wndHint.SetTextColorRole(SAGE_TEXT_SECONDARY);
+    m_wndHint.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndOkBtn.SetFont(&m_font);
     m_wndOkBtn.SetVariant(SAGE_BUTTON_PRIMARY);
     m_wndCancelBtn.SetFont(&m_font);
@@ -182,7 +185,7 @@ HBRUSH TaechangCompanyRenameDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor
 
     if (nCtlColor == CTLCOLOR_STATIC) {
         pDC->SetTextColor(TAECHANG_COLOR_TEXT);
-        pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
+        pDC->SetBkColor(TAECHANG_COLOR_PANEL);
         return m_brushBackground;
     }
     if (nCtlColor == CTLCOLOR_EDIT) {
@@ -190,7 +193,7 @@ HBRUSH TaechangCompanyRenameDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor
         pDC->SetBkColor(TAECHANG_COLOR_PANEL);
         return m_brushPanel;
     }
-    pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
+    pDC->SetBkColor(TAECHANG_COLOR_PANEL);
     return m_brushBackground;
 }
 
@@ -220,7 +223,7 @@ int TaechangCoverPriceDlg::GetCoverPrice() const {
 BOOL TaechangCoverPriceDlg::OnInitDialog() {
     CDialog::OnInitDialog();
     SetWindowText(TAECHANG_UI_PRICE_COVER_DLG_TITLE);
-    m_brushBackground.CreateSolidBrush(TAECHANG_COLOR_APP_BACKGROUND);
+    m_brushBackground.CreateSolidBrush(TAECHANG_COLOR_PANEL);
     m_brushPanel.CreateSolidBrush(TAECHANG_COLOR_PANEL);
     CreateCaptionBar(TAECHANG_UI_PRICE_COVER_DLG_TITLE);
     CreateControls();
@@ -244,6 +247,7 @@ void TaechangCoverPriceDlg::CreateControls() {
     m_wndLabel.Create(TAECHANG_UI_PRICE_COVER_DLG_LABEL, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, r, this);
     m_wndEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOHSCROLL, r, this, ID_PRICE_COVER_DLG_EDIT);
     m_wndError.Create(NULL, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, r, this);
+    m_wndError.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndOkBtn.Create(TAECHANG_UI_PRICE_COVER_DLG_OK, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, IDOK);
     m_wndCancelBtn.Create(TAECHANG_UI_PRICE_COMPANY_DLG_CANCEL, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, IDCANCEL);
     m_wndEdit.SetLimitText(10);
@@ -276,6 +280,7 @@ void TaechangCoverPriceDlg::ApplyFont() {
     m_font.CreatePointFont(TAECHANG_CONTENT_FONT_POINT_SIZE, TAECHANG_CONTROL_FONT_FACE);
     m_wndLabel.SetFont(&m_font);
     m_wndLabel.SetTextColorRole(SAGE_TEXT_MUTED);
+    m_wndLabel.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndEdit.SetFont(&m_font);
     m_wndOkBtn.SetFont(&m_font);
     m_wndOkBtn.SetVariant(SAGE_BUTTON_PRIMARY);
@@ -356,7 +361,7 @@ HBRUSH TaechangCoverPriceDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
 
     if (nCtlColor == CTLCOLOR_STATIC) {
         pDC->SetTextColor(TAECHANG_COLOR_TEXT);
-        pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
+        pDC->SetBkColor(TAECHANG_COLOR_PANEL);
         return m_brushBackground;
     }
     if (nCtlColor == CTLCOLOR_EDIT) {
@@ -364,6 +369,6 @@ HBRUSH TaechangCoverPriceDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
         pDC->SetBkColor(TAECHANG_COLOR_PANEL);
         return m_brushPanel;
     }
-    pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
+    pDC->SetBkColor(TAECHANG_COLOR_PANEL);
     return m_brushBackground;
 }

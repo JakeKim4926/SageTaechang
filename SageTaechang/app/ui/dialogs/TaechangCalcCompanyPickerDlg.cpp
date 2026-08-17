@@ -34,7 +34,7 @@ BOOL TaechangCalcCompanyPickerDlg::OnInitDialog() {
 
     SetWindowText(TAECHANG_UI_PICKER_DLG_TITLE);
 
-    m_brushBackground.CreateSolidBrush(TAECHANG_COLOR_APP_BACKGROUND);
+    m_brushBackground.CreateSolidBrush(TAECHANG_COLOR_PANEL);
     m_brushPanel.CreateSolidBrush(TAECHANG_COLOR_PANEL);
 
     CreateCaptionBar(TAECHANG_UI_PICKER_DLG_TITLE);
@@ -83,6 +83,7 @@ void TaechangCalcCompanyPickerDlg::CreateControls() {
     m_wndNameList.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | WS_VSCROLL | LBS_NOTIFY | LBS_NOINTEGRALHEIGHT,
         rectEmpty, this, ID_PICKER_DLG_LIST);
     m_wndError.Create(NULL, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, rectEmpty, this);
+    m_wndError.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndMatchCount.Create(L"", WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, rectEmpty, this);
     m_wndOkBtn.Create(TAECHANG_UI_PICKER_DLG_OK,
         WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, IDOK);
@@ -127,6 +128,7 @@ void TaechangCalcCompanyPickerDlg::ApplyFont() {
     m_wndNameList.SetFont(&m_font);
     m_wndMatchCount.SetFont(SageUiResources::GetFont(SAGE_FONT_CAPTION));
     m_wndMatchCount.SetTextColorRole(SAGE_TEXT_SECONDARY);
+    m_wndMatchCount.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndOkBtn.SetFont(&m_font);
     m_wndOkBtn.SetVariant(SAGE_BUTTON_PRIMARY);
     m_wndCancelBtn.SetFont(&m_font);
@@ -205,6 +207,6 @@ HBRUSH TaechangCalcCompanyPickerDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlC
         return m_brushPanel;
     }
 
-    pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
+    pDC->SetBkColor(TAECHANG_COLOR_PANEL);
     return m_brushBackground;
 }

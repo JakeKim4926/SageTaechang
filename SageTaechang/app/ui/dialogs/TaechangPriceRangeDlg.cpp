@@ -85,7 +85,7 @@ BOOL TaechangPriceRangeDlg::OnInitDialog() {
     CDialog::OnInitDialog();
     SetWindowText(TAECHANG_UI_PRICE_RANGE_DLG_TITLE);
 
-    m_brushBackground.CreateSolidBrush(TAECHANG_COLOR_APP_BACKGROUND);
+    m_brushBackground.CreateSolidBrush(TAECHANG_COLOR_PANEL);
     m_brushPanel.CreateSolidBrush(TAECHANG_COLOR_PANEL);
 
     CreateCaptionBar(TAECHANG_UI_PRICE_RANGE_DLG_TITLE);
@@ -134,6 +134,7 @@ void TaechangPriceRangeDlg::CreateControls() {
     m_wndCoverEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOHSCROLL,
         rectEmpty, this, ID_PRICE_RANGE_DLG_COVER_EDIT);
     m_wndError.Create(NULL, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, rectEmpty, this);
+    m_wndError.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndOkBtn.Create(TAECHANG_UI_PRICE_RANGE_DLG_OK,
         WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, IDOK);
     m_wndCancelBtn.Create(TAECHANG_UI_PRICE_COMPANY_DLG_CANCEL,
@@ -197,17 +198,21 @@ void TaechangPriceRangeDlg::ApplyFont() {
 
     m_wndMinLabel.SetFont(&m_font);
     m_wndMinLabel.SetTextColorRole(SAGE_TEXT_MUTED);
+    m_wndMinLabel.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndMinEdit.SetFont(&m_font);
     m_wndSingleCheck.SetFont(&m_font);
     m_wndMaxLabel.SetFont(&m_font);
     m_wndMaxLabel.SetTextColorRole(SAGE_TEXT_MUTED);
+    m_wndMaxLabel.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndMaxEdit.SetFont(&m_font);
     m_wndNoMaxCheck.SetFont(&m_font);
     m_wndPrintLabel.SetFont(&m_font);
     m_wndPrintLabel.SetTextColorRole(SAGE_TEXT_MUTED);
+    m_wndPrintLabel.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndPrintEdit.SetFont(&m_font);
     m_wndCoverLabel.SetFont(&m_font);
     m_wndCoverLabel.SetTextColorRole(SAGE_TEXT_MUTED);
+    m_wndCoverLabel.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndCoverEdit.SetFont(&m_font);
     m_wndOkBtn.SetFont(&m_font);
     m_wndOkBtn.SetVariant(SAGE_BUTTON_PRIMARY);
@@ -400,7 +405,7 @@ HBRUSH TaechangPriceRangeDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
 
     if (nCtlColor == CTLCOLOR_STATIC) {
         pDC->SetTextColor(TAECHANG_COLOR_TEXT);
-        pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
+        pDC->SetBkColor(TAECHANG_COLOR_PANEL);
         return m_brushBackground;
     }
 
@@ -410,6 +415,6 @@ HBRUSH TaechangPriceRangeDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
         return m_brushPanel;
     }
 
-    pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
+    pDC->SetBkColor(TAECHANG_COLOR_PANEL);
     return m_brushBackground;
 }

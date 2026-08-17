@@ -31,7 +31,7 @@ BOOL TaechangCompanyDlg::OnInitDialog() {
 
     SetWindowText(TAECHANG_UI_PRICE_COMPANY_DLG_TITLE);
 
-    m_brushBackground.CreateSolidBrush(TAECHANG_COLOR_APP_BACKGROUND);
+    m_brushBackground.CreateSolidBrush(TAECHANG_COLOR_PANEL);
     m_brushPanel.CreateSolidBrush(TAECHANG_COLOR_PANEL);
 
     CreateCaptionBar(TAECHANG_UI_PRICE_COMPANY_DLG_TITLE);
@@ -62,6 +62,7 @@ void TaechangCompanyDlg::CreateControls() {
     m_wndCompanyEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOHSCROLL,
         rectEmpty, this, ID_PRICE_COMPANY_DLG_EDIT);
     m_wndError.Create(NULL, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, rectEmpty, this);
+    m_wndError.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndHint.Create(TAECHANG_UI_PRICE_COMPANY_DLG_HINT,
         WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, rectEmpty, this);
     m_wndOkBtn.Create(TAECHANG_UI_PRICE_COMPANY_DLG_OK,
@@ -111,9 +112,11 @@ void TaechangCompanyDlg::ApplyFont() {
 
     m_wndLabel.SetFont(&m_font);
     m_wndLabel.SetTextColorRole(SAGE_TEXT_MUTED);
+    m_wndLabel.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndCompanyEdit.SetFont(&m_font);
     m_wndHint.SetFont(SageUiResources::GetFont(SAGE_FONT_CAPTION));
     m_wndHint.SetTextColorRole(SAGE_TEXT_SECONDARY);
+    m_wndHint.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndOkBtn.SetFont(&m_font);
     m_wndOkBtn.SetVariant(SAGE_BUTTON_PRIMARY);
     m_wndCancelBtn.SetFont(&m_font);
@@ -160,7 +163,7 @@ HBRUSH TaechangCompanyDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
 
     if (nCtlColor == CTLCOLOR_STATIC) {
         pDC->SetTextColor(TAECHANG_COLOR_TEXT);
-        pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
+        pDC->SetBkColor(TAECHANG_COLOR_PANEL);
         return m_brushBackground;
     }
 
@@ -170,6 +173,6 @@ HBRUSH TaechangCompanyDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
         return m_brushPanel;
     }
 
-    pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
+    pDC->SetBkColor(TAECHANG_COLOR_PANEL);
     return m_brushBackground;
 }

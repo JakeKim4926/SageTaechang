@@ -30,7 +30,7 @@ BOOL TaechangPasswordChangeDlg::OnInitDialog() {
 
     SetWindowText(TAECHANG_UI_CHANGE_PW_TITLE);
 
-    m_brushBackground.CreateSolidBrush(TAECHANG_COLOR_APP_BACKGROUND);
+    m_brushBackground.CreateSolidBrush(TAECHANG_COLOR_PANEL);
     m_brushPanel.CreateSolidBrush(TAECHANG_COLOR_PANEL);
 
     CreateCaptionBar(TAECHANG_UI_CHANGE_PW_TITLE);
@@ -85,6 +85,7 @@ void TaechangPasswordChangeDlg::CreateControls() {
     m_wndConfirmEdit.SetLimitText(TAECHANG_USER_PW_MAX_LEN);
 
     m_wndError.Create(NULL, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, r, this);
+    m_wndError.SetBackgroundRole(SAGE_BG_PANEL);
 
     m_wndOkBtn.Create(TAECHANG_UI_CHANGE_PW_OK, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, IDOK);
     m_wndCancelBtn.Create(TAECHANG_UI_CHANGE_PW_CANCEL, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, IDCANCEL);
@@ -136,12 +137,16 @@ void TaechangPasswordChangeDlg::ApplyFont() {
 
     m_wndCurrentLabel.SetFont(&m_font);
     m_wndCurrentLabel.SetTextColorRole(SAGE_TEXT_MUTED);
+    m_wndCurrentLabel.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndNewLabel.SetFont(&m_font);
     m_wndNewLabel.SetTextColorRole(SAGE_TEXT_MUTED);
+    m_wndNewLabel.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndConfirmLabel.SetFont(&m_font);
     m_wndConfirmLabel.SetTextColorRole(SAGE_TEXT_MUTED);
+    m_wndConfirmLabel.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndHint.SetFont(SageUiResources::GetFont(SAGE_FONT_CAPTION));
     m_wndHint.SetTextColorRole(SAGE_TEXT_SECONDARY);
+    m_wndHint.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndCurrentEdit.SetFont(&m_font);
     m_wndNewEdit.SetFont(&m_font);
     m_wndConfirmEdit.SetFont(&m_font);
@@ -234,7 +239,7 @@ HBRUSH TaechangPasswordChangeDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColo
 
     if (nCtlColor == CTLCOLOR_STATIC) {
         pDC->SetTextColor(TAECHANG_COLOR_TEXT);
-        pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
+        pDC->SetBkColor(TAECHANG_COLOR_PANEL);
         return m_brushBackground;
     }
     if (nCtlColor == CTLCOLOR_EDIT) {
@@ -242,6 +247,6 @@ HBRUSH TaechangPasswordChangeDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColo
         pDC->SetBkColor(TAECHANG_COLOR_PANEL);
         return m_brushPanel;
     }
-    pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
+    pDC->SetBkColor(TAECHANG_COLOR_PANEL);
     return m_brushBackground;
 }

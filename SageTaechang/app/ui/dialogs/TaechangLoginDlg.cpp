@@ -28,7 +28,7 @@ BOOL TaechangLoginDlg::OnInitDialog() {
 
     SetWindowText(TAECHANG_UI_LOGIN_DLG_TITLE);
 
-    m_brushBackground.CreateSolidBrush(TAECHANG_COLOR_APP_BACKGROUND);
+    m_brushBackground.CreateSolidBrush(TAECHANG_COLOR_PANEL);
     m_brushPanel.CreateSolidBrush(TAECHANG_COLOR_PANEL);
 
     CreateCaptionBar(TAECHANG_UI_LOGIN_DLG_TITLE);
@@ -75,6 +75,7 @@ void TaechangLoginDlg::CreateControls() {
     m_wndPwEdit.SetPasswordChar(L'*');
 
     m_wndError.Create(NULL, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, rectEmpty, this);
+    m_wndError.SetBackgroundRole(SAGE_BG_PANEL);
 
     m_wndOkBtn.Create(TAECHANG_UI_LOGIN_OK,
         WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, IDOK);
@@ -119,8 +120,10 @@ void TaechangLoginDlg::ApplyFont() {
 
     m_wndIdLabel.SetFont(&m_font);
     m_wndIdLabel.SetTextColorRole(SAGE_TEXT_MUTED);
+    m_wndIdLabel.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndPwLabel.SetFont(&m_font);
     m_wndPwLabel.SetTextColorRole(SAGE_TEXT_MUTED);
+    m_wndPwLabel.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndIdEdit.SetFont(&m_font);
     m_wndPwEdit.SetFont(&m_font);
     m_wndOkBtn.SetFont(&m_font);
@@ -199,7 +202,7 @@ HBRUSH TaechangLoginDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
 
     if (nCtlColor == CTLCOLOR_STATIC) {
         pDC->SetTextColor(TAECHANG_COLOR_TEXT);
-        pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
+        pDC->SetBkColor(TAECHANG_COLOR_PANEL);
         return m_brushBackground;
     }
 
@@ -209,6 +212,6 @@ HBRUSH TaechangLoginDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
         return m_brushPanel;
     }
 
-    pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
+    pDC->SetBkColor(TAECHANG_COLOR_PANEL);
     return m_brushBackground;
 }

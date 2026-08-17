@@ -1,5 +1,7 @@
 #pragma once
 
+#include "app/ui/drawing/SageUiResources.h"
+
 enum SageInlineMessageVariant
 {
 	SAGE_INLINE_ERROR,
@@ -14,6 +16,7 @@ public:
 	CSageInlineError();
 
 	void SetMessage(const CString& strMessage, SageInlineMessageVariant nVariant);
+	void SetBackgroundRole(SageBackgroundRole nRole);
 	void ClearMessage();
 	BOOL HasMessage() const;
 
@@ -28,5 +31,6 @@ private:
 
 private:
 	SageInlineMessageVariant m_nVariant;
+	SageBackgroundRole m_nBackgroundRole;
 	CString m_strMessage;
 };

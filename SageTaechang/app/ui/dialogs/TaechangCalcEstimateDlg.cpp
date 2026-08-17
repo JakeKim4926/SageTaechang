@@ -48,7 +48,7 @@ BOOL TaechangCalcEstimateDlg::OnInitDialog() {
     CDialog::OnInitDialog();
     SetWindowText(TAECHANG_UI_CALC_ESTIMATE_DLG_TITLE);
 
-    m_brushBackground.CreateSolidBrush(TAECHANG_COLOR_APP_BACKGROUND);
+    m_brushBackground.CreateSolidBrush(TAECHANG_COLOR_PANEL);
     m_brushPanel.CreateSolidBrush(TAECHANG_COLOR_PANEL);
     m_brushDivider.CreateSolidBrush(TAECHANG_COLOR_BORDER);
 
@@ -87,6 +87,7 @@ void TaechangCalcEstimateDlg::CreateControls() {
         WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOHSCROLL,
         r, this, ID_CALC_ESTIMATE_DLG_ITEM_EDIT);
     m_wndError.Create(NULL, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, r, this);
+    m_wndError.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndOkBtn.Create(TAECHANG_UI_CALC_ESTIMATE_OK,
         WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, IDOK);
     m_wndCancelBtn.Create(TAECHANG_UI_CALC_ESTIMATE_CANCEL,
@@ -111,15 +112,19 @@ void TaechangCalcEstimateDlg::ApplyFont() {
     m_font.CreatePointFont(TAECHANG_CONTENT_FONT_POINT_SIZE, TAECHANG_CONTROL_FONT_FACE);
     m_wndDateLabel.SetFont(&m_font);
     m_wndDateLabel.SetTextColorRole(SAGE_TEXT_MUTED);
+    m_wndDateLabel.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndYearEdit.SetFont(&m_font);
     m_wndDateSep1.SetFont(&m_font);
     m_wndDateSep1.SetTextColorRole(SAGE_TEXT_SECONDARY);
+    m_wndDateSep1.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndMonthEdit.SetFont(&m_font);
     m_wndDateSep2.SetFont(&m_font);
     m_wndDateSep2.SetTextColorRole(SAGE_TEXT_SECONDARY);
+    m_wndDateSep2.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndDayEdit.SetFont(&m_font);
     m_wndItemLabel.SetFont(&m_font);
     m_wndItemLabel.SetTextColorRole(SAGE_TEXT_MUTED);
+    m_wndItemLabel.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndItemEdit.SetFont(&m_font);
     m_wndOkBtn.SetFont(&m_font);
     m_wndOkBtn.SetVariant(SAGE_BUTTON_PRIMARY);
@@ -430,10 +435,10 @@ HBRUSH TaechangCalcEstimateDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
             return m_brushDivider;
         }
         pDC->SetTextColor(TAECHANG_COLOR_SECONDARY_TEXT);
-        pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
+        pDC->SetBkColor(TAECHANG_COLOR_PANEL);
         return m_brushBackground;
     }
 
-    pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
+    pDC->SetBkColor(TAECHANG_COLOR_PANEL);
     return m_brushBackground;
 }
