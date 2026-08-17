@@ -89,7 +89,7 @@ void CSageMessageBody::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 	CDC* pDC = CDC::FromHandle(lpDrawItemStruct->hDC);
 	CRect rectClient(lpDrawItemStruct->rcItem);
 
-	pDC->FillSolidRect(rectClient, SageUiResources::GetBackgroundColor(SAGE_BG_APP));
+	pDC->FillSolidRect(rectClient, SageUiResources::GetBackgroundColor(SAGE_BG_PANEL));
 
 	if (m_strMessage.IsEmpty())
 		return;

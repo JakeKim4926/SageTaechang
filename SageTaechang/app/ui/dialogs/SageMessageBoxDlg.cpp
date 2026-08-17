@@ -59,7 +59,7 @@ BOOL SageMessageBoxDlg::OnInitDialog() {
 	CDialog::OnInitDialog();
 
 	SetWindowText(GetCaptionTitle());
-	m_brushBackground.CreateSolidBrush(TAECHANG_COLOR_APP_BACKGROUND);
+	m_brushBackground.CreateSolidBrush(TAECHANG_COLOR_PANEL);
 
 	CreateCaptionBar(GetCaptionTitle());
 	CreateControls();
@@ -160,7 +160,7 @@ HBRUSH SageMessageBoxDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
 	CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
 
 	pDC->SetTextColor(TAECHANG_COLOR_TEXT);
-	pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
+	pDC->SetBkColor(TAECHANG_COLOR_PANEL);
 	return m_brushBackground;
 }
 
