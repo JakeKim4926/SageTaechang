@@ -115,24 +115,34 @@ void TaechangPriceRangeDlg::CreateControls() {
 
     m_wndMinLabel.Create(TAECHANG_UI_PRICE_MIN_COPIES_LABEL,
         WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, rectEmpty, this);
-    m_wndMinEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_NUMBER | ES_AUTOHSCROLL,
+    m_wndMinEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_NUMBER | ES_RIGHT | ES_AUTOHSCROLL,
         rectEmpty, this, ID_PRICE_RANGE_DLG_MIN_EDIT);
+    m_wndMinUnit.Create(TAECHANG_UI_PRICE_COPIES_UNIT,
+        WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, rectEmpty, this);
     m_wndSingleCheck.Create(TAECHANG_UI_PRICE_SINGLE_LABEL,
-        WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, rectEmpty, this, ID_PRICE_RANGE_DLG_SINGLE_CHECK);
+        WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_PRICE_RANGE_DLG_SINGLE_CHECK);
+    m_wndSingleCheck.SetFrameVisible(FALSE);
     m_wndMaxLabel.Create(TAECHANG_UI_PRICE_MAX_COPIES_LABEL,
         WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, rectEmpty, this);
-    m_wndMaxEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_NUMBER | ES_AUTOHSCROLL,
+    m_wndMaxEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_NUMBER | ES_RIGHT | ES_AUTOHSCROLL,
         rectEmpty, this, ID_PRICE_RANGE_DLG_MAX_EDIT);
+    m_wndMaxUnit.Create(TAECHANG_UI_PRICE_COPIES_UNIT,
+        WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, rectEmpty, this);
     m_wndNoMaxCheck.Create(TAECHANG_UI_PRICE_RANGE_NO_MAX_LABEL,
-        WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, rectEmpty, this, ID_PRICE_RANGE_DLG_NO_MAX_CHECK);
+        WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, ID_PRICE_RANGE_DLG_NO_MAX_CHECK);
+    m_wndNoMaxCheck.SetFrameVisible(FALSE);
     m_wndPrintLabel.Create(TAECHANG_UI_PRICE_PRINT_LABEL,
         WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, rectEmpty, this);
-    m_wndPrintEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOHSCROLL,
+    m_wndPrintEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_RIGHT | ES_AUTOHSCROLL,
         rectEmpty, this, ID_PRICE_RANGE_DLG_PRINT_EDIT);
+    m_wndPrintUnit.Create(TAECHANG_UI_PRICE_WON_UNIT,
+        WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, rectEmpty, this);
     m_wndCoverLabel.Create(TAECHANG_UI_PRICE_COVER_LABEL,
         WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, rectEmpty, this);
-    m_wndCoverEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOHSCROLL,
+    m_wndCoverEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_RIGHT | ES_AUTOHSCROLL,
         rectEmpty, this, ID_PRICE_RANGE_DLG_COVER_EDIT);
+    m_wndCoverUnit.Create(TAECHANG_UI_PRICE_WON_UNIT,
+        WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, rectEmpty, this);
     m_wndError.Create(NULL, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, rectEmpty, this);
     m_wndError.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndOkBtn.Create(TAECHANG_UI_PRICE_RANGE_DLG_OK,
@@ -153,37 +163,44 @@ int TaechangPriceRangeDlg::LayoutControls() {
     int nBtnH = TAECHANG_BUTTON_HEIGHT;
     int nGap = TAECHANG_ROW_GAP;
     int nClientW = TAECHANG_PRICE_RANGE_DLG_WIDTH;
-    int nEditW = nClientW - nM * 2;
-    int nCheckW = 110;
+    int nLabelW = TAECHANG_PRICE_RANGE_DLG_LABEL_WIDTH;
+    int nCopiesW = TAECHANG_PRICE_RANGE_COPIES_EDIT_WIDTH;
+    int nPriceW = TAECHANG_PRICE_RANGE_PRICE_EDIT_WIDTH;
+    int nUnitW = TAECHANG_PRICE_RANGE_UNIT_WIDTH;
+    int nFieldLeft = nM + nLabelW + nGap;
 
     int nY = GetContentTop() + nM;
-    m_wndMinLabel.MoveWindow(nM, nY, nEditW - nCheckW - nGap, nEditH);
-    m_wndSingleCheck.MoveWindow(nClientW - nM - nCheckW, nY, nCheckW, nEditH);
-    nY += nEditH;
-    m_wndMinEdit.MoveWindow(nM, nY, nEditW, nEditH);
+    m_wndMinLabel.MoveWindow(nM, nY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, nEditH);
+    m_wndMinEdit.MoveWindow(nFieldLeft, nY, nCopiesW, nEditH);
     ApplyEditTextRect(m_wndMinEdit);
+    m_wndMinUnit.MoveWindow(nFieldLeft + nCopiesW + nGap, nY + TAECHANG_LABEL_VERT_OFFSET, nUnitW, nEditH);
     nY += nEditH + nGap;
 
-    m_wndMaxLabel.MoveWindow(nM, nY, nEditW - nCheckW - nGap, nEditH);
-    m_wndNoMaxCheck.MoveWindow(nClientW - nM - nCheckW, nY, nCheckW, nEditH);
-    nY += nEditH;
-    m_wndMaxEdit.MoveWindow(nM, nY, nEditW, nEditH);
+    m_wndMaxLabel.MoveWindow(nM, nY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, nEditH);
+    m_wndMaxEdit.MoveWindow(nFieldLeft, nY, nCopiesW, nEditH);
     ApplyEditTextRect(m_wndMaxEdit);
+    m_wndMaxUnit.MoveWindow(nFieldLeft + nCopiesW + nGap, nY + TAECHANG_LABEL_VERT_OFFSET, nUnitW, nEditH);
     nY += nEditH + nGap;
 
-    m_wndPrintLabel.MoveWindow(nM, nY, nEditW, nEditH);
-    nY += nEditH;
-    m_wndPrintEdit.MoveWindow(nM, nY, nEditW, nEditH);
+    int nNoMaxW = m_wndNoMaxCheck.GetContentWidth();
+    m_wndNoMaxCheck.MoveWindow(nFieldLeft, nY, nNoMaxW, nEditH);
+    m_wndSingleCheck.MoveWindow(nFieldLeft + nNoMaxW + TAECHANG_PRICE_RANGE_CHECK_GAP, nY,
+        m_wndSingleCheck.GetContentWidth(), nEditH);
+    nY += nEditH + nGap;
+
+    m_wndPrintLabel.MoveWindow(nM, nY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, nEditH);
+    m_wndPrintEdit.MoveWindow(nFieldLeft, nY, nPriceW, nEditH);
     ApplyEditTextRect(m_wndPrintEdit);
+    m_wndPrintUnit.MoveWindow(nFieldLeft + nPriceW + nGap, nY + TAECHANG_LABEL_VERT_OFFSET, nUnitW, nEditH);
     nY += nEditH + nGap;
 
-    m_wndCoverLabel.MoveWindow(nM, nY, nEditW, nEditH);
-    nY += nEditH;
-    m_wndCoverEdit.MoveWindow(nM, nY, nEditW, nEditH);
+    m_wndCoverLabel.MoveWindow(nM, nY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, nEditH);
+    m_wndCoverEdit.MoveWindow(nFieldLeft, nY, nPriceW, nEditH);
     ApplyEditTextRect(m_wndCoverEdit);
+    m_wndCoverUnit.MoveWindow(nFieldLeft + nPriceW + nGap, nY + TAECHANG_LABEL_VERT_OFFSET, nUnitW, nEditH);
     nY += nEditH;
 
-    m_wndError.MoveWindow(nM, nY, nEditW, TAECHANG_INLINE_MSG_HEIGHT);
+    m_wndError.MoveWindow(nFieldLeft, nY, nClientW - nM - nFieldLeft, TAECHANG_INLINE_MSG_HEIGHT);
     nY += TAECHANG_INLINE_MSG_HEIGHT + nGap;
 
     int nBtnRight = nClientW - nM;
@@ -200,20 +217,32 @@ void TaechangPriceRangeDlg::ApplyFont() {
     m_wndMinLabel.SetTextColorRole(SAGE_TEXT_MUTED);
     m_wndMinLabel.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndMinEdit.SetFont(&m_font);
+    m_wndMinUnit.SetFont(&m_font);
+    m_wndMinUnit.SetTextColorRole(SAGE_TEXT_SECONDARY);
+    m_wndMinUnit.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndSingleCheck.SetFont(&m_font);
     m_wndMaxLabel.SetFont(&m_font);
     m_wndMaxLabel.SetTextColorRole(SAGE_TEXT_MUTED);
     m_wndMaxLabel.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndMaxEdit.SetFont(&m_font);
+    m_wndMaxUnit.SetFont(&m_font);
+    m_wndMaxUnit.SetTextColorRole(SAGE_TEXT_SECONDARY);
+    m_wndMaxUnit.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndNoMaxCheck.SetFont(&m_font);
     m_wndPrintLabel.SetFont(&m_font);
     m_wndPrintLabel.SetTextColorRole(SAGE_TEXT_MUTED);
     m_wndPrintLabel.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndPrintEdit.SetFont(&m_font);
+    m_wndPrintUnit.SetFont(&m_font);
+    m_wndPrintUnit.SetTextColorRole(SAGE_TEXT_SECONDARY);
+    m_wndPrintUnit.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndCoverLabel.SetFont(&m_font);
     m_wndCoverLabel.SetTextColorRole(SAGE_TEXT_MUTED);
     m_wndCoverLabel.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndCoverEdit.SetFont(&m_font);
+    m_wndCoverUnit.SetFont(&m_font);
+    m_wndCoverUnit.SetTextColorRole(SAGE_TEXT_SECONDARY);
+    m_wndCoverUnit.SetBackgroundRole(SAGE_BG_PANEL);
     m_wndOkBtn.SetFont(&m_font);
     m_wndOkBtn.SetVariant(SAGE_BUTTON_PRIMARY);
     m_wndCancelBtn.SetFont(&m_font);
@@ -244,10 +273,10 @@ void TaechangPriceRangeDlg::ClearInputError() {
 }
 
 void TaechangPriceRangeDlg::OnNoMaxCheck() {
-    BOOL bNoMax = (m_wndNoMaxCheck.GetCheck() == BST_CHECKED);
-    if (bNoMax && m_wndSingleCheck.GetCheck() == BST_CHECKED) {
+    BOOL bNoMax = m_wndNoMaxCheck.IsChecked();
+    if (bNoMax && m_wndSingleCheck.IsChecked()) {
         m_wndError.SetMessage(TAECHANG_UI_PRICE_SINGLE_AND_NO_MAX_CONFLICT, SAGE_INLINE_WARNING);
-        m_wndNoMaxCheck.SetCheck(BST_UNCHECKED);
+        m_wndNoMaxCheck.SetChecked(FALSE);
         return;
     }
     m_wndError.ClearMessage();
@@ -257,10 +286,10 @@ void TaechangPriceRangeDlg::OnNoMaxCheck() {
 }
 
 void TaechangPriceRangeDlg::OnSingleCheck() {
-    BOOL bSingle = (m_wndSingleCheck.GetCheck() == BST_CHECKED);
-    if (bSingle && m_wndNoMaxCheck.GetCheck() == BST_CHECKED) {
+    BOOL bSingle = m_wndSingleCheck.IsChecked();
+    if (bSingle && m_wndNoMaxCheck.IsChecked()) {
         m_wndError.SetMessage(TAECHANG_UI_PRICE_SINGLE_AND_NO_MAX_CONFLICT, SAGE_INLINE_WARNING);
-        m_wndSingleCheck.SetCheck(BST_UNCHECKED);
+        m_wndSingleCheck.SetChecked(FALSE);
         return;
     }
     m_wndError.ClearMessage();
@@ -343,8 +372,8 @@ void TaechangPriceRangeDlg::OnOK() {
         return;
     }
 
-    BOOL bSingle = (m_wndSingleCheck.GetCheck() == BST_CHECKED);
-    BOOL bHasMax = (m_wndNoMaxCheck.GetCheck() == BST_CHECKED) ? FALSE : TRUE;
+    BOOL bSingle = m_wndSingleCheck.IsChecked();
+    BOOL bHasMax = m_wndNoMaxCheck.IsChecked() ? FALSE : TRUE;
     int nMax = 0;
     if (bSingle) {
         nMax = nMin;

@@ -4,6 +4,7 @@
 #include "app/ui/drawing/SageEdit.h"
 #include "app/ui/drawing/SageInlineError.h"
 #include "app/ui/drawing/SageLabel.h"
+#include "app/ui/drawing/SageOptionCheck.h"
 #include "app/ui/dialogs/SageDialogSizer.h"
 #include "app/ui/dialogs/SageFramelessDialog.h"
 
@@ -62,14 +63,18 @@ private:
 
     CSageLabel m_wndMinLabel;
     CSageEdit m_wndMinEdit;
-    CButton m_wndSingleCheck;
+    CSageLabel m_wndMinUnit;
+    CSageOptionCheck m_wndSingleCheck;
     CSageLabel m_wndMaxLabel;
     CSageEdit m_wndMaxEdit;
-    CButton m_wndNoMaxCheck;
+    CSageLabel m_wndMaxUnit;
+    CSageOptionCheck m_wndNoMaxCheck;
     CSageLabel m_wndPrintLabel;
     CSageEdit m_wndPrintEdit;
+    CSageLabel m_wndPrintUnit;
     CSageLabel m_wndCoverLabel;
     CSageEdit m_wndCoverEdit;
+    CSageLabel m_wndCoverUnit;
     CSageInlineError m_wndError;
     CSageButton m_wndOkBtn;
     CSageButton m_wndCancelBtn;

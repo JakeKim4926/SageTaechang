@@ -9,6 +9,7 @@ public:
 
 	void SetHint(LPCWSTR pszHint);
 	void SetChecked(BOOL bChecked);
+	void SetFrameVisible(BOOL bVisible);
 	BOOL IsChecked() const;
 	int  GetContentWidth() const;
 
@@ -18,6 +19,10 @@ protected:
 	afx_msg BOOL OnClicked();
 
 private:
+	int GetSidePadding() const;
+
+private:
 	CString m_strHint;
 	BOOL m_bChecked;
+	BOOL m_bFrameVisible;
 };

@@ -9,7 +9,17 @@ BEGIN_MESSAGE_MAP(CSageOptionCheck, CButton)
 END_MESSAGE_MAP()
 
 CSageOptionCheck::CSageOptionCheck()
-	: m_bChecked(FALSE) {
+	: m_bChecked(FALSE), m_bFrameVisible(TRUE) {
+}
+
+void CSageOptionCheck::SetFrameVisible(BOOL bVisible) {
+	m_bFrameVisible = bVisible;
+	if (::IsWindow(GetSafeHwnd()))
+		Invalidate();
+}
+
+int CSageOptionCheck::GetSidePadding() const {
+	return m_bFrameVisible ? TAECHANG_OPTION_CHECK_PADDING : 0;
 }
 
 void CSageOptionCheck::SetHint(LPCWSTR pszHint) {
@@ -37,14 +47,14 @@ int CSageOptionCheck::GetContentWidth() const {
 	CClientDC dc(const_cast<CSageOptionCheck*>(this));
 
 	CFont* pOldFont = dc.SelectObject(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	int nWidth = TAECHANG_OPTION_CHECK_PADDING + TAECHANG_LIST_CHECK_BOX_SIZE
+	int nWidth = GetSidePadding() + TAECHANG_LIST_CHECK_BOX_SIZE
 		+ TAECHANG_ICON_TEXT_GAP + dc.GetTextExtent(strLabel).cx;
 	if (!m_strHint.IsEmpty()) {
 		dc.SelectObject(SageUiResources::GetFont(SAGE_FONT_CAPTION));
 		nWidth += TAECHANG_ICON_TEXT_GAP + dc.GetTextExtent(m_strHint).cx;
 	}
 	dc.SelectObject(pOldFont);
-	return nWidth + TAECHANG_OPTION_CHECK_PADDING;
+	return nWidth + GetSidePadding();
 }
 
 BOOL CSageOptionCheck::OnClicked() {
@@ -58,12 +68,14 @@ void CSageOptionCheck::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 	BOOL bDisabled = (lpDrawItemStruct->itemState & ODS_DISABLED) ? TRUE : FALSE;
 
 	pDC->FillSolidRect(rectClient, TAECHANG_COLOR_PANEL);
-	CBrush brushBorder(TAECHANG_COLOR_BUTTON_BORDER);
-	pDC->FrameRect(rectClient, &brushBorder);
+	if (m_bFrameVisible) {
+		CBrush brushBorder(TAECHANG_COLOR_BUTTON_BORDER);
+		pDC->FrameRect(rectClient, &brushBorder);
+	}
 
 	CRect rectBox(0, 0, TAECHANG_LIST_CHECK_BOX_SIZE, TAECHANG_LIST_CHECK_BOX_SIZE);
 	rectBox.OffsetRect(
-		rectClient.left + TAECHANG_OPTION_CHECK_PADDING,
+		rectClient.left + GetSidePadding(),
 		rectClient.top + (rectClient.Height() - TAECHANG_LIST_CHECK_BOX_SIZE) / 2);
 	SageUiStyle::DrawCheckBox(*pDC, rectBox, m_bChecked);
 
@@ -87,7 +99,7 @@ void CSageOptionCheck::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 	pDC->SetTextColor(TAECHANG_COLOR_SECONDARY_TEXT);
 	CRect rectHint(
 		rectLabel.right + TAECHANG_ICON_TEXT_GAP, rectClient.top,
-		rectClient.right - TAECHANG_OPTION_CHECK_PADDING, rectClient.bottom);
+		rectClient.right - GetSidePadding(), rectClient.bottom);
 	pDC->DrawText(m_strHint, &rectHint, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
 	pDC->SelectObject(pOldFont);
 }
