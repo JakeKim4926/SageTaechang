@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "app/ui/panels/SageSidebarPanel.h"
 #include "app/ui/drawing/SageUiResources.h"
+#include "app/ui/dialogs/SageMessageBoxDlg.h"
 #include "app/core/auth/TaechangAuthSession.h"
 #include "TaechangDefine.h"
 #include <uxtheme.h>
@@ -153,7 +154,7 @@ void SageSidebarPanel::OnSelectionChanged(NMHDR* pNMHDR, LRESULT* pResult) {
 		return;
 
 	if (IsLoginRequired(nItemData) && !taechangAuth.IsLoggedIn()) {
-		AfxMessageBox(TAECHANG_UI_LOGIN_REQUIRED, MB_ICONWARNING);
+		ShowSageMessageBox(TAECHANG_UI_LOGIN_REQUIRED, MB_ICONWARNING);
 		RestoreLastSelection();
 		return;
 	}
