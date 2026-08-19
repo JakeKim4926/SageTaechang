@@ -109,12 +109,16 @@ void SagePriceManagePanel::CreateControls() {
 	m_wndCancelBtn.Create(TAECHANG_UI_PRICE_CANCEL_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_PRICE_CANCEL_BTN);
 
 	m_wndDetailHeader.Create(TAECHANG_UI_PRICE_DETAIL_HEADER, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, r, this);
-	m_wndDetailDivider.Create(L"", WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ, r, this);
-	SetWindowTheme(m_wndSingleCheck.GetSafeHwnd(), L"", L"");
-	SetWindowTheme(m_wndNoMaxCheck.GetSafeHwnd(), L"", L"");
-	m_wndSummaryTitle.Create(TAECHANG_UI_PRICE_SUMMARY_GUIDE, WS_CHILD | SS_LEFT, r, this);
-	m_wndSummaryCount.Create(L"", WS_CHILD | SS_LEFT, r, this);
-	m_wndSummaryRange.Create(L"", WS_CHILD | SS_LEFT, r, this);
+	m_wndDetailDivider.Create(NULL, WS_CHILD | WS_VISIBLE | SS_LEFT, r, this);
+	m_wndDetailPriceDivider.Create(NULL, WS_CHILD | WS_VISIBLE | SS_LEFT, r, this);
+	m_wndDetailContext.Create(NULL, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, r, this);
+	m_wndDetailState.Create(NULL, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
+	m_wndMinCopiesUnit.Create(TAECHANG_UI_PRICE_COPIES_UNIT, WS_CHILD | SS_LEFT | SS_CENTERIMAGE, r, this);
+	m_wndMaxCopiesUnit.Create(TAECHANG_UI_PRICE_COPIES_UNIT, WS_CHILD | SS_LEFT | SS_CENTERIMAGE, r, this);
+	m_wndPrintUnit.Create(TAECHANG_UI_PRICE_WON_UNIT, WS_CHILD | SS_LEFT | SS_CENTERIMAGE, r, this);
+	m_wndCoverUnit.Create(TAECHANG_UI_PRICE_WON_UNIT, WS_CHILD | SS_LEFT | SS_CENTERIMAGE, r, this);
+	m_wndSingleCheck.SetFrameVisible(FALSE);
+	m_wndNoMaxCheck.SetFrameVisible(FALSE);
 
 	m_wndCompanyCombo.LimitText(TAECHANG_PRICE_COMPANY_MAX_LEN_EN);
 	m_wndMinCopiesEdit.SetLimitText(TAECHANG_PRICE_COPIES_INPUT_MAX_LEN);
@@ -144,17 +148,8 @@ void SagePriceManagePanel::ApplyControlFonts() {
 }
 
 void SagePriceManagePanel::ApplyLabelRoles() {
-	m_wndSummaryTitle.SetTextColorRole(SAGE_TEXT_SECONDARY);
-	m_wndSummaryTitle.SetBackgroundRole(SAGE_BG_PANEL);
-	m_wndSummaryTitle.SetFontRole(SAGE_FONT_CONTENT);
 
-	m_wndSummaryCount.SetTextColorRole(SAGE_TEXT_SECONDARY);
-	m_wndSummaryCount.SetBackgroundRole(SAGE_BG_PANEL);
-	m_wndSummaryCount.SetFontRole(SAGE_FONT_CONTENT);
 
-	m_wndSummaryRange.SetTextColorRole(SAGE_TEXT_SECONDARY);
-	m_wndSummaryRange.SetBackgroundRole(SAGE_BG_PANEL);
-	m_wndSummaryRange.SetFontRole(SAGE_FONT_CONTENT);
 
 	m_wndMinCopiesLabel.SetTextColorRole(SAGE_TEXT_SECONDARY);
 	m_wndMinCopiesLabel.SetBackgroundRole(SAGE_BG_PANEL);
@@ -172,9 +167,28 @@ void SagePriceManagePanel::ApplyLabelRoles() {
 	m_wndCoverLabel.SetBackgroundRole(SAGE_BG_PANEL);
 	m_wndCoverLabel.SetFontRole(SAGE_FONT_CONTENT);
 
-	m_wndDetailHeader.SetBackgroundRole(SAGE_BG_PANEL);
-	m_wndDetailHeader.SetFontRole(SAGE_FONT_HEADER);
-	m_wndDetailDivider.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndDetailHeader.SetBackgroundRole(SAGE_BG_LIST_HEADER);
+	m_wndDetailHeader.SetFontRole(SAGE_FONT_CONTENT_SEMIBOLD);
+	m_wndDetailDivider.SetBackgroundRole(SAGE_BG_LIST_GRID);
+	m_wndDetailPriceDivider.SetBackgroundRole(SAGE_BG_LIST_GRID);
+	m_wndDetailContext.SetTextColorRole(SAGE_TEXT_DEFAULT);
+	m_wndDetailContext.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndDetailContext.SetFontRole(SAGE_FONT_CAPTION);
+	m_wndDetailState.SetTextColorRole(SAGE_TEXT_SECONDARY);
+	m_wndDetailState.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndDetailState.SetFontRole(SAGE_FONT_CAPTION);
+	m_wndMinCopiesUnit.SetTextColorRole(SAGE_TEXT_SECONDARY);
+	m_wndMinCopiesUnit.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndMinCopiesUnit.SetFontRole(SAGE_FONT_CONTENT);
+	m_wndMaxCopiesUnit.SetTextColorRole(SAGE_TEXT_SECONDARY);
+	m_wndMaxCopiesUnit.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndMaxCopiesUnit.SetFontRole(SAGE_FONT_CONTENT);
+	m_wndPrintUnit.SetTextColorRole(SAGE_TEXT_SECONDARY);
+	m_wndPrintUnit.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndPrintUnit.SetFontRole(SAGE_FONT_CONTENT);
+	m_wndCoverUnit.SetTextColorRole(SAGE_TEXT_SECONDARY);
+	m_wndCoverUnit.SetBackgroundRole(SAGE_BG_PANEL);
+	m_wndCoverUnit.SetFontRole(SAGE_FONT_CONTENT);
 
 	m_wndCompanyLabel.SetFontRole(SAGE_FONT_CONTENT);
 }
@@ -232,64 +246,64 @@ void SagePriceManagePanel::LayoutChildControls(int nWidth, int nHeight) {
 	int nCardTop = nY;
 	int nCardInnerX = nRightX + nCardPad;
 	int nCardInnerW = nCardW - nCardPad * 2;
+	int nRowH = TAECHANG_PRICE_EDIT_HEIGHT;
+	int nLabelW = TAECHANG_PRICE_FORM_LABEL_WIDTH;
+	int nDetailEditW = TAECHANG_PRICE_DETAIL_EDIT_WIDTH;
+	int nUnitW = TAECHANG_PRICE_DETAIL_UNIT_WIDTH;
+	int nRowGap = TAECHANG_PRICE_DETAIL_ROW_GAP;
+	int nEditX = nCardInnerX + nLabelW + TAECHANG_ROW_GAP;
+	int nUnitX = nEditX + nDetailEditW + TAECHANG_ROW_GAP;
 
-	int nPanelY = nCardTop + nCardPad;
+	m_wndDetailHeader.MoveWindow(nRightX, nCardTop, nCardW, TAECHANG_PRICE_DETAIL_HEADER_HEIGHT);
 
-	m_wndDetailHeader.MoveWindow(nCardInnerX, nPanelY, nCardInnerW, TAECHANG_PRICE_PANEL_LABEL_HEIGHT);
-	int nContentY = nPanelY + TAECHANG_PRICE_PANEL_LABEL_HEIGHT + TAECHANG_PRICE_PANEL_LABEL_FIELD_GAP;
-	m_wndDetailDivider.MoveWindow(nCardInnerX, nContentY, nCardInnerW, TAECHANG_PRICE_DETAIL_DIVIDER_HEIGHT);
-	nContentY += TAECHANG_PRICE_DETAIL_DIVIDER_HEIGHT + TAECHANG_ROW_GAP;
+	int nFormY = nCardTop + TAECHANG_PRICE_DETAIL_HEADER_HEIGHT + nCardPad;
+	int nStateW = nCardInnerW / 2;
+	m_wndDetailContext.MoveWindow(nCardInnerX, nFormY, nCardInnerW - nStateW, TAECHANG_PRICE_PANEL_LABEL_HEIGHT);
+	m_wndDetailState.MoveWindow(nCardInnerX + nCardInnerW - nStateW, nFormY, nStateW, TAECHANG_PRICE_PANEL_LABEL_HEIGHT);
+	nFormY += TAECHANG_PRICE_PANEL_LABEL_HEIGHT + nRowGap;
 
-	int nSummaryY = nContentY;
-	m_wndSummaryTitle.MoveWindow(nCardInnerX, nSummaryY, nCardInnerW, TAECHANG_PRICE_SUMMARY_TITLE_HEIGHT);
-	nSummaryY += TAECHANG_PRICE_SUMMARY_TITLE_HEIGHT + TAECHANG_PRICE_SUMMARY_ROW_GAP * 2;
-	m_wndSummaryCount.MoveWindow(nCardInnerX, nSummaryY, nCardInnerW, TAECHANG_PRICE_SUMMARY_ROW_HEIGHT);
-	nSummaryY += TAECHANG_PRICE_SUMMARY_ROW_HEIGHT + TAECHANG_PRICE_SUMMARY_ROW_GAP;
-	m_wndSummaryRange.MoveWindow(nCardInnerX, nSummaryY, nCardInnerW, TAECHANG_PRICE_SUMMARY_ROW_HEIGHT);
-
-	int nFormY = nContentY;
-	int nFormLabelW = TAECHANG_PRICE_FORM_LABEL_WIDTH;
-	int nInlineEditW = nCardInnerW - nFormLabelW - TAECHANG_LABEL_EDIT_GAP;
-	int nEditX = nCardInnerX + nFormLabelW + TAECHANG_LABEL_EDIT_GAP;
-	auto ApplyPriceEditTextRect = [](CEdit& edit) {
-		CRect rc;
-		edit.GetClientRect(&rc);
-		rc.left += TAECHANG_FORM_EDIT_TEXT_SIDE_PAD;
-		rc.top += TAECHANG_FORM_EDIT_TEXT_TOP_PAD;
-		rc.right -= TAECHANG_FORM_EDIT_TEXT_SIDE_PAD;
-		rc.bottom -= TAECHANG_FORM_EDIT_TEXT_SIDE_PAD;
-		edit.SendMessage(EM_SETRECTNP, 0, reinterpret_cast<LPARAM>(&rc));
-	};
-
-	m_wndMinCopiesLabel.MoveWindow(nCardInnerX, nFormY, nFormLabelW, TAECHANG_PRICE_EDIT_HEIGHT);
-	m_wndMinCopiesEdit.MoveWindow(nEditX, nFormY, nInlineEditW, TAECHANG_PRICE_EDIT_HEIGHT);
+	m_wndMinCopiesLabel.MoveWindow(nCardInnerX, nFormY, nLabelW, nRowH);
+	m_wndMinCopiesEdit.MoveWindow(nEditX, nFormY, nDetailEditW, nRowH);
 	ApplyPriceEditTextRect(m_wndMinCopiesEdit);
-	m_wndSingleCheck.MoveWindow(nEditX, nFormY + TAECHANG_PRICE_EDIT_HEIGHT + TAECHANG_PRICE_PANEL_LABEL_FIELD_GAP, nInlineEditW, TAECHANG_PRICE_PANEL_LABEL_HEIGHT);
-	nFormY += TAECHANG_PRICE_EDIT_HEIGHT + TAECHANG_PRICE_PANEL_LABEL_FIELD_GAP + TAECHANG_PRICE_PANEL_LABEL_HEIGHT + TAECHANG_ROW_GAP;
+	m_wndMinCopiesUnit.MoveWindow(nUnitX, nFormY, nUnitW, nRowH);
+	nFormY += nRowH + TAECHANG_PRICE_DETAIL_GROUP_GAP;
+	m_wndSingleCheck.MoveWindow(nCardInnerX, nFormY, nCardInnerW, nRowH);
+	nFormY += nRowH + nRowGap;
 
-	m_wndMaxCopiesLabel.MoveWindow(nCardInnerX, nFormY, nFormLabelW, TAECHANG_PRICE_EDIT_HEIGHT);
-	m_wndMaxCopiesEdit.MoveWindow(nEditX, nFormY, nInlineEditW, TAECHANG_PRICE_EDIT_HEIGHT);
+	m_wndMaxCopiesLabel.MoveWindow(nCardInnerX, nFormY, nLabelW, nRowH);
+	m_wndMaxCopiesEdit.MoveWindow(nEditX, nFormY, nDetailEditW, nRowH);
 	ApplyPriceEditTextRect(m_wndMaxCopiesEdit);
-	m_wndNoMaxCheck.MoveWindow(nEditX, nFormY + TAECHANG_PRICE_EDIT_HEIGHT + TAECHANG_PRICE_PANEL_LABEL_FIELD_GAP, nInlineEditW, TAECHANG_PRICE_PANEL_LABEL_HEIGHT);
-	nFormY += TAECHANG_PRICE_EDIT_HEIGHT + TAECHANG_PRICE_PANEL_LABEL_FIELD_GAP + TAECHANG_PRICE_PANEL_LABEL_HEIGHT + TAECHANG_ROW_GAP;
+	m_wndMaxCopiesUnit.MoveWindow(nUnitX, nFormY, nUnitW, nRowH);
+	nFormY += nRowH + TAECHANG_PRICE_DETAIL_GROUP_GAP;
+	m_wndNoMaxCheck.MoveWindow(nCardInnerX, nFormY, nCardInnerW, nRowH);
+	nFormY += nRowH + nRowGap;
 
-	m_wndPrintLabel.MoveWindow(nCardInnerX, nFormY, nFormLabelW, TAECHANG_PRICE_EDIT_HEIGHT);
-	m_wndPrintEdit.MoveWindow(nEditX, nFormY, nInlineEditW, TAECHANG_PRICE_EDIT_HEIGHT);
+	m_wndDetailDivider.MoveWindow(nCardInnerX, nFormY, nCardInnerW, TAECHANG_PRICE_DETAIL_DIVIDER_HEIGHT);
+	nFormY += TAECHANG_PRICE_DETAIL_DIVIDER_HEIGHT + nRowGap;
+
+	m_wndPrintLabel.MoveWindow(nCardInnerX, nFormY, nLabelW, nRowH);
+	m_wndPrintEdit.MoveWindow(nEditX, nFormY, nDetailEditW, nRowH);
 	ApplyPriceEditTextRect(m_wndPrintEdit);
-	nFormY += TAECHANG_PRICE_EDIT_HEIGHT + TAECHANG_ROW_GAP;
+	m_wndPrintUnit.MoveWindow(nUnitX, nFormY, nUnitW, nRowH);
+	nFormY += nRowH + nRowGap;
 
-	m_wndCoverLabel.MoveWindow(nCardInnerX, nFormY, nFormLabelW, TAECHANG_PRICE_EDIT_HEIGHT);
-	m_wndCoverEdit.MoveWindow(nEditX, nFormY, nInlineEditW, TAECHANG_PRICE_EDIT_HEIGHT);
+	m_wndCoverLabel.MoveWindow(nCardInnerX, nFormY, nLabelW, nRowH);
+	m_wndCoverEdit.MoveWindow(nEditX, nFormY, nDetailEditW, nRowH);
 	ApplyPriceEditTextRect(m_wndCoverEdit);
-	nFormY += TAECHANG_PRICE_EDIT_HEIGHT;
-	m_rectSummaryCard = CRect(nRightX, nCardTop, nRightX + nCardW, nFormY + nCardPad);
+	m_wndCoverUnit.MoveWindow(nUnitX, nFormY, nUnitW, nRowH);
+	nFormY += nRowH + nRowGap;
 
-	int nHalfBtnW = (nCardInnerW - TAECHANG_ACTION_GAP) / 2;
-	int nButtonY = m_rectSummaryCard.bottom + TAECHANG_ROW_GAP;
-	m_wndModifyBtn.MoveWindow(nCardInnerX, nButtonY, nHalfBtnW, TAECHANG_BUTTON_HEIGHT);
-	m_wndCancelBtn.MoveWindow(nCardInnerX + nHalfBtnW + TAECHANG_ACTION_GAP, nButtonY, nHalfBtnW, TAECHANG_BUTTON_HEIGHT);
-	nButtonY += TAECHANG_BUTTON_HEIGHT + TAECHANG_ROW_GAP;
-	m_wndDeleteBtn.MoveWindow(nCardInnerX, nButtonY, nCardInnerW, TAECHANG_BUTTON_HEIGHT);
+	m_wndDetailPriceDivider.MoveWindow(nCardInnerX, nFormY, nCardInnerW, TAECHANG_PRICE_DETAIL_DIVIDER_HEIGHT);
+	nFormY += TAECHANG_PRICE_DETAIL_DIVIDER_HEIGHT + nRowGap;
+
+	int nDeleteW = TAECHANG_PRICE_DETAIL_DELETE_WIDTH;
+	int nActionW = (nCardInnerW - nDeleteW - TAECHANG_ACTION_GAP * 2) / 2;
+	m_wndModifyBtn.MoveWindow(nCardInnerX, nFormY, nActionW, TAECHANG_BUTTON_HEIGHT);
+	m_wndCancelBtn.MoveWindow(nCardInnerX + nActionW + TAECHANG_ACTION_GAP, nFormY, nActionW, TAECHANG_BUTTON_HEIGHT);
+	m_wndDeleteBtn.MoveWindow(nCardInnerX + (nActionW + TAECHANG_ACTION_GAP) * 2, nFormY, nDeleteW, TAECHANG_BUTTON_HEIGHT);
+	nFormY += TAECHANG_BUTTON_HEIGHT;
+
+	m_rectSummaryCard = CRect(nRightX, nCardTop, nRightX + nCardW, nFormY + nCardPad);
 }
 
 void SagePriceManagePanel::OnShowWindow(BOOL bShow, UINT nStatus) {
@@ -308,6 +322,9 @@ BOOL SagePriceManagePanel::OnEraseBkgnd(CDC* pDC) {
 	pDC->FillSolidRect(rectClient, TAECHANG_COLOR_APP_BACKGROUND);
 	if (!m_rectSummaryCard.IsRectEmpty()) {
 		pDC->FillSolidRect(m_rectSummaryCard, TAECHANG_COLOR_PANEL);
+		pDC->FillSolidRect(m_rectSummaryCard.left,
+			m_rectSummaryCard.top + TAECHANG_PRICE_DETAIL_HEADER_HEIGHT,
+			m_rectSummaryCard.Width(), TAECHANG_BORDER_THICKNESS, TAECHANG_COLOR_BORDER);
 		CBrush brCardBorder(TAECHANG_COLOR_BORDER);
 		pDC->FrameRect(m_rectSummaryCard, &brCardBorder);
 	}
@@ -374,30 +391,52 @@ BOOL SagePriceManagePanel::PreTranslateMessage(MSG* pMsg) {
 	return CWnd::PreTranslateMessage(pMsg);
 }
 
+void SagePriceManagePanel::ApplyPriceEditTextRect(CEdit& edit) {
+	CRect rectEdit;
+	edit.GetClientRect(&rectEdit);
+	rectEdit.left += TAECHANG_FORM_EDIT_TEXT_SIDE_PAD;
+	rectEdit.top += TAECHANG_FORM_EDIT_TEXT_TOP_PAD;
+	rectEdit.right -= TAECHANG_FORM_EDIT_TEXT_SIDE_PAD;
+	rectEdit.bottom -= TAECHANG_FORM_EDIT_TEXT_SIDE_PAD;
+	edit.SendMessage(EM_SETRECTNP, 0, reinterpret_cast<LPARAM>(&rectEdit));
+}
+
 void SagePriceManagePanel::ApplyRightPanel() {
 	BOOL bSummary = (m_nPanelState == TAECHANG_PRICE_PANEL_SUMMARY);
 	BOOL bEditModify = (m_nPanelState == TAECHANG_PRICE_PANEL_EDIT_MODIFY);
-	int nSummaryCmd = bSummary ? SW_SHOW : SW_HIDE;
-	int nEditCmd = bSummary ? SW_HIDE : SW_SHOW;
+	BOOL bEnable = bSummary ? FALSE : TRUE;
 
-	m_wndSummaryTitle.ShowWindow(nSummaryCmd);
-	m_wndSummaryCount.ShowWindow(nSummaryCmd);
-	m_wndSummaryRange.ShowWindow(nSummaryCmd);
+	m_wndDetailContext.ShowWindow(SW_SHOW);
+	m_wndDetailState.ShowWindow(SW_SHOW);
+	m_wndMinCopiesLabel.ShowWindow(SW_SHOW);
+	m_wndMinCopiesEdit.ShowWindow(SW_SHOW);
+	m_wndMinCopiesUnit.ShowWindow(SW_SHOW);
+	m_wndSingleCheck.ShowWindow(SW_SHOW);
+	m_wndMaxCopiesLabel.ShowWindow(SW_SHOW);
+	m_wndMaxCopiesEdit.ShowWindow(SW_SHOW);
+	m_wndMaxCopiesUnit.ShowWindow(SW_SHOW);
+	m_wndNoMaxCheck.ShowWindow(SW_SHOW);
+	m_wndPrintLabel.ShowWindow(SW_SHOW);
+	m_wndPrintEdit.ShowWindow(SW_SHOW);
+	m_wndPrintUnit.ShowWindow(SW_SHOW);
+	m_wndCoverLabel.ShowWindow(SW_SHOW);
+	m_wndCoverEdit.ShowWindow(SW_SHOW);
+	m_wndCoverUnit.ShowWindow(SW_SHOW);
+	m_wndModifyBtn.ShowWindow(SW_SHOW);
+	m_wndCancelBtn.ShowWindow(SW_SHOW);
+	m_wndDeleteBtn.ShowWindow(SW_SHOW);
 
-	m_wndMinCopiesLabel.ShowWindow(nEditCmd);
-	m_wndMinCopiesEdit.ShowWindow(nEditCmd);
-	m_wndSingleCheck.ShowWindow(nEditCmd);
-	m_wndMaxCopiesLabel.ShowWindow(nEditCmd);
-	m_wndMaxCopiesEdit.ShowWindow(nEditCmd);
-	m_wndNoMaxCheck.ShowWindow(nEditCmd);
-	m_wndPrintLabel.ShowWindow(nEditCmd);
-	m_wndPrintEdit.ShowWindow(nEditCmd);
-	m_wndCoverLabel.ShowWindow(nEditCmd);
-	m_wndCoverEdit.ShowWindow(nEditCmd);
-	m_wndModifyBtn.ShowWindow(nEditCmd);
-	m_wndCancelBtn.ShowWindow(nEditCmd);
-	m_wndDeleteBtn.ShowWindow(bEditModify ? SW_SHOW : SW_HIDE);
+	m_wndMinCopiesEdit.EnableWindow(bEnable);
+	m_wndSingleCheck.EnableWindow(bEnable);
+	m_wndMaxCopiesEdit.EnableWindow(bEnable);
+	m_wndNoMaxCheck.EnableWindow(bEnable);
+	m_wndPrintEdit.EnableWindow(bEnable);
+	m_wndCoverEdit.EnableWindow(bEnable);
+	m_wndModifyBtn.EnableWindow(bEnable);
+	m_wndCancelBtn.EnableWindow(bEnable);
+	m_wndDeleteBtn.EnableWindow(bEditModify);
 
+	UpdateDetailContext();
 	Invalidate(FALSE);
 }
 
@@ -489,30 +528,41 @@ void SagePriceManagePanel::UpdateEmptyState() {
 	m_wndCopiesEmpty.ShowWindow(bEmpty ? SW_SHOW : SW_HIDE);
 }
 
-void SagePriceManagePanel::UpdateSummaryCard() {
-	if (!::IsWindow(m_wndSummaryTitle.GetSafeHwnd()))
+void SagePriceManagePanel::UpdateDetailContext() {
+	if (!::IsWindow(m_wndDetailContext.GetSafeHwnd()))
 		return;
-	m_wndSummaryTitle.SetWindowTextW(TAECHANG_UI_PRICE_SUMMARY_GUIDE);
 
-	int nCount = m_wndCopiesList.GetItemCount();
-	if (nCount == 0) {
-		m_wndSummaryCount.SetWindowTextW(L"");
-		m_wndSummaryRange.SetWindowTextW(L"");
+	if (m_nPanelState == TAECHANG_PRICE_PANEL_SUMMARY) {
+		m_wndDetailContext.SetWindowTextW(TAECHANG_UI_PRICE_DETAIL_EMPTY);
+		m_wndDetailState.SetWindowTextW(L"");
 		return;
 	}
 
-	CString strCount;
-	strCount.Format(TAECHANG_UI_PRICE_SUMMARY_COUNT_FMT, nCount);
-	m_wndSummaryCount.SetWindowTextW(strCount);
+	CString strCompany;
+	m_wndCompanyCombo.GetWindowTextW(strCompany);
+	CString strContext;
+	strContext.Format(TAECHANG_UI_PRICE_DETAIL_CONTEXT_FMT,
+		static_cast<LPCWSTR>(strCompany), m_wndCopiesList.GetItemCount());
+	m_wndDetailContext.SetWindowTextW(strContext);
 
-	CString strMin = m_wndCopiesList.GetItemText(0, 0);
-	CString strMax = m_wndCopiesList.GetItemText(nCount - 1, 1);
-	CString strRange;
-	if (strMax == TAECHANG_UI_PRICE_MAX_COPIES_NONE)
-		strRange.Format(TAECHANG_UI_PRICE_SUMMARY_RANGE_OPEN_FMT, static_cast<LPCWSTR>(strMin));
-	else
-		strRange.Format(TAECHANG_UI_PRICE_SUMMARY_RANGE_FMT, static_cast<LPCWSTR>(strMin), static_cast<LPCWSTR>(strMax));
-	m_wndSummaryRange.SetWindowTextW(strRange);
+	if (m_nPanelState == TAECHANG_PRICE_PANEL_EDIT_ADD) {
+		m_wndDetailState.SetWindowTextW(TAECHANG_UI_PRICE_DETAIL_ADDING);
+		return;
+	}
+
+	int nSelected = m_wndCopiesList.GetNextItem(TAECHANG_LIST_NO_ITEM, LVNI_SELECTED);
+	if (nSelected == TAECHANG_LIST_NO_ITEM) {
+		m_wndDetailState.SetWindowTextW(L"");
+		return;
+	}
+
+	CString strState;
+	strState.Format(TAECHANG_UI_PRICE_DETAIL_EDITING_FMT, nSelected + 1);
+	m_wndDetailState.SetWindowTextW(strState);
+}
+
+void SagePriceManagePanel::UpdateSummaryCard() {
+	UpdateDetailContext();
 }
 
 CString SagePriceManagePanel::GetSelectedCompanyName() const {

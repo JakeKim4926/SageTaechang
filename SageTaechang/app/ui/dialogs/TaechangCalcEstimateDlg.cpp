@@ -157,7 +157,6 @@ int TaechangCalcEstimateDlg::LayoutControls() {
 
     int nY = GetContentTop() + nM;
 
-    // 날짜 레이블 → 구분선 → 입력
     m_wndDateLabel.MoveWindow(nM, nY, nContentW, nLabelH);
     nY += nLabelH + nDivGap;
     m_wndDateDivider.MoveWindow(nM, nY, nContentW, 1);
@@ -178,7 +177,6 @@ int TaechangCalcEstimateDlg::LayoutControls() {
     ApplyEditTextRect(m_wndDayEdit);
     nY += nEditH + nGroupGap;
 
-    // 품목명 레이블 → 구분선 → 입력
     m_wndItemLabel.MoveWindow(nM, nY, nContentW, nLabelH);
     nY += nLabelH + nDivGap;
     m_wndItemDivider.MoveWindow(nM, nY, nContentW, 1);

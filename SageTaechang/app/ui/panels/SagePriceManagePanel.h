@@ -6,6 +6,7 @@
 #include "app/ui/drawing/SageComboBox.h"
 #include "app/ui/drawing/SageHeaderCtrl.h"
 #include "app/ui/drawing/SageLabel.h"
+#include "app/ui/drawing/SageOptionCheck.h"
 #include "app/ui/drawing/SageEmptyState.h"
 #include "app/ui/drawing/SageListCtrl.h"
 
@@ -47,6 +48,8 @@ private:
     void LayoutChildControls(int nWidth, int nHeight);
     void DrawEditBorder(CDC* pDC, CWnd& wnd);
     void ApplyRightPanel();
+    void ApplyPriceEditTextRect(CEdit& edit);
+    void UpdateDetailContext();
     void RefreshCopiesList(const CString& strCompanyName);
     void UpdateEmptyState();
     void UpdateSummaryCard();
@@ -66,23 +69,27 @@ private:
     CSageEmptyState m_wndCopiesEmpty;
     CSageLabel m_wndMinCopiesLabel;
     CEdit m_wndMinCopiesEdit;
-    CButton m_wndSingleCheck;
+    CSageLabel m_wndMinCopiesUnit;
+    CSageOptionCheck m_wndSingleCheck;
     CSageLabel m_wndMaxCopiesLabel;
     CEdit m_wndMaxCopiesEdit;
-    CButton m_wndNoMaxCheck;
+    CSageLabel m_wndMaxCopiesUnit;
+    CSageOptionCheck m_wndNoMaxCheck;
     CSageLabel m_wndPrintLabel;
     CEdit m_wndPrintEdit;
+    CSageLabel m_wndPrintUnit;
     CSageLabel m_wndCoverLabel;
     CEdit m_wndCoverEdit;
+    CSageLabel m_wndCoverUnit;
     CSageButton m_wndAddBtn;
     CSageButton m_wndModifyBtn;
     CSageButton m_wndDeleteBtn;
     CSageButton m_wndCancelBtn;
     CSageLabel m_wndDetailHeader;
     CSageLabel m_wndDetailDivider;
-    CSageLabel m_wndSummaryTitle;
-    CSageLabel m_wndSummaryCount;
-    CSageLabel m_wndSummaryRange;
+    CSageLabel m_wndDetailPriceDivider;
+    CSageLabel m_wndDetailContext;
+    CSageLabel m_wndDetailState;
 
 private:
     CRect m_rectSummaryCard;
