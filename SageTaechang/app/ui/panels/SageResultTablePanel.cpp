@@ -228,7 +228,7 @@ void SageResultTablePanel::Layout(const CRect& rectPanel) {
 	LayoutBandRow();
 
 	if (m_bFilterVisible) {
-		int nFilterTop = nBandTop - TAECHANG_RESULT_FILTER_TOP_LIFT;
+		int nFilterTop = nBandTop - TAECHANG_BUTTON_VERT_ADJUST;
 		int nBoxWidth = TAECHANG_SEARCH_CRITERIA_CELL_WIDTH + TAECHANG_RESULT_FILTER_WIDTH
 			+ TAECHANG_SEARCH_ICON_CELL_WIDTH;
 		m_wndResetBtn.MoveWindow(nFilterLeft, nFilterTop, TAECHANG_RESULT_RESET_WIDTH, TAECHANG_BUTTON_HEIGHT);
