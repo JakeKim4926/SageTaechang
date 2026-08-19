@@ -11,8 +11,16 @@ END_MESSAGE_MAP()
 void CSageComboBox::ApplyFieldHeight() {
 	if (!::IsWindow(GetSafeHwnd()))
 		return;
-	SetItemHeight(-1, TAECHANG_EDIT_HEIGHT - TAECHANG_COMBO_FIELD_INSET);
-	SetItemHeight(0, TAECHANG_EDIT_HEIGHT);
+
+	SetItemHeight(-1, TAECHANG_EDIT_HEIGHT);
+
+	CRect rectWindow;
+	GetWindowRect(&rectWindow);
+	int nFrameHeight = rectWindow.Height() - TAECHANG_EDIT_HEIGHT;
+	if (nFrameHeight <= 0 || nFrameHeight >= TAECHANG_EDIT_HEIGHT)
+		return;
+
+	SetItemHeight(-1, TAECHANG_EDIT_HEIGHT - nFrameHeight);
 }
 
 LRESULT CSageComboBox::OnSetFontMessage(WPARAM wParam, LPARAM lParam) {

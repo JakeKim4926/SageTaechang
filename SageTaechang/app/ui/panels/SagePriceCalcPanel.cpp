@@ -228,7 +228,7 @@ void SagePriceCalcPanel::LayoutChildControls(int nWidth, int nHeight) {
 	m_wndCompanyLabel.MoveWindow(nCX, nCY, nInputLabelW, TAECHANG_EDIT_HEIGHT);
 	int nComboX = nCX + nInputLabelW + TAECHANG_LABEL_EDIT_GAP;
 	m_wndCompanyCombo.MoveWindow(nComboX, nCY, nComboW, TAECHANG_EDIT_HEIGHT * TAECHANG_CALC_COMBO_DROP_ROWS);
-	m_wndCompanyPickBtn.MoveWindow(nComboX + nComboW + nPickBtnGap, nCY - TAECHANG_BUTTON_VERT_ADJUST, nPickBtnW, TAECHANG_BUTTON_HEIGHT);
+	m_wndCompanyPickBtn.MoveWindow(nComboX + nComboW + nPickBtnGap, nCY, nPickBtnW, TAECHANG_BUTTON_HEIGHT);
 	COMBOBOXINFO cbiCompany = {};
 	cbiCompany.cbSize = sizeof(COMBOBOXINFO);
 	if (m_wndCompanyCombo.GetComboBoxInfo(&cbiCompany) && ::IsWindow(cbiCompany.hwndItem)) {
