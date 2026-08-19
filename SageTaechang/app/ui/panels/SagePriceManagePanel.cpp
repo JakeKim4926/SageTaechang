@@ -89,21 +89,22 @@ void SagePriceManagePanel::CreateControls() {
 	m_wndCopiesEmpty.SetAction(TAECHANG_UI_PRICE_ADD_BTN, ID_PRICE_ADD_BTN);
 
 	m_wndMinCopiesLabel.Create(TAECHANG_UI_PRICE_MIN_COPIES_LABEL, WS_CHILD | SS_LEFT | SS_CENTERIMAGE, r, this);
-	m_wndMinCopiesEdit.Create(WS_CHILD | ES_MULTILINE | ES_NUMBER | ES_AUTOHSCROLL, r, this, ID_PRICE_MIN_COPIES_EDIT);
+	m_wndMinCopiesEdit.Create(WS_CHILD | ES_MULTILINE | ES_NUMBER | ES_RIGHT | ES_AUTOHSCROLL, r, this, ID_PRICE_MIN_COPIES_EDIT);
 	m_wndSingleCheck.Create(TAECHANG_UI_PRICE_SINGLE_LABEL, WS_CHILD | BS_AUTOCHECKBOX, r, this, ID_PRICE_SINGLE_CHECK);
 	m_wndMaxCopiesLabel.Create(TAECHANG_UI_PRICE_MAX_COPIES_LABEL, WS_CHILD | SS_LEFT | SS_CENTERIMAGE, r, this);
-	m_wndMaxCopiesEdit.Create(WS_CHILD | ES_MULTILINE | ES_NUMBER | ES_AUTOHSCROLL, r, this, ID_PRICE_MAX_COPIES_EDIT);
+	m_wndMaxCopiesEdit.Create(WS_CHILD | ES_MULTILINE | ES_NUMBER | ES_RIGHT | ES_AUTOHSCROLL, r, this, ID_PRICE_MAX_COPIES_EDIT);
 	m_wndNoMaxCheck.Create(TAECHANG_UI_PRICE_NO_MAX_LABEL, WS_CHILD | BS_AUTOCHECKBOX, r, this, ID_PRICE_NO_MAX_CHECK);
 
 	m_wndPrintLabel.Create(TAECHANG_UI_PRICE_PRINT_LABEL, WS_CHILD | SS_LEFT | SS_CENTERIMAGE, r, this);
-	m_wndPrintEdit.Create(WS_CHILD | ES_MULTILINE | ES_AUTOHSCROLL, r, this, ID_PRICE_PRINT_EDIT);
+	m_wndPrintEdit.Create(WS_CHILD | ES_MULTILINE | ES_RIGHT | ES_AUTOHSCROLL, r, this, ID_PRICE_PRINT_EDIT);
 	m_wndCoverLabel.Create(TAECHANG_UI_PRICE_COVER_LABEL, WS_CHILD | SS_LEFT | SS_CENTERIMAGE, r, this);
-	m_wndCoverEdit.Create(WS_CHILD | ES_MULTILINE | ES_AUTOHSCROLL, r, this, ID_PRICE_COVER_EDIT);
+	m_wndCoverEdit.Create(WS_CHILD | ES_MULTILINE | ES_RIGHT | ES_AUTOHSCROLL, r, this, ID_PRICE_COVER_EDIT);
 
 	m_wndAddBtn.Create(TAECHANG_UI_PRICE_ADD_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_PRICE_ADD_BTN);
 	m_wndAddBtn.SetIcon(SAGE_BUTTON_ICON_ADD);
 	m_wndAddBtn.SetVariant(SAGE_BUTTON_PRIMARY);
 	m_wndModifyBtn.Create(TAECHANG_UI_PRICE_SAVE_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_PRICE_MODIFY_BTN);
+	m_wndModifyBtn.SetVariant(SAGE_BUTTON_PRIMARY);
 	m_wndDeleteBtn.Create(TAECHANG_UI_PRICE_REMOVE_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_PRICE_DELETE_BTN);
 	m_wndDeleteBtn.SetVariant(SAGE_BUTTON_DANGER);
 	m_wndCancelBtn.Create(TAECHANG_UI_PRICE_CANCEL_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_PRICE_CANCEL_BTN);
@@ -266,7 +267,7 @@ void SagePriceManagePanel::LayoutChildControls(int nWidth, int nHeight) {
 	ApplyPriceEditTextRect(m_wndMinCopiesEdit);
 	m_wndMinCopiesUnit.MoveWindow(nUnitX, nFormY, nUnitW, nRowH);
 	nFormY += nRowH + TAECHANG_PRICE_DETAIL_GROUP_GAP;
-	m_wndSingleCheck.MoveWindow(nCardInnerX, nFormY, nCardInnerW, nRowH);
+	m_wndSingleCheck.MoveWindow(nEditX, nFormY, nCardInnerW - nLabelW - TAECHANG_ROW_GAP, nRowH);
 	nFormY += nRowH + nRowGap;
 
 	m_wndMaxCopiesLabel.MoveWindow(nCardInnerX, nFormY, nLabelW, nRowH);
@@ -274,7 +275,7 @@ void SagePriceManagePanel::LayoutChildControls(int nWidth, int nHeight) {
 	ApplyPriceEditTextRect(m_wndMaxCopiesEdit);
 	m_wndMaxCopiesUnit.MoveWindow(nUnitX, nFormY, nUnitW, nRowH);
 	nFormY += nRowH + TAECHANG_PRICE_DETAIL_GROUP_GAP;
-	m_wndNoMaxCheck.MoveWindow(nCardInnerX, nFormY, nCardInnerW, nRowH);
+	m_wndNoMaxCheck.MoveWindow(nEditX, nFormY, nCardInnerW - nLabelW - TAECHANG_ROW_GAP, nRowH);
 	nFormY += nRowH + nRowGap;
 
 	m_wndDetailDivider.MoveWindow(nCardInnerX, nFormY, nCardInnerW, TAECHANG_PRICE_DETAIL_DIVIDER_HEIGHT);
