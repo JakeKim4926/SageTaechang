@@ -247,7 +247,6 @@ void SagePriceManagePanel::LayoutChildControls(int nWidth, int nHeight) {
 	int nCardInnerX = nRightX + nCardPad;
 	int nCardInnerW = nCardW - nCardPad * 2;
 	int nRowH = TAECHANG_PRICE_EDIT_HEIGHT;
-	int nLabelW = TAECHANG_PRICE_FORM_LABEL_WIDTH;
 	int nDetailEditW = TAECHANG_PRICE_DETAIL_EDIT_WIDTH;
 	int nUnitW = TAECHANG_PRICE_DETAIL_UNIT_WIDTH;
 	int nRowGap = TAECHANG_PRICE_DETAIL_ROW_GAP;
