@@ -20,6 +20,12 @@ Before implementing:
 - If something is unclear, stop. Name what's confusing. Ask.
 - Do not write, modify, execute, or create code unless I explicitly approve the coding step first.
 
+**No guessing (CRITICAL).**
+- Never fill an unknown value with a plausible number. Frame thickness, padding, row height, offsets — read them from the code, measure them at runtime, or ask.
+- If you cannot verify a value, say so and build the way to verify it (a measurement call, a logged value) before changing code.
+- When I give you a screenshot, a log, or a file, the answer is in there or in the code. Re-read it. Do not answer from memory of how things usually work.
+- Never report a guess as a measurement. If you assumed, say "assumed" in the same sentence.
+
 ## 2. Simplicity First
 
 **Minimum code that solves the problem. Nothing speculative.**

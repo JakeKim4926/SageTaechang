@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 class CSageComboBox : public CComboBox
 {
@@ -8,6 +8,7 @@ public:
 	CSageComboBox();
 
 	void ApplyFieldHeight();
+	void ApplyTextRect();
 
 protected:
 	afx_msg void OnPaint();
