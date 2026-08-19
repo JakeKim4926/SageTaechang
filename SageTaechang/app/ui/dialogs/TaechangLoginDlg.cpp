@@ -99,11 +99,11 @@ int TaechangLoginDlg::LayoutControls() {
     int nErrorTop = nRow2Top + nEditH;
     int nBtnTop = nErrorTop + TAECHANG_INLINE_MSG_HEIGHT + nGap;
 
-    m_wndIdLabel.MoveWindow(nM, nRow1Top + TAECHANG_LABEL_VERT_OFFSET, nLabelW, nEditH);
+    m_wndIdLabel.MoveWindow(nM, nRow1Top, nLabelW, nEditH);
     m_wndIdEdit.MoveWindow(nM + nLabelW + nGap, nRow1Top, nEditW, nEditH);
     ApplyEditTextRect(m_wndIdEdit);
 
-    m_wndPwLabel.MoveWindow(nM, nRow2Top + TAECHANG_LABEL_VERT_OFFSET, nLabelW, nEditH);
+    m_wndPwLabel.MoveWindow(nM, nRow2Top, nLabelW, nEditH);
     m_wndPwEdit.MoveWindow(nM + nLabelW + nGap, nRow2Top, nEditW, nEditH);
     ApplyEditTextRect(m_wndPwEdit);
 

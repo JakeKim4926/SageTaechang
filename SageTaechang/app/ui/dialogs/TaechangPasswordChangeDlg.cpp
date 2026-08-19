@@ -105,17 +105,17 @@ int TaechangPasswordChangeDlg::LayoutControls() {
     int nRowTop = GetContentTop() + nM;
     int nEditLeft = nM + nLabelW + nGap;
 
-    m_wndCurrentLabel.MoveWindow(nM, nRowTop + TAECHANG_LABEL_VERT_OFFSET, nLabelW, nEditH);
+    m_wndCurrentLabel.MoveWindow(nM, nRowTop, nLabelW, nEditH);
     m_wndCurrentEdit.MoveWindow(nEditLeft, nRowTop, nEditW, nEditH);
     ApplyEditTextRect(m_wndCurrentEdit);
 
     nRowTop += nEditH + nGap;
-    m_wndNewLabel.MoveWindow(nM, nRowTop + TAECHANG_LABEL_VERT_OFFSET, nLabelW, nEditH);
+    m_wndNewLabel.MoveWindow(nM, nRowTop, nLabelW, nEditH);
     m_wndNewEdit.MoveWindow(nEditLeft, nRowTop, nEditW, nEditH);
     ApplyEditTextRect(m_wndNewEdit);
 
     nRowTop += nEditH + nGap;
-    m_wndConfirmLabel.MoveWindow(nM, nRowTop + TAECHANG_LABEL_VERT_OFFSET, nLabelW, nEditH);
+    m_wndConfirmLabel.MoveWindow(nM, nRowTop, nLabelW, nEditH);
     m_wndConfirmEdit.MoveWindow(nEditLeft, nRowTop, nEditW, nEditH);
     ApplyEditTextRect(m_wndConfirmEdit);
 

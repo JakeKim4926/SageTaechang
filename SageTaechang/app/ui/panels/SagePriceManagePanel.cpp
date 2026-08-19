@@ -203,8 +203,7 @@ void SagePriceManagePanel::LayoutChildControls(int nWidth, int nHeight) {
 							 nLeftW - nLabelW - TAECHANG_LABEL_EDIT_GAP - TAECHANG_BUTTON_WIDTH * nActionButtonCount - TAECHANG_ROW_GAP * nActionButtonCount);
 	if (nCompanyComboW < TAECHANG_PRICE_COMPANY_COMBO_MIN_WIDTH)
 		nCompanyComboW = TAECHANG_PRICE_COMPANY_COMBO_MIN_WIDTH;
-	m_wndCompanyLabel.MoveWindow(nInnerLeft,
-		nY + TAECHANG_LABEL_VERT_OFFSET - TAECHANG_PRICE_COMPANY_LABEL_VERT_ADJUST, nLabelW, TAECHANG_EDIT_HEIGHT);
+	m_wndCompanyLabel.MoveWindow(nInnerLeft, nY, nLabelW, TAECHANG_EDIT_HEIGHT);
 	m_wndCompanyCombo.MoveWindow(nInnerLeft + nLabelW + TAECHANG_LABEL_EDIT_GAP, nY, nCompanyComboW,
 		TAECHANG_EDIT_HEIGHT * TAECHANG_PRICE_COMBO_DROP_ROWS);
 	int nBtnX = nInnerLeft + nLabelW + TAECHANG_LABEL_EDIT_GAP + nCompanyComboW + TAECHANG_ROW_GAP;

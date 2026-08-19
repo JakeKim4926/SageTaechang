@@ -116,8 +116,6 @@ void SageResultTablePanel::ApplyControlFonts() {
 	m_wndTitle.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndOnePage.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndCriteria.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndCriteria.SetItemHeight(-1, TAECHANG_RESULT_CRITERIA_ITEM_HEIGHT);
-	m_wndCriteria.SetItemHeight(0, TAECHANG_RESULT_CRITERIA_ITEM_HEIGHT);
 	m_wndFilter.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndSearchBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndResetBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_HEADER));

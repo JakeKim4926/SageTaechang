@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "app/ui/drawing/SageFilterComboBox.h"
 #include "app/ui/drawing/SageUiStyle.h"
 #include "TaechangDefine.h"
@@ -8,7 +8,7 @@ BEGIN_MESSAGE_MAP(CSageFilterComboBox, CComboBox)
 END_MESSAGE_MAP()
 
 void CSageFilterComboBox::MeasureItem(LPMEASUREITEMSTRUCT lpMeasureItemStruct) {
-	lpMeasureItemStruct->itemHeight = TAECHANG_RESULT_CRITERIA_ITEM_HEIGHT;
+	lpMeasureItemStruct->itemHeight = TAECHANG_EDIT_HEIGHT - TAECHANG_COMBO_FIELD_INSET;
 }
 
 void CSageFilterComboBox::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {

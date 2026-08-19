@@ -167,12 +167,12 @@ int TaechangCalcEstimateDlg::LayoutControls() {
     m_wndYearEdit.MoveWindow(nX, nY, nYearW, nEditH);
     ApplyEditTextRect(m_wndYearEdit);
     nX += nYearW;
-    m_wndDateSep1.MoveWindow(nX, nY + TAECHANG_LABEL_VERT_OFFSET, nSepW, nEditH);
+    m_wndDateSep1.MoveWindow(nX, nY, nSepW, nEditH);
     nX += nSepW;
     m_wndMonthEdit.MoveWindow(nX, nY, nMdW, nEditH);
     ApplyEditTextRect(m_wndMonthEdit);
     nX += nMdW;
-    m_wndDateSep2.MoveWindow(nX, nY + TAECHANG_LABEL_VERT_OFFSET, nSepW, nEditH);
+    m_wndDateSep2.MoveWindow(nX, nY, nSepW, nEditH);
     nX += nSepW;
     m_wndDayEdit.MoveWindow(nX, nY, nMdW, nEditH);
     ApplyEditTextRect(m_wndDayEdit);

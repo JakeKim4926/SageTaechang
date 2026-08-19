@@ -169,16 +169,16 @@ int TaechangPriceRangeDlg::LayoutControls() {
     int nFieldLeft = nM + nLabelW + nGap;
 
     int nY = GetContentTop() + nM;
-    m_wndMinLabel.MoveWindow(nM, nY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, nEditH);
+    m_wndMinLabel.MoveWindow(nM, nY, nLabelW, nEditH);
     m_wndMinEdit.MoveWindow(nFieldLeft, nY, nEditW, nEditH);
     ApplyEditTextRect(m_wndMinEdit);
-    m_wndMinUnit.MoveWindow(nFieldLeft + nEditW + nGap, nY + TAECHANG_LABEL_VERT_OFFSET, nUnitW, nEditH);
+    m_wndMinUnit.MoveWindow(nFieldLeft + nEditW + nGap, nY, nUnitW, nEditH);
     nY += nEditH + nGap;
 
-    m_wndMaxLabel.MoveWindow(nM, nY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, nEditH);
+    m_wndMaxLabel.MoveWindow(nM, nY, nLabelW, nEditH);
     m_wndMaxEdit.MoveWindow(nFieldLeft, nY, nEditW, nEditH);
     ApplyEditTextRect(m_wndMaxEdit);
-    m_wndMaxUnit.MoveWindow(nFieldLeft + nEditW + nGap, nY + TAECHANG_LABEL_VERT_OFFSET, nUnitW, nEditH);
+    m_wndMaxUnit.MoveWindow(nFieldLeft + nEditW + nGap, nY, nUnitW, nEditH);
     nY += nEditH + nGap;
 
     int nNoMaxW = m_wndNoMaxCheck.GetContentWidth();
@@ -187,16 +187,16 @@ int TaechangPriceRangeDlg::LayoutControls() {
         m_wndSingleCheck.GetContentWidth(), nEditH);
     nY += nEditH + nGap;
 
-    m_wndPrintLabel.MoveWindow(nM, nY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, nEditH);
+    m_wndPrintLabel.MoveWindow(nM, nY, nLabelW, nEditH);
     m_wndPrintEdit.MoveWindow(nFieldLeft, nY, nEditW, nEditH);
     ApplyEditTextRect(m_wndPrintEdit);
-    m_wndPrintUnit.MoveWindow(nFieldLeft + nEditW + nGap, nY + TAECHANG_LABEL_VERT_OFFSET, nUnitW, nEditH);
+    m_wndPrintUnit.MoveWindow(nFieldLeft + nEditW + nGap, nY, nUnitW, nEditH);
     nY += nEditH + nGap;
 
-    m_wndCoverLabel.MoveWindow(nM, nY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, nEditH);
+    m_wndCoverLabel.MoveWindow(nM, nY, nLabelW, nEditH);
     m_wndCoverEdit.MoveWindow(nFieldLeft, nY, nEditW, nEditH);
     ApplyEditTextRect(m_wndCoverEdit);
-    m_wndCoverUnit.MoveWindow(nFieldLeft + nEditW + nGap, nY + TAECHANG_LABEL_VERT_OFFSET, nUnitW, nEditH);
+    m_wndCoverUnit.MoveWindow(nFieldLeft + nEditW + nGap, nY, nUnitW, nEditH);
     nY += nEditH;
 
     m_wndError.MoveWindow(nFieldLeft, nY, nClientW - nM - nFieldLeft, TAECHANG_INLINE_MSG_HEIGHT);
