@@ -256,10 +256,11 @@
 - 함께: View 쪽은 필터 상수에 리터럴 `0x0049`를 그대로 쓰고 패널은 `WM_TAECHANG_COPYGLOBALDATA`를 쓴다. 같은 값이 두 표기로 있으므로 헬퍼를 뽑을 때 한쪽으로 맞춘다
 
 ### [2026-08-06] 미완 — 패널·View의 입력 검증이 아직 모달이다
-- 위치: `app/ui/panels/SagePriceManagePanel.cpp`(22곳) · `app/ui/view/SageTaechangView.cpp`(18곳) · `app/ui/panels/SagePriceCalcPanel.cpp`(11곳)
+- 위치: `app/ui/panels/SagePriceManagePanel.cpp` · `app/ui/panels/SagePriceCalcPanel.cpp` · `app/ui/panels/SageCompanyOrderPanel.cpp` · `app/ui/panels/SageWorkspacePanel.cpp`
 - 설명: D5a에서 다이얼로그 7종의 검증 22곳을 `CSageInlineError`로 옮겼다. **패널·View의 51곳은 그대로 모달이다.** 계획 R7과 D5a가 "다이얼로그 6종"으로 범위를 잡았기 때문인데, 사용자에게는 같은 경험이다 — 단가 데이터 관리에서 법인 미선택으로 「단가 추가」를 누르면 여전히 `AfxMessageBox`가 뜬다.
+- **정정 (2026-08-19, D9)**: 위 위치와 「51곳」은 낡은 값이었다. `SageTaechangView.cpp`의 18곳은 3-B 패널 분리로 **0곳**이 됐고 그 몫이 패널로 옮겨갔다. 또 D9에서 모달을 전부 `ShowSageMessageBox`로 바꿔 **모양은 앱 스타일이 됐다** — 남은 부채는 「Windows 기본 창이 뜬다」가 아니라 **「입력 검증이 인라인이 아니라 모달이다」** 하나로 좁혀졌다
 - 위험도: 낮음
-- 후속: **디자인 근거가 아직 없다.** 목업 3-3에는 인라인 오류 자리가 없고(빈 상태와 상세 카드뿐), 「법인을 선택하세요」는 입력값 오류가 아니라 선택 누락이라 성격도 다르다. **D7-3에서 단가 데이터 관리 화면을 설계할 때 자리와 형태를 함께 정한다.** 51곳 전부가 대상은 아니다 — 완료 알림과 서비스 오류는 모달이 맞다
+- 후속: **디자인 근거가 아직 없다.** 목업 3-3에는 인라인 오류 자리가 없고(빈 상태와 상세 카드뿐), 「법인을 선택하세요」는 입력값 오류가 아니라 선택 누락이라 성격도 다르다. **D7-3에서 단가 데이터 관리 화면을 설계할 때 자리와 형태를 함께 정한다.** 전부가 대상은 아니다 — 완료 알림과 서비스 오류는 모달이 맞다
 
 ### [2026-08-06] 기존부채 — 헤더 가운데 정렬 강제 코드가 무의미해졌다
 - 위치: `app/ui/panels/SagePriceManagePanel.cpp` `CreateControls` (헤더 서브클래싱 직후 `HDITEM` 5줄)
