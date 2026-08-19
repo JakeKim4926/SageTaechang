@@ -114,7 +114,6 @@ private:
     std::vector<TaechangResultRow> m_arrVisibleRows;
     std::vector<SageResultTotalCell> m_arrTotalCells;
     SageWorkflowResultStyle m_style;
-    CRect m_rectFilterCard;
     CString m_strKeyword;
     int m_nCriteria;
     BOOL m_bTitleVisible;

@@ -20,8 +20,7 @@ BEGIN_MESSAGE_MAP(SageResultTablePanel, CWnd)
 END_MESSAGE_MAP()
 
 SageResultTablePanel::SageResultTablePanel()
-	: m_rectFilterCard(0, 0, 0, 0)
-	, m_nCriteria(TAECHANG_FILTER_CRITERIA_NONE)
+	: m_nCriteria(TAECHANG_FILTER_CRITERIA_NONE)
 	, m_bTitleVisible(FALSE)
 	, m_bSelectAllVisible(FALSE)
 	, m_bOnePageVisible(FALSE)
@@ -95,6 +94,7 @@ void SageResultTablePanel::CreateControls() {
 	m_wndSearch.SetPlaceholder(TAECHANG_UI_RESULT_FILTER_PLACEHOLDER);
 	m_wndResetBtn.Create(TAECHANG_UI_RESULT_RESET_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_TAECHANG_RESULT_RESET_BTN);
 	m_wndResetBtn.SetVariant(SAGE_BUTTON_GHOST);
+	m_wndResetBtn.SetSurfaceColor(TAECHANG_COLOR_APP_BACKGROUND);
 
 	m_wndSummaryBar.Create(L"", WS_CHILD | SS_OWNERDRAW, r, this, ID_TAECHANG_RESULT_SUMMARY_BAR);
 	m_wndTotalBar.Create(L"", WS_CHILD | SS_OWNERDRAW, r, this, ID_TAECHANG_RESULT_TOTAL_BAR);
@@ -178,16 +178,8 @@ void SageResultTablePanel::ShowFilter(BOOL bShow) {
 	int nCmd = bShow ? SW_SHOW : SW_HIDE;
 	m_wndSearch.ShowWindow(nCmd);
 	m_wndResetBtn.ShowWindow(nCmd);
-	if (bShow) {
+	if (bShow)
 		PopulateCriteria();
-		return;
-	}
-	if (m_rectFilterCard.IsRectEmpty())
-		return;
-	CRect rectStale = m_rectFilterCard;
-	m_rectFilterCard.SetRectEmpty();
-	rectStale.InflateRect(TAECHANG_CARD_REPAINT_MARGIN, TAECHANG_CARD_REPAINT_MARGIN);
-	InvalidateRect(rectStale, TRUE);
 }
 
 void SageResultTablePanel::EnableSelectionControls(BOOL bEnable) {
@@ -242,11 +234,6 @@ void SageResultTablePanel::Layout(const CRect& rectPanel) {
 		m_wndSearch.MoveWindow(nFilterLeft, nFilterTop, nBoxWidth, TAECHANG_EDIT_HEIGHT);
 		int nResetLeft = nFilterLeft + nBoxWidth + TAECHANG_ACTION_GAP;
 		m_wndResetBtn.MoveWindow(nResetLeft, nFilterTop, TAECHANG_RESULT_RESET_WIDTH, TAECHANG_BUTTON_HEIGHT);
-		m_rectFilterCard.SetRect(
-			nFilterLeft - TAECHANG_RESULT_FILTER_BOX_PAD,
-			nFilterTop - TAECHANG_RESULT_FILTER_BOX_PAD,
-			nResetLeft + TAECHANG_RESULT_RESET_WIDTH + TAECHANG_RESULT_FILTER_BOX_PAD,
-			nFilterTop + TAECHANG_EDIT_HEIGHT + TAECHANG_RESULT_FILTER_BOX_PAD);
 	}
 
 	LayoutTableArea();
@@ -286,11 +273,6 @@ BOOL SageResultTablePanel::OnEraseBkgnd(CDC* pDC) {
 	CRect rectClient;
 	GetClientRect(&rectClient);
 	pDC->FillSolidRect(rectClient, TAECHANG_COLOR_APP_BACKGROUND);
-	if (!m_rectFilterCard.IsRectEmpty()) {
-		pDC->FillSolidRect(m_rectFilterCard, TAECHANG_COLOR_PANEL);
-		CBrush brFilterBox(TAECHANG_COLOR_BORDER);
-		pDC->FrameRect(m_rectFilterCard, &brFilterBox);
-	}
 	return TRUE;
 }
 
