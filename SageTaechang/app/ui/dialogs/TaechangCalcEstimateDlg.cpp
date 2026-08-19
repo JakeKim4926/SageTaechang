@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "app/ui/dialogs/TaechangCalcEstimateDlg.h"
+#include "app/ui/dialogs/SageMessageBoxDlg.h"
 #include "TaechangDefine.h"
 #include "app/infra/file/TaechangFileUtils.h"
 #include "app/common/TaechangJson.h"
@@ -367,21 +368,21 @@ BOOL TaechangCalcEstimateDlg::RunGenerate(const CString& strOutputFolder) {
 
     if (!bLaunched) {
         DeleteFileW(strResultPath);
-        AfxMessageBox(strError.IsEmpty() ? (CString)TAECHANG_UI_CALC_ESTIMATE_PROCESS_FAILED : strError,
-            MB_ICONERROR);
+        ShowSageMessageBox(strError.IsEmpty() ? (CString)TAECHANG_UI_CALC_ESTIMATE_PROCESS_FAILED : strError,
+            MB_ICONERROR, this);
         return FALSE;
     }
 
     if (dwExitCode != 0) {
         CString strMsg = ReadScriptErrorMessage(strResultPath);
         DeleteFileW(strResultPath);
-        AfxMessageBox(strMsg.IsEmpty() ? (CString)TAECHANG_UI_CALC_ESTIMATE_PROCESS_FAILED : strMsg,
-            MB_ICONERROR);
+        ShowSageMessageBox(strMsg.IsEmpty() ? (CString)TAECHANG_UI_CALC_ESTIMATE_PROCESS_FAILED : strMsg,
+            MB_ICONERROR, this);
         return FALSE;
     }
 
     DeleteFileW(strResultPath);
-    AfxMessageBox(TAECHANG_UI_CALC_ESTIMATE_COMPLETED, MB_ICONINFORMATION);
+    ShowSageMessageBox(TAECHANG_UI_CALC_ESTIMATE_COMPLETED, MB_ICONINFORMATION, this);
     return TRUE;
 }
 

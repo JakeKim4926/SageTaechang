@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "app/ui/panels/SageCompanyOrderPanel.h"
+#include "app/ui/dialogs/SageMessageBoxDlg.h"
 #include "app/ui/drawing/SageUiResources.h"
 #include "app/infra/db/SageDBMgr.h"
 #include "TaechangDefine.h"
@@ -379,7 +380,7 @@ void SageCompanyOrderPanel::RefreshList() {
 
 	CString strError;
 	if (sageDBMgr.GetReceivableCompanyOrderService()->LoadAllCompanyOrders(m_arrOrders, strError) == FALSE) {
-		AfxMessageBox(strError);
+		ShowSageMessageBox(strError, MB_ICONERROR);
 		return;
 	}
 
@@ -447,7 +448,7 @@ void SageCompanyOrderPanel::AddCompanyOrder(const CString& strCompanyName, const
 	int nNewOrderId = 0;
 	CString strError;
 	if (sageDBMgr.GetReceivableCompanyOrderService()->AddCompanyOrder(dto, nNewOrderId, strError) == FALSE) {
-		AfxMessageBox(strError);
+		ShowSageMessageBox(strError, MB_ICONERROR);
 		return;
 	}
 
@@ -464,7 +465,7 @@ void SageCompanyOrderPanel::OnSave() {
 	m_wndOrderEdit.GetWindowTextW(strOrderStr);
 	strCompanyName.Trim();
 	if (strCompanyName.IsEmpty()) {
-		AfxMessageBox(TAECHANG_UI_CO_COMPANY_REQUIRED);
+		ShowSageMessageBox(TAECHANG_UI_CO_COMPANY_REQUIRED, MB_ICONWARNING);
 		m_wndCompanyEdit.SetFocus();
 		return;
 	}
@@ -475,7 +476,7 @@ void SageCompanyOrderPanel::OnSave() {
 	}
 
 	if (m_nSelectedOrderId <= 0) {
-		AfxMessageBox(TAECHANG_UI_CO_SELECT_REQUIRED);
+		ShowSageMessageBox(TAECHANG_UI_CO_SELECT_REQUIRED, MB_ICONWARNING);
 		return;
 	}
 
@@ -490,7 +491,7 @@ void SageCompanyOrderPanel::OnSave() {
 
 	CString strError;
 	if (sageDBMgr.GetReceivableCompanyOrderService()->ChangeCompanyOrder(dto, strError) == FALSE) {
-		AfxMessageBox(strError);
+		ShowSageMessageBox(strError, MB_ICONERROR);
 		return;
 	}
 	m_nPanelState = TAECHANG_CO_PANEL_IDLE;
@@ -499,7 +500,7 @@ void SageCompanyOrderPanel::OnSave() {
 
 void SageCompanyOrderPanel::OnDelete() {
 	if (m_nSelectedOrderId <= 0) {
-		AfxMessageBox(TAECHANG_UI_CO_SELECT_REQUIRED);
+		ShowSageMessageBox(TAECHANG_UI_CO_SELECT_REQUIRED, MB_ICONWARNING);
 		return;
 	}
 
@@ -513,7 +514,7 @@ void SageCompanyOrderPanel::OnDelete() {
 
 	CString strError;
 	if (sageDBMgr.GetReceivableCompanyOrderService()->RemoveCompanyOrder(m_nSelectedOrderId, strError) == FALSE) {
-		AfxMessageBox(strError);
+		ShowSageMessageBox(strError, MB_ICONERROR);
 		return;
 	}
 	m_nSelectedOrderId = 0;
@@ -558,7 +559,7 @@ void SageCompanyOrderPanel::MoveSelected(int nOffset) {
 	CString strError;
 	if (sageDBMgr.GetReceivableCompanyOrderService()->SwapCompanyOrder(
 		m_arrOrders[nIndex], m_arrOrders[nTargetIndex], strError) == FALSE) {
-		AfxMessageBox(strError);
+		ShowSageMessageBox(strError, MB_ICONERROR);
 		return;
 	}
 	RefreshList();

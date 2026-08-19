@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "app/ui/panels/SagePriceCalcPanel.h"
+#include "app/ui/dialogs/SageMessageBoxDlg.h"
 #include "app/common/SageNumberFormat.h"
 #include "app/core/price/TaechangPriceService.h"
 #include "app/infra/db/SageDBMgr.h"
@@ -479,7 +480,7 @@ BOOL SagePriceCalcPanel::UpdatePreview(BOOL bShowMessage) {
 	if (nSel == CB_ERR) {
 		ClearResult();
 		if (bShowMessage)
-			AfxMessageBox(TAECHANG_UI_CALC_SELECT_COMPANY, MB_ICONWARNING);
+			ShowSageMessageBox(TAECHANG_UI_CALC_SELECT_COMPANY, MB_ICONWARNING);
 		return FALSE;
 	}
 
@@ -492,7 +493,7 @@ BOOL SagePriceCalcPanel::UpdatePreview(BOOL bShowMessage) {
 	if (strCopies.IsEmpty()) {
 		ClearResult();
 		if (bShowMessage)
-			AfxMessageBox(TAECHANG_UI_CALC_COPIES_REQUIRED, MB_ICONWARNING);
+			ShowSageMessageBox(TAECHANG_UI_CALC_COPIES_REQUIRED, MB_ICONWARNING);
 		return FALSE;
 	}
 
@@ -511,7 +512,7 @@ BOOL SagePriceCalcPanel::UpdatePreview(BOOL bShowMessage) {
 	if (strPages.IsEmpty()) {
 		ClearResult();
 		if (bShowMessage)
-			AfxMessageBox(TAECHANG_UI_CALC_PAGES_REQUIRED, MB_ICONWARNING);
+			ShowSageMessageBox(TAECHANG_UI_CALC_PAGES_REQUIRED, MB_ICONWARNING);
 		return FALSE;
 	}
 
@@ -546,19 +547,19 @@ BOOL SagePriceCalcPanel::UpdatePreview(BOOL bShowMessage) {
 void SagePriceCalcPanel::ShowFailureMessage(SagePriceCalcFailure nFailure, const CString& strError) const {
 	switch (nFailure) {
 	case SAGE_PRICE_CALC_COPIES_BELOW_MIN:
-		AfxMessageBox(TAECHANG_UI_CALC_COPIES_INVALID, MB_ICONWARNING);
+		ShowSageMessageBox(TAECHANG_UI_CALC_COPIES_INVALID, MB_ICONWARNING);
 		return;
 	case SAGE_PRICE_CALC_COPIES_ABOVE_MAX:
-		AfxMessageBox(TAECHANG_UI_PRICE_COPIES_OUT_OF_RANGE, MB_ICONWARNING);
+		ShowSageMessageBox(TAECHANG_UI_PRICE_COPIES_OUT_OF_RANGE, MB_ICONWARNING);
 		return;
 	case SAGE_PRICE_CALC_PAGES_OUT_OF_RANGE:
-		AfxMessageBox(TAECHANG_UI_CALC_PAGES_INVALID, MB_ICONWARNING);
+		ShowSageMessageBox(TAECHANG_UI_CALC_PAGES_INVALID, MB_ICONWARNING);
 		return;
 	case SAGE_PRICE_CALC_NO_DATA:
-		AfxMessageBox(TAECHANG_UI_CALC_NO_DATA, MB_ICONWARNING);
+		ShowSageMessageBox(TAECHANG_UI_CALC_NO_DATA, MB_ICONWARNING);
 		return;
 	default:
-		AfxMessageBox(strError, MB_ICONERROR);
+		ShowSageMessageBox(strError, MB_ICONERROR);
 		return;
 	}
 }
@@ -602,18 +603,18 @@ void SagePriceCalcPanel::OnCalc() {
 
 	CString strPluginDir;
 	if (!GetExecutableDirectory(strPluginDir)) {
-		AfxMessageBox(TAECHANG_UI_CALC_ESTIMATE_SCRIPT_MISSING, MB_ICONERROR);
+		ShowSageMessageBox(TAECHANG_UI_CALC_ESTIMATE_SCRIPT_MISSING, MB_ICONERROR);
 		return;
 	}
 	CString strTemplatePath = CombinePath(strPluginDir, TAECHANG_ESTIMATE_TEMPLATE_REL_PATH);
 	CString strScriptPath   = CombinePath(strPluginDir, TAECHANG_CALC_ESTIMATE_SCRIPT_REL_PATH);
 
 	if (!FileExists(strTemplatePath)) {
-		AfxMessageBox(TAECHANG_UI_CALC_ESTIMATE_TEMPLATE_MISSING, MB_ICONERROR);
+		ShowSageMessageBox(TAECHANG_UI_CALC_ESTIMATE_TEMPLATE_MISSING, MB_ICONERROR);
 		return;
 	}
 	if (!FileExists(strScriptPath)) {
-		AfxMessageBox(TAECHANG_UI_CALC_ESTIMATE_SCRIPT_MISSING, MB_ICONERROR);
+		ShowSageMessageBox(TAECHANG_UI_CALC_ESTIMATE_SCRIPT_MISSING, MB_ICONERROR);
 		return;
 	}
 

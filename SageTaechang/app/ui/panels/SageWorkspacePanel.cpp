@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "app/ui/panels/SageWorkspacePanel.h"
+#include "app/ui/dialogs/SageMessageBoxDlg.h"
 #include "app/ui/drawing/SageUiResources.h"
 #include "app/core/workflow/ISageWorkflowHandler.h"
 #include "app/core/workflow/SageWorkflowRegistry.h"
@@ -472,7 +473,7 @@ BOOL SageWorkspacePanel::ValidateInputPath(CString& strInputPath) const {
 	strInputPath.Trim();
 	if (!strInputPath.IsEmpty())
 		return TRUE;
-	AfxMessageBox(TAECHANG_UI_INPUT_REQUIRED, MB_ICONWARNING);
+	ShowSageMessageBox(TAECHANG_UI_INPUT_REQUIRED, MB_ICONWARNING);
 	return FALSE;
 }
 
@@ -481,7 +482,7 @@ BOOL SageWorkspacePanel::ValidateOutputFolder(CString& strOutputFolder) const {
 	strOutputFolder.Trim();
 	if (!strOutputFolder.IsEmpty())
 		return TRUE;
-	AfxMessageBox(TAECHANG_UI_OUTPUT_REQUIRED, MB_ICONWARNING);
+	ShowSageMessageBox(TAECHANG_UI_OUTPUT_REQUIRED, MB_ICONWARNING);
 	return FALSE;
 }
 
@@ -511,7 +512,7 @@ BOOL SageWorkspacePanel::BuildSelectedRowNums(int nTaskType, CString& strRowNums
 	CString strSelectionError;
 	if (m_pHandler->ValidateSelectedRows(nSelectedCount, strRowNums.IsEmpty() ? FALSE : TRUE, bOnePage, strSelectionError))
 		return TRUE;
-	AfxMessageBox(strSelectionError, MB_ICONWARNING);
+	ShowSageMessageBox(strSelectionError, MB_ICONWARNING);
 	return FALSE;
 }
 
@@ -542,7 +543,7 @@ void SageWorkspacePanel::RequestRun(int nTaskType) {
 
 	CString strError;
 	if (!m_controller.Start(request, strError)) {
-		AfxMessageBox(strError, MB_ICONWARNING);
+		ShowSageMessageBox(strError, MB_ICONWARNING);
 		return;
 	}
 	SetRunningState(TRUE);
@@ -617,7 +618,7 @@ void SageWorkspacePanel::DisplayResponse(int nWorkflowType, int nTaskType, const
 		if (nTaskType == TAECHANG_TASK_GENERATE && bSuccess) {
 			LPCWSTR pszCompleted = pHandler->FindGenerateCompletedMessage();
 			if (pszCompleted != NULL)
-				AfxMessageBox(pszCompleted, MB_ICONINFORMATION);
+				ShowSageMessageBox(pszCompleted, MB_ICONINFORMATION);
 		}
 	}
 
@@ -678,7 +679,7 @@ LRESULT SageWorkspacePanel::OnOpenOutputFolder(WPARAM wParam, LPARAM lParam) {
 
 	DWORD dwAttributes = ::GetFileAttributesW(m_strLastOutputPath);
 	if (dwAttributes == INVALID_FILE_ATTRIBUTES) {
-		AfxMessageBox(TAECHANG_UI_OUTPUT_PATH_MISSING, MB_ICONWARNING);
+		ShowSageMessageBox(TAECHANG_UI_OUTPUT_PATH_MISSING, MB_ICONWARNING);
 		return 0;
 	}
 

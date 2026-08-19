@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "app/ui/dialogs/TaechangLoginDlg.h"
+#include "app/ui/dialogs/SageMessageBoxDlg.h"
 #include "TaechangDefine.h"
 #include "app/core/auth/TaechangAuthSession.h"
 #include "app/infra/db/SageDBMgr.h"
@@ -175,7 +176,7 @@ void TaechangLoginDlg::OnOK() {
     BOOL bSuccess;
 
     if (sageDBMgr.GetUserService()->Login(strId, strPw, outDto, bSuccess, strError) == FALSE) {
-        AfxMessageBox(strError, MB_ICONERROR);
+        ShowSageMessageBox(strError, MB_ICONERROR, this);
         return;
     }
 

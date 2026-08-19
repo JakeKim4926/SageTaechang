@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "app/ui/dialogs/TaechangPasswordChangeDlg.h"
+#include "app/ui/dialogs/SageMessageBoxDlg.h"
 #include "TaechangDefine.h"
 #include "app/core/auth/TaechangAuthSession.h"
 #include "app/core/auth/TaechangUserService.h"
@@ -208,7 +209,7 @@ void TaechangPasswordChangeDlg::OnOK() {
     TaechangUserDto loginDto;
     BOOL bSuccess = FALSE;
     if (sageDBMgr.GetUserService()->Login(currentUser.strLoginId, strCurrent, loginDto, bSuccess, strError) == FALSE) {
-        AfxMessageBox(strError, MB_ICONERROR);
+        ShowSageMessageBox(strError, MB_ICONERROR, this);
         return;
     }
     if (bSuccess == FALSE) {
@@ -225,7 +226,7 @@ void TaechangPasswordChangeDlg::OnOK() {
 
     currentUser.strPwHash = TaechangUserService::HashPassword(strNew);
     taechangAuth.SetLogin(currentUser);
-    AfxMessageBox(TAECHANG_UI_CHANGE_PW_COMPLETED, MB_ICONINFORMATION);
+    ShowSageMessageBox(TAECHANG_UI_CHANGE_PW_COMPLETED, MB_ICONINFORMATION, this);
     CDialog::OnOK();
 }
 

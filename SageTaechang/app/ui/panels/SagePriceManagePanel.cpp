@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "app/ui/panels/SagePriceManagePanel.h"
+#include "app/ui/dialogs/SageMessageBoxDlg.h"
 #include "app/common/SageNumberFormat.h"
 #include "app/core/price/TaechangPriceService.h"
 #include "app/infra/db/SageDBMgr.h"
@@ -611,7 +612,7 @@ void SagePriceManagePanel::OnAddCompany() {
 	CStringArray arrNames;
 	CString strError;
 	if (sageDBMgr.GetTaechangPriceService()->LoadAllCompanyNames(arrNames, strError) == FALSE) {
-		AfxMessageBox(strError, MB_ICONERROR);
+		ShowSageMessageBox(strError, MB_ICONERROR);
 		return;
 	}
 
@@ -621,7 +622,7 @@ void SagePriceManagePanel::OnAddCompany() {
 		if (strItem.CompareNoCase(strName) != 0)
 			continue;
 
-		AfxMessageBox(TAECHANG_UI_PRICE_COMPANY_EXISTS, MB_ICONINFORMATION);
+		ShowSageMessageBox(TAECHANG_UI_PRICE_COMPANY_EXISTS, MB_ICONINFORMATION);
 		RefreshCompanyList(strItem);
 		m_nPanelState = TAECHANG_PRICE_PANEL_SUMMARY;
 		ClearForm();
@@ -643,7 +644,7 @@ void SagePriceManagePanel::OnRenameCompany() {
 	CString strCompany = GetSelectedCompanyName();
 	int nIndex = m_wndCompanyCombo.FindStringExact(-1, strCompany);
 	if (strCompany.IsEmpty() || nIndex == CB_ERR) {
-		AfxMessageBox(TAECHANG_UI_PRICE_SELECT_COMPANY, MB_ICONWARNING);
+		ShowSageMessageBox(TAECHANG_UI_PRICE_SELECT_COMPANY, MB_ICONWARNING);
 		return;
 	}
 
@@ -660,7 +661,7 @@ void SagePriceManagePanel::OnRenameCompany() {
 	CStringArray arrNames;
 	CString strError;
 	if (sageDBMgr.GetTaechangPriceService()->LoadAllCompanyNames(arrNames, strError) == FALSE) {
-		AfxMessageBox(strError, MB_ICONERROR);
+		ShowSageMessageBox(strError, MB_ICONERROR);
 		return;
 	}
 
@@ -668,14 +669,14 @@ void SagePriceManagePanel::OnRenameCompany() {
 		CString strItem = arrNames[i];
 		strItem.Trim();
 		if (strItem.CompareNoCase(strCompany) != 0 && strItem.CompareNoCase(strNewName) == 0) {
-			AfxMessageBox(TAECHANG_UI_PRICE_COMPANY_EXISTS, MB_ICONINFORMATION);
+			ShowSageMessageBox(TAECHANG_UI_PRICE_COMPANY_EXISTS, MB_ICONINFORMATION);
 			return;
 		}
 	}
 
 	int nAffectedCount = 0;
 	if (sageDBMgr.GetTaechangPriceService()->RenameCompany(strCompany, strNewName, nAffectedCount, strError) == FALSE) {
-		AfxMessageBox(strError, MB_ICONERROR);
+		ShowSageMessageBox(strError, MB_ICONERROR);
 		return;
 	}
 
@@ -689,7 +690,7 @@ void SagePriceManagePanel::OnDeleteCompany() {
 	CString strCompany = GetSelectedCompanyName();
 	int nIndex = m_wndCompanyCombo.FindStringExact(-1, strCompany);
 	if (strCompany.IsEmpty() || nIndex == CB_ERR) {
-		AfxMessageBox(TAECHANG_UI_PRICE_SELECT_COMPANY, MB_ICONWARNING);
+		ShowSageMessageBox(TAECHANG_UI_PRICE_SELECT_COMPANY, MB_ICONWARNING);
 		return;
 	}
 
@@ -705,7 +706,7 @@ void SagePriceManagePanel::OnDeleteCompany() {
 		strCompany,
 		nAffectedCount,
 		strError) == FALSE) {
-		AfxMessageBox(strError, MB_ICONERROR);
+		ShowSageMessageBox(strError, MB_ICONERROR);
 		return;
 	}
 
@@ -758,7 +759,7 @@ void SagePriceManagePanel::OnCopiesSelChanged(NMHDR* pNMHDR, LRESULT* pResult) {
 void SagePriceManagePanel::OnNoMaxCheck() {
 	BOOL bNoMax = (m_wndNoMaxCheck.GetCheck() == BST_CHECKED);
 	if (bNoMax && m_wndSingleCheck.GetCheck() == BST_CHECKED) {
-		AfxMessageBox(TAECHANG_UI_PRICE_SINGLE_AND_NO_MAX_CONFLICT, MB_ICONWARNING);
+		ShowSageMessageBox(TAECHANG_UI_PRICE_SINGLE_AND_NO_MAX_CONFLICT, MB_ICONWARNING);
 		m_wndNoMaxCheck.SetCheck(BST_UNCHECKED);
 		return;
 	}
@@ -770,7 +771,7 @@ void SagePriceManagePanel::OnNoMaxCheck() {
 void SagePriceManagePanel::OnSingleCheck() {
 	BOOL bSingle = (m_wndSingleCheck.GetCheck() == BST_CHECKED);
 	if (bSingle && m_wndNoMaxCheck.GetCheck() == BST_CHECKED) {
-		AfxMessageBox(TAECHANG_UI_PRICE_SINGLE_AND_NO_MAX_CONFLICT, MB_ICONWARNING);
+		ShowSageMessageBox(TAECHANG_UI_PRICE_SINGLE_AND_NO_MAX_CONFLICT, MB_ICONWARNING);
 		m_wndSingleCheck.SetCheck(BST_UNCHECKED);
 		return;
 	}
@@ -790,7 +791,7 @@ void SagePriceManagePanel::OnCoverChanged() {
 void SagePriceManagePanel::OnAdd() {
 	int nSel = m_wndCompanyCombo.GetCurSel();
 	if (nSel == CB_ERR) {
-		AfxMessageBox(TAECHANG_UI_PRICE_SELECT_COMPANY, MB_ICONWARNING);
+		ShowSageMessageBox(TAECHANG_UI_PRICE_SELECT_COMPANY, MB_ICONWARNING);
 		return;
 	}
 
@@ -798,7 +799,7 @@ void SagePriceManagePanel::OnAdd() {
 	m_wndCompanyCombo.GetLBText(nSel, strCompany);
 	strCompany.Trim();
 	if (strCompany.IsEmpty()) {
-		AfxMessageBox(TAECHANG_UI_PRICE_SELECT_COMPANY, MB_ICONWARNING);
+		ShowSageMessageBox(TAECHANG_UI_PRICE_SELECT_COMPANY, MB_ICONWARNING);
 		return;
 	}
 
@@ -825,7 +826,7 @@ void SagePriceManagePanel::OnAdd() {
 	int nNewId = 0;
 	CString strError;
 	if (sageDBMgr.GetTaechangPriceService()->AddPrice(dto, nNewId, strError) == FALSE) {
-		AfxMessageBox(strError, MB_ICONERROR);
+		ShowSageMessageBox(strError, MB_ICONERROR);
 		return;
 	}
 
@@ -840,7 +841,7 @@ void SagePriceManagePanel::OnModify() {
 	TaechangPriceDto dto;
 	CString strError;
 	if (ReadFormToDto(dto, strError) == FALSE) {
-		AfxMessageBox(strError, MB_ICONWARNING);
+		ShowSageMessageBox(strError, MB_ICONWARNING);
 		return;
 	}
 	dto.strCompanyName = strCompany;
@@ -848,19 +849,19 @@ void SagePriceManagePanel::OnModify() {
 	if (m_nPanelState == TAECHANG_PRICE_PANEL_EDIT_ADD) {
 		int nNewId;
 		if (sageDBMgr.GetTaechangPriceService()->AddPrice(dto, nNewId, strError) == FALSE) {
-			AfxMessageBox(strError, MB_ICONERROR);
+			ShowSageMessageBox(strError, MB_ICONERROR);
 			return;
 		}
 	} else {
 		POSITION pos = m_wndCopiesList.GetFirstSelectedItemPosition();
 		if (pos == NULL) {
-			AfxMessageBox(TAECHANG_UI_PRICE_SELECT_COPIES_ROW, MB_ICONWARNING);
+			ShowSageMessageBox(TAECHANG_UI_PRICE_SELECT_COPIES_ROW, MB_ICONWARNING);
 			return;
 		}
 		int nItem = m_wndCopiesList.GetNextSelectedItem(pos);
 		dto.nPriceId = static_cast<int>(m_wndCopiesList.GetItemData(nItem));
 		if (sageDBMgr.GetTaechangPriceService()->ModifyPriceById(dto, strError) == FALSE) {
-			AfxMessageBox(strError, MB_ICONERROR);
+			ShowSageMessageBox(strError, MB_ICONERROR);
 			return;
 		}
 	}
@@ -874,13 +875,13 @@ void SagePriceManagePanel::OnModify() {
 void SagePriceManagePanel::OnDelete() {
 	POSITION pos = m_wndCopiesList.GetFirstSelectedItemPosition();
 	if (pos == NULL) {
-		AfxMessageBox(TAECHANG_UI_PRICE_SELECT_COPIES_ROW, MB_ICONWARNING);
+		ShowSageMessageBox(TAECHANG_UI_PRICE_SELECT_COPIES_ROW, MB_ICONWARNING);
 		return;
 	}
 	int nItem = m_wndCopiesList.GetNextSelectedItem(pos);
 	int nPriceId = static_cast<int>(m_wndCopiesList.GetItemData(nItem));
 	if (nPriceId <= 0) {
-		AfxMessageBox(TAECHANG_UI_PRICE_SELECT_COPIES_ROW, MB_ICONWARNING);
+		ShowSageMessageBox(TAECHANG_UI_PRICE_SELECT_COPIES_ROW, MB_ICONWARNING);
 		return;
 	}
 
@@ -889,7 +890,7 @@ void SagePriceManagePanel::OnDelete() {
 
 	CString strError;
 	if (sageDBMgr.GetTaechangPriceService()->RemovePrice(nPriceId, strError) == FALSE) {
-		AfxMessageBox(strError, MB_ICONERROR);
+		ShowSageMessageBox(strError, MB_ICONERROR);
 		return;
 	}
 
