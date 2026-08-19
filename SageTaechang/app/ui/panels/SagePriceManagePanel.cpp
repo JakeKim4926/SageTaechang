@@ -696,7 +696,7 @@ void SagePriceManagePanel::OnDeleteCompany() {
 
 	CString strConfirm;
 	strConfirm.Format(TAECHANG_UI_PRICE_DELETE_COMPANY_CONFIRM_FORMAT, strCompany.GetString());
-	if (AfxMessageBox(strConfirm, MB_ICONWARNING | MB_YESNO | MB_DEFBUTTON2) != IDYES) {
+	if (ShowSageMessageBox(strConfirm, MB_ICONWARNING | MB_YESNO | MB_DEFBUTTON2) != IDYES) {
 		return;
 	}
 
@@ -885,7 +885,7 @@ void SagePriceManagePanel::OnDelete() {
 		return;
 	}
 
-	if (AfxMessageBox(TAECHANG_UI_PRICE_DELETE_CONFIRM, MB_YESNO | MB_ICONQUESTION) != IDYES)
+	if (ShowSageMessageBox(TAECHANG_UI_PRICE_DELETE_CONFIRM, MB_YESNO | MB_ICONWARNING) != IDYES)
 		return;
 
 	CString strError;

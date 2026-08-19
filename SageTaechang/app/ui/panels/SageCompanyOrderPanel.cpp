@@ -509,7 +509,7 @@ void SageCompanyOrderPanel::OnDelete() {
 
 	CString strConfirm;
 	strConfirm.Format(TAECHANG_UI_CO_DELETE_CONFIRM_FMT, dto.strCompanyName.GetString());
-	if (AfxMessageBox(strConfirm, MB_YESNO | MB_ICONQUESTION) != IDYES)
+	if (ShowSageMessageBox(strConfirm, MB_YESNO | MB_ICONWARNING) != IDYES)
 		return;
 
 	CString strError;
