@@ -1,4 +1,12 @@
-﻿## [2026-08-19] feature/price-detail-card
+﻿## [2026-08-19] feature/price-company-table
+- **목적**: 단가 데이터 관리에서 법인을 추가하고 탭을 옮기면 사라지는 문제를 고친다
+- **변경 내용**: 법인 목록이 `SELECT DISTINCT company_name FROM TaechangPrice`였고 `OnAddCompany`는 콤보에만 `AddString`할 뿐 DB에 쓰지 않아, **단가 0건 법인은 저장될 자리가 없었다.** `TaechangPriceCompany(company_name, report_type, UNIQUE)` 테이블을 추가하고 시작 시 `INSERT OR IGNORE ... SELECT DISTINCT`로 기존 법인을 채운다. 목록 조회는 **새 테이블과 기존 테이블의 UNION**이라 시딩이 실패하거나 건너뛰어도 단가가 있는 법인은 사라지지 않는다. 이름 변경·삭제는 Repository가 두 테이블에 함께 적용한다
+- **PR 링크**: 없음
+- **결과**: merged — `develop`에 fast-forward(`e09a0d8`). 커밋 3개, 작업 브랜치 삭제. 빌드와 「추가 후 탭 이동」 확인 완료
+- **검증하지 못한 것**: **운영 DB 복사본으로 실행해보지 않았다.** 기존 데이터에 대한 안전성은 스키마 제약(`TaechangPrice`도 `CHECK (report_type > 0)`, `company_name NOT NULL`)과 SQL 의미로 판단한 것이고 실행 결과가 아니다. 배포 전 회사 DB 복사본으로 **법인 목록이 예전과 같은지** 한 번 확인이 필요하다
+- **되돌아보면**: 처음에 「법인 테이블이 없다」를 코드 grep 한 번으로 결론냈고, 실제 DB를 열었을 때도 ASCII로 읽어 0건이 나온 것을 그대로 믿을 뻔했다. 이 앱은 `sqlite3_open16`이라 **DB 인코딩이 UTF-16**이어서 ASCII 검색에 스키마가 걸리지 않는다. 또 「배포된 DB라 스키마를 못 바꾼다」고 단정해 A안을 무겁게 제시했는데, 이 프로젝트는 시작마다 `CREATE TABLE IF NOT EXISTS`를 돌리므로 **테이블 추가가 가장 가벼운 축**이었다
+
+## [2026-08-19] feature/price-detail-card
 - **목적**: 목업 3-3 신판(인라인 편집 폼으로 개정됨)에 단가 상세 정보 카드를 맞춘다
 - **변경 내용**: 헤더를 38px 아이보리 밴드 + 하단 경계선으로, 맨 윗줄에 「법인명 · 단가 N건」과 「N번째 구간 편집 중」을 두고, 입력 폭 110 + 「부」·「원」 단위, 체크박스를 `CSageOptionCheck`로 교체해 입력 열에 들여쓰고, 구분선을 두 줄로 나눴다. 선택이 없으면 폼을 숨기지 않고 **비활성**으로 보여준다(목업 빈 상태). 배경 역할에 `SAGE_BG_LIST_HEADER` · `SAGE_BG_LIST_GRID`를 추가했고, 요약 라벨 3개와 죽은 상수 8개를 제거했다. 기존 `auto` 람다는 멤버 함수로 승격했다
 - **PR 링크**: 없음
