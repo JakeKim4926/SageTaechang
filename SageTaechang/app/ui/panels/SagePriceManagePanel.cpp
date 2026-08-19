@@ -296,11 +296,11 @@ void SagePriceManagePanel::LayoutChildControls(int nWidth, int nHeight) {
 	m_wndDetailPriceDivider.MoveWindow(nCardInnerX, nFormY, nCardInnerW, TAECHANG_PRICE_DETAIL_DIVIDER_HEIGHT);
 	nFormY += TAECHANG_PRICE_DETAIL_DIVIDER_HEIGHT + nRowGap;
 
-	int nDeleteW = TAECHANG_PRICE_DETAIL_DELETE_WIDTH;
-	int nActionW = (nCardInnerW - nDeleteW - TAECHANG_ACTION_GAP * 2) / 2;
+	int nActionW = (nCardInnerW - TAECHANG_ACTION_GAP) / 2;
 	m_wndModifyBtn.MoveWindow(nCardInnerX, nFormY, nActionW, TAECHANG_BUTTON_HEIGHT);
 	m_wndCancelBtn.MoveWindow(nCardInnerX + nActionW + TAECHANG_ACTION_GAP, nFormY, nActionW, TAECHANG_BUTTON_HEIGHT);
-	m_wndDeleteBtn.MoveWindow(nCardInnerX + (nActionW + TAECHANG_ACTION_GAP) * 2, nFormY, nDeleteW, TAECHANG_BUTTON_HEIGHT);
+	nFormY += TAECHANG_BUTTON_HEIGHT + nRowGap;
+	m_wndDeleteBtn.MoveWindow(nCardInnerX, nFormY, nCardInnerW, TAECHANG_BUTTON_HEIGHT);
 	nFormY += TAECHANG_BUTTON_HEIGHT;
 
 	m_rectSummaryCard = CRect(nRightX, nCardTop, nRightX + nCardW, nFormY + nCardPad);

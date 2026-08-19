@@ -716,7 +716,6 @@ constexpr int TAECHANG_PRICE_DETAIL_EDIT_WIDTH       = 110;
 constexpr int TAECHANG_PRICE_DETAIL_UNIT_WIDTH       = 14;
 constexpr int TAECHANG_PRICE_DETAIL_ROW_GAP          = 14;
 constexpr int TAECHANG_PRICE_DETAIL_GROUP_GAP        = 6;
-constexpr int TAECHANG_PRICE_DETAIL_DELETE_WIDTH     = 80;
 constexpr LPCWSTR TAECHANG_UI_PRICE_PRINT_LABEL      = L"부수 단가";
 constexpr LPCWSTR TAECHANG_UI_PRICE_COVER_LABEL      = L"표지 단가";
 constexpr LPCWSTR TAECHANG_UI_PRICE_ADD_BTN          = L"단가 추가";
