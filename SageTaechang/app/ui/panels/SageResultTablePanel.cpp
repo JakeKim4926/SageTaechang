@@ -231,9 +231,9 @@ void SageResultTablePanel::Layout(const CRect& rectPanel) {
 		int nFilterTop = nBandTop - TAECHANG_RESULT_FILTER_TOP_LIFT;
 		int nBoxWidth = TAECHANG_SEARCH_CRITERIA_CELL_WIDTH + TAECHANG_RESULT_FILTER_WIDTH
 			+ TAECHANG_SEARCH_ICON_CELL_WIDTH;
-		m_wndSearch.MoveWindow(nFilterLeft, nFilterTop, nBoxWidth, TAECHANG_EDIT_HEIGHT);
-		int nResetLeft = nFilterLeft + nBoxWidth + TAECHANG_ACTION_GAP;
-		m_wndResetBtn.MoveWindow(nResetLeft, nFilterTop, TAECHANG_RESULT_RESET_WIDTH, TAECHANG_BUTTON_HEIGHT);
+		m_wndResetBtn.MoveWindow(nFilterLeft, nFilterTop, TAECHANG_RESULT_RESET_WIDTH, TAECHANG_BUTTON_HEIGHT);
+		int nBoxLeft = nFilterLeft + TAECHANG_RESULT_RESET_WIDTH + TAECHANG_ACTION_GAP;
+		m_wndSearch.MoveWindow(nBoxLeft, nFilterTop, nBoxWidth, TAECHANG_EDIT_HEIGHT);
 	}
 
 	LayoutTableArea();
