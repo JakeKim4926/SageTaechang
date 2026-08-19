@@ -28,6 +28,8 @@ BOOL CSageSearchBox::CreateBox(CWnd* pParent, UINT nBoxId, UINT nEditId) {
 
 BOOL CSageSearchBox::CreateCriteriaCell(UINT nCriteriaId, int nDropRows) {
 	CRect rectEmpty(0, 0, 0, 0);
+	m_wndCriteria.SetFieldHeight(TAECHANG_EDIT_HEIGHT
+		- TAECHANG_EDIT_BORDER_WIDTH * 2 - TAECHANG_COMBO_FIELD_INSET);
 	if (!m_wndCriteria.Create(
 		WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | CBS_OWNERDRAWFIXED | CBS_HASSTRINGS | WS_VSCROLL,
 		rectEmpty, this, nCriteriaId))

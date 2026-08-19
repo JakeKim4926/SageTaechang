@@ -8,7 +8,12 @@ BEGIN_MESSAGE_MAP(CSageFilterComboBox, CComboBox)
 END_MESSAGE_MAP()
 
 CSageFilterComboBox::CSageFilterComboBox()
-	: m_clrField(TAECHANG_COLOR_PANEL) {
+	: m_clrField(TAECHANG_COLOR_PANEL)
+	, m_nFieldHeight(TAECHANG_EDIT_HEIGHT - TAECHANG_COMBO_FIELD_INSET) {
+}
+
+void CSageFilterComboBox::SetFieldHeight(int nFieldHeight) {
+	m_nFieldHeight = nFieldHeight;
 }
 
 void CSageFilterComboBox::SetFieldColor(COLORREF clrField) {
@@ -18,7 +23,7 @@ void CSageFilterComboBox::SetFieldColor(COLORREF clrField) {
 }
 
 void CSageFilterComboBox::MeasureItem(LPMEASUREITEMSTRUCT lpMeasureItemStruct) {
-	lpMeasureItemStruct->itemHeight = TAECHANG_EDIT_HEIGHT - TAECHANG_COMBO_FIELD_INSET;
+	lpMeasureItemStruct->itemHeight = m_nFieldHeight;
 }
 
 void CSageFilterComboBox::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {

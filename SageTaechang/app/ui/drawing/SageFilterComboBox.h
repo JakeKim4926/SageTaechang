@@ -7,6 +7,7 @@ public:
 	CSageFilterComboBox();
 
 	void SetFieldColor(COLORREF clrField);
+	void SetFieldHeight(int nFieldHeight);
 
 	virtual void DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct);
 	virtual void MeasureItem(LPMEASUREITEMSTRUCT lpMeasureItemStruct);
@@ -15,4 +16,5 @@ protected:
 
 private:
 	COLORREF m_clrField;
+	int m_nFieldHeight;
 };
