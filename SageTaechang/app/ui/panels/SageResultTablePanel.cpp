@@ -94,6 +94,7 @@ void SageResultTablePanel::CreateControls() {
 	m_wndSearch.SetPlaceholder(TAECHANG_UI_RESULT_FILTER_PLACEHOLDER);
 	m_wndResetBtn.Create(TAECHANG_UI_RESULT_RESET_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_TAECHANG_RESULT_RESET_BTN);
 	m_wndResetBtn.SetVariant(SAGE_BUTTON_GHOST);
+	m_wndResetBtn.SetIcon(SAGE_BUTTON_ICON_RESET);
 	m_wndResetBtn.SetSurfaceColor(TAECHANG_COLOR_APP_BACKGROUND);
 
 	m_wndSummaryBar.Create(L"", WS_CHILD | SS_OWNERDRAW, r, this, ID_TAECHANG_RESULT_SUMMARY_BAR);
