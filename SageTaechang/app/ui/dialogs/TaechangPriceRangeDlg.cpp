@@ -164,22 +164,21 @@ int TaechangPriceRangeDlg::LayoutControls() {
     int nGap = TAECHANG_ROW_GAP;
     int nClientW = TAECHANG_PRICE_RANGE_DLG_WIDTH;
     int nLabelW = TAECHANG_PRICE_RANGE_DLG_LABEL_WIDTH;
-    int nCopiesW = TAECHANG_PRICE_RANGE_COPIES_EDIT_WIDTH;
-    int nPriceW = TAECHANG_PRICE_RANGE_PRICE_EDIT_WIDTH;
+    int nEditW = TAECHANG_PRICE_RANGE_EDIT_WIDTH;
     int nUnitW = TAECHANG_PRICE_RANGE_UNIT_WIDTH;
     int nFieldLeft = nM + nLabelW + nGap;
 
     int nY = GetContentTop() + nM;
     m_wndMinLabel.MoveWindow(nM, nY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, nEditH);
-    m_wndMinEdit.MoveWindow(nFieldLeft, nY, nCopiesW, nEditH);
+    m_wndMinEdit.MoveWindow(nFieldLeft, nY, nEditW, nEditH);
     ApplyEditTextRect(m_wndMinEdit);
-    m_wndMinUnit.MoveWindow(nFieldLeft + nCopiesW + nGap, nY + TAECHANG_LABEL_VERT_OFFSET, nUnitW, nEditH);
+    m_wndMinUnit.MoveWindow(nFieldLeft + nEditW + nGap, nY + TAECHANG_LABEL_VERT_OFFSET, nUnitW, nEditH);
     nY += nEditH + nGap;
 
     m_wndMaxLabel.MoveWindow(nM, nY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, nEditH);
-    m_wndMaxEdit.MoveWindow(nFieldLeft, nY, nCopiesW, nEditH);
+    m_wndMaxEdit.MoveWindow(nFieldLeft, nY, nEditW, nEditH);
     ApplyEditTextRect(m_wndMaxEdit);
-    m_wndMaxUnit.MoveWindow(nFieldLeft + nCopiesW + nGap, nY + TAECHANG_LABEL_VERT_OFFSET, nUnitW, nEditH);
+    m_wndMaxUnit.MoveWindow(nFieldLeft + nEditW + nGap, nY + TAECHANG_LABEL_VERT_OFFSET, nUnitW, nEditH);
     nY += nEditH + nGap;
 
     int nNoMaxW = m_wndNoMaxCheck.GetContentWidth();
@@ -189,15 +188,15 @@ int TaechangPriceRangeDlg::LayoutControls() {
     nY += nEditH + nGap;
 
     m_wndPrintLabel.MoveWindow(nM, nY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, nEditH);
-    m_wndPrintEdit.MoveWindow(nFieldLeft, nY, nPriceW, nEditH);
+    m_wndPrintEdit.MoveWindow(nFieldLeft, nY, nEditW, nEditH);
     ApplyEditTextRect(m_wndPrintEdit);
-    m_wndPrintUnit.MoveWindow(nFieldLeft + nPriceW + nGap, nY + TAECHANG_LABEL_VERT_OFFSET, nUnitW, nEditH);
+    m_wndPrintUnit.MoveWindow(nFieldLeft + nEditW + nGap, nY + TAECHANG_LABEL_VERT_OFFSET, nUnitW, nEditH);
     nY += nEditH + nGap;
 
     m_wndCoverLabel.MoveWindow(nM, nY + TAECHANG_LABEL_VERT_OFFSET, nLabelW, nEditH);
-    m_wndCoverEdit.MoveWindow(nFieldLeft, nY, nPriceW, nEditH);
+    m_wndCoverEdit.MoveWindow(nFieldLeft, nY, nEditW, nEditH);
     ApplyEditTextRect(m_wndCoverEdit);
-    m_wndCoverUnit.MoveWindow(nFieldLeft + nPriceW + nGap, nY + TAECHANG_LABEL_VERT_OFFSET, nUnitW, nEditH);
+    m_wndCoverUnit.MoveWindow(nFieldLeft + nEditW + nGap, nY + TAECHANG_LABEL_VERT_OFFSET, nUnitW, nEditH);
     nY += nEditH;
 
     m_wndError.MoveWindow(nFieldLeft, nY, nClientW - nM - nFieldLeft, TAECHANG_INLINE_MSG_HEIGHT);

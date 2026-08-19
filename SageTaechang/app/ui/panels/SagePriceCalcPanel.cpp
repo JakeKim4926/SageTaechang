@@ -242,12 +242,12 @@ void SagePriceCalcPanel::LayoutChildControls(int nWidth, int nHeight) {
 	}
 	nCY += TAECHANG_EDIT_HEIGHT + TAECHANG_ROW_GAP;
 
-	m_wndCopiesLabel.MoveWindow(nCX - TAECHANG_CALC_INPUT_LABEL_SHIFT, nCY, nInputLabelW, TAECHANG_EDIT_HEIGHT);
+	m_wndCopiesLabel.MoveWindow(nCX, nCY, nInputLabelW, TAECHANG_EDIT_HEIGHT);
 	int nCopiesEditX = nCX + nInputLabelW + TAECHANG_LABEL_EDIT_GAP;
 	m_wndCopiesEdit.MoveWindow(nCopiesEditX, nCY, nInputEditW, TAECHANG_EDIT_HEIGHT);
 	ApplyCalcEditTextRect(m_wndCopiesEdit);
 	int nPagesLabelX = nCopiesEditX + nInputEditW + TAECHANG_ROW_GAP;
-	m_wndPagesLabel.MoveWindow(nPagesLabelX - TAECHANG_CALC_INPUT_LABEL_SHIFT, nCY, nInputLabelW, TAECHANG_EDIT_HEIGHT);
+	m_wndPagesLabel.MoveWindow(nPagesLabelX, nCY, nInputLabelW, TAECHANG_EDIT_HEIGHT);
 	int nPagesEditX = nPagesLabelX + nInputLabelW + TAECHANG_LABEL_EDIT_GAP;
 	m_wndPagesEdit.MoveWindow(nPagesEditX, nCY, nInputEditW, TAECHANG_EDIT_HEIGHT);
 	ApplyCalcEditTextRect(m_wndPagesEdit);
