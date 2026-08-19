@@ -80,7 +80,8 @@ void TaechangCalcCompanyPickerDlg::CreateControls() {
 
     m_wndSearchEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOHSCROLL,
         rectEmpty, this, ID_PICKER_DLG_SEARCH_EDIT);
-    m_wndNameList.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | WS_VSCROLL | LBS_NOTIFY | LBS_NOINTEGRALHEIGHT,
+    m_wndNameList.Create(WS_CHILD | WS_VISIBLE | WS_VSCROLL | LBS_NOTIFY | LBS_NOINTEGRALHEIGHT |
+        LBS_OWNERDRAWFIXED | LBS_HASSTRINGS,
         rectEmpty, this, ID_PICKER_DLG_LIST);
     m_wndError.Create(NULL, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, rectEmpty, this);
     m_wndError.SetBackgroundRole(SAGE_BG_PANEL);

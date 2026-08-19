@@ -4,6 +4,7 @@
 #include "app/ui/drawing/SageEdit.h"
 #include "app/ui/drawing/SageInlineError.h"
 #include "app/ui/drawing/SageLabel.h"
+#include "app/ui/drawing/SageListBox.h"
 #include "app/ui/dialogs/SageFramelessDialog.h"
 
 #include "pch.h"
@@ -42,7 +43,7 @@ private:
     CString m_strSelectedName;
 
     CSageEdit m_wndSearchEdit;
-    CListBox m_wndNameList;
+    CSageListBox m_wndNameList;
     CSageInlineError m_wndError;
     CSageLabel m_wndMatchCount;
     CSageButton m_wndOkBtn;
