@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "pch.h"
 #include "app/infra/db/SqlContext.h"
@@ -19,6 +19,8 @@ private:
     BOOL CreateTaechangPriceTable(CString& strError);
     BOOL CreateTaechangUserTable(CString& strError);
     BOOL CreateTaechangReceivableCompanyOrderTable(CString& strError);
+    BOOL CreateTaechangPriceCompanyTable(CString& strError);
+    BOOL SeedTaechangPriceCompanies(CString& strError);
 
 private:
     BOOL SeedDefaultAdmin(CString& strError);

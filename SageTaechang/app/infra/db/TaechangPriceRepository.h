@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "pch.h"
 #include "app/infra/db/SqlContext.h"
@@ -90,6 +90,13 @@ public:
         CString& strError
     );
 
+    BOOL InsertCompany(
+        const CString& strCompanyName,
+        int nReportType,
+        int& nNewCompanyId,
+        CString& strError
+        );
+
     BOOL SelectAllCompanyNames(
         int nReportType,
         CStringArray& arrNames,
@@ -107,6 +114,14 @@ public:
     );
 
 private:
+    BOOL ExecuteCompanyStatement(
+        const CStringA& strSqlA,
+        const CString& strFirstText,
+        const CString& strSecondText,
+        int nReportType,
+        CString& strError
+        );
+
     BOOL FillDto(sqlite3_stmt* pStatement, TaechangPriceDto& dto);
 
 private:

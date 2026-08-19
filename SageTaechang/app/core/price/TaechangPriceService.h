@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "pch.h"
 #include "app/core/price/TaechangPriceDto.h"
@@ -71,6 +71,7 @@ public:
         CString& strError
     );
 
+    BOOL AddCompany(const CString& strCompanyName, int& nNewCompanyId, CString& strError);
     BOOL LoadAllCompanyNames(CStringArray& arrNames, CString& strError);
 
     BOOL ModifyPriceById(const TaechangPriceDto& dto, CString& strError);

@@ -679,10 +679,13 @@ void SagePriceManagePanel::OnAddCompany() {
 		return;
 	}
 
+	int nNewCompanyId = 0;
+	if (sageDBMgr.GetTaechangPriceService()->AddCompany(strName, nNewCompanyId, strError) == FALSE) {
+		ShowSageMessageBox(strError, MB_ICONERROR);
+		return;
+	}
+
 	RefreshCompanyList(strName);
-	int nIndex = m_wndCompanyCombo.AddString(strName);
-	m_wndCompanyCombo.SetCurSel(nIndex);
-	m_wndCompanyCombo.SetWindowTextW(strName);
 	m_wndCopiesList.DeleteAllItems();
 	ClearForm();
 	m_nPanelState = TAECHANG_PRICE_PANEL_SUMMARY;

@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "app/infra/db/TaechangPriceRepository.h"
 #include "app/infra/db/RepositoryHelper.h"
 
@@ -447,6 +447,15 @@ BOOL TaechangPriceRepository::UpdateCompanyName(
     pStatement = NULL;
 
     strSqlA =
+        "UPDATE TaechangPriceCompany "
+        "SET company_name = ? "
+        "WHERE company_name = ? "
+        "  AND report_type = ?;";
+
+    if (ExecuteCompanyStatement(strSqlA, strNewCompanyName, strOldCompanyName, nReportType, strError) == FALSE)
+        return FALSE;
+
+    strSqlA =
         "UPDATE TaechangPrice SET "
         "    company_name = ?, "
         "    updated_at = CURRENT_TIMESTAMP "
@@ -679,6 +688,14 @@ BOOL TaechangPriceRepository::DeleteByCompany(
     pStatement = NULL;
 
     strSqlA =
+        "DELETE FROM TaechangPriceCompany "
+        "WHERE company_name = ? "
+        "  AND report_type = ?;";
+
+    if (ExecuteCompanyStatement(strSqlA, strCompanyName, CString(), nReportType, strError) == FALSE)
+        return FALSE;
+
+    strSqlA =
         "DELETE FROM TaechangPrice "
         "WHERE company_name = ? "
         "  AND report_type = ?;";
@@ -707,6 +724,84 @@ BOOL TaechangPriceRepository::DeleteByCompany(
     return TRUE;
 }
 
+BOOL TaechangPriceRepository::ExecuteCompanyStatement(
+    const CStringA& strSqlA,
+    const CString& strFirstText,
+    const CString& strSecondText,
+    int nReportType,
+    CString& strError
+) {
+    sqlite3* pDb;
+    sqlite3_stmt* pStatement;
+    int nResult;
+    int nIndex;
+
+    if (m_pSqlContext == NULL || m_pSqlContext->IsOpened() == FALSE) {
+        strError = TAECHANG_DB_NOT_OPENED_MESSAGE;
+        return FALSE;
+    }
+
+    pDb = m_pSqlContext->GetDb();
+    pStatement = NULL;
+
+    nResult = sqlite3_prepare_v2(pDb, strSqlA.GetString(), -1, &pStatement, NULL);
+    if (nResult != SQLITE_OK) {
+        strError = RepositoryHelper::GetLastError(pDb);
+        return FALSE;
+    }
+
+    nIndex = 1;
+    if (RepositoryHelper::BindText(pStatement, nIndex, strFirstText, strError) == FALSE) {
+        sqlite3_finalize(pStatement);
+        return FALSE;
+    }
+    ++nIndex;
+
+    if (!strSecondText.IsEmpty()) {
+        if (RepositoryHelper::BindText(pStatement, nIndex, strSecondText, strError) == FALSE) {
+            sqlite3_finalize(pStatement);
+            return FALSE;
+        }
+        ++nIndex;
+    }
+
+    if (RepositoryHelper::BindInt(pStatement, nIndex, nReportType, strError) == FALSE) {
+        sqlite3_finalize(pStatement);
+        return FALSE;
+    }
+
+    nResult = sqlite3_step(pStatement);
+    sqlite3_finalize(pStatement);
+
+    if (nResult != SQLITE_DONE) {
+        strError = RepositoryHelper::GetLastError(pDb);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL TaechangPriceRepository::InsertCompany(
+    const CString& strCompanyName,
+    int nReportType,
+    int& nNewCompanyId,
+    CString& strError
+) {
+    CStringA strSqlA;
+
+    nNewCompanyId = 0;
+
+    strSqlA =
+        "INSERT INTO TaechangPriceCompany (company_name, report_type) "
+        "VALUES (?, ?);";
+
+    if (ExecuteCompanyStatement(strSqlA, strCompanyName, CString(), nReportType, strError) == FALSE)
+        return FALSE;
+
+    nNewCompanyId = static_cast<int>(sqlite3_last_insert_rowid(m_pSqlContext->GetDb()));
+    return TRUE;
+}
+
 BOOL TaechangPriceRepository::SelectAllCompanyNames(
     int nReportType,
     CStringArray& arrNames,
@@ -728,8 +823,8 @@ BOOL TaechangPriceRepository::SelectAllCompanyNames(
     pStatement = NULL;
 
     strSqlA =
-        "SELECT DISTINCT company_name "
-        "FROM TaechangPrice "
+        "SELECT company_name "
+        "FROM TaechangPriceCompany "
         "WHERE report_type = ? "
         "ORDER BY company_name ASC;";
 

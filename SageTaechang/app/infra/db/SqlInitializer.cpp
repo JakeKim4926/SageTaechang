@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "app/infra/db/SqlInitializer.h"
 #include "TaechangDefine.h"
 #include "app/infra/db/TaechangUserRepository.h"
@@ -53,6 +53,12 @@ BOOL SqlInitializer::CreateTables(CString& strError) {
         return FALSE;
 
     if (CreateTaechangReceivableCompanyOrderTable(strError) == FALSE)
+        return FALSE;
+
+    if (CreateTaechangPriceCompanyTable(strError) == FALSE)
+        return FALSE;
+
+    if (SeedTaechangPriceCompanies(strError) == FALSE)
         return FALSE;
 
     return TRUE;
@@ -119,6 +125,32 @@ BOOL SqlInitializer::CreateIndexes(CString& strError) {
     }
 
     return TRUE;
+}
+
+BOOL SqlInitializer::CreateTaechangPriceCompanyTable(CString& strError) {
+    CString strSql;
+
+    strSql =
+        _T("CREATE TABLE IF NOT EXISTS TaechangPriceCompany (")
+        _T("    company_id INTEGER PRIMARY KEY AUTOINCREMENT,")
+        _T("    company_name TEXT NOT NULL,")
+        _T("    report_type INTEGER NOT NULL,")
+        _T("    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,")
+        _T("    CHECK (report_type > 0),")
+        _T("    UNIQUE (company_name, report_type)")
+        _T(");");
+
+    return m_pSqlContext->Execute(strSql, strError);
+}
+
+BOOL SqlInitializer::SeedTaechangPriceCompanies(CString& strError) {
+    CString strSql;
+
+    strSql =
+        _T("INSERT OR IGNORE INTO TaechangPriceCompany (company_name, report_type) ")
+        _T("SELECT DISTINCT company_name, report_type FROM TaechangPrice;");
+
+    return m_pSqlContext->Execute(strSql, strError);
 }
 
 BOOL SqlInitializer::CreateTaechangUserTable(CString& strError) {

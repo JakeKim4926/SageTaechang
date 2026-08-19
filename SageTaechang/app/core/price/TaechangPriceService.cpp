@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "app/core/price/TaechangPriceService.h"
 #include "TaechangDefine.h"
 
@@ -336,6 +336,25 @@ BOOL TaechangPriceService::RemoveCompany(
     }
 
     return TRUE;
+}
+
+BOOL TaechangPriceService::AddCompany(
+    const CString& strCompanyName,
+    int& nNewCompanyId,
+    CString& strError
+) {
+    nNewCompanyId = 0;
+
+    if (m_pRepository == NULL) {
+        strError = TAECHANG_PRICE_REPOSITORY_NULL_MESSAGE;
+        return FALSE;
+    }
+
+    if (ValidateCompanyName(strCompanyName, strError) == FALSE)
+        return FALSE;
+
+    return m_pRepository->InsertCompany(
+        strCompanyName, REPORT_TYPE_AUDIT_REPORT, nNewCompanyId, strError);
 }
 
 BOOL TaechangPriceService::LoadAllCompanyNames(CStringArray& arrNames, CString& strError) {
