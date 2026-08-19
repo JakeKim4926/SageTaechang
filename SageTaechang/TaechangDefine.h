@@ -684,6 +684,8 @@ constexpr int TAECHANG_CALC_FREIGHT_EDIT_MIN_W        = 100;
 constexpr int TAECHANG_CALC_FREIGHT_EDIT_GAP          = 2;
 constexpr int TAECHANG_CALC_HIST_WIDTH_PAD            = 2;
 constexpr UINT ID_PICKER_DLG_SEARCH_EDIT  = 41062;
+constexpr UINT ID_PICKER_DLG_SEARCH_BOX   = 41105;
+constexpr UINT ID_PICKER_DLG_SEARCH_BTN   = 41106;
 constexpr UINT ID_PICKER_DLG_LIST         = 41063;
 
 // ── 사이드바 UI 문자열 ───────────────────────────────────────────────────────

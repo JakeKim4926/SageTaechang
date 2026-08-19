@@ -11,7 +11,7 @@ BEGIN_MESSAGE_MAP(CSageSearchBox, CStatic)
 END_MESSAGE_MAP()
 
 CSageSearchBox::CSageSearchBox()
-	: m_nCommandId(0), m_nCriteriaId(0) {
+	: m_nCommandId(0), m_nEditId(0), m_nCriteriaId(0) {
 }
 
 BOOL CSageSearchBox::CreateBox(CWnd* pParent, UINT nBoxId, UINT nEditId) {
@@ -21,6 +21,8 @@ BOOL CSageSearchBox::CreateBox(CWnd* pParent, UINT nBoxId, UINT nEditId) {
 
 	if (!m_wndEdit.Create(WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL, rectEmpty, this, nEditId))
 		return FALSE;
+
+	m_nEditId = nEditId;
 
 	m_wndEdit.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	return TRUE;
@@ -83,7 +85,9 @@ int CSageSearchBox::GetSelectedCriteria() const {
 }
 
 BOOL CSageSearchBox::OnCommand(WPARAM wParam, LPARAM lParam) {
-	if (m_nCriteriaId != 0 && LOWORD(wParam) == m_nCriteriaId) {
+	UINT nChildId = LOWORD(wParam);
+	if ((m_nCriteriaId != 0 && nChildId == m_nCriteriaId)
+		|| (m_nEditId != 0 && nChildId == m_nEditId)) {
 		GetParent()->SendMessage(WM_COMMAND, wParam, lParam);
 		return TRUE;
 	}
@@ -115,6 +119,11 @@ CString CSageSearchBox::GetKeyword() const {
 void CSageSearchBox::SetKeyword(const CString& strKeyword) {
 	if (::IsWindow(m_wndEdit.GetSafeHwnd()))
 		m_wndEdit.SetWindowTextW(strKeyword);
+}
+
+void CSageSearchBox::SetEditFocus() {
+	if (::IsWindow(m_wndEdit.GetSafeHwnd()))
+		m_wndEdit.SetFocus();
 }
 
 BOOL CSageSearchBox::IsEditMessage(const MSG* pMsg) const {

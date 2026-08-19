@@ -5,6 +5,7 @@
 #include "app/ui/drawing/SageInlineError.h"
 #include "app/ui/drawing/SageLabel.h"
 #include "app/ui/drawing/SageListBox.h"
+#include "app/ui/drawing/SageSearchBox.h"
 #include "app/ui/dialogs/SageFramelessDialog.h"
 
 #include "pch.h"
@@ -34,7 +35,6 @@ private:
     void CreateControls();
     void LayoutControls();
     void ApplyFont();
-    void ApplySearchEditTextRect();
     void FilterList(const CString& strKeyword);
 
 private:
@@ -42,7 +42,7 @@ private:
     CString m_strInitialName;
     CString m_strSelectedName;
 
-    CSageEdit m_wndSearchEdit;
+    CSageSearchBox m_wndSearch;
     CSageListBox m_wndNameList;
     CSageInlineError m_wndError;
     CSageLabel m_wndMatchCount;

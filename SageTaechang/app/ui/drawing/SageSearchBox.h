@@ -22,6 +22,7 @@ public:
 	CString GetKeyword() const;
 	void SetKeyword(const CString& strKeyword);
 	BOOL IsEditMessage(const MSG* pMsg) const;
+	void SetEditFocus();
 
 protected:
 	virtual BOOL OnCommand(WPARAM wParam, LPARAM lParam);
@@ -42,5 +43,6 @@ private:
 	CEdit m_wndEdit;
 	CSageFilterComboBox m_wndCriteria;
 	UINT m_nCommandId;
+	UINT m_nEditId;
 	UINT m_nCriteriaId;
 };

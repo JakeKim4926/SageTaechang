@@ -6,6 +6,7 @@
 BEGIN_MESSAGE_MAP(TaechangCalcCompanyPickerDlg, SageFramelessDialog)
     ON_WM_CTLCOLOR()
     ON_EN_CHANGE(ID_PICKER_DLG_SEARCH_EDIT, &TaechangCalcCompanyPickerDlg::OnSearchChanged)
+    ON_BN_CLICKED(ID_PICKER_DLG_SEARCH_BTN, &TaechangCalcCompanyPickerDlg::OnSearchChanged)
     ON_LBN_DBLCLK(ID_PICKER_DLG_LIST, &TaechangCalcCompanyPickerDlg::OnListDblClick)
 END_MESSAGE_MAP()
 
@@ -42,7 +43,6 @@ BOOL TaechangCalcCompanyPickerDlg::OnInitDialog() {
     ApplyFont();
     SizeFramelessClient(TAECHANG_PICKER_DLG_WIDTH, TAECHANG_PICKER_DLG_HEIGHT + GetContentTop());
     LayoutControls();
-    ApplySearchEditTextRect();
 
     FilterList(CString());
 
@@ -54,14 +54,14 @@ BOOL TaechangCalcCompanyPickerDlg::OnInitDialog() {
         }
     }
 
-    m_wndSearchEdit.SetFocus();
+    m_wndSearch.SetEditFocus();
 
     return FALSE;
 }
 
 BOOL TaechangCalcCompanyPickerDlg::PreTranslateMessage(MSG* pMsg) {
     if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_RETURN) {
-        if (pMsg->hwnd == m_wndSearchEdit.GetSafeHwnd()) {
+        if (m_wndSearch.IsEditMessage(pMsg)) {
             m_wndNameList.SetFocus();
             if (m_wndNameList.GetCurSel() == LB_ERR && m_wndNameList.GetCount() > 0)
                 m_wndNameList.SetCurSel(0);
@@ -78,8 +78,8 @@ BOOL TaechangCalcCompanyPickerDlg::PreTranslateMessage(MSG* pMsg) {
 void TaechangCalcCompanyPickerDlg::CreateControls() {
     CRect rectEmpty(0, 0, 0, 0);
 
-    m_wndSearchEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOHSCROLL,
-        rectEmpty, this, ID_PICKER_DLG_SEARCH_EDIT);
+    m_wndSearch.CreateBox(this, ID_PICKER_DLG_SEARCH_BOX, ID_PICKER_DLG_SEARCH_EDIT);
+    m_wndSearch.SetCommand(ID_PICKER_DLG_SEARCH_BTN);
     m_wndNameList.Create(WS_CHILD | WS_VISIBLE | WS_VSCROLL | LBS_NOTIFY | LBS_NOINTEGRALHEIGHT |
         LBS_OWNERDRAWFIXED | LBS_HASSTRINGS,
         rectEmpty, this, ID_PICKER_DLG_LIST);
@@ -91,7 +91,7 @@ void TaechangCalcCompanyPickerDlg::CreateControls() {
     m_wndCancelBtn.Create(TAECHANG_UI_PICKER_DLG_CANCEL,
         WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, IDCANCEL);
 
-    m_wndSearchEdit.SendMessage(EM_SETCUEBANNER, TRUE, (LPARAM)(LPCWSTR)TAECHANG_UI_PICKER_SEARCH_CUE);
+    m_wndSearch.SetPlaceholder(TAECHANG_UI_PICKER_SEARCH_CUE);
 }
 
 void TaechangCalcCompanyPickerDlg::LayoutControls() {
@@ -112,7 +112,7 @@ void TaechangCalcCompanyPickerDlg::LayoutControls() {
     if (nListH < nEditH * 4)
         nListH = nEditH * 4;
 
-    m_wndSearchEdit.MoveWindow(nM, nSearchTop, nContentW, nEditH);
+    m_wndSearch.MoveWindow(nM, nSearchTop, nContentW, nEditH);
     m_wndNameList.MoveWindow(nM, nListTop, nContentW, nListH);
     m_wndError.MoveWindow(nM, nErrorTop, nContentW, TAECHANG_INLINE_MSG_HEIGHT);
     m_wndMatchCount.MoveWindow(nM, nBtnTop, nContentW, nBtnH);
@@ -125,7 +125,6 @@ void TaechangCalcCompanyPickerDlg::LayoutControls() {
 void TaechangCalcCompanyPickerDlg::ApplyFont() {
     m_font.CreatePointFont(TAECHANG_CONTENT_FONT_POINT_SIZE, TAECHANG_CONTROL_FONT_FACE);
 
-    m_wndSearchEdit.SetFont(&m_font);
     m_wndNameList.SetFont(&m_font);
     m_wndMatchCount.SetFont(SageUiResources::GetFont(SAGE_FONT_CAPTION));
     m_wndMatchCount.SetTextColorRole(SAGE_TEXT_SECONDARY);
@@ -135,15 +134,6 @@ void TaechangCalcCompanyPickerDlg::ApplyFont() {
     m_wndCancelBtn.SetFont(&m_font);
 }
 
-void TaechangCalcCompanyPickerDlg::ApplySearchEditTextRect() {
-    CRect rectEdit;
-    m_wndSearchEdit.GetClientRect(&rectEdit);
-    rectEdit.left += 2;
-    rectEdit.top += 4;
-    rectEdit.right -= 2;
-    rectEdit.bottom -= 2;
-    m_wndSearchEdit.SendMessage(EM_SETRECTNP, 0, reinterpret_cast<LPARAM>(&rectEdit));
-}
 
 void TaechangCalcCompanyPickerDlg::FilterList(const CString& strKeyword) {
     m_wndNameList.SetRedraw(FALSE);
@@ -163,8 +153,7 @@ void TaechangCalcCompanyPickerDlg::FilterList(const CString& strKeyword) {
 }
 
 void TaechangCalcCompanyPickerDlg::OnSearchChanged() {
-    CString strKeyword;
-    m_wndSearchEdit.GetWindowText(strKeyword);
+    CString strKeyword = m_wndSearch.GetKeyword();
     strKeyword.Trim();
     FilterList(strKeyword);
 }
