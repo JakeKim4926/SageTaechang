@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "app/infra/db/TaechangPriceRepository.h"
 #include "app/infra/db/RepositoryHelper.h"
+#include "TaechangDefine.h"
 
 TaechangPriceRepository::TaechangPriceRepository(SqlContext* pSqlContext) {
     m_pSqlContext = pSqlContext;
