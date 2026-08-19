@@ -88,7 +88,13 @@ void CSageComboBox::OnPaint() {
 	CPaintDC dc(this);
 	COMBOBOXINFO cbi = {};
 	cbi.cbSize = sizeof(COMBOBOXINFO);
-	GetComboBoxInfo(&cbi);
+	if (!GetComboBoxInfo(&cbi))
+		return;
+
+	CRect rcField = cbi.rcItem;
+	if (!rcField.IsRectEmpty())
+		dc.FillSolidRect(rcField, TAECHANG_COLOR_PANEL);
+
 	CRect rcButton = cbi.rcButton;
 	if (rcButton.IsRectEmpty())
 		return;
