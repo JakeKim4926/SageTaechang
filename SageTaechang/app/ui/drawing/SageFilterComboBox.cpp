@@ -45,7 +45,7 @@ void CSageFilterComboBox::OnPaint() {
 	CPaintDC dc(this);
 	CRect rcClient;
 	GetClientRect(&rcClient);
-	dc.FillSolidRect(rcClient, TAECHANG_COLOR_PANEL);
+	dc.FillSolidRect(rcClient, m_clrField);
 
 	COMBOBOXINFO cbi = {};
 	cbi.cbSize = sizeof(COMBOBOXINFO);
