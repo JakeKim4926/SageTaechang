@@ -7,6 +7,16 @@ BEGIN_MESSAGE_MAP(CSageFilterComboBox, CComboBox)
 	ON_WM_PAINT()
 END_MESSAGE_MAP()
 
+CSageFilterComboBox::CSageFilterComboBox()
+	: m_clrField(TAECHANG_COLOR_PANEL) {
+}
+
+void CSageFilterComboBox::SetFieldColor(COLORREF clrField) {
+	m_clrField = clrField;
+	if (::IsWindow(GetSafeHwnd()))
+		Invalidate();
+}
+
 void CSageFilterComboBox::MeasureItem(LPMEASUREITEMSTRUCT lpMeasureItemStruct) {
 	lpMeasureItemStruct->itemHeight = TAECHANG_EDIT_HEIGHT - TAECHANG_COMBO_FIELD_INSET;
 }
@@ -17,13 +27,15 @@ void CSageFilterComboBox::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 	CDC* pDC = CDC::FromHandle(lpDrawItemStruct->hDC);
 	CRect rcItem = lpDrawItemStruct->rcItem;
 	BOOL bSelected = (lpDrawItemStruct->itemState & ODS_SELECTED) ? TRUE : FALSE;
-	pDC->FillSolidRect(rcItem, bSelected ? TAECHANG_COLOR_PRIMARY : TAECHANG_COLOR_PANEL);
+	BOOL bField = (lpDrawItemStruct->itemState & ODS_COMBOBOXEDIT) ? TRUE : FALSE;
+	pDC->FillSolidRect(rcItem, bSelected && !bField ? TAECHANG_COLOR_PRIMARY
+		: (bField ? m_clrField : TAECHANG_COLOR_PANEL));
 	CString strText;
 	GetLBText(lpDrawItemStruct->itemID, strText);
 	CFont* pFont = GetFont();
 	CFont* pOldFont = pFont ? pDC->SelectObject(pFont) : NULL;
 	pDC->SetBkMode(TRANSPARENT);
-	pDC->SetTextColor(bSelected ? TAECHANG_COLOR_PANEL : TAECHANG_COLOR_TEXT);
+	pDC->SetTextColor(bSelected && !bField ? TAECHANG_COLOR_PANEL : TAECHANG_COLOR_TEXT);
 	pDC->DrawText(strText, rcItem, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 	if (pOldFont)
 		pDC->SelectObject(pOldFont);

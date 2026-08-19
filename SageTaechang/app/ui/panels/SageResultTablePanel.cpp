@@ -58,7 +58,7 @@ BOOL SageResultTablePanel::Create(CWnd* pParent, UINT nId) {
 
 BOOL SageResultTablePanel::PreTranslateMessage(MSG* pMsg) {
 	if (pMsg != NULL && pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_RETURN &&
-		pMsg->hwnd == m_wndFilter.GetSafeHwnd()) {
+		m_wndSearch.IsEditMessage(pMsg)) {
 		OnSearch();
 		return TRUE;
 	}
@@ -88,16 +88,13 @@ void SageResultTablePanel::CreateControls() {
 	m_wndOnePage.Create(TAECHANG_UI_ESTIMATE_ONE_PAGE_CHECK, WS_CHILD | BS_OWNERDRAW, r, this, ID_TAECHANG_ESTIMATE_ONE_PAGE);
 	m_wndOnePage.SetHint(TAECHANG_UI_ESTIMATE_ONE_PAGE_HINT);
 
-	m_wndCriteria.Create(WS_CHILD | CBS_DROPDOWNLIST | CBS_OWNERDRAWFIXED | CBS_HASSTRINGS | WS_VSCROLL, r, this, ID_TAECHANG_RESULT_FILTER_CRITERIA);
-	m_wndFilter.Create(WS_CHILD | ES_MULTILINE | ES_AUTOHSCROLL, r, this, ID_TAECHANG_RESULT_FILTER_EDIT);
-	m_wndFilter.LimitText(TAECHANG_RESULT_FILTER_MAX_LENGTH);
-	m_wndSearchBtn.Create(TAECHANG_UI_RESULT_SEARCH_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_TAECHANG_RESULT_SEARCH_BTN);
-	m_wndSearchBtn.SetIcon(SAGE_BUTTON_ICON_SEARCH);
-	m_wndSearchBtn.SetTooltip(TAECHANG_UI_TIP_SEARCH);
+	m_wndSearch.CreateBox(this, ID_TAECHANG_RESULT_FILTER_BOX, ID_TAECHANG_RESULT_FILTER_EDIT);
+	m_wndSearch.CreateCriteriaCell(ID_TAECHANG_RESULT_FILTER_CRITERIA, TAECHANG_RESULT_CRITERIA_DROP_ROWS);
+	m_wndSearch.SetCommand(ID_TAECHANG_RESULT_SEARCH_BTN);
+	m_wndSearch.SetMaxLength(TAECHANG_RESULT_FILTER_MAX_LENGTH);
+	m_wndSearch.SetPlaceholder(TAECHANG_UI_RESULT_FILTER_PLACEHOLDER);
 	m_wndResetBtn.Create(TAECHANG_UI_RESULT_RESET_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_TAECHANG_RESULT_RESET_BTN);
 	m_wndResetBtn.SetVariant(SAGE_BUTTON_GHOST);
-	m_wndResetBtn.SetIcon(SAGE_BUTTON_ICON_RESET);
-	m_wndResetBtn.SetTooltip(TAECHANG_UI_TIP_RESET);
 
 	m_wndSummaryBar.Create(L"", WS_CHILD | SS_OWNERDRAW, r, this, ID_TAECHANG_RESULT_SUMMARY_BAR);
 	m_wndTotalBar.Create(L"", WS_CHILD | SS_OWNERDRAW, r, this, ID_TAECHANG_RESULT_TOTAL_BAR);
@@ -115,10 +112,7 @@ void SageResultTablePanel::CreateControls() {
 void SageResultTablePanel::ApplyControlFonts() {
 	m_wndTitle.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndOnePage.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndCriteria.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndFilter.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndSearchBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndResetBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_HEADER));
+	m_wndResetBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 	m_wndList.SetFont(SageUiResources::GetFont(SAGE_FONT_LIST));
 	if (::IsWindow(m_wndHeader.GetSafeHwnd()))
 		m_wndHeader.SetFont(SageUiResources::GetFont(SAGE_FONT_LIST));
@@ -129,9 +123,8 @@ int SageResultTablePanel::GetBandHeight() const {
 }
 
 int SageResultTablePanel::GetFilterTotalWidth() const {
-	return TAECHANG_RESULT_CRITERIA_WIDTH + TAECHANG_ACTION_GAP
-		+ TAECHANG_RESULT_FILTER_WIDTH + TAECHANG_ACTION_GAP
-		+ TAECHANG_RESULT_SEARCH_WIDTH + TAECHANG_ACTION_GAP + TAECHANG_RESULT_RESET_WIDTH;
+	return TAECHANG_SEARCH_CRITERIA_CELL_WIDTH + TAECHANG_RESULT_FILTER_WIDTH
+		+ TAECHANG_SEARCH_ICON_CELL_WIDTH + TAECHANG_ACTION_GAP + TAECHANG_RESULT_RESET_WIDTH;
 }
 
 int SageResultTablePanel::GetBandRight() const {
@@ -183,9 +176,7 @@ void SageResultTablePanel::ShowOnePageOption(BOOL bShow) {
 void SageResultTablePanel::ShowFilter(BOOL bShow) {
 	m_bFilterVisible = bShow;
 	int nCmd = bShow ? SW_SHOW : SW_HIDE;
-	m_wndCriteria.ShowWindow(nCmd);
-	m_wndFilter.ShowWindow(nCmd);
-	m_wndSearchBtn.ShowWindow(nCmd);
+	m_wndSearch.ShowWindow(nCmd);
 	m_wndResetBtn.ShowWindow(nCmd);
 	if (bShow) {
 		PopulateCriteria();
@@ -246,18 +237,10 @@ void SageResultTablePanel::Layout(const CRect& rectPanel) {
 
 	if (m_bFilterVisible) {
 		int nFilterTop = nBandTop - TAECHANG_RESULT_FILTER_TOP_LIFT;
-		m_wndCriteria.MoveWindow(nFilterLeft, nFilterTop, TAECHANG_RESULT_CRITERIA_WIDTH, TAECHANG_EDIT_HEIGHT * TAECHANG_RESULT_CRITERIA_DROP_ROWS);
-		int nFilterEditLeft = nFilterLeft + TAECHANG_RESULT_CRITERIA_WIDTH + TAECHANG_ACTION_GAP;
-		m_wndFilter.MoveWindow(nFilterEditLeft, nFilterTop, TAECHANG_RESULT_FILTER_WIDTH, TAECHANG_EDIT_HEIGHT);
-		CRect rcFmt;
-		m_wndFilter.GetClientRect(&rcFmt);
-		rcFmt.top += TAECHANG_EDIT_TEXT_TOP_PAD;
-		rcFmt.left += TAECHANG_RESULT_FILTER_TEXT_LEFT_PAD;
-		rcFmt.right = TAECHANG_EDIT_FORMAT_MAX_WIDTH;
-		m_wndFilter.SendMessage(EM_SETRECT, 0, reinterpret_cast<LPARAM>(&rcFmt));
-		int nSearchLeft = nFilterEditLeft + TAECHANG_RESULT_FILTER_WIDTH + TAECHANG_ACTION_GAP;
-		m_wndSearchBtn.MoveWindow(nSearchLeft, nFilterTop, TAECHANG_RESULT_SEARCH_WIDTH, TAECHANG_BUTTON_HEIGHT);
-		int nResetLeft = nSearchLeft + TAECHANG_RESULT_SEARCH_WIDTH + TAECHANG_ACTION_GAP;
+		int nBoxWidth = TAECHANG_SEARCH_CRITERIA_CELL_WIDTH + TAECHANG_RESULT_FILTER_WIDTH
+			+ TAECHANG_SEARCH_ICON_CELL_WIDTH;
+		m_wndSearch.MoveWindow(nFilterLeft, nFilterTop, nBoxWidth, TAECHANG_EDIT_HEIGHT);
+		int nResetLeft = nFilterLeft + nBoxWidth + TAECHANG_ACTION_GAP;
 		m_wndResetBtn.MoveWindow(nResetLeft, nFilterTop, TAECHANG_RESULT_RESET_WIDTH, TAECHANG_BUTTON_HEIGHT);
 		m_rectFilterCard.SetRect(
 			nFilterLeft - TAECHANG_RESULT_FILTER_BOX_PAD,
@@ -308,23 +291,9 @@ BOOL SageResultTablePanel::OnEraseBkgnd(CDC* pDC) {
 		CBrush brFilterBox(TAECHANG_COLOR_BORDER);
 		pDC->FrameRect(m_rectFilterCard, &brFilterBox);
 	}
-	DrawEditBorder(pDC, m_wndCriteria);
-	DrawEditBorder(pDC, m_wndFilter);
 	return TRUE;
 }
 
-void SageResultTablePanel::DrawEditBorder(CDC* pDC, CWnd& wnd) {
-	if (!::IsWindow(wnd.GetSafeHwnd()) || !wnd.IsWindowVisible())
-		return;
-	CRect rect;
-	wnd.GetWindowRect(&rect);
-	ScreenToClient(&rect);
-	rect.InflateRect(1, 1);
-	pDC->FillSolidRect(rect.left, rect.top, rect.Width(), 1, TAECHANG_COLOR_BORDER);
-	pDC->FillSolidRect(rect.left, rect.bottom - 1, rect.Width(), 1, TAECHANG_COLOR_BORDER);
-	pDC->FillSolidRect(rect.left, rect.top, 1, rect.Height(), TAECHANG_COLOR_BORDER);
-	pDC->FillSolidRect(rect.right - 1, rect.top, 1, rect.Height(), TAECHANG_COLOR_BORDER);
-}
 
 HBRUSH SageResultTablePanel::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
 	HBRUSH hBrush = CWnd::OnCtlColor(pDC, pWnd, nCtlColor);
@@ -447,25 +416,13 @@ int SageResultTablePanel::GetEffectiveCriteria() const {
 }
 
 void SageResultTablePanel::PopulateCriteria() {
-	if (!::IsWindow(m_wndCriteria.GetSafeHwnd()))
-		return;
-
 	int nEffective = GetEffectiveCriteria();
-	m_wndCriteria.ResetContent();
-	for (int i = 0; i < static_cast<int>(m_arrCriteria.size()); ++i) {
-		int nIndex = m_wndCriteria.AddString(m_arrCriteria[i].pszLabel);
-		m_wndCriteria.SetItemData(nIndex, m_arrCriteria[i].nCriteria);
-	}
+	m_wndSearch.ClearCriteriaItems();
+	for (int i = 0; i < static_cast<int>(m_arrCriteria.size()); ++i)
+		m_wndSearch.AddCriteriaItem(m_arrCriteria[i].pszLabel, m_arrCriteria[i].nCriteria);
 
-	int nCount = m_wndCriteria.GetCount();
-	for (int i = 0; i < nCount; ++i) {
-		if (static_cast<int>(m_wndCriteria.GetItemData(i)) == nEffective) {
-			m_wndCriteria.SetCurSel(i);
-			return;
-		}
-	}
-	if (nCount > 0)
-		m_wndCriteria.SetCurSel(0);
+	int nIndex = m_wndSearch.FindCriteriaIndex(nEffective);
+	m_wndSearch.SetCriteriaIndex(nIndex == CB_ERR ? 0 : nIndex);
 }
 
 void SageResultTablePanel::SetRows(const std::vector<TaechangResultRow>& arrRows) {
@@ -684,8 +641,7 @@ int SageResultTablePanel::GetFilterCriteria() const {
 void SageResultTablePanel::RestoreFilter(const CString& strKeyword, int nCriteria) {
 	m_strKeyword = strKeyword;
 	m_nCriteria = nCriteria;
-	if (::IsWindow(m_wndFilter.GetSafeHwnd()))
-		m_wndFilter.SetWindowTextW(m_strKeyword);
+	m_wndSearch.SetKeyword(m_strKeyword);
 }
 
 void SageResultTablePanel::NotifyStateChanged() {
@@ -716,7 +672,7 @@ void SageResultTablePanel::NotifySelectionChanged() {
 }
 
 void SageResultTablePanel::OnSearch() {
-	m_wndFilter.GetWindowTextW(m_strKeyword);
+	m_strKeyword = m_wndSearch.GetKeyword();
 	m_strKeyword.Trim();
 	RefreshRows();
 	NotifyStateChanged();
@@ -724,17 +680,17 @@ void SageResultTablePanel::OnSearch() {
 
 void SageResultTablePanel::OnFilterReset() {
 	m_strKeyword.Empty();
-	m_wndFilter.SetWindowTextW(L"");
+	m_wndSearch.SetKeyword(L"");
 	RefreshRows();
 	NotifyStateChanged();
 }
 
 void SageResultTablePanel::OnCriteriaChanged() {
-	int nSel = m_wndCriteria.GetCurSel();
-	if (nSel == CB_ERR)
+	int nCriteria = m_wndSearch.GetSelectedCriteria();
+	if (nCriteria == CB_ERR)
 		return;
 
-	m_nCriteria = static_cast<int>(m_wndCriteria.GetItemData(nSel));
+	m_nCriteria = nCriteria;
 	RefreshRows();
 	NotifyStateChanged();
 }

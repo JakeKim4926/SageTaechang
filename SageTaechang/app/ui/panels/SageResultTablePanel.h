@@ -4,7 +4,7 @@
 #include "app/core/workflow/SageWorkflowResultTable.h"
 #include "app/core/workflow/TaechangWorkflowResultPresenter.h"
 #include "app/ui/drawing/SageButton.h"
-#include "app/ui/drawing/SageFilterComboBox.h"
+#include "app/ui/drawing/SageSearchBox.h"
 #include "app/ui/drawing/SageHeaderCtrl.h"
 #include "app/ui/drawing/SageListCtrl.h"
 #include "app/ui/drawing/SageSectionLabel.h"
@@ -83,7 +83,6 @@ private:
     void LayoutSelectionRow();
     int  GetFilterTotalWidth() const;
     int  GetBandRight() const;
-    void DrawEditBorder(CDC* pDC, CWnd& wnd);
     void RefreshRows();
     void UpdateColumnWidths();
     void UpdateTotalBarCells();
@@ -101,9 +100,7 @@ private:
     CSageSectionLabel m_wndTitle;
     CSageSelectionBar m_wndSelectionBar;
     CSageOptionCheck m_wndOnePage;
-    CSageFilterComboBox m_wndCriteria;
-    CEdit m_wndFilter;
-    CSageButton m_wndSearchBtn;
+    CSageSearchBox m_wndSearch;
     CSageButton m_wndResetBtn;
     CSageSummaryBar m_wndSummaryBar;
     CSageTableTotalBar m_wndTotalBar;
