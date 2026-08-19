@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "pch.h"
 #include "app/ui/drawing/SageListCtrl.h"
@@ -44,6 +44,7 @@ private:
     void RebuildVisibleRows();
     BOOL IsRowVisible(const SageHistoryRow& row) const;
     SageHistoryRow BuildRow(const CString& strInputPath, const CString& strResponseJson, BOOL bSuccess) const;
+    SageHistoryRow BuildFileRow(const CString& strInputPath, const CString& strFileJson, BOOL bRunSuccess) const;
 
 private:
     CSageFilterPillBar m_wndFilterPills;

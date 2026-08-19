@@ -231,10 +231,47 @@ void SageWorkflowHistoryPanel::InsertRow(int nItem, const SageHistoryRow& row) {
 		row.bSuccess ? TAECHANG_HISTORY_STATE_SUCCESS : TAECHANG_HISTORY_STATE_FAILED);
 }
 
+SageHistoryRow SageWorkflowHistoryPanel::BuildFileRow(
+	const CString& strInputPath, const CString& strFileJson, BOOL bRunSuccess) const {
+	SageHistoryRow row;
+	row.strTime = CTime::GetCurrentTime().Format(TAECHANG_UI_HISTORY_TIME_FORMAT);
+	row.strInputPath = strInputPath.IsEmpty() ? CString(TAECHANG_UI_AMOUNT_EMPTY_MARK) : strInputPath;
+
+	CString strStatus = JsonExtractString(strFileJson, TAECHANG_JSON_KEY_STATUS);
+	row.bSuccess = strStatus.IsEmpty()
+		? bRunSuccess
+		: (strStatus.CompareNoCase(TAECHANG_JSON_VALUE_SUCCESS) == 0 ? TRUE : FALSE);
+
+	if (row.bSuccess) {
+		row.strOutputPath = JsonExtractString(strFileJson, TAECHANG_JSON_KEY_FILE_PATH);
+		if (row.strOutputPath.IsEmpty())
+			row.strOutputPath = TAECHANG_UI_HISTORY_NO_OUTPUT;
+		row.strReason = TAECHANG_UI_AMOUNT_EMPTY_MARK;
+		return row;
+	}
+
+	row.strOutputPath = TAECHANG_UI_AMOUNT_EMPTY_MARK;
+	row.strReason = JsonExtractString(strFileJson, TAECHANG_JSON_KEY_MESSAGE);
+	if (row.strReason.IsEmpty())
+		row.strReason = TAECHANG_UI_AMOUNT_EMPTY_MARK;
+	return row;
+}
+
 void SageWorkflowHistoryPanel::AppendEntry(
 	const CString& strInputPath, const CString& strResponseJson, BOOL bSuccess) {
-	SageHistoryRow row = BuildRow(strInputPath, strResponseJson, bSuccess);
-	m_arrRows.insert(m_arrRows.begin(), row);
+	std::vector<CString> arrFiles;
+	SplitJsonObjectArray(JsonExtractArray(strResponseJson, TAECHANG_JSON_KEY_FILES), arrFiles);
+
+	std::vector<SageHistoryRow> arrNewRows;
+	if (arrFiles.empty()) {
+		arrNewRows.push_back(BuildRow(strInputPath, strResponseJson, bSuccess));
+	}
+	else {
+		for (size_t nFile = 0; nFile < arrFiles.size(); ++nFile)
+			arrNewRows.push_back(BuildFileRow(strInputPath, arrFiles[nFile], bSuccess));
+	}
+
+	m_arrRows.insert(m_arrRows.begin(), arrNewRows.begin(), arrNewRows.end());
 	if (!::IsWindow(m_wndList.GetSafeHwnd()))
 		return;
 
