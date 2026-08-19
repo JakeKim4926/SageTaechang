@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 enum SageButtonVariant {
 	SAGE_BUTTON_SECONDARY,
@@ -27,12 +27,14 @@ public:
 	void SetIcon(SageButtonIcon nIcon);
 	void SetTooltip(const CString& strTooltip);
 	void SetSurfaceColor(COLORREF clrSurface);
+	void SetFocusRing(BOOL bVisible);
 
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	virtual void DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct);
 
 private:
 	int GetIconSize() const;
+	COLORREF GetFocusRingColor() const;
 	void DrawIconAt(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon);
 	void DrawSearchIcon(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon);
 	void DrawCalculateIcon(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon);
@@ -45,5 +47,6 @@ private:
 	SageButtonVariant m_nVariant;
 	SageButtonIcon m_nIcon;
 	COLORREF m_clrSurface;
+	BOOL m_bFocusRing;
 	CToolTipCtrl m_toolTip;
 };

@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "app/ui/drawing/SageButton.h"
 #include "app/ui/drawing/SageUiStyle.h"
 #include "TaechangDefine.h"
@@ -6,7 +6,8 @@
 CSageButton::CSageButton()
 	: m_nVariant(SAGE_BUTTON_SECONDARY)
 	, m_nIcon(SAGE_BUTTON_ICON_NONE)
-	, m_clrSurface(TAECHANG_COLOR_PANEL) {
+	, m_clrSurface(TAECHANG_COLOR_PANEL)
+	, m_bFocusRing(FALSE) {
 }
 
 void CSageButton::SetSurfaceColor(COLORREF clrSurface) {
@@ -47,11 +48,28 @@ BOOL CSageButton::PreTranslateMessage(MSG* pMsg) {
 	return CButton::PreTranslateMessage(pMsg);
 }
 
+void CSageButton::SetFocusRing(BOOL bVisible) {
+	m_bFocusRing = bVisible;
+	if (::IsWindow(GetSafeHwnd()))
+		Invalidate();
+}
+
+COLORREF CSageButton::GetFocusRingColor() const {
+	return (m_nVariant == SAGE_BUTTON_PRIMARY)
+		? TAECHANG_COLOR_FOCUS_RING_PRIMARY : TAECHANG_COLOR_FOCUS_RING_NEUTRAL;
+}
+
 void CSageButton::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 	CDC* pDC = CDC::FromHandle(lpDrawItemStruct->hDC);
 	CRect rect = lpDrawItemStruct->rcItem;
 	BOOL bPressed = (lpDrawItemStruct->itemState & ODS_SELECTED) != 0;
 	BOOL bDisabled = (lpDrawItemStruct->itemState & ODS_DISABLED) != 0;
+
+	if (m_bFocusRing) {
+		BOOL bFocused = (lpDrawItemStruct->itemState & ODS_FOCUS) != 0;
+		pDC->FillSolidRect(rect, bFocused ? GetFocusRingColor() : m_clrSurface);
+		rect.DeflateRect(TAECHANG_FOCUS_RING_WIDTH, TAECHANG_FOCUS_RING_WIDTH);
+	}
 
 	if (m_nVariant == SAGE_BUTTON_PRIMARY) {
 		COLORREF clrBg = bDisabled ? TAECHANG_COLOR_BORDER

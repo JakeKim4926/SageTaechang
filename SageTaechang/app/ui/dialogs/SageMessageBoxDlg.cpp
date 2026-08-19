@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "app/ui/dialogs/SageMessageBoxDlg.h"
 #include "app/ui/drawing/SageUiResources.h"
 #include "TaechangDefine.h"
@@ -102,6 +102,26 @@ void SageMessageBoxDlg::ApplyStyle() {
 
 	m_wndRejectBtn.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTROL));
 	m_wndRejectBtn.SetVariant(SAGE_BUTTON_SECONDARY);
+
+	if (IsDefaultReject())
+		m_wndRejectBtn.SetFocusRing(TRUE);
+	else
+		m_wndAcceptBtn.SetFocusRing(TRUE);
+}
+
+void SageMessageBoxDlg::MoveButton(CSageButton& button, int nLeft, int nTop, BOOL bFocusRing) {
+	int nWidth = TAECHANG_LOGIN_DLG_BTN_WIDTH;
+	int nHeight = TAECHANG_BUTTON_HEIGHT;
+	if (!bFocusRing) {
+		button.MoveWindow(nLeft, nTop, nWidth, nHeight);
+		return;
+	}
+
+	button.MoveWindow(
+		nLeft - TAECHANG_FOCUS_RING_WIDTH,
+		nTop - TAECHANG_FOCUS_RING_WIDTH,
+		nWidth + TAECHANG_FOCUS_RING_WIDTH * 2,
+		nHeight + TAECHANG_FOCUS_RING_WIDTH * 2);
 }
 
 int SageMessageBoxDlg::LayoutControls() {
@@ -120,14 +140,18 @@ int SageMessageBoxDlg::LayoutControls() {
 	int nBtnRight = nClientW - nM;
 
 	if (IsConfirm()) {
-		m_wndRejectBtn.MoveWindow(nBtnRight - nBtnW, nBtnTop, nBtnW, nBtnH);
-		m_wndAcceptBtn.MoveWindow(nBtnRight - nBtnW * 2 - nGap, nBtnTop, nBtnW, nBtnH);
+		MoveButton(m_wndRejectBtn, nBtnRight - nBtnW, nBtnTop, IsDefaultReject());
+		MoveButton(m_wndAcceptBtn, nBtnRight - nBtnW * 2 - nGap, nBtnTop, IsDefaultReject() ? FALSE : TRUE);
 	}
 	else {
-		m_wndAcceptBtn.MoveWindow(nBtnRight - nBtnW, nBtnTop, nBtnW, nBtnH);
+		MoveButton(m_wndAcceptBtn, nBtnRight - nBtnW, nBtnTop, FALSE);
 	}
 
-	return nBtnTop + nBtnH + nM;
+	int nContentBottom = nBtnTop + nBtnH;
+	if (IsConfirm())
+		nContentBottom += TAECHANG_FOCUS_RING_WIDTH;
+
+	return nContentBottom + nM;
 }
 
 void SageMessageBoxDlg::OnYesClicked() {

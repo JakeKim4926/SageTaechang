@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "app/ui/dialogs/SageFramelessDialog.h"
 #include "app/ui/drawing/SageButton.h"
@@ -25,6 +25,7 @@ private:
 	void CreateControls();
 	int LayoutControls();
 	void ApplyStyle();
+	void MoveButton(CSageButton& button, int nLeft, int nTop, BOOL bFocusRing);
 	BOOL IsConfirm() const;
 	BOOL IsDefaultReject() const;
 	SageMessageIcon GetMessageIcon() const;
