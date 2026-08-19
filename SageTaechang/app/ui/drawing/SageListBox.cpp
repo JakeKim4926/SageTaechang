@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "app/ui/drawing/SageListBox.h"
 #include "app/ui/drawing/SageUiResources.h"
 #include "TaechangDefine.h"
@@ -48,7 +48,7 @@ void CSageListBox::MeasureItem(LPMEASUREITEMSTRUCT lpMeasureItemStruct) {
 
 COLORREF CSageListBox::GetRowColor(int nIndex, BOOL bSelected) const {
 	if (bSelected)
-		return TAECHANG_COLOR_ACCENT_SURFACE;
+		return TAECHANG_COLOR_LIST_ROW_SELECTED;
 	return (nIndex % 2 == 0) ? TAECHANG_COLOR_PANEL : TAECHANG_COLOR_LIST_ROW_ALT;
 }
 
@@ -65,6 +65,10 @@ void CSageListBox::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 	pDC->FillSolidRect(rectItem.left, rectItem.bottom - TAECHANG_LIST_GRID_THICKNESS,
 		rectItem.Width(), TAECHANG_LIST_GRID_THICKNESS, TAECHANG_COLOR_LIST_GRID);
 
+	if (bSelected)
+		pDC->FillSolidRect(rectItem.left, rectItem.top,
+			TAECHANG_LIST_SELECTION_ACCENT_WIDTH, rectItem.Height(), TAECHANG_COLOR_PRIMARY);
+
 	CString strText;
 	GetText(nIndex, strText);
 
@@ -73,7 +77,7 @@ void CSageListBox::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 	rectText.right -= TAECHANG_LIST_BOX_TEXT_PAD_X;
 
 	pDC->SetBkMode(TRANSPARENT);
-	pDC->SetTextColor(bSelected ? TAECHANG_COLOR_PRIMARY : TAECHANG_COLOR_TEXT);
+	pDC->SetTextColor(bSelected ? TAECHANG_COLOR_PRIMARY_PRESS : TAECHANG_COLOR_TEXT);
 	CFont* pOldFont = pDC->SelectObject(SageUiResources::GetFont(
 		bSelected ? SAGE_FONT_CONTENT_SEMIBOLD : SAGE_FONT_CONTENT));
 	pDC->DrawText(strText, &rectText, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);

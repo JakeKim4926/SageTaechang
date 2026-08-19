@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "app/ui/drawing/SageListCtrl.h"
 #include "app/ui/drawing/SageUiResources.h"
 #include "app/ui/drawing/SageUiStyle.h"
@@ -146,7 +146,7 @@ BOOL CSageListCtrl::FindCheckImageRect(int nColumn, const CRect& rcColumn, CRect
 		return FALSE;
 
 	rectCheckImage.SetRect(
-		rcColumn.left + TAECHANG_SELECTION_ACCENT_WIDTH + TAECHANG_LIST_CHECK_ACCENT_GAP,
+		rcColumn.left + TAECHANG_LIST_SELECTION_ACCENT_WIDTH + TAECHANG_LIST_CHECK_ACCENT_GAP,
 		rcColumn.top,
 		rcColumn.left + nImageWidth,
 		rcColumn.bottom);
@@ -212,7 +212,7 @@ void CSageListCtrl::DrawSelectionAccent(int nItem, NMLVCUSTOMDRAW* pCD) {
 		return;
 	CDC* pDC = CDC::FromHandle(pCD->nmcd.hdc);
 	pDC->FillSolidRect(rcItem.left, rcItem.top,
-		TAECHANG_SELECTION_ACCENT_WIDTH, rcItem.Height(), TAECHANG_COLOR_PRIMARY);
+		TAECHANG_LIST_SELECTION_ACCENT_WIDTH, rcItem.Height(), TAECHANG_COLOR_PRIMARY);
 }
 
 void CSageListCtrl::SetAlternateRowColor(BOOL bEnable) {
