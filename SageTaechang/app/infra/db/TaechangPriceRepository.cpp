@@ -824,9 +824,9 @@ BOOL TaechangPriceRepository::SelectAllCompanyNames(
     pStatement = NULL;
 
     strSqlA =
-        "SELECT company_name "
-        "FROM TaechangPriceCompany "
-        "WHERE report_type = ? "
+        "SELECT company_name FROM TaechangPriceCompany WHERE report_type = ? "
+        "UNION "
+        "SELECT company_name FROM TaechangPrice WHERE report_type = ? "
         "ORDER BY company_name ASC;";
 
     nResult = sqlite3_prepare_v2(pDb, strSqlA.GetString(), -1, &pStatement, NULL);
@@ -836,7 +836,8 @@ BOOL TaechangPriceRepository::SelectAllCompanyNames(
         return FALSE;
     }
 
-    if (RepositoryHelper::BindInt(pStatement, 1, nReportType, strError) == FALSE) {
+    if (RepositoryHelper::BindInt(pStatement, 1, nReportType, strError) == FALSE ||
+        RepositoryHelper::BindInt(pStatement, 2, nReportType, strError) == FALSE) {
         sqlite3_finalize(pStatement);
         return FALSE;
     }
