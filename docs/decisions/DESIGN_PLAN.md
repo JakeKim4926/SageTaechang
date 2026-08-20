@@ -34,14 +34,14 @@ D7(화면별 적용)은 목업 CSS를 계속 실측해야 한다. Claude Design 
 
 | 문서 진단 | 코드 확인 |
 |---|---|
-| 브랜드 컬러가 면적을 다 먹음 | `TAECHANG_COLOR_LIST_HEADER = RGB(62,52,43)` 풀필 (`TaechangDefine.h:139`) |
+| 브랜드 컬러가 면적을 다 먹음 | `SAGE_COLOR_LIST_HEADER = RGB(62,52,43)` 풀필 (`SageDefine.h:139`) |
 | 금액 컬럼 노란 배경 | `LIST_AMOUNT_COL` / `_ALT` 2개로 3열 통칠 (`:137-138`, `SageListCtrl.cpp:99-103`) |
-| 디스플레이 폰트를 UI 전역에 사용 | `TAECHANG_CONTROL_FONT_FACE = "Gmarket Sans TTF Medium"` (`:120`) |
+| 디스플레이 폰트를 UI 전역에 사용 | `SAGE_CONTROL_FONT_FACE = "Gmarket Sans TTF Medium"` (`:120`) |
 | 컨트롤 높이가 제각각 | 28 / 28 / 24 (`:38`, `:39`, `:578`) |
 | 라벨 폭이 통일되지 않음 | **7종** — 46 / 68 / 70 / 90 / 92 / 116 / 150 |
 | 버튼에 위계가 없음 | `CSageButton` 변형이 Primary / Secondary **2종**뿐 (`SageButton.h`) |
 
-**핵심 발견: 3장 목업은 새 기능을 요구하지 않는다.** `TaechangDefine.h`의 UI 문자열 287개와 대조한 결과,
+**핵심 발견: 3장 목업은 새 기능을 요구하지 않는다.** `SageDefine.h`의 UI 문자열 287개와 대조한 결과,
 목업이 보여주는 값은 대부분 이미 구현되어 있고 표시 위치·색·위계만 다르다.
 진짜 신규 코드는 5개다 — 결과 요약 바 · 합계 행 · 실행 기록 표 · 순서 ↑↓ 이동 · 인라인 에러 라벨.
 
@@ -63,7 +63,7 @@ D7(화면별 적용)은 목업 CSS를 계속 실측해야 한다. Claude Design 
 
 3번 보충: 목업에서 80px를 쓰는 「입력 파일」·「저장 위치」는 **현재 화면에 없는 라벨이다.**
 `m_wndInputLabel`·`m_wndOutputLabel`은 생성 후 `ShowWindow(SW_HIDE)`만 되고 `MoveWindow`가 한 번도 불리지 않는다
-(`SageTaechangView.cpp:270,490`). `TAECHANG_LABEL_WIDTH = 90`이 참조 0곳인 이유가 이것이다.
+(`SageTaechangView.cpp:270,490`). `SAGE_LABEL_WIDTH = 90`이 참조 0곳인 이유가 이것이다.
 이 라벨을 실제로 띄우면서 80px를 주는 것은 **D7-4** 소관이다.
 
 추가로 확인한 값: 목업의 라벨 텍스트 색은 `#6E655B`이고, 표 헤더 텍스트 색 `RGB(110,101,91)`과 **같은 값**이다.
@@ -166,7 +166,7 @@ D4a에서 세 번 헛짚었다. 원인이 전부 그리기 코드가 아니라 *
 | `PretendardSemiBold.ttf` | **`Pretendard SemiBold`** | Regular |
 
 GDI는 한 패밀리에 Regular/Bold/Italic/BoldItalic 4종만 담으므로 SemiBold는 자기 패밀리를 갖는다.
-그래서 `TAECHANG_TITLE_FONT_FACE = L"Pretendard SemiBold"`가 맞다.
+그래서 `SAGE_TITLE_FONT_FACE = L"Pretendard SemiBold"`가 맞다.
 
 **`CreateFontIndirect` 전환은 D4b로 미뤘다** (D4b에서 완료). 두 서체 모두 패밀리 이름만으로 지정되므로
 `FW_BOLD`가 실제로 필요한 시점(금액 Bold)까지 `CreatePointFont`로 충분하다.
@@ -178,10 +178,10 @@ GDI는 한 패밀리에 Regular/Bold/Italic/BoldItalic 4종만 담으므로 Semi
 **의도적으로 목업을 벗어난 유일한 지점이다.** 상수 5개라 되돌리기 쉽다.
 
 **교훈 5 — 폰트 의존 상수는 계산으로 검증할 수 있다.**
-`TAECHANG_BUTTON_TEXT_TOP_OFFSET`은 서체 ascent 보정값이라 추측하지 않고 메트릭에서 계산했다.
+`SAGE_BUTTON_TEXT_TOP_OFFSET`은 서체 ascent 보정값이라 추측하지 않고 메트릭에서 계산했다.
 Gmarket은 `winAsc/winDesc = 800/350`(비대칭)이라 계산값 +1.84 → 기존 튜닝값 `2`와 일치했고,
 이것이 계산 모델의 검증이 됐다. Pretendard는 `1949/494`로 거의 대칭이라 계산값 −0.02 → **0**.
-같은 방식으로 `TAECHANG_EDIT_TEXT_TOP_PAD`의 적정값은 8이나(현재 9), 확인받은 화면을
+같은 방식으로 `SAGE_EDIT_TEXT_TOP_PAD`의 적정값은 8이나(현재 9), 확인받은 화면을
 1px 때문에 흔들지 않으려고 두었다.
 
 **교훈 3 — 헤더 높이와 행 높이는 다른 메커니즘이다.**
@@ -193,7 +193,7 @@ Gmarket은 `winAsc/winDesc = 800/350`(비대칭)이라 계산값 +1.84 → 기�
 
 ### D3b — 라벨 폭
 
-`TaechangDefine.h` 상수 5개만 바뀌었다. **좌표 코드는 한 줄도 손대지 않았다** — 카드 폭·에디트 폭이
+`SageDefine.h` 상수 5개만 바뀌었다. **좌표 코드는 한 줄도 손대지 않았다** — 카드 폭·에디트 폭이
 전부 라벨 폭 상수에서 파생되므로 자동 전파됐다. 단가계산 입력 카드 274→310, 비밀번호 변경 에디트 202→222.
 
 **교훈 6 — 목업을 부분만 실측하면 반대 결론이 나온다.**
@@ -325,8 +325,8 @@ C7은 `CSageSummaryBar`가 4곳에 쓰인다고 적었는데 실제로는 **1곳
 ### D5b — 빈 상태
 
 **교훈 21 — 계획서의 상수명을 코드에 있다고 믿지 않는다.**
-`TAECHANG_COLOR_SURFACE_MUTED`를 쓰다 빌드가 깨졌다. **존재한 적이 없는 이름이다.**
-C1의 「신규 상수」 표는 *만들 것*의 목록이었는데 D1a가 기존 `TAECHANG_COLOR_LIST_HEADER`의
+`SAGE_COLOR_SURFACE_MUTED`를 쓰다 빌드가 깨졌다. **존재한 적이 없는 이름이다.**
+C1의 「신규 상수」 표는 *만들 것*의 목록이었는데 D1a가 기존 `SAGE_COLOR_LIST_HEADER`의
 값만 바꾸는 쪽을 택했고, 그 결정이 표에 반영되지 않았다. 스킬 색상표도 같은 이름을 적고 있었다.
 전수 조사하니 신규 7개 중 **2개가 실체 없는 이름**이었다(`SURFACE_MUTED`, `SIDEBAR_ACCENT_WIDTH`).
 
@@ -386,10 +386,10 @@ D6 ↔ D5     빈 상태는 22px 아이콘을, 인라인 에러·경고는 14px 
 `SageResultTablePanel`을 손댄다. 지금 그 패널은 신설됐지만 아무도 참조하지 않는 상태(`533ab0d`)라,
 연결 전에 디자인을 넣으면 연결 커밋에서 충돌한다.
 
-**D1~D4는 3-B-4a와 무관하다.** `TaechangDefine.h`와 `app/ui/drawing/` 클래스만 만지고
+**D1~D4는 3-B-4a와 무관하다.** `SageDefine.h`와 `app/ui/drawing/` 클래스만 만지고
 `SageTaechangView.cpp`의 구조는 건드리지 않는다. 병행 가능하다.
 
-**Step 5(`TAECHANG_` → `SAGE_` 치환)와의 관계**: 이 계획에서 추가하는 상수는 **`TAECHANG_` 접두사로 만든다.**
+**Step 5(`SAGE_` → `SAGE_` 치환)와의 관계**: 이 계획에서 추가하는 상수는 **`SAGE_` 접두사로 만든다.**
 접두사가 섞이면 Step 5의 기계적 치환이 깨진다. 새 상수도 Step 5에서 함께 치환된다.
 
 ---
@@ -423,24 +423,24 @@ D7의 각 화면은 "여기 규격을 배치한다"만 한다.
 
 | 상수 | 현재 | 변경안 |
 |---|---|---|
-| `TAECHANG_COLOR_LIST_HEADER` | `RGB(62,52,43)` | `RGB(242,238,231)` |
-| `TAECHANG_COLOR_SIDEBAR_SELECTED` | `RGB(77,60,42)` | `RGB(58,49,41)` |
+| `SAGE_COLOR_LIST_HEADER` | `RGB(62,52,43)` | `RGB(242,238,231)` |
+| `SAGE_COLOR_SIDEBAR_SELECTED` | `RGB(77,60,42)` | `RGB(58,49,41)` |
 
 ### 신규 상수
 
 | 상수 | 값 | 용도 |
 |---|---|---|
-| ~~`TAECHANG_COLOR_SURFACE_MUTED`~~ | `RGB(242,238,231)` | **만들지 않았다.** D1a가 기존 `TAECHANG_COLOR_LIST_HEADER`의 값을 바꾸는 것으로 끝냈다 — 표 헤더·툴바·빈 상태 아이콘 박스는 **`TAECHANG_COLOR_LIST_HEADER`를 쓴다** |
-| `TAECHANG_COLOR_TEXT_MUTED` | `RGB(110,101,91)` | 표 헤더 텍스트 · 폼 라벨 · Ghost 버튼 텍스트 (`#6E655B`) |
-| `TAECHANG_COLOR_LIST_GRID` | `RGB(237,232,224)` | 표 가로 hairline (`#EDE8E0`) |
-| `TAECHANG_COLOR_BUTTON_BORDER` | `RGB(201,191,177)` | Secondary 버튼 중성 테두리 (`#C9BFB1`) |
-| `TAECHANG_COLOR_DANGER_BORDER` | `RGB(224,189,182)` | Danger 버튼 테두리 (`#E0BDB6`) |
-| `TAECHANG_COLOR_TEXT_PLACEHOLDER` | `RGB(180,171,160)` | 빈 금액 `—` · 반복 값 `〃` (`#B4ABA0`) — D4b에서 추가됨 |
-| `TAECHANG_COLOR_INLINE_ERROR_TEXT` | `RGB(156,68,51)` | 인라인 에러 텍스트 (`#9C4433`). **`ERROR #B85C4A`보다 어둡다** — 아이콘만 `ERROR`를 쓴다 |
-| `TAECHANG_COLOR_INLINE_WARN_TEXT` | `RGB(138,106,50)` | 인라인 경고 텍스트 (`#8A6A32`) |
-| `TAECHANG_COLOR_INLINE_WARN_BG` | `RGB(251,245,238)` | 인라인 경고 박스 배경 (`#FBF5EE`) |
-| `TAECHANG_COLOR_INLINE_WARN_BORDER` | `RGB(235,220,198)` | 인라인 경고 박스 테두리 (`#EBDCC6`) |
-| `TAECHANG_COLOR_ACCENT_SURFACE` | `RGB(247,242,234)` | **강조 면 (`#F7F2EA`)** — 단가 계산 합계 박스(3-2) · 실행 기록 필터 pill 배경(3-5). pill의 테두리·텍스트는 `PRIMARY` 재사용 |
+| ~~`SAGE_COLOR_SURFACE_MUTED`~~ | `RGB(242,238,231)` | **만들지 않았다.** D1a가 기존 `SAGE_COLOR_LIST_HEADER`의 값을 바꾸는 것으로 끝냈다 — 표 헤더·툴바·빈 상태 아이콘 박스는 **`SAGE_COLOR_LIST_HEADER`를 쓴다** |
+| `SAGE_COLOR_TEXT_MUTED` | `RGB(110,101,91)` | 표 헤더 텍스트 · 폼 라벨 · Ghost 버튼 텍스트 (`#6E655B`) |
+| `SAGE_COLOR_LIST_GRID` | `RGB(237,232,224)` | 표 가로 hairline (`#EDE8E0`) |
+| `SAGE_COLOR_BUTTON_BORDER` | `RGB(201,191,177)` | Secondary 버튼 중성 테두리 (`#C9BFB1`) |
+| `SAGE_COLOR_DANGER_BORDER` | `RGB(224,189,182)` | Danger 버튼 테두리 (`#E0BDB6`) |
+| `SAGE_COLOR_TEXT_PLACEHOLDER` | `RGB(180,171,160)` | 빈 금액 `—` · 반복 값 `〃` (`#B4ABA0`) — D4b에서 추가됨 |
+| `SAGE_COLOR_INLINE_ERROR_TEXT` | `RGB(156,68,51)` | 인라인 에러 텍스트 (`#9C4433`). **`ERROR #B85C4A`보다 어둡다** — 아이콘만 `ERROR`를 쓴다 |
+| `SAGE_COLOR_INLINE_WARN_TEXT` | `RGB(138,106,50)` | 인라인 경고 텍스트 (`#8A6A32`) |
+| `SAGE_COLOR_INLINE_WARN_BG` | `RGB(251,245,238)` | 인라인 경고 박스 배경 (`#FBF5EE`) |
+| `SAGE_COLOR_INLINE_WARN_BORDER` | `RGB(235,220,198)` | 인라인 경고 박스 테두리 (`#EBDCC6`) |
+| `SAGE_COLOR_ACCENT_SURFACE` | `RGB(247,242,234)` | **강조 면 (`#F7F2EA`)** — 단가 계산 합계 박스(3-2) · 실행 기록 필터 pill 배경(3-5). pill의 테두리·텍스트는 `PRIMARY` 재사용 |
 
 아래 5개는 **D5 점검(2026-08-06)에서 빠진 것이 드러났다.** 목업 인라인 메시지와 pill을
 실측하니 `ERROR`·`WARNING` 토큰만으로는 못 만든다 — 텍스트 색이 배지 색보다 어둡다.
@@ -456,10 +456,10 @@ D7의 각 화면은 "여기 규격을 배치한다"만 한다.
 > 한 단계 따뜻하다. **D7-1은 목업대로였으므로 정정하지 않는다.**
 
 **배지 색은 아이콘과 에디트 테두리에만 쓴다.** 12px 글자에 `#B85C4A`를 쓰면 흰 배경에서 읽히지 않는다.
-| ~~`TAECHANG_SIDEBAR_ACCENT_WIDTH`~~ | `3` | **만들지 않았다.** 표 선택 행과 폭이 같아 기존 **`TAECHANG_SELECTION_ACCENT_WIDTH`를 공유**한다 |
-| `TAECHANG_LIST_ROW_HEIGHT` | `34` | 표 행 높이 |
+| ~~`SAGE_SIDEBAR_ACCENT_WIDTH`~~ | `3` | **만들지 않았다.** 표 선택 행과 폭이 같아 기존 **`SAGE_SELECTION_ACCENT_WIDTH`를 공유**한다 |
+| `SAGE_LIST_ROW_HEIGHT` | `34` | 표 행 높이 |
 
-사이드바 액센트 바 색은 `TAECHANG_COLOR_PRIMARY`를 재사용한다 (문서 지정값 `RGB(154,107,63)`과 동일).
+사이드바 액센트 바 색은 `SAGE_COLOR_PRIMARY`를 재사용한다 (문서 지정값 `RGB(154,107,63)`과 동일).
 
 **위 두 줄은 D5b에서 빌드 오류로 드러났다.** 이 표는 "만들 것"의 목록이었는데 D1a가 기존 상수를
 재사용하는 쪽을 택했고, 그 결정이 표에 반영되지 않아 **문서에만 있는 상수명**이 남았다.
@@ -469,9 +469,9 @@ D7의 각 화면은 "여기 규격을 배치한다"만 한다.
 
 | 상수 | 사유 |
 |---|---|
-| `TAECHANG_COLOR_LIST_AMOUNT_COL` | 금액 컬럼 배경 제거 (진단 4) |
-| `TAECHANG_COLOR_LIST_AMOUNT_COL_ALT` | 동일 |
-| `TAECHANG_COLOR_LIST_HEADER_DIVIDER` | 헤더 세로 구분선 제거 (세로선 제거 방침과 일관) |
+| `SAGE_COLOR_LIST_AMOUNT_COL` | 금액 컬럼 배경 제거 (진단 4) |
+| `SAGE_COLOR_LIST_AMOUNT_COL_ALT` | 동일 |
+| `SAGE_COLOR_LIST_HEADER_DIVIDER` | 헤더 세로 구분선 제거 (세로선 제거 방침과 일관) |
 
 ### 값이 바뀌지 않는 것 (확인용)
 
@@ -489,12 +489,12 @@ SURFACE 중 패널 `#FFFFFF` · 사이드바 `#241F1A` · 테두리 `#DCD6CD` ·
 
 | 역할 | 목업 | 목업대로면 | **채택값** | 상수 | 상태 |
 |---|---|---|---|---|---|
-| 화면 제목 | 18px Bold | `135` | **`143`** (19px) | `TAECHANG_TITLE_FONT_POINT_SIZE` | 적용됨 |
-| 섹션 제목 | 14px Bold | `105` | **`113`** (15px) | `TAECHANG_HEADER_FONT_POINT_SIZE` | 적용됨 |
-| 본문 · 라벨 · 버튼 | 13px | `98` | **`105`** (14px) | `TAECHANG_CONTENT_FONT_POINT_SIZE` · `TAECHANG_CONTROL_FONT_POINT_SIZE` | 적용됨 |
+| 화면 제목 | 18px Bold | `135` | **`143`** (19px) | `SAGE_TITLE_FONT_POINT_SIZE` | 적용됨 |
+| 섹션 제목 | 14px Bold | `105` | **`113`** (15px) | `SAGE_HEADER_FONT_POINT_SIZE` | 적용됨 |
+| 본문 · 라벨 · 버튼 | 13px | `98` | **`105`** (14px) | `SAGE_CONTENT_FONT_POINT_SIZE` · `SAGE_CONTROL_FONT_POINT_SIZE` | 적용됨 |
 | 요약 수치 | 16px Bold | `120` | **`128`** (17px) | — | **미도입** (D5c) |
-| 표 셀 | 12px tabular | `90` | **`98`** (13px) | `TAECHANG_LIST_FONT_POINT_SIZE` | 적용됨 |
-| 캡션 · 인라인 메시지 | 11px · **12px** | `83` · `90` | **`90`** (12px) 하나로 합침 | `TAECHANG_CAPTION_FONT_POINT_SIZE` | 적용됨 (D5a) |
+| 표 셀 | 12px tabular | `90` | **`98`** (13px) | `SAGE_LIST_FONT_POINT_SIZE` | 적용됨 |
+| 캡션 · 인라인 메시지 | 11px · **12px** | `83` · `90` | **`90`** (12px) 하나로 합침 | `SAGE_CAPTION_FONT_POINT_SIZE` | 적용됨 (D5a) |
 
 **이 표가 기준이다. 목업 px를 그대로 옮기지 않는다.** 목업 대비 +1px는 D1b에서 의도적으로 택한 이탈이며
 사유는 아래 *D1b* 교훈에 있다. 표만 보고 작업해도 틀리지 않도록 채택값을 여기에 못박는다.
@@ -514,9 +514,9 @@ SURFACE 중 패널 `#FFFFFF` · 사이드바 `#241F1A` · 테두리 `#DCD6CD` ·
 
 | 상수 | 현재 | 변경안 |
 |---|---|---|
-| `TAECHANG_CONTROL_FONT_FACE` | `Gmarket Sans TTF Medium` | `Pretendard` |
-| `TAECHANG_TITLE_FONT_FACE` | `Gmarket Sans TTF Bold` | `Pretendard SemiBold` |
-| `TAECHANG_LOGO_FONT_FACE` | — (신규) | `Gmarket Sans TTF Bold` |
+| `SAGE_CONTROL_FONT_FACE` | `Gmarket Sans TTF Medium` | `Pretendard` |
+| `SAGE_TITLE_FONT_FACE` | `Gmarket Sans TTF Bold` | `Pretendard SemiBold` |
+| `SAGE_LOGO_FONT_FACE` | — (신규) | `Gmarket Sans TTF Bold` |
 
 Gmarket Sans는 **로고(사이드바 상단 "SageTaechang")에만** 남긴다.
 TTF는 프로젝트에 동봉하고 `AddFontResourceEx(..., FR_PRIVATE, 0)`로 앱 시작 시 로드,
@@ -526,20 +526,20 @@ TTF는 프로젝트에 동봉하고 `AddFontResourceEx(..., FR_PRIVATE, 0)`로 �
 
 | 상수 | 현재 | 변경안 |
 |---|---|---|
-| `TAECHANG_BUTTON_HEIGHT` | 28 | 32 |
-| `TAECHANG_EDIT_HEIGHT` | 28 | 32 |
-| `TAECHANG_PRICE_EDIT_HEIGHT` | 24 | 32 |
-| `TAECHANG_LABEL_WIDTH` | 90 | — (참조 0곳, 죽은 상수라 두었다) |
-| `TAECHANG_CALC_INPUT_LABEL_WIDTH` | 46 | 64 |
-| `TAECHANG_CALC_RESULT_LABEL_WIDTH` | 92 | 64 |
-| `TAECHANG_PRICE_FORM_LABEL_WIDTH` | 70 | 64 |
-| `TAECHANG_LOGIN_DLG_LABEL_WIDTH` | 68 | 64 |
-| `TAECHANG_PASSWORD_DLG_LABEL_WIDTH` | 116 | 96 |
+| `SAGE_BUTTON_HEIGHT` | 28 | 32 |
+| `SAGE_EDIT_HEIGHT` | 28 | 32 |
+| `SAGE_PRICE_EDIT_HEIGHT` | 24 | 32 |
+| `SAGE_LABEL_WIDTH` | 90 | — (참조 0곳, 죽은 상수라 두었다) |
+| `SAGE_CALC_INPUT_LABEL_WIDTH` | 46 | 64 |
+| `SAGE_CALC_RESULT_LABEL_WIDTH` | 92 | 64 |
+| `SAGE_PRICE_FORM_LABEL_WIDTH` | 70 | 64 |
+| `SAGE_LOGIN_DLG_LABEL_WIDTH` | 68 | 64 |
+| `SAGE_PASSWORD_DLG_LABEL_WIDTH` | 116 | 96 |
 
 **라벨 폭 목표를 80에서 64로 정정했다** (D3b, 위 *어긋나는 지점* 3번). 80px는 목업에서 아직 화면에 없는
 「입력 파일」·「저장 위치」 두 라벨에만 쓰이므로 D7-4로 넘어간다.
 
-`TAECHANG_USER_LABEL_WIDTH = 150`은 헤더 사용자명 표시 폭이므로 폼 라벨이 아니다. **유지한다.**
+`SAGE_USER_LABEL_WIDTH = 150`은 헤더 사용자명 표시 폭이므로 폼 라벨이 아니다. **유지한다.**
 
 아이콘 버튼은 32×32 정사각. 간격은 4의 배수만 사용한다.
 
@@ -587,7 +587,7 @@ TTF는 프로젝트에 동봉하고 `AddFontResourceEx(..., FR_PRIVATE, 0)`로 �
 - 교대 행 배경(`LIST_ROW_ALT`)은 **유지**한다. 문서가 제거를 지시하지 않았고 가로선과 역할이 다르다
 - 금액 컬럼: 배경 없음, 우측 정렬. **Bold는 미수금 열 하나만** — 목업 3-1 실측 결과
   합계·입금 열에는 굵기가 없고 미수금 열만 `font-weight:700` + 카멜이다
-- 빈 금액 셀은 `—`(`TAECHANG_UI_AMOUNT_EMPTY_MARK`) + `TAECHANG_COLOR_TEXT_PLACEHOLDER`
+- 빈 금액 셀은 `—`(`SAGE_UI_AMOUNT_EMPTY_MARK`) + `SAGE_COLOR_TEXT_PLACEHOLDER`
 - ~~반복되는 법인명은 `〃` + `TEXT_PLACEHOLDER`, 그룹 시작 행은 `SAGE_FONT_LIST_SEMIBOLD`~~
   → **2026-08-09 철회.** 반복 값을 축약하지 않는다. 법인명은 매 행 그대로 쓰고 굵기도 같다.
   `〃` · 그룹 시작 SemiBold · `DrawGroupColumn` · `IsGroupStartRow` · `nGroupColumn`을 모두 걷어냈다
@@ -595,13 +595,13 @@ TTF는 프로젝트에 동봉하고 `AddFontResourceEx(..., FR_PRIVATE, 0)`로 �
 - **공백 행은 그대로 표시한다.** `-`는 고객사 데이터 포맷의 구분 표기다 — 어긋나는 지점 #4.
   미수금 결과 표(생성 스크립트가 넣는 `isSeparator` 행)와 **견적서 입력 표**(원본 엑셀에
   찍혀 있는 `-`) 양쪽에 나온다
-- ~~**`-` 행은 절대 `〃`가 되지 않는다.**~~ → 위 철회로 함께 사라졌다. `TAECHANG_UI_SEPARATOR_MARK`
+- ~~**`-` 행은 절대 `〃`가 되지 않는다.**~~ → 위 철회로 함께 사라졌다. `SAGE_UI_SEPARATOR_MARK`
   자체는 남는다 — 미수금 핸들러가 빈 행 판정에 독립적으로 쓴다
 - **그룹 구분선은 만들지 않는다.** 목업에 없다 — 어긋나는 지점 #5.
   **`〃` 철회로 이 항목의 근거가 바뀌었다** — 「`〃`가 경계를 대신하므로 구분선이 불필요하다」였는데,
   이제는 **그룹을 아예 표시하지 않기로 한 것**이다. 구분선을 다시 넣자는 뜻이 아니다
 
-`CSageHeaderCtrl::OnPaint`의 `SetTextColor(TAECHANG_COLOR_BUTTON_TEXT)` (`SageHeaderCtrl.cpp:20`)를
+`CSageHeaderCtrl::OnPaint`의 `SetTextColor(SAGE_COLOR_BUTTON_TEXT)` (`SageHeaderCtrl.cpp:20`)를
 반드시 함께 고친다. 배경만 밝게 하면 흰 글자가 흰 배경에 놓인다.
 
 ## C7. 공통 신규 요소 4종
@@ -647,8 +647,8 @@ MFC 고정 좌표 다이얼로그에서 에러 유무로 아래 컨트롤을 밀
 `SageDialogSizer::SizeToClient`가 창을 맞춘다 (D5a — 교훈 19).
 예외는 늘어나는 자식이 있는 창(법인 선택의 목록)뿐이다.
 
-**구현값** (D5a 확정): 에러 줄 높이 `TAECHANG_INLINE_MSG_HEIGHT = 24`,
-에러 줄과 버튼 사이 `TAECHANG_ROW_GAP`(10). 폼 여백 `TAECHANG_MARGIN`(16)을 쓰면 넓어 보였다.
+**구현값** (D5a 확정): 에러 줄 높이 `SAGE_INLINE_MSG_HEIGHT = 24`,
+에러 줄과 버튼 사이 `SAGE_ROW_GAP`(10). 폼 여백 `SAGE_MARGIN`(16)을 쓰면 넓어 보였다.
 
 ## C8. 아이콘 세트
 
@@ -674,11 +674,11 @@ MFC 고정 좌표 다이얼로그에서 에러 유무로 아래 컨트롤을 밀
 Pretendard 옆에서 힘이 없다. 굵기가 아이콘마다 다른 것이 진단 9가 지적한 문제이므로
 **얇게 갈 거면 세트를 통째로 바꾼다.** 하나만 예외를 두지 않는다.
 
-**아이콘 단독 버튼은 `TAECHANG_ICON_BUTTON_SIZE`(32) 정사각이다.** 폭 상수를 화면마다 따로 두지 않는다.
+**아이콘 단독 버튼은 `SAGE_ICON_BUTTON_SIZE`(32) 정사각이다.** 폭 상수를 화면마다 따로 두지 않는다.
 
 현재 상태는 제각각이다 — 검색은 `CSageButton::DrawSearchIcon`의 GDI 원+선(2px),
-초기화는 유니코드 글리프 `TAECHANG_UI_RESULT_RESET_BTN = L"↺"` (`TaechangDefine.h:232`),
-법인 선택은 `TAECHANG_UI_CALC_COMPANY_PICK_LABEL = L"…"` 글자.
+초기화는 유니코드 글리프 `SAGE_UI_RESULT_RESET_BTN = L"↺"` (`SageDefine.h:232`),
+법인 선택은 `SAGE_UI_CALC_COMPANY_PICK_LABEL = L"…"` 글자.
 
 `CSageButton`의 `DrawSearchIcon` · `DrawCalculateIcon` · `DrawResetIcon` (`SageButton.cpp:64-133`, 70줄)을
 15px·2px 기준으로 다시 그린다. 아이콘 단독 버튼에는 **툴팁을 필수로 붙인다**
@@ -757,7 +757,7 @@ DPI awareness 전환 자체는 **Step D8**로 분리한다 (아래).
 - [ ] **362행 "Text / Link형 버튼은 쓰지 않는다"** — Ghost 도입으로 삭제·개정
 - [ ] **364-365행 "Danger 변형은 도입하지 않는다"** — 도입으로 개정. *"삭제 버튼 색을 바꾸는 것은 별도 UI 결정 항목"*이라 남긴 그 결정이 이 계획이다. 사유를 링크로 남긴다
 - [ ] **버튼 결정(472-477)** — 2변형 서술을 4변형으로
-- [ ] **에디트 높이(465)** — `TAECHANG_EDIT_HEIGHT = 28` → 32
+- [ ] **에디트 높이(465)** — `SAGE_EDIT_HEIGHT = 28` → 32
 - [ ] **229행 아이콘 규칙** — 아이콘 단독 버튼 허용 조건(16px 세트 + 툴팁 필수)으로 보강
 - [x] **신설: 표 규격** — C6 전체 (행 높이 · hairline · 금액 정렬 · 헤더 정렬 · `〃` · 반복 값 판정)
 - [ ] **신설: 공통 신규 요소** — C7 4종을 공통 컨트롤 목록(332-341 표)에 추가
@@ -772,7 +772,7 @@ DPI awareness 전환 자체는 **Step D8**로 분리한다 (아래).
 |---|---|---|
 | 135 | 구분선 `#E2DED6` | 코드는 `RGB(220,214,205)` = `#DCD6CD`. 문서 2장도 `#DCD6CD` — **스킬만 틀렸다** |
 | 67-79 | 사이드바 그룹에 "검수(PDF·HWP 표지)" · "관리(설정·실행 기록·템플릿 관리)" | 검수 워크플로는 2026-08-04에 제거됨. 실제 그룹은 문서 생성 · 단가 관리 · 기타 |
-| 87-92 | 문서 생성 탭 = 입력 / 미리보기 / 결과 / 실행 기록 | 실제는 입력 / 결과 / 실행 기록 / 데이터 관리 (`TAECHANG_UI_TAB_*`) |
+| 87-92 | 문서 생성 탭 = 입력 / 미리보기 / 결과 / 실행 기록 | 실제는 입력 / 결과 / 실행 기록 / 데이터 관리 (`SAGE_UI_TAB_*`) |
 | 94-99, 116-125, 200-206 | 검수 업무 화면·탭·컬럼 규격 | 해당 워크플로가 없다 |
 | 193-198 | 결과 테이블 기본 컬럼 = 항목/값/상태/사유 | 미수금은 10컬럼(`RECEIVABLES_COL_*`). 4컬럼 표는 현재 도달 경로가 없다 |
 
@@ -827,11 +827,11 @@ DPI awareness 전환 자체는 **Step D8**로 분리한다 (아래).
 
 # Step D3 — 컨트롤 높이 · 라벨 폭 (우선순위 ③)
 
-- [x] C4 상수 변경 — 높이 3개(D3a) · 라벨 폭 5개(D3b). `TAECHANG_LABEL_WIDTH`는 죽은 상수라 제외
+- [x] C4 상수 변경 — 높이 3개(D3a) · 라벨 폭 5개(D3b). `SAGE_LABEL_WIDTH`는 죽은 상수라 제외
 - [x] 높이 28→32 · 24→32에 따라 세로 좌표 재계산 (`LayoutChildControls` · 각 패널·다이얼로그 `LayoutControls`)
-- [x] `TAECHANG_BUTTON_TEXT_TOP_OFFSET = 2`는 Gmarket ascent 보정값이다. **Pretendard 기준으로 다시 재야 한다** → 0
+- [x] `SAGE_BUTTON_TEXT_TOP_OFFSET = 2`는 Gmarket ascent 보정값이다. **Pretendard 기준으로 다시 재야 한다** → 0
 - [x] 라벨별 실측으로 잘림 확인 (R9) — 잘리는 라벨 없음
-- [ ] `TAECHANG_EDIT_TEXT_TOP_PAD`를 32px 기준으로 재조정 (계산값 8, 현재 9 — 1px 때문에 확인받은 화면을 흔들지 않으려 보류)
+- [ ] `SAGE_EDIT_TEXT_TOP_PAD`를 32px 기준으로 재조정 (계산값 8, 현재 9 — 1px 때문에 확인받은 화면을 흔들지 않으려 보류)
 - [ ] 간격을 4의 배수로 정리
 
 완료 기준
@@ -935,7 +935,7 @@ C2가 세운 "참조 없는 dead 상수를 미리 만들지 않는다"와 어긋
 - [x] **D5가 먼저 쓰는 3종(빈 표 22 · 경고 14 · 에러 14)은 D5에서 만든다**
 - [ ] **내보내기 15 · 성공 18은 D7-1로 넘겼다** — 쓸 버튼이 아직 없어 참조 0곳이 된다
 - [ ] `SAGE_BUTTON_ICON_CALCULATE` 제거 여부는 D7-2 — 목업 3-2의 「견적서 생성」은 텍스트 버튼이다
-- [ ] `TAECHANG_UI_RESULT_RESET_BTN = L"↺"` · `TAECHANG_UI_INPUT_RESET_BTN` · `TAECHANG_UI_CALC_COMPANY_PICK_LABEL = L"…"` 글리프를 아이콘으로 교체
+- [ ] `SAGE_UI_RESULT_RESET_BTN = L"↺"` · `SAGE_UI_INPUT_RESET_BTN` · `SAGE_UI_CALC_COMPANY_PICK_LABEL = L"…"` 글리프를 아이콘으로 교체
 - [ ] 아이콘 단독 버튼에 툴팁 부착
 - [ ] 아이콘 버튼 32×32 정사각
 
@@ -969,7 +969,7 @@ C2가 세운 "참조 없는 dead 상수를 미리 만들지 않는다"와 어긋
 상태바에 한 줄로 나온다, 표시 위치만 올리면 된다*고 적혀 있었다. 실제로는
 `RECEIVABLES_PREVIEW_TOTAL`·`MISSING_COMPANIES` 두 상수가 **참조 0곳**이었고,
 미수금 합계를 계산하는 코드가 **아예 없었다.** 행에는 `4,655,610` 같은 **표시용 문자열만** 있어
-더할 수 없었고, `TaechangResultRow`에 숫자 3종을 새로 담아야 했다.
+더할 수 없었고, `SageResultRow`에 숫자 3종을 새로 담아야 했다.
 `missingCompanies`는 PowerShell이 이미 내보내고 있었고 C++가 읽지 않았을 뿐이다.
 **"있다"고 적힌 데이터는 상수 이름이 아니라 참조 지점으로 확인한다.**
 
@@ -1020,7 +1020,7 @@ D5 공통 완료 기준과 충돌한 채 남아 있다 — `DEBT_LOG` 참조. �
 | 수정 | 내용 |
 |---|---|
 | `CSageSummaryBar::DrawItem` | 흰 배경·테두리 제거 → 앱 배경. 왼쪽 패딩 제거해 표 왼쪽과 정렬 |
-| `TAECHANG_SUMMARY_BAR_HEIGHT` | **44 → 32** (밴드 줄 높이). 사용처가 `SageResultTablePanel` 한 블록뿐이다 |
+| `SAGE_SUMMARY_BAR_HEIGHT` | **44 → 32** (밴드 줄 높이). 사용처가 `SageResultTablePanel` 한 블록뿐이다 |
 | `SUMMARY_BAR_PADDING` | 제거 (박스가 없어지면 내부 여백이 의미를 잃는다) |
 | `SageResultTablePanel::Layout` | 밴드 분기를 셋으로 (선택 바 / 요약 바 / 제목) |
 | `LayoutTableArea` | 요약 바 별도 줄 삭제, 표 시작을 밴드 하단 기준으로 |
@@ -1069,7 +1069,7 @@ D5 공통 완료 기준과 충돌한 채 남아 있다 — `DEBT_LOG` 참조. �
 결과 4행 라벨을 `SAGE_TEXT_MUTED`로 내려 **합계만 강조 밴드**(`ACCENT_SURFACE` + `SAGE_FONT_SUMMARY`)로
 남겼다. 「최근 생성 내역」에는 `CSageSectionLabel::SetHintText`로 건수 배지를 붙였다.
 
-**「최근 10건」을 목업 문구 그대로 쓰지 않았다 (사용자 결정).** `TAECHANG_CALC_MAX_HISTORY = 10`이
+**「최근 10건」을 목업 문구 그대로 쓰지 않았다 (사용자 결정).** `SAGE_CALC_MAX_HISTORY = 10`이
 있지만 실제 보관량은 `TrimHistoryToVisibleCapacity()`가 `GetCountPerPage()`로 자른다 —
 창이 작으면 3~4건이고 크면 10건을 넘을 수도 있다. **상수 이름이 상한처럼 보이지만 상한이 아니다.**
 정적 「최근 10건」은 화면이 거짓을 말하게 되므로 **동적 「최근 N건」**으로 넣었다. `DEBT_LOG` 참조.
@@ -1114,7 +1114,7 @@ Python의 기본 universal newlines가 이것을 조용히 깨뜨린다. **반�
 | 목업 3-2 | 현재 |
 |---|---|
 | 「계산 조건」·「계산 결과」 카드가 **가로로 나란히** | **세로 스택** (`LayoutChildControls`가 `nY`를 누적한다) |
-| 카드마다 38px 제목 헤더 밴드 (`#F2EEE7`) | 헤더 없음. `TAECHANG_UI_CALC_SECTION_RESULT`는 **참조 0곳** |
+| 카드마다 38px 제목 헤더 밴드 (`#F2EEE7`) | 헤더 없음. `SAGE_UI_CALC_SECTION_RESULT`는 **참조 0곳** |
 | 「견적서 생성」(넓게) · 「초기화」가 입력 카드 **안쪽 하단** | 카드 **바깥 우측**에 아이콘 버튼 2개 세로 |
 | 최근 생성 내역도 카드(헤더 38px) | 섹션 라벨 + 표 |
 
@@ -1225,7 +1225,7 @@ D4c 교훈 14(폰트가 복원되지 않는다)와 **같은 뿌리**다. 그때�
 | 카드 헤더 | 38px · `#F2EEE7` · `padding:0 16px` · Bold | `CSageSectionLabel`이 그린다 |
 | 폼 행 | 라벨 80 / gap 12 / 에디트 flex / gap 12 / 버튼 | `LayoutFormRow` |
 | 액션 행 좌측 | `padding-left:92` + 카드패딩 16 = **108** | `CARD_PADDING + 80 + ROW_GAP` = 108 |
-| 액션 버튼 높이 | **34** (폼 버튼은 32) | `TAECHANG_CARD_ACTION_BUTTON_HEIGHT` 신설 |
+| 액션 버튼 높이 | **34** (폼 버튼은 32) | `SAGE_CARD_ACTION_BUTTON_HEIGHT` 신설 |
 | 「초기화」 | 텍스트 Ghost (`padding:0 14px`) | 아이콘 32×32 → 텍스트 72px |
 | 진행바 · 상태 | 카드 **밖** 아래 | `GetInputCardHeight() + CARD_GAP` |
 
@@ -1243,10 +1243,10 @@ D7-2 · D7-4 · D7-5 · D7-6이 공유하는 등재 항목이다 ③ variant를 
 
 **남긴 것**
 - 카드 radius 6px — 범위 밖 R3(라운드 코너)와 충돌해 사각으로 그렸다
-- `TAECHANG_ICON_BUTTON_SIZE`(32)가 사용처 0곳이 됐다. 내 변경이 만든 orphan이지만
+- `SAGE_ICON_BUTTON_SIZE`(32)가 사용처 0곳이 됐다. 내 변경이 만든 orphan이지만
   **스킬이 「아이콘 단독 버튼은 32 정사각」으로 규정하는 상수**라 지우지 않았다 —
   다른 아이콘 버튼 2곳(결과 표 필터 초기화 · 단가 계산 초기화)이 이 상수를 안 쓰고 있다는 뜻이다
-- `TAECHANG_INPUT_PANEL_HEIGHT`(144)는 이번 변경 **전부터** 미사용이라 손대지 않았다
+- `SAGE_INPUT_PANEL_HEIGHT`(144)는 이번 변경 **전부터** 미사용이라 손대지 않았다
 
 ### 2단계 결과 (2026-08-07)
 
@@ -1265,7 +1265,7 @@ D7-2 · D7-4 · D7-5 · D7-6이 공유하는 등재 항목이다 ③ variant를 
 
 **목업에 없는 두 상태는 사용자 결정으로 채웠다.** 실패 면 `#FDF6F4`는 목업 전체에서
 **넓은 면에 쓰인 유일한 붉은 틴트**(3-5 실패 행 배경)다. 배지용 `#F8EBE9`(= 기존
-`TAECHANG_COLOR_STATUS_BG_ERROR`)는 pill 전용이라 쓰지 않았다 — 두 색이 공존하는 것은
+`SAGE_COLOR_STATUS_BG_ERROR`)는 pill 전용이라 쓰지 않았다 — 두 색이 공존하는 것은
 목업도 같다. 대기는 스킬의 「빈 화면은 무엇이 없는지와 무엇을 하면 되는지를 함께 적는다」를 따랐다.
 
 **건수와 저장 경로는 새 배관 없이 얻었다** — 건수는 결과 행 수, 단 납품·견적 생성은
@@ -1285,7 +1285,7 @@ D7-2 · D7-4 · D7-5 · D7-6이 공유하는 등재 항목이다 ③ variant를 
 ### 3단계 결과 (2026-08-07)
 
 **「결과 보기」는 만들었다가 걷어냈다**(사용자 「굳이 완료가 됬을 때 결과탭으로 넘어갈 필요가 없겠군」).
-버튼뿐 아니라 ID 2개 · `WM_TAECHANG_VIEW_RESULT_TAB` · 패널·워크스페이스 핸들러 · `HasResultTab()` ·
+버튼뿐 아니라 ID 2개 · `WM_SAGE_VIEW_RESULT_TAB` · 패널·워크스페이스 핸들러 · `HasResultTab()` ·
 `SetResult`의 4번째 인자까지 함께 지워 카드 API가 다시 좁아졌다.
 
 | 항목 | 목업 실측 | 적용 |
@@ -1316,7 +1316,7 @@ D7-2 · D7-4 · D7-5 · D7-6이 공유하는 등재 항목이다 ③ variant를 
 
 라벨이 「왼쪽으로 쏠려 보인다」는 지적의 원인이 정렬이 아니라 **폭**이었다. 64는 로그인 ·
 단가 폼 · 단가 계산과 같은 값이라 **앱의 모든 폼 라벨 폭이 하나로 모였고**, 상수에서 `_WIDE`가
-떨어져 `TAECHANG_FORM_LABEL_WIDTH`가 됐다. 액션 버튼 좌측선은 `카드패딩 + 라벨폭 + gap`으로
+떨어져 `SAGE_FORM_LABEL_WIDTH`가 됐다. 액션 버튼 좌측선은 `카드패딩 + 라벨폭 + gap`으로
 파생되므로 「생성 버튼을 입력 열 시작선에 맞춘다」는 그대로 따라간다.
 
 ## D7-5. 미수금 내역서 — 실행 기록 (목업 3-5)
@@ -1467,7 +1467,7 @@ D6에서 미뤄둔 **「내보내기」 아이콘도 계속 미결**로 남는�
 
 **화면을 보고 되돌아간 것 셋** — 전부 「폭만 맞추고 배치를 안 본」 것이다.
 ① 목록을 520으로 줄이면서 편집 카드를 우측 끝에 둬서 **가운데가 750px 비었다**
-② 라벨에 `TAECHANG_LABEL_VERT_OFFSET`이 남아 에딧과 세로가 어긋났다(옛 배치의 잔재)
+② 라벨에 `SAGE_LABEL_VERT_OFFSET`이 남아 에딧과 세로가 어긋났다(옛 배치의 잔재)
 ③ 검색 박스의 **단일 행 에딧**은 `EM_SETRECT`가 안 먹어 여백으로 못 민다 — 에딧 높이를
 `TEXTMETRIC::tmHeight`로 **실측해** 잡아야 세로 가운데가 된다. 처음엔 20으로 추측했다가 틀렸다.
 
@@ -1528,12 +1528,12 @@ D6에서 미뤄둔 **「내보내기」 아이콘도 계속 미결**로 남는�
 
 | 목업 | 클래스 | 파일 |
 |---|---|---|
-| 로그인 | `TaechangLoginDlg` | `TaechangLoginDlg.cpp` |
-| 비밀번호 변경 | `TaechangPasswordChangeDlg` | `TaechangPasswordChangeDlg.cpp` |
-| 단가 추가 | `TaechangPriceRangeDlg` | `TaechangPriceRangeDlg.cpp` |
-| 법인 추가 | `TaechangCompanyDlg` | `TaechangCompanyDlg.cpp` |
-| 법인 수정 | `TaechangCompanyRenameDlg` | **`TaechangPriceSimpleDlg.cpp`** (파일명과 클래스명 불일치 — 기존 상태, 이번에 고치지 않음) |
-| 법인 선택 | `TaechangCalcCompanyPickerDlg` | `TaechangCalcCompanyPickerDlg.cpp` |
+| 로그인 | `SageLoginDlg` | `SageLoginDlg.cpp` |
+| 비밀번호 변경 | `SagePasswordChangeDlg` | `SagePasswordChangeDlg.cpp` |
+| 단가 추가 | `SagePriceRangeDlg` | `SagePriceRangeDlg.cpp` |
+| 법인 추가 | `SageCompanyDlg` | `SageCompanyDlg.cpp` |
+| 법인 수정 | `SageCompanyRenameDlg` | **`SagePriceSimpleDlg.cpp`** (파일명과 클래스명 불일치 — 기존 상태, 이번에 고치지 않음) |
+| 법인 선택 | `SageCalcCompanyPickerDlg` | `SageCalcCompanyPickerDlg.cpp` |
 
 ### 6종 공통 — **네 항목 중 셋은 이미 끝나 있었다** (2026-08-06 대조)
 
@@ -1606,7 +1606,7 @@ D1a가 파란 선택색을 걷어낸 대상은 **커스텀 드로잉을 이미 �
 
 ### 착수 후 드러난 것 — 법인 수정 다이얼로그는 자기 법인을 모른다 (2026-08-06)
 
-`TaechangCompanyRenameDlg`는 **현재 법인명을 받지 않는다.** 생성자는 부모만 받고
+`SageCompanyRenameDlg`는 **현재 법인명을 받지 않는다.** 생성자는 부모만 받고
 `GetCompanyName()`으로 입력값만 돌려준다. 그래서 목업의 두 가지가 지금 구조로는 불가능하다 —
 에디트에 **현재 이름을 채우는 것**(목업 `value="삼덕회계법인"`)과 **「등록된 단가 4건」**을 세는 것.
 
@@ -1620,9 +1620,9 @@ R7은 「다이얼로그 **입력 검증분만** 인라인으로 옮기고 화�
 
 | 위치 | 내용 | 판정 |
 |---|---|---|
-| `TaechangLoginDlg.cpp:212` | 서비스 실패 `strError` | 화면 밖 사유(DB 등) — 유지 |
-| `TaechangPasswordChangeDlg.cpp:235` | 서비스 실패 `strError` | 동일 — 유지 |
-| `TaechangPasswordChangeDlg.cpp:252` | 변경 **성공** 알림 | 다이얼로그가 닫히므로 인라인으로 옮길 자리가 없다. 없애면 피드백이 사라진다 — 유지 |
+| `SageLoginDlg.cpp:212` | 서비스 실패 `strError` | 화면 밖 사유(DB 등) — 유지 |
+| `SagePasswordChangeDlg.cpp:235` | 서비스 실패 `strError` | 동일 — 유지 |
+| `SagePasswordChangeDlg.cpp:252` | 변경 **성공** 알림 | 다이얼로그가 닫히므로 인라인으로 옮길 자리가 없다. 없애면 피드백이 사라진다 — 유지 |
 
 ### 결과 **완료** (2026-08-06, 빌드 + 화면 확인)
 
@@ -1650,7 +1650,7 @@ R7은 「다이얼로그 **입력 검증분만** 인라인으로 옮기고 화�
 
 ### 목업에 없는 다이얼로그
 
-`TaechangCalcEstimateDlg`(견적서 생성) · 표지 수정 다이얼로그는 목업 6종에 없다.
+`SageCalcEstimateDlg`(견적서 생성) · 표지 수정 다이얼로그는 목업 6종에 없다.
 **라벨 승격에서도 뺐으므로 앱 안에서 라벨 색이 갈려 있다** — `DEBT_LOG` 참조.
 
 ---
@@ -1707,7 +1707,7 @@ SageFramelessDialog : public CDialog          ← CDialogEx가 아니다
 
 ### 대상은 7종 전부다
 
-목업에 없는 `TaechangCalcEstimateDlg`·`TaechangCoverPriceDlg`도 같은 스타일 줄을 쓴다.
+목업에 없는 `SageCalcEstimateDlg`·`SageCoverPriceDlg`도 같은 스타일 줄을 쓴다.
 **6종만 바꾸면 앱 안에서 다이얼로그 생김새가 두 종류로 갈린다.**
 
 완료 기준: 7종 모두 상단에 40px 밴드(`LIST_HEADER` 배경 · 제목 SemiBold · 하단 1px `BORDER`)와
@@ -1844,7 +1844,7 @@ D7-1~D7-10은 화면 단위(미수금 4종 · 단가 2종 · 납품 · 견적 ·
 |---|---|---|
 | 헤더 배경 | `#FFFFFF` + 하단 1px `#DCD6CD` | 앱 배경(하단 테두리는 있다) |
 | 탭 줄 배경 | `#FFFFFF` + 하단 1px `#DCD6CD` | 앱 배경 |
-| 탭 높이 | **40** | `TAECHANG_TAB_HEIGHT = 32` |
+| 탭 높이 | **40** | `SAGE_TAB_HEIGHT = 32` |
 | 선택 탭 | Bold + 본문색 + 하단 2px 카멜 | 흰 배경 + 하단 2px 카멜, Bold 아님 |
 | 비선택 탭 | 흰 배경 + 보조 텍스트 색 | 아이보리 배경 + 보조 텍스트 색 |
 
@@ -1855,7 +1855,7 @@ D7-1~D7-10은 화면 단위(미수금 4종 · 단가 2종 · 납품 · 견적 ·
 | 1 | 타이틀바 | 커스텀 h=32(`#EFECE5` · 로고칩 · 창버튼 3개) vs Win32 기본 | **범위 밖 후보** — 메인 창 프레임리스는 큰 작업이다 |
 | 2 | 사이드바 | 목업에 **「업무 메뉴」 상위 라벨이 없다**. 로고가 **좌측 정렬**(padding 20px)인데 앱은 `SS_CENTER` 가로 중앙. 그룹 라벨 letter-spacing 0.06em | **완료** 2026-08-08 (3-B-5a) · 확인받음. **이 항목이 적어두지 않은 차이가 둘 더 있었다** — 그룹 라벨 크기(14 → 캡션 12)와 선택 항목 흰색·SemiBold. 셋을 맞추려 항목 텍스트를 직접 그리게 되면서 letter-spacing까지 닫혔다 |
 | 2b | **셸 높이 기준이 둘로 갈려 있다** | 사이드바 로고 영역은 `TOP_BAR_HEIGHT = 58`, 헤더 영역은 `MARGIN + HEADER_HEIGHT = 72`. **두 하단 구분선이 14px 어긋난다.** 목업은 둘 다 56으로 같은 y다 | 등재 — 헤더 영역을 56으로 줄이면 탭·콘텐츠가 전부 16px 올라가므로 별 결정 |
-| 2c | 좌우 패딩 | 목업 **24px**(헤더 · 탭 · 콘텐츠 공통) vs `TAECHANG_MARGIN = 16` | 등재 — 모든 화면의 콘텐츠가 이동하므로 별 결정 |
+| 2c | 좌우 패딩 | 목업 **24px**(헤더 · 탭 · 콘텐츠 공통) vs `SAGE_MARGIN = 16` | 등재 — 모든 화면의 콘텐츠가 이동하므로 별 결정 |
 | 3 | 헤더 배경 | 흰 면 | **D7-11 이번 범위** |
 | 4 | 헤더 내용 | 제목 옆 **「문서 생성」 보조 라벨**, admin 뒤 **「관리자」 pill**(`#F2EEE7`/`#E4DFD7`/999px/11px 600/`#9A6B3F`) | **완료** 2026-08-08 (3-B-5b) · 확인받음. `CSageBadge` 신설(등재 8번에 재사용 가능). 보조 라벨은 **사이드바가 아는 그룹명**에서 받는다 — 핸들러에 메서드를 더하지 않았다. **목업에 없는 인증 구분선도 함께 걷어냈다** |
 | 5 | 탭 줄 | 위 표 4항목 | **D7-11 이번 범위** |
@@ -1900,9 +1900,9 @@ D1~D7로 앱 화면은 전부 새 규격이 됐는데 **모달 창만 Windows �
 | `app/ui/panels/SagePriceCalcPanel.cpp` | 11 |
 | `app/ui/panels/SageCompanyOrderPanel.cpp` | 9 |
 | `app/ui/panels/SageWorkspacePanel.cpp` | 6 |
-| `app/ui/dialogs/TaechangCalcEstimateDlg.cpp` | 3 |
-| `app/ui/dialogs/TaechangPasswordChangeDlg.cpp` | 2 |
-| `app/ui/dialogs/TaechangLoginDlg.cpp` · `app/ui/panels/SageSidebarPanel.cpp` · `SageTaechang.cpp` | 각 1 |
+| `app/ui/dialogs/SageCalcEstimateDlg.cpp` | 3 |
+| `app/ui/dialogs/SagePasswordChangeDlg.cpp` | 2 |
+| `app/ui/dialogs/SageLoginDlg.cpp` · `app/ui/panels/SageSidebarPanel.cpp` · `SageTaechang.cpp` | 각 1 |
 
 쓰이는 플래그는 5종뿐이다 — 무플래그 9곳 · `MB_ICONWARNING` · `MB_ICONERROR` ·
 `MB_ICONINFORMATION`, 그리고 **`MB_YESNO` 확인창 3곳**(`SageCompanyOrderPanel.cpp:511`,
@@ -1929,13 +1929,13 @@ D1~D7로 앱 화면은 전부 새 규격이 됐는데 **모달 창만 Windows �
 | 배치 | `app/ui/dialogs/SageMessageBoxDlg.h/.cpp` — 클래스 `SageMessageBoxDlg : SageFramelessDialog`. **파일명은 클래스명과 같다** |
 | 진입점 | `int ShowSageMessageBox(LPCWSTR pszText, UINT nType = MB_OK, CWnd* pParent = NULL)` — 인자·반환이 `AfxMessageBox`와 호환이라 호출부는 **이름 한 줄**만 바뀐다 |
 | 창 높이 | **상수로 적지 않는다.** `DT_CALCRECT`로 본문을 재고 `LayoutControls()`가 바닥을 반환 → `SizeFramelessClient` (교훈 19) |
-| 창 폭 | `TAECHANG_MSGBOX_WIDTH = 360` — 기존 다이얼로그 폭(320 / 360 / 420) 중 다수값. 워드랩. 콘텐츠가 정하는 값이 아니다 |
-| 최대 높이 | `TAECHANG_MSGBOX_MAX_HEIGHT` — 넘으면 본문을 말줄임한다 (D9-3) |
-| 본문 | 본문 폰트 `TAECHANG_CONTENT_FONT_POINT_SIZE` · 색 `TAECHANG_COLOR_TEXT`. **`INLINE_ERROR_TEXT`를 쓰지 않는다** — 그 색은 12px 인라인 한 줄 전용이다 |
+| 창 폭 | `SAGE_MSGBOX_WIDTH = 360` — 기존 다이얼로그 폭(320 / 360 / 420) 중 다수값. 워드랩. 콘텐츠가 정하는 값이 아니다 |
+| 최대 높이 | `SAGE_MSGBOX_MAX_HEIGHT` — 넘으면 본문을 말줄임한다 (D9-3) |
+| 본문 | 본문 폰트 `SAGE_CONTENT_FONT_POINT_SIZE` · 색 `SAGE_COLOR_TEXT`. **`INLINE_ERROR_TEXT`를 쓰지 않는다** — 그 색은 12px 인라인 한 줄 전용이다 |
 | 버튼 | `CSageButton`. 확인 = Primary / 예 = Primary · 아니오 = Secondary. `MB_DEFBUTTON2`는 포커스만 옮긴다 |
 | 삭제 확인 | 「예」를 **Danger**로 그린다 (2026-08-19 사용자 결정). 이때 그 창에는 Primary가 없다 |
 | 취소 경로 | Esc · 캡션 X는 `IDCANCEL`이다. **`MB_YESNO`에서는 `IDNO`로 매핑한다** — 그대로 두면 삭제 확인의 반환값이 `IDYES`도 `IDNO`도 아니게 된다 |
-| 캡션 텍스트 | 유형별 `TAECHANG_UI_MSGBOX_*` 상수 (알림 · 경고 · 오류 · 확인) |
+| 캡션 텍스트 | 유형별 `SAGE_UI_MSGBOX_*` 상수 (알림 · 경고 · 오류 · 확인) |
 
 ### Danger 판정 근거 (CRITICAL)
 
@@ -1954,8 +1954,8 @@ D1~D7로 앱 화면은 전부 새 규격이 됐는데 **모달 창만 Windows �
 
 ### 아이콘 3종 (2026-08-19 사용자 결정 — 그린다)
 
-`TAECHANG_MSGBOX_ICON_SIZE = 22` · 획 2px · 유니코드 글리프 금지(D6). 색은 유형이 정한다.
-값은 `TAECHANG_EMPTY_ICON_SIZE`와 같지만 **함께 바뀔 이유가 없으므로 상수를 나눈다** —
+`SAGE_MSGBOX_ICON_SIZE = 22` · 획 2px · 유니코드 글리프 금지(D6). 색은 유형이 정한다.
+값은 `SAGE_EMPTY_ICON_SIZE`와 같지만 **함께 바뀔 이유가 없으므로 상수를 나눈다** —
 교훈 19는 동기화가 필요한 값에 대한 규칙이다. 빈 상태 아이콘 상수를 건드리지 않는다.
 
 | 유형 | 색 | 글리프 |
@@ -1991,7 +1991,7 @@ API를 온전하게 두는 쪽을 택했다 — 쓰이지 않는 일반화가 �
 
 ## 작업 순서
 
-- [x] **1단계** — `SageMessageBoxDlg` · 진입 함수 신설, `vcxproj`/`filters` 등록, `TAECHANG_UI_MSGBOX_*` 상수 추가.
+- [x] **1단계** — `SageMessageBoxDlg` · 진입 함수 신설, `vcxproj`/`filters` 등록, `SAGE_UI_MSGBOX_*` 상수 추가.
       호출부는 `SageSidebarPanel.cpp:156` **1곳만** 교체
 - [x] **2단계** — 알림 · 경고 · 오류 계열 교체 완료 (2026-08-19). 1단계에서 1곳을 이미 바꿨으므로 이번 범위는 **51곳**이었다. `SageCompanyOrderPanel` 8곳에 유형 플래그를 붙였고, 다이얼로그 3종은 부모로 `this`를 넘긴다
 - [x] **3단계** — 확인창 3곳 교체 완료 (2026-08-19). 잔여 `AfxMessageBox`는 `SageTaechang.cpp:94` 하나뿐이다

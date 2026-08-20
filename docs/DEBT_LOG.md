@@ -48,7 +48,7 @@
 - 후속: pill 바에도 창 ID와 명령 ID를 갈라 준다. **`SS_NOTIFY` 컨트롤을 새로 만들 때는 두 ID를 반드시 다르게 둔다**
 
 ### [2026-08-08] 기존부채 — 데이터 관리 목록에 빈 상태가 없다
-- 위치: `app/ui/panels/SageCompanyOrderPanel.cpp` · `TAECHANG_UI_CO_EMPTY_HINT`(미사용)
+- 위치: `app/ui/panels/SageCompanyOrderPanel.cpp` · `SAGE_UI_CO_EMPTY_HINT`(미사용)
 - 설명: 등록된 법인이 0개면 **빈 격자**가 뜬다 — 스킬이 금지하는 그림이다. 문구 상수는 있는데 **쓰인 적이 없다.** 목업 3-6에 빈 상태가 없고 D7-6 계획에도 없어 손대지 않았다.
 - 위험도: 낮음 — 실사용에서 법인이 0개인 경우는 드물다
 - 후속: 실행 기록(D7-5)처럼 `CSageEmptyState`를 붙인다
@@ -66,15 +66,15 @@
 - 위험도: 낮음 — 선택 표시가 세 겹이라 읽힌다
 - 후속: 12px SemiBold가 다른 화면에서도 필요해지면 그때 폰트 역할을 추가하고 함께 적용한다. **한 곳 때문에 역할을 늘리지 않는다**
 
-### [2026-08-07] 기존부채 — `TAECHANG_UI_HISTORY_SEPARATOR`가 쓰이지 않는다
-- 위치: `TaechangDefine.h`
+### [2026-08-07] 기존부채 — `SAGE_UI_HISTORY_SEPARATOR`가 쓰이지 않는다
+- 위치: `SageDefine.h`
 - 설명: D7-5에서 텍스트 조립 상수 8개를 지울 때 확인해 보니 **이 하나는 내 변경 전부터 사용처가 0**이었다. `CLAUDE.md` 3장이 「기존 dead code는 언급하되 지우지 않는다」이므로 남겼다.
 - 위험도: 낮음
 - 후속: 사용자 확인 후 제거한다
 
 ### [2026-08-07] 미완성 — 진행 문구가 단계와 무관한 고정 문장이다
-- 위치: `TaechangDefine.h` `TAECHANG_UI_STATUS_CARD_RUNNING` · `SageWorkflowInputPanel::SetRunningState`
-- 설명: 상태 카드가 「처리 중 — 엑셀 데이터를 읽는 중입니다」를 **항상 같은 문장으로** 띄운다. D7-4 명세의 「진행 문구 세분화」는 워커가 단계를 알려야 가능한데, **현재 워커는 진행 통지를 전혀 보내지 않는다** — 퍼센트도 300ms 타이머로 95%까지 흉내 내는 값이다(`TAECHANG_PROGRESS_STEP`). 문구만 바꾸면 거짓 정보가 된다.
+- 위치: `SageDefine.h` `SAGE_UI_STATUS_CARD_RUNNING` · `SageWorkflowInputPanel::SetRunningState`
+- 설명: 상태 카드가 「처리 중 — 엑셀 데이터를 읽는 중입니다」를 **항상 같은 문장으로** 띄운다. D7-4 명세의 「진행 문구 세분화」는 워커가 단계를 알려야 가능한데, **현재 워커는 진행 통지를 전혀 보내지 않는다** — 퍼센트도 300ms 타이머로 95%까지 흉내 내는 값이다(`SAGE_PROGRESS_STEP`). 문구만 바꾸면 거짓 정보가 된다.
 - 위험도: 낮음 — 문장 자체는 모든 워크플로에서 사실이다(입력은 셋 다 엑셀)
 - 후속: 워커 → 패널 진행 통지(`WM_` 메시지 + 단계 코드)를 넣는 Step에서 함께 한다. **퍼센트 흉내와 한 몸이므로 따로 고치지 않는다**
 
@@ -86,19 +86,19 @@
 
 ### [2026-08-07] 축소 — 입력 탭 표 영역이 38px 줄었다
 - 위치: `app/ui/panels/SageWorkflowInputPanel.cpp` `GetTableAreaTop`
-- 설명: 상태 영역이 `TAECHANG_BUTTON_HEIGHT`(32) → `TAECHANG_STATUS_CARD_HEIGHT`(70)로 커지면서 그만큼 표가 내려갔다. **미수금은 입력 탭에 표가 없어 무해하지만 납품·견적은 입력 표가 있다.** 목업 3-4에는 입력 표가 없어 실측 근거가 없다.
-- 위험도: 낮음 — 표 최소 높이(`TAECHANG_RESULT_MIN_HEIGHT`)가 걸려 있어 잘리지는 않는다
+- 설명: 상태 영역이 `SAGE_BUTTON_HEIGHT`(32) → `SAGE_STATUS_CARD_HEIGHT`(70)로 커지면서 그만큼 표가 내려갔다. **미수금은 입력 탭에 표가 없어 무해하지만 납품·견적은 입력 표가 있다.** 목업 3-4에는 입력 표가 없어 실측 근거가 없다.
+- 위험도: 낮음 — 표 최소 높이(`SAGE_RESULT_MIN_HEIGHT`)가 걸려 있어 잘리지는 않는다
 - 후속: 납품·견적 입력 탭 화면을 확인할 때 표가 너무 짧아 보이면, 상태 카드를 표 위가 아니라 **입력 카드 우측**에 두는 안을 검토한다
 
 ### [2026-08-07] 구조불일치 — 아이콘 버튼 2곳이 규격 상수를 쓰지 않는다
 - 위치: `app/ui/panels/SageResultTablePanel.cpp`(필터 초기화) · `app/ui/panels/SagePriceCalcPanel.cpp`(계산 초기화)
-- 설명: `sagetaechang-ui`는 「아이콘 단독 버튼은 `TAECHANG_ICON_BUTTON_SIZE`(32) 정사각」으로 규정하는데, D7-4 1단계에서 입력 패널의 초기화를 텍스트 버튼으로 바꾸자 **이 상수의 사용처가 0곳이 됐다.** 즉 남은 아이콘 버튼 2곳은 처음부터 규격 상수를 거치지 않고 각자 값을 쓰고 있었다. 내 변경이 만든 orphan이지만 **스킬이 규정하는 상수를 지우면 규칙과 코드가 어긋나므로** 남겼다.
+- 설명: `sagetaechang-ui`는 「아이콘 단독 버튼은 `SAGE_ICON_BUTTON_SIZE`(32) 정사각」으로 규정하는데, D7-4 1단계에서 입력 패널의 초기화를 텍스트 버튼으로 바꾸자 **이 상수의 사용처가 0곳이 됐다.** 즉 남은 아이콘 버튼 2곳은 처음부터 규격 상수를 거치지 않고 각자 값을 쓰고 있었다. 내 변경이 만든 orphan이지만 **스킬이 규정하는 상수를 지우면 규칙과 코드가 어긋나므로** 남겼다.
 - 위험도: 낮음 — 현재 크기는 우연히 맞다
 - **2026-08-08 갱신**: D7-6의 ↑↓ 버튼이 이 상수를 쓰면서 **orphan 상태는 해소됐다.** 남은 두 곳이 각자 값을 쓰는 것은 그대로다
-- 후속: 두 곳이 `TAECHANG_ICON_BUTTON_SIZE`를 쓰게 바꾼다. 아이콘 버튼을 다루는 Step(D7-1 필터 · D7-2 단가 계산)에서 함께 처리한다
+- 후속: 두 곳이 `SAGE_ICON_BUTTON_SIZE`를 쓰게 바꾼다. 아이콘 버튼을 다루는 Step(D7-1 필터 · D7-2 단가 계산)에서 함께 처리한다
 
 ### [2026-08-07] 구조불일치 — 워크플로 컨트롤러가 `ui → infra`를 직접 부른다
-- 위치: `app/ui/workflow/SageWorkflowController.cpp` — `TaechangDeliveryExcelService` · `TaechangEstimateExcelService` · `TaechangReceivablesExcelService`
+- 위치: `app/ui/workflow/SageWorkflowController.cpp` — `SageDeliveryExcelService` · `SageEstimateExcelService` · `SageReceivablesExcelService`
 - 설명: 워커가 Excel 서비스를 직접 생성해 호출한다. `coding-design`의 계층 방향(`ui → core ← infra`)을 어긴다. **4d-3 이전부터 View에 있던 위반이고 이번 이동은 위치만 바꿨다** — 그 대가로 **View의 `app/infra` include가 6줄에서 0줄이 됐다.**
 - 위험도: 중 — 워크플로를 하나 더 추가하면 이 `if` 사슬을 또 고쳐야 한다. 실행 경로가 서비스 구현에 묶여 있다
 - 후속: Step 4 계열에서 `core`가 「워크플로 실행」 인터페이스를 정의하고 `infra`가 구현하게 한다. 그러면 워커의 워크플로 분기 3중 `if`도 함께 사라진다. 데이터 관리 패널·실행 기록 패널의 부채와 같은 뿌리다
@@ -112,14 +112,14 @@
 ### [2026-08-07] 구조불일치 — 실행 기록 패널이 응답 JSON을 직접 파싱한다
 - 위치: `app/ui/panels/SageWorkflowHistoryPanel.cpp` `BuildEntryLine` — `JsonExtractString` 4회
 - 설명: `coding-design`은 「`ui`에 파싱·변환 코드가 들어가지 않았는가」를 묻는데 기록 한 줄을 만들려고 응답 JSON에서 파일 경로·메시지·코드를 직접 꺼낸다. **3-B-4c 이전부터 View에 있던 위반이고 이번 이동은 위치만 바꿨다** — 이번 Step 원칙이 「옮기기만 한다」였으므로 그대로 가져왔다.
-- 위험도: 낮음 — 동작에는 문제가 없고 JSON 키 상수는 `TaechangDefine.h`에 있다
+- 위험도: 낮음 — 동작에는 문제가 없고 JSON 키 상수는 `SageDefine.h`에 있다
 - 후속: **D7-5**에서 텍스트 로그를 5컬럼 표로 바꿀 때 항목 조립을 `app/core/`로 뺀다. 그때 텍스트 조립 상수 8개(`HISTORY_ENTRY_PREFIX` 등)도 함께 사라진다
 
 ### [2026-08-07] 구조불일치 — 데이터 관리 리스트만 하단 여백이 이중으로 걸린다
-- 위치: `app/ui/view/SageTaechangView.cpp` `LayoutCompanyOrderPanel` — `nListHeight = nHeight - (nListTop - nTop) - TAECHANG_MARGIN`
-- 설명: D7-11에서 `nHeight`가 `nContentBottom - nContentTop`(하단 패딩이 이미 빠진 정확한 남은 높이)으로 바뀌었는데 여기서 `TAECHANG_MARGIN`을 **또** 뺀다. 결과로 데이터 관리 탭 리스트 하단 여백만 다른 화면보다 16px 크다. 기존 대비 변화는 4px뿐이어서 화면 확인을 통과했다.
+- 위치: `app/ui/view/SageTaechangView.cpp` `LayoutCompanyOrderPanel` — `nListHeight = nHeight - (nListTop - nTop) - SAGE_MARGIN`
+- 설명: D7-11에서 `nHeight`가 `nContentBottom - nContentTop`(하단 패딩이 이미 빠진 정확한 남은 높이)으로 바뀌었는데 여기서 `SAGE_MARGIN`을 **또** 뺀다. 결과로 데이터 관리 탭 리스트 하단 여백만 다른 화면보다 16px 크다. 기존 대비 변화는 4px뿐이어서 화면 확인을 통과했다.
 - 위험도: 낮음 — 여백이 넓을 뿐 잘리거나 겹치지 않는다
-- 후속: D7-6(데이터 관리, 목업 3-6)에서 `- TAECHANG_MARGIN`을 걷어낸다. 그때 카드 내부 패딩(`nPad = TAECHANG_MARGIN`)이 목업과 맞는지도 함께 본다
+- 후속: D7-6(데이터 관리, 목업 3-6)에서 `- SAGE_MARGIN`을 걷어낸다. 그때 카드 내부 패딩(`nPad = SAGE_MARGIN`)이 목업과 맞는지도 함께 본다
 
 ### [2026-08-07] 기존부채 — View의 `ON_WM_DROPFILES`는 도달할 수 없고 프레임 드롭 등록은 무동작이다
 - 위치: `app/ui/view/SageTaechangView.cpp` 메시지맵 `ON_WM_DROPFILES` · `PreTranslateMessage` · `OnCreate`의 `EnableFileDropForWindow(*pFrame)`
@@ -129,11 +129,11 @@
 
 ### [2026-08-07] 중복로직 — `DrawEditBorder`가 세 곳에 복제됐다
 - 위치: `app/ui/view/SageTaechangView.cpp` · `app/ui/panels/SageResultTablePanel.cpp` · `app/ui/panels/SageWorkflowInputPanel.cpp`
-- 설명: 컨트롤 **바깥** 1px에 테두리를 그리는 같은 함수가 화면마다 복사돼 있다. 패널은 자기 에디트를 스스로 그려야 하므로 이번에 세 번째가 생겼다. 같은 이유로 입력 패널의 rect가 오른쪽으로 1px 넓다(`TAECHANG_EDIT_BORDER_WIDTH`) — 그렇지 않으면 우측 세로선이 클리핑된다.
+- 설명: 컨트롤 **바깥** 1px에 테두리를 그리는 같은 함수가 화면마다 복사돼 있다. 패널은 자기 에디트를 스스로 그려야 하므로 이번에 세 번째가 생겼다. 같은 이유로 입력 패널의 rect가 오른쪽으로 1px 넓다(`SAGE_EDIT_BORDER_WIDTH`) — 그렇지 않으면 우측 세로선이 클리핑된다.
 - 위험도: 낮음 — 세 복사본이 아직 동일하다
 - 후속: `CSageEdit` 승격(패널·View 16곳)이 끝나면 셋 다 사라지고 1px 보정도 함께 없어진다. `sagetaechang-ui` > *`CSageEdit`은 화면에 따라 갈린다*
 
-### [2026-08-06] 구조불일치 — `TAECHANG_CALC_MAX_HISTORY`가 실제 상한이 아니다
+### [2026-08-06] 구조불일치 — `SAGE_CALC_MAX_HISTORY`가 실제 상한이 아니다
 - 위치: `app/ui/panels/SagePriceCalcPanel.cpp` `GetHistoryVisibleCapacity` · `TrimHistoryToVisibleCapacity`
 - 설명: 이름은 「최대 보관 10건」으로 읽히지만 실제 보관량은 `GetCountPerPage()`(화면에 보이는 행 수)로 잘린다. `MAX_HISTORY`는 **창이 아직 없을 때의 폴백**으로만 쓰인다. 창이 작으면 3~4건이 남고, 크면 10건을 넘길 수도 있다. D7-2에서 「최근 10건」 배지를 붙이려다 발견했고, 배지는 **동적 「최근 N건」**으로 우회했다(사용자 결정).
 - 위험도: 낮음 — 동작은 의도대로(스크롤 없이 보이는 만큼 유지)이고 이름만 어긋난다
@@ -176,7 +176,7 @@
 - 후속: 견적 화면에서 실제로 거슬리는지 먼저 보고, 필요하면 `ShowSelectionClear(BOOL)`를 추가한다
 
 ### [2026-08-06] 기존부채 — 도달할 수 없는 6행 초과 경고가 핸들러에 남아 있다
-- 위치: `app/core/workflow/handlers/SageEstimateWorkflowHandler.cpp` `ValidateSelectedRows` (`TAECHANG_UI_ESTIMATE_ONE_PAGE_LIMIT`)
+- 위치: `app/core/workflow/handlers/SageEstimateWorkflowHandler.cpp` `ValidateSelectedRows` (`SAGE_UI_ESTIMATE_ONE_PAGE_LIMIT`)
 - 설명: D7-8 2단계에서 패널의 경고창 3곳을 없앴다. 6행 초과는 **체크 시점에 자동 해제**되므로 생성 시점 검증은 도달할 수 없는 방어 코드가 됐다. 상수는 이 한 곳이 유일한 참조다.
 - 위험도: 낮음
 - 후속: 자동 해제를 신뢰한다면 검증과 상수를 함께 지운다. 남긴다면 왜 남기는지 근거가 필요하다
@@ -208,13 +208,13 @@
 
 ### [2026-08-06] 임시구현 — 합계 금액이 0이면 `—`가 아니라 「0」으로 나온다
 - 위치: `app/core/workflow/handlers/SageReceivablesWorkflowHandler.cpp` `BuildResultTotals`
-- 설명: 표의 빈 금액은 `—`(`TAECHANG_UI_AMOUNT_EMPTY_MARK`)인데 밴드는 0을 그대로 쓴다. **빈 값이 아니라 계산된 0**이라 구분한 것이다. 입금이 하나도 없는 파일에서 입금 합계가 「0」으로 보인다.
+- 설명: 표의 빈 금액은 `—`(`SAGE_UI_AMOUNT_EMPTY_MARK`)인데 밴드는 0을 그대로 쓴다. **빈 값이 아니라 계산된 0**이라 구분한 것이다. 입금이 하나도 없는 파일에서 입금 합계가 「0」으로 보인다.
 - 위험도: 낮음
 - 후속: 사용자가 어색해하면 0일 때만 `—`로 바꾼다
 
 ### [2026-08-06] 기존부채 — 창을 극단적으로 줄이면 합계 밴드가 패널 아래로 밀린다
 - 위치: `app/ui/panels/SageResultTablePanel.cpp` `LayoutTableArea`
-- 설명: 리스트 높이가 `TAECHANG_RESULT_MIN_HEIGHT`로 클램프되면 밴드 top이 패널 바닥을 넘는다. 밴드 높이를 빼는 만큼 **클램프가 이전보다 일찍 걸린다.**
+- 설명: 리스트 높이가 `SAGE_RESULT_MIN_HEIGHT`로 클램프되면 밴드 top이 패널 바닥을 넘는다. 밴드 높이를 빼는 만큼 **클램프가 이전보다 일찍 걸린다.**
 - 위험도: 낮음 — 정상 창 크기에서는 도달하지 않는다
 - 후속: 클램프가 걸리면 밴드를 패널 바닥에 고정하고 리스트를 그만큼 줄인다
 
@@ -242,9 +242,9 @@
 - 위험도: 낮음 — 필터를 걸면 세 항목 중 하나만 안 바뀌어 오해할 수 있다
 - 후속: 행 기준으로 세려면 프리젠터가 `missingCompanies`와 법인명을 대조해 행에 플래그를 담아야 한다. **D7-1 2단계나 그 이후에 필요해지면 한다** — 지금은 목업(총 24건 · 합계 · 기타 처리 2건)과 표시가 일치한다
 
-### [2026-08-06] 기존부채 — `TAECHANG_UI_RECEIVABLES_PREVIEW_TOTAL`이 참조 0곳이다
-- 위치: `TaechangDefine.h:276`
-- 설명: `L"미리보기 건수"`. D7-1이 이 상수를 소비할 것으로 계획서에 적혀 있었으나, 목업 3-1의 라벨은 「총」이라 `TAECHANG_UI_RECEIVABLES_SUMMARY_TOTAL`을 새로 만들었다. 이 상수는 여전히 아무도 쓰지 않는다(기존 죽은 코드라 삭제하지 않았다).
+### [2026-08-06] 기존부채 — `SAGE_UI_RECEIVABLES_PREVIEW_TOTAL`이 참조 0곳이다
+- 위치: `SageDefine.h:276`
+- 설명: `L"미리보기 건수"`. D7-1이 이 상수를 소비할 것으로 계획서에 적혀 있었으나, 목업 3-1의 라벨은 「총」이라 `SAGE_UI_RECEIVABLES_SUMMARY_TOTAL`을 새로 만들었다. 이 상수는 여전히 아무도 쓰지 않는다(기존 죽은 코드라 삭제하지 않았다).
 - 위험도: 낮음
 - 후속: D7 전체가 끝난 뒤 죽은 UI 상수를 한 번에 정리할 때 함께 제거한다
 
@@ -253,7 +253,7 @@
 - 설명: 3-B-4a에서 결과 표가 패널 안으로 들어가면서 `EnableFileDropForWindow(m_wndResultSection)` · `(m_wndResultList)` 두 줄이 갈 곳이 없어졌다. **드롭 대상은 HWND별로 지정해야 하고 상위 창으로 버블링되지 않으므로** 패널이 자기 자식에게 직접 걸어야 한다. `DragAcceptFiles` + `ChangeWindowMessageFilterEx` 3줄이 두 파일에 생겼다.
 - 위험도: 낮음 — 한쪽만 고치면 드롭이 조용히 안 먹는다
 - 후속: **3-B-4b~4d에서 패널이 더 늘어날 때 공용 헬퍼로 뽑는다.** `CWnd`를 받으므로 `app/common`이 아니라 `app/ui/`에 둔다. 지금 뽑으면 재배선 커밋에 무관한 파일이 섞인다
-- 함께: View 쪽은 필터 상수에 리터럴 `0x0049`를 그대로 쓰고 패널은 `WM_TAECHANG_COPYGLOBALDATA`를 쓴다. 같은 값이 두 표기로 있으므로 헬퍼를 뽑을 때 한쪽으로 맞춘다
+- 함께: View 쪽은 필터 상수에 리터럴 `0x0049`를 그대로 쓰고 패널은 `WM_SAGE_COPYGLOBALDATA`를 쓴다. 같은 값이 두 표기로 있으므로 헬퍼를 뽑을 때 한쪽으로 맞춘다
 
 ### [2026-08-06] 미완 — 패널·View의 입력 검증이 아직 모달이다
 - 위치: `app/ui/panels/SagePriceManagePanel.cpp` · `app/ui/panels/SagePriceCalcPanel.cpp` · `app/ui/panels/SageCompanyOrderPanel.cpp` · `app/ui/panels/SageWorkspacePanel.cpp`
@@ -281,8 +281,8 @@
 - 후속: **D7**에서 화면별로 목업과 대조할 때 정렬까지 함께 정한다. 정렬을 바꾸면 라벨 텍스트 위치가 눈에 띄게 이동하므로 폭 변경과 같은 커밋에 섞지 않는다
 
 ### [2026-08-06] 기존부채 — 단가 계산 입력 라벨에 6px 수동 보정이 남아 있다
-- 위치: `TaechangDefine.h` `TAECHANG_CALC_INPUT_LABEL_SHIFT`(=6), `app/ui/panels/SagePriceCalcPanel.cpp:231,236`
-- 설명: 「부수」·「페이지」 라벨만 좌표를 6px 왼쪽으로 당긴다. `SS_RIGHT`와 겹쳐서 1행 「법인명」과 텍스트 끝선이 6px 어긋난다. 라벨 폭이 46이던 시절에 눈으로 맞춘 보정값으로 보이며, D3b에서 폭을 64로 올렸어도 그대로 두었다(기존 코드 · 화면 확인 결과 문제없음). `SagePriceManagePanel.cpp:198`의 `TAECHANG_PRICE_COMPANY_LABEL_SHIFT`(=4)도 같은 성격이다.
+- 위치: `SageDefine.h` `SAGE_CALC_INPUT_LABEL_SHIFT`(=6), `app/ui/panels/SagePriceCalcPanel.cpp:231,236`
+- 설명: 「부수」·「페이지」 라벨만 좌표를 6px 왼쪽으로 당긴다. `SS_RIGHT`와 겹쳐서 1행 「법인명」과 텍스트 끝선이 6px 어긋난다. 라벨 폭이 46이던 시절에 눈으로 맞춘 보정값으로 보이며, D3b에서 폭을 64로 올렸어도 그대로 두었다(기존 코드 · 화면 확인 결과 문제없음). `SagePriceManagePanel.cpp:198`의 `SAGE_PRICE_COMPANY_LABEL_SHIFT`(=4)도 같은 성격이다.
 - 위험도: 낮음
 - 후속: 위 정렬 항목과 한 뿌리다. **D7**에서 정렬을 확정할 때 두 SHIFT 상수가 여전히 필요한지 다시 본다. 불필요하면 상수와 참조를 함께 제거한다
 
@@ -293,13 +293,13 @@
 - 후속: **D4b에서 절반 해결됐다.** 금액 Bold는 `SAGE_FONT_LIST_BOLD`를 만들어 적용했고(미수금 열 한정 — 목업 3-1 실측), tabular는 R4대로 우측 정렬로 대체했다. **선택 행 전체 Bold는 하지 않았다** — 목업 3-1과 3-3이 서로 다르고, 3-1 기준으로는 선택 행에 굵기가 없다. **D7-3에서 3-3 화면을 볼 때 판단한다**
 
 ### [2026-08-05] 기존부채 — 참조 없는 상수 2개
-- 위치: `TaechangDefine.h` `TAECHANG_LABEL_WIDTH`(=90) · `TAECHANG_RECEIVABLES_COL_IDX_DEPOSIT_AMOUNT`(=6)
-- 설명: 둘 다 정의만 있고 참조가 0곳이다. `git grep HEAD`로 **내 변경 이전부터** 참조가 없었음을 확인했다(내 변경이 고아로 만든 `..._COL_IDX_TOTAL_AMOUNT`는 규칙대로 제거함). `TAECHANG_LABEL_WIDTH`는 계획서에 90→80으로 적혀 있었으나 죽은 상수라 바꿔도 효과가 없다. D3b에서 원인을 확인했다 — 이 상수를 쓸 「입력 파일」·「저장 위치」 라벨(`m_wndInputLabel`·`m_wndOutputLabel`)이 생성 후 `ShowWindow(SW_HIDE)`만 되고 `MoveWindow`가 한 번도 불리지 않는다(`SageTaechangView.cpp:270,490`). 계획서 C4에서 이 항목을 「변경 없음」으로 정정했다.
+- 위치: `SageDefine.h` `SAGE_LABEL_WIDTH`(=90) · `SAGE_RECEIVABLES_COL_IDX_DEPOSIT_AMOUNT`(=6)
+- 설명: 둘 다 정의만 있고 참조가 0곳이다. `git grep HEAD`로 **내 변경 이전부터** 참조가 없었음을 확인했다(내 변경이 고아로 만든 `..._COL_IDX_TOTAL_AMOUNT`는 규칙대로 제거함). `SAGE_LABEL_WIDTH`는 계획서에 90→80으로 적혀 있었으나 죽은 상수라 바꿔도 효과가 없다. D3b에서 원인을 확인했다 — 이 상수를 쓸 「입력 파일」·「저장 위치」 라벨(`m_wndInputLabel`·`m_wndOutputLabel`)이 생성 후 `ShowWindow(SW_HIDE)`만 되고 `MoveWindow`가 한 번도 불리지 않는다(`SageTaechangView.cpp:270,490`). 계획서 C4에서 이 항목을 「변경 없음」으로 정정했다.
 - 위험도: 낮음
 - 후속: `DEPOSIT_AMOUNT`는 **D4b에서 쓰이지 않았다** — 우측 정렬이 핸들러의 `SAGE_COLUMN_ALIGN_RIGHT`로 이미 되어 있어 열 인덱스 상수가 필요 없었다. 여전히 죽은 상수다. 둘 다 Step 5 접두사 전환 때 함께 정리한다
 
 ### [2026-08-05] 기존부채 — INPUT_PANEL_HEIGHT가 파생값이 아니라 매직넘버다
-- 위치: `TaechangDefine.h` `TAECHANG_INPUT_PANEL_HEIGHT`
+- 위치: `SageDefine.h` `SAGE_INPUT_PANEL_HEIGHT`
 - 설명: 입력 영역 높이가 `2×SECTION_TITLE_HEIGHT + 3×ROW_GAP + BUTTON_HEIGHT + EDIT_HEIGHT`(=138) + 여유 6인데 값으로 박혀 있다. D3a에서 컨트롤 높이를 32로 올릴 때 136→144를 **손으로 계산해 넣었다.** 다음에 높이를 만지면 또 손계산이 필요하다. 나머지 레이아웃은 상수에서 누적 계산하므로 자동 전파된다.
 - 위험도: 낮음
 - 후속: `constexpr` 파생식으로 바꾼다. 여유분을 별 상수로 뽑아야 하므로 **D8(DPI 대응)에서 좌표를 손볼 때** 함께 처리한다
@@ -323,7 +323,7 @@
 - 후속: Step 4-B 의존 역전에서 서비스 획득 경로를 정할 때 통일한다
 
 ### [2026-08-05] 구조불일치 — 견적 입력 표가 행 구조의 범용 멤버를 빌려 쓴다
-- 위치: app/core/workflow/handlers/SageEstimateWorkflowHandler.cpp `g_inputColumns` ↔ app/core/workflow/TaechangWorkflowResultPresenter.cpp `AddEstimateInputRows`
+- 위치: app/core/workflow/handlers/SageEstimateWorkflowHandler.cpp `g_inputColumns` ↔ app/core/workflow/SageWorkflowResultPresenter.cpp `AddEstimateInputRows`
 - 설명: 견적 입력 표의 단가·표지·운임 컬럼이 각각 `m_strTotalCopies` · `m_strValue` · `m_strReason`에서 값을 가져온다. Presenter가 견적 값을 범용 멤버에 실어 보내기 때문이다. Step 4-7 A에서 컬럼 배열에 데이터 출처를 명시하면서 드러났다. 동작은 정상이고 이제 눈에는 보이지만, 이름과 내용이 어긋나 다음 사람이 오해한다.
 - 위험도: 낮음
 - 후속: Presenter에 견적 전용 필드(`m_strUnitPrice` · `m_strCoverPrice` · `m_strFreight`)를 추가하고 컬럼 배열을 그쪽으로 돌린다. 화면 변화는 없다
@@ -336,13 +336,13 @@
 
 ### [2026-08-01] 기존부채 — 헤더 상태 표시 기능이 통째로 동작하지 않음
 - 위치: app/ui/view/SageTaechangView.cpp:372 `m_wndHeaderStatus.Create`, :841 `MoveWindow(0,0,0,0)`
-- 설명: `m_wndHeaderStatus`가 `WS_CHILD | SS_RIGHT`로만 생성되어 **`WS_VISIBLE`이 없고**, `ShowWindow` 호출도 없으며 레이아웃에서 크기를 `0,0,0,0`으로 준다. 즉 화면에 표시된 적이 없다. 그런데 이 컨트롤을 위해 멤버 2개(`m_colorHeaderStatus`/`m_nHeaderStatusBgRole`), 함수 2개(`ResolveStatusColor`/`ResolveStatusBgRole`), `OnCtlColor` 분기 5줄, 상수 3개(`TAECHANG_COLOR_STATUS_BG_SUCCESS`/`WARNING`/`ERROR` — 다른 사용처 없음)가 유지되고 있다. `SetStatusText`가 같이 호출하는 `pFrame->SetMessageText`(창 하단 상태바)는 정상 동작하므로 상태 표시 자체가 안 되는 것은 아니다. PR_LOG의 상태별 색 기능(PR #15)에서 도입됐고 컨트롤을 보이게 하는 단계가 빠진 것으로 보인다. 3-A-8 2단계에서 브러시를 이관하다 발견했다.
+- 설명: `m_wndHeaderStatus`가 `WS_CHILD | SS_RIGHT`로만 생성되어 **`WS_VISIBLE`이 없고**, `ShowWindow` 호출도 없으며 레이아웃에서 크기를 `0,0,0,0`으로 준다. 즉 화면에 표시된 적이 없다. 그런데 이 컨트롤을 위해 멤버 2개(`m_colorHeaderStatus`/`m_nHeaderStatusBgRole`), 함수 2개(`ResolveStatusColor`/`ResolveStatusBgRole`), `OnCtlColor` 분기 5줄, 상수 3개(`SAGE_COLOR_STATUS_BG_SUCCESS`/`WARNING`/`ERROR` — 다른 사용처 없음)가 유지되고 있다. `SetStatusText`가 같이 호출하는 `pFrame->SetMessageText`(창 하단 상태바)는 정상 동작하므로 상태 표시 자체가 안 되는 것은 아니다. PR_LOG의 상태별 색 기능(PR #15)에서 도입됐고 컨트롤을 보이게 하는 단계가 빠진 것으로 보인다. 3-A-8 2단계에서 브러시를 이관하다 발견했다.
 - 위험도: 낮음
 - 후속: **3-B-5b(`SageHeaderPanel`) 착수 전에 결정한다 (계획의 R9).** 숨긴 것이 의도인지 미완성인지 확인이 필요하다. 미완성이면 `WS_VISIBLE` 추가와 `MoveWindow` 좌표 부여, 불필요하면 관련 멤버·함수·분기·상수를 함께 제거. 확인 없이 패널로 옮기면 죽은 코드를 새 패널로 복제한다
 
 ### [2026-08-01] 기존부채 — m_brushListHeader가 생성만 되고 쓰이지 않음
 - 위치: app/ui/view/SageTaechangView.cpp:277 (생성자)
-- 설명: `CreateSolidBrush(TAECHANG_COLOR_LIST_HEADER)`로 만들지만 반환·사용하는 곳이 없다. 리스트 헤더 배경은 `CSageHeaderCtrl::OnPaint`가 `FillSolidRect`로 직접 칠하므로 남은 흔적이다. 3-A-8 2단계에서 나머지 브러시 4개를 저장소로 옮기면서 드러났다. 이번 변경이 만든 것이 아니라 그대로 뒀다.
+- 설명: `CreateSolidBrush(SAGE_COLOR_LIST_HEADER)`로 만들지만 반환·사용하는 곳이 없다. 리스트 헤더 배경은 `CSageHeaderCtrl::OnPaint`가 `FillSolidRect`로 직접 칠하므로 남은 흔적이다. 3-A-8 2단계에서 나머지 브러시 4개를 저장소로 옮기면서 드러났다. 이번 변경이 만든 것이 아니라 그대로 뒀다.
 - 위험도: 낮음
 - 후속: 멤버 선언과 생성 2줄 제거
 
@@ -353,7 +353,7 @@
 - 후속: 폰트 저장소 작업(`ApplyControlFonts` 해체) 때 6곳을 한 번에 통일한다. 그때 컨트롤이 자기 폰트를 갖게 되므로 가드 방식도 함께 정해진다
 
 ### [2026-08-01] 기존부채 — Excel COM 최적화 설정이 없음
-- 위치: app/infra/office/TaechangReceivablesExcelService.cpp (및 office 계층 전반)
+- 위치: app/infra/office/SageReceivablesExcelService.cpp (및 office 계층 전반)
 - 설명: `ScreenUpdating` / `Calculation` / `EnableEvents` / `DisplayAlerts` 설정이 하나도 없다. 3-A-5에서 미수금 생성 지연을 조사하다 발견했다. UI 쪽 O(N^2) 리페인트는 `SetRedraw`로 해결했으나 워커 쪽 개선 여지는 남아 있다. 셀 접근 패턴(범위 일괄 읽기 vs 셀 단위 접근)도 아직 확인하지 않았다.
 - 위험도: 낮음
 - 후속: 성능이 다시 문제되면 조사한다. COM 작업이라 검증이 별도로 필요하고 3-A 범위를 벗어난다
@@ -371,32 +371,32 @@
 - **[2026-08-06 D5a] 다이얼로그 쪽은 해소됐다.** 7종의 `CEdit`을 `CSageEdit`으로 교체했다. `WS_BORDER`를 제거하고 `WM_NCCALCSIZE`로 1px을 확보한 뒤 `WM_NCPAINT`에서 직접 그린다(+`SetWindowTheme`으로 테마 차단). 테두리가 원래 NC 영역 **안쪽**이었으므로 픽셀 위치가 이동하지 않는다 — 위 보류 사유는 패널·View에만 해당한다
 - 후속: **패널·View 16곳은 그대로 남아 있다.** 부모가 컨트롤 바깥에 그리므로 옮기면 1px 이동한다. 옮기려면 좌표 보정과 화면 변화 검증이 함께 필요하다. `DrawEditBorder` 중복(2026-08-05 항목)도 이때 같이 없앤다
 
-### [2026-07-31] 기존부채 — TaechangCoverPriceDlg 호출부 없음
-- 위치: app/ui/dialogs/TaechangPriceSimpleDlg.h:44 및 대응 .cpp
+### [2026-07-31] 기존부채 — SageCoverPriceDlg 호출부 없음
+- 위치: app/ui/dialogs/SagePriceSimpleDlg.h:44 및 대응 .cpp
 - 설명: 클래스가 정의되어 있으나 프로젝트 어디서도 DoModal 호출이 없다. 3-A-2에서 버튼 교체 대상을 세다가 발견했다.
 - 위험도: 낮음
 - 후속: 실제 미사용이면 제거. 표지 단가 입력이 계획된 기능이면 진입 경로를 연결
 
-### [2026-07-31] 구조불일치 — TaechangPriceSimpleDlg 파일명과 내용 불일치
-- 위치: app/ui/dialogs/TaechangPriceSimpleDlg.h / .cpp
-- 설명: 파일명은 PriceSimpleDlg인데 실제로는 TaechangCompanyRenameDlg와 TaechangCoverPriceDlg 두 클래스가 들어 있다. coding-design의 "파일 하나에 과도하게 많은 클래스를 넣지 않는다"와 어긋난다.
+### [2026-07-31] 구조불일치 — SagePriceSimpleDlg 파일명과 내용 불일치
+- 위치: app/ui/dialogs/SagePriceSimpleDlg.h / .cpp
+- 설명: 파일명은 PriceSimpleDlg인데 실제로는 SageCompanyRenameDlg와 SageCoverPriceDlg 두 클래스가 들어 있다. coding-design의 "파일 하나에 과도하게 많은 클래스를 넣지 않는다"와 어긋난다.
 - 위험도: 낮음
 - 후속: 클래스당 파일로 분리하고 파일명을 클래스명에 맞춤
 
 ### [2026-07-31] 구조불일치 — UI 계층이 infra를 직접 호출
-- 위치: app/ui/view/SageTaechangView.cpp, app/ui/panels/SagePriceCalcPanel.cpp, app/ui/dialogs/{TaechangLoginDlg, TaechangPasswordChangeDlg, TaechangCalcEstimateDlg}.cpp
+- 위치: app/ui/view/SageTaechangView.cpp, app/ui/panels/SagePriceCalcPanel.cpp, app/ui/dialogs/{SageLoginDlg, SagePasswordChangeDlg, SageCalcEstimateDlg}.cpp
 - 설명: coding-design의 의존 방향(ui → core ← infra)을 어기고 SageDBMgr/Repository를 직접 참조한다.
 - 위험도: 중
 - 후속: View 경로는 **3-B-6b**(`ISageWorkflowRunner` 도입, infra include 6줄 제거), 다이얼로그 3개는 **Step 4-B**로 갈렸다
 
 ### [2026-07-31] 구조불일치 — core Service 헤더가 infra Repository 헤더에 컴파일 의존
-- 위치: app/core/auth/TaechangUserService.h:5, app/core/price/TaechangPriceService.h:5, app/core/receivable/TaechangReceivableCompanyOrderService.h:5
+- 위치: app/core/auth/SageUserService.h:5, app/core/price/SagePriceService.h:5, app/core/receivable/SageReceivableCompanyOrderService.h:5
 - 설명: Service 헤더가 Repository 헤더를 include해 core가 infra에 컴파일 타임으로 묶여 있다. core를 독립 라이브러리로 분리하거나 테스트를 붙일 때 걸림돌이 된다.
 - 위험도: 중
 - 후속: Step 4에서 core에 인터페이스를 두고 infra가 구현하도록 의존 역전
 
 ### [2026-07-31] 구조불일치 — infra/office가 infra/db를 직접 참조
-- 위치: app/infra/office/TaechangReceivablesExcelService.cpp
+- 위치: app/infra/office/SageReceivablesExcelService.cpp
 - 설명: 문서 생성 모듈이 DB 매니저를 직접 호출한다. 같은 infra 계층 안이지만 관심사가 섞여 있다.
 - 위험도: 낮음
 - 후속: Step 4에서 core Service 경유로 전환
@@ -477,7 +477,7 @@
 
 ### [2026-07-31] 해결 — 앱 헤더가 DB 계층을 전역 노출
 - 위치: SageTaechang.h:11
-- 조치: CWinApp 헤더의 SageDBMgr.h include를 제거하고 실제 사용처인 SageTaechang.cpp에 직접 추가했다. 이 과정에서 SageTaechangView.h가 SageTaechang.h → SageDBMgr.h → TaechangPriceRepository.h 사슬로 TaechangPriceDto를 간접 획득하고 있었음이 드러나, 전방 선언과 직접 include로 정리했다.
+- 조치: CWinApp 헤더의 SageDBMgr.h include를 제거하고 실제 사용처인 SageTaechang.cpp에 직접 추가했다. 이 과정에서 SageTaechangView.h가 SageTaechang.h → SageDBMgr.h → SagePriceRepository.h 사슬로 SagePriceDto를 간접 획득하고 있었음이 드러나, 전방 선언과 직접 include로 정리했다.
 - 커밋: 19d95eb, 21d5679
 
 ### [2026-07-31] 해결 — SqlInitializer 파일명과 클래스명 불일치

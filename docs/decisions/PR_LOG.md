@@ -1,9 +1,9 @@
 ﻿## [2026-08-19] feature/price-company-table
 - **목적**: 단가 데이터 관리에서 법인을 추가하고 탭을 옮기면 사라지는 문제를 고친다
-- **변경 내용**: 법인 목록이 `SELECT DISTINCT company_name FROM TaechangPrice`였고 `OnAddCompany`는 콤보에만 `AddString`할 뿐 DB에 쓰지 않아, **단가 0건 법인은 저장될 자리가 없었다.** `TaechangPriceCompany(company_name, report_type, UNIQUE)` 테이블을 추가하고 시작 시 `INSERT OR IGNORE ... SELECT DISTINCT`로 기존 법인을 채운다. 목록 조회는 **새 테이블과 기존 테이블의 UNION**이라 시딩이 실패하거나 건너뛰어도 단가가 있는 법인은 사라지지 않는다. 이름 변경·삭제는 Repository가 두 테이블에 함께 적용한다
+- **변경 내용**: 법인 목록이 `SELECT DISTINCT company_name FROM SagePrice`였고 `OnAddCompany`는 콤보에만 `AddString`할 뿐 DB에 쓰지 않아, **단가 0건 법인은 저장될 자리가 없었다.** `SagePriceCompany(company_name, report_type, UNIQUE)` 테이블을 추가하고 시작 시 `INSERT OR IGNORE ... SELECT DISTINCT`로 기존 법인을 채운다. 목록 조회는 **새 테이블과 기존 테이블의 UNION**이라 시딩이 실패하거나 건너뛰어도 단가가 있는 법인은 사라지지 않는다. 이름 변경·삭제는 Repository가 두 테이블에 함께 적용한다
 - **PR 링크**: 없음
 - **결과**: merged — `develop`에 fast-forward(`e09a0d8`). 커밋 3개, 작업 브랜치 삭제. 빌드와 「추가 후 탭 이동」 확인 완료
-- **검증하지 못한 것**: **운영 DB 복사본으로 실행해보지 않았다.** 기존 데이터에 대한 안전성은 스키마 제약(`TaechangPrice`도 `CHECK (report_type > 0)`, `company_name NOT NULL`)과 SQL 의미로 판단한 것이고 실행 결과가 아니다. 배포 전 회사 DB 복사본으로 **법인 목록이 예전과 같은지** 한 번 확인이 필요하다
+- **검증하지 못한 것**: **운영 DB 복사본으로 실행해보지 않았다.** 기존 데이터에 대한 안전성은 스키마 제약(`SagePrice`도 `CHECK (report_type > 0)`, `company_name NOT NULL`)과 SQL 의미로 판단한 것이고 실행 결과가 아니다. 배포 전 회사 DB 복사본으로 **법인 목록이 예전과 같은지** 한 번 확인이 필요하다
 - **되돌아보면**: 처음에 「법인 테이블이 없다」를 코드 grep 한 번으로 결론냈고, 실제 DB를 열었을 때도 ASCII로 읽어 0건이 나온 것을 그대로 믿을 뻔했다. 이 앱은 `sqlite3_open16`이라 **DB 인코딩이 UTF-16**이어서 ASCII 검색에 스키마가 걸리지 않는다. 또 「배포된 DB라 스키마를 못 바꾼다」고 단정해 A안을 무겁게 제시했는데, 이 프로젝트는 시작마다 `CREATE TABLE IF NOT EXISTS`를 돌리므로 **테이블 추가가 가장 가벼운 축**이었다
 
 ## [2026-08-19] feature/price-detail-card
@@ -53,7 +53,7 @@
 
 ## [2026-08-13] refactor/json-split-promote
 - **목적**: 위 폐기 커밋에 섞여 있던 순수 리팩토링 1건만 분리해 살린다
-- **변경 내용**: `SplitJsonObjectArray`를 `TaechangWorkflowResultPresenter.cpp`에서 `app/common/TaechangJson`으로 옮겼다(+36 / −36, 동작 변경 없음). **`coding-rules`의 *쓰이지 않는 일반화* 에 걸리는 것을 알고 남긴 예외다** — 검사가 사라져 호출부가 프리젠터 3곳뿐이므로 규칙대로면 되돌리는 쪽이고, 사용자 결정으로 살렸다. 프리젠터가 이미 `app/common/TaechangJson.h`를 include하고 있어 include 추가는 없다
+- **변경 내용**: `SplitJsonObjectArray`를 `SageWorkflowResultPresenter.cpp`에서 `app/common/SageJson`으로 옮겼다(+36 / −36, 동작 변경 없음). **`coding-rules`의 *쓰이지 않는 일반화* 에 걸리는 것을 알고 남긴 예외다** — 검사가 사라져 호출부가 프리젠터 3곳뿐이므로 규칙대로면 되돌리는 쪽이고, 사용자 결정으로 살렸다. 프리젠터가 이미 `app/common/SageJson.h`를 include하고 있어 include 추가는 없다
 - **PR 링크**: 없음
 - **결과**: 빌드 확인 완료. merged (`develop` = `c930c6d`)
 
@@ -77,19 +77,19 @@
 
 ## [2026-08-09] style/badge-column-center
 - **목적**: 실행 기록의 상태 배지를 열 경계 기준으로 그리고 가운데에 놓는다. 커스텀드로우 세 함수 중 배지만 옛 방식으로 남아 있었다
-- **변경 내용**: `DrawBadgeColumn`만 `GetSubItemRect(LVIR_LABEL)`를 쓰고 있어 `FindColumnRect`로 맞췄다 — 같은 문제를 한 파일에서 두 방식으로 풀던 상태가 정리됐다. 기준점이 열 시작으로 바뀌며 배지가 6px 움직이는 것을 보고하니, 사용자가 화면(실행 기록 탭 「결과」 열)을 확인하고 **가운데 정렬로 결정**했다 — `sagetaechang-ui`의 「셀 정렬은 모든 열 가운데」가 어제 `c679136`에서 배지만 빠져 있었고, 헤더 「결과」는 가운데인데 pill만 왼쪽에 붙어 있었다. 가로를 세로와 같은 계산(`(폭 - 배지폭) / 2`)으로 두어 두 축이 같은 모양이 됐다. **`FindCheckImageRect`의 열 번호 인자를 되돌렸다** — 그룹 열 제거로 호출부가 하나만 남아 뺐던 것인데 배지가 두 번째 호출부가 되면서 다시 필요해졌다. 「체크박스는 0번 열에만 있다」가 함수 안에 있으면 호출부는 자기 열 번호만 넘기면 된다. `TAECHANG_LIST_CELL_LEFT_PAD`는 `CSageTableTotalBar`가 계속 써서 고아가 되지 않았다
+- **변경 내용**: `DrawBadgeColumn`만 `GetSubItemRect(LVIR_LABEL)`를 쓰고 있어 `FindColumnRect`로 맞췄다 — 같은 문제를 한 파일에서 두 방식으로 풀던 상태가 정리됐다. 기준점이 열 시작으로 바뀌며 배지가 6px 움직이는 것을 보고하니, 사용자가 화면(실행 기록 탭 「결과」 열)을 확인하고 **가운데 정렬로 결정**했다 — `sagetaechang-ui`의 「셀 정렬은 모든 열 가운데」가 어제 `c679136`에서 배지만 빠져 있었고, 헤더 「결과」는 가운데인데 pill만 왼쪽에 붙어 있었다. 가로를 세로와 같은 계산(`(폭 - 배지폭) / 2`)으로 두어 두 축이 같은 모양이 됐다. **`FindCheckImageRect`의 열 번호 인자를 되돌렸다** — 그룹 열 제거로 호출부가 하나만 남아 뺐던 것인데 배지가 두 번째 호출부가 되면서 다시 필요해졌다. 「체크박스는 0번 열에만 있다」가 함수 안에 있으면 호출부는 자기 열 번호만 넘기면 된다. `SAGE_LIST_CELL_LEFT_PAD`는 `CSageTableTotalBar`가 계속 써서 고아가 되지 않았다
 - **PR 링크**: 없음
 - **결과**: 빌드·화면 확인 완료(실행 기록 「결과」 열 배지가 헤더와 중심 일치). 머지 대기
 
 ## [2026-08-09] style/remove-repeat-mark
 - **목적**: 표의 반복 값 축약(`〃`)과 그룹 표시를 없앤다. **D4c를 철회하는 작업**이다 — 완료·확인받은 디자인 결정을 되돌리는 것이므로 근거를 문서에 남기는 것이 코드 삭제만큼 중요했다
-- **변경 내용**: 사용자 지시로 시작했으나 **범위가 갈려 먼저 확인받았다** — `〃`와 그룹 시작 SemiBold는 `IsGroupStartRow()` **하나가 동시에 판정**하므로 (a) `〃`만 빼고 SemiBold 유지 (b) 그룹 개념 전체 제거 중 골라야 했다. **(b)로 결정**받았다(미리보기로 두 표 모양을 비교해 제시). 근거는 「매 행 법인명이 다 보이는데 첫 행만 굵으면 이유를 알 수 없는 강조가 된다」였다. 코드에서는 `SetGroupColumn` · `DrawGroupColumn` · `IsGroupStartRow` · `m_nGroupColumn` · 커스텀드로우 그룹 분기, core의 `SageWorkflowResultStyle::nGroupColumn`, 핸들러 2곳의 지정, 패널의 호출, 상수 3개(`TAECHANG_UI_REPEAT_MARK` · `TAECHANG_LIST_NO_GROUP_COLUMN` · `TAECHANG_ESTIMATE_COL_IDX_COMPANY`)를 지웠다. **남긴 것은 이유를 대고 남겼다** — `TAECHANG_UI_SEPARATOR_MARK`(`-`)는 미수금 핸들러가 빈 행 판정에 독립적으로 쓰고, `TAECHANG_RECEIVABLES_COL_IDX_COMPANY`는 합계 셀에서, `SAGE_FONT_LIST_SEMIBOLD`는 `CSageTableTotalBar`에서 계속 쓰인다. **문서가 이번 작업의 절반이었다** — `sagetaechang-ui`가 `〃`를 CRITICAL 규격으로 두고 있어 **코드만 고치면 다음 세션에 되살아난다.** 색상표·폰트표·표 규격 3행을 고치고 「반복 값 판정 — 컨트롤이 한다」 절을 **「반복 값을 축약하지 않는다」**로 다시 쓰면서 축약이 깨지는 세 경로(필터로 앞 행이 사라짐 · 정렬 변경으로 그룹이 흩어짐 · 행 복사 시 기호가 따라감)를 근거로 적었다. **`DESIGN_PLAN`의 「어긋나는 지점 #5」가 구분선을 만들지 않는 근거로 `〃`를 들고 있어서**(「경계는 `〃`가 끊기는 것으로 읽힌다」) 그 근거가 바뀐 것을 명시했다 — **구분선을 다시 넣자는 뜻이 아니라 그룹을 아예 표시하지 않기로 한 것**이다. D4c 완료 기준 문장은 이제 **반대**이므로 취소선과 함께 새 기준을 적었다. **직전 브랜치의 미커밋 변경을 승계했다**: `DrawGroupColumn` 열 경계화는 함수째 사라져 최종 diff에 남지 않았고, `FindColumnRect`와 커스텀드로우 분기 배타화는 `DrawFirstColumn`·`DrawBadgeColumn`이 계속 쓰므로 살아남았다. `FindCheckImageRect`의 `nColumn` 인자는 **호출부가 하나만 남아 되돌렸다**(쓰이지 않는 일반화)
+- **변경 내용**: 사용자 지시로 시작했으나 **범위가 갈려 먼저 확인받았다** — `〃`와 그룹 시작 SemiBold는 `IsGroupStartRow()` **하나가 동시에 판정**하므로 (a) `〃`만 빼고 SemiBold 유지 (b) 그룹 개념 전체 제거 중 골라야 했다. **(b)로 결정**받았다(미리보기로 두 표 모양을 비교해 제시). 근거는 「매 행 법인명이 다 보이는데 첫 행만 굵으면 이유를 알 수 없는 강조가 된다」였다. 코드에서는 `SetGroupColumn` · `DrawGroupColumn` · `IsGroupStartRow` · `m_nGroupColumn` · 커스텀드로우 그룹 분기, core의 `SageWorkflowResultStyle::nGroupColumn`, 핸들러 2곳의 지정, 패널의 호출, 상수 3개(`SAGE_UI_REPEAT_MARK` · `SAGE_LIST_NO_GROUP_COLUMN` · `SAGE_ESTIMATE_COL_IDX_COMPANY`)를 지웠다. **남긴 것은 이유를 대고 남겼다** — `SAGE_UI_SEPARATOR_MARK`(`-`)는 미수금 핸들러가 빈 행 판정에 독립적으로 쓰고, `SAGE_RECEIVABLES_COL_IDX_COMPANY`는 합계 셀에서, `SAGE_FONT_LIST_SEMIBOLD`는 `CSageTableTotalBar`에서 계속 쓰인다. **문서가 이번 작업의 절반이었다** — `sagetaechang-ui`가 `〃`를 CRITICAL 규격으로 두고 있어 **코드만 고치면 다음 세션에 되살아난다.** 색상표·폰트표·표 규격 3행을 고치고 「반복 값 판정 — 컨트롤이 한다」 절을 **「반복 값을 축약하지 않는다」**로 다시 쓰면서 축약이 깨지는 세 경로(필터로 앞 행이 사라짐 · 정렬 변경으로 그룹이 흩어짐 · 행 복사 시 기호가 따라감)를 근거로 적었다. **`DESIGN_PLAN`의 「어긋나는 지점 #5」가 구분선을 만들지 않는 근거로 `〃`를 들고 있어서**(「경계는 `〃`가 끊기는 것으로 읽힌다」) 그 근거가 바뀐 것을 명시했다 — **구분선을 다시 넣자는 뜻이 아니라 그룹을 아예 표시하지 않기로 한 것**이다. D4c 완료 기준 문장은 이제 **반대**이므로 취소선과 함께 새 기준을 적었다. **직전 브랜치의 미커밋 변경을 승계했다**: `DrawGroupColumn` 열 경계화는 함수째 사라져 최종 diff에 남지 않았고, `FindColumnRect`와 커스텀드로우 분기 배타화는 `DrawFirstColumn`·`DrawBadgeColumn`이 계속 쓰므로 살아남았다. `FindCheckImageRect`의 `nColumn` 인자는 **호출부가 하나만 남아 되돌렸다**(쓰이지 않는 일반화)
 - **PR 링크**: 없음
 - **결과**: 빌드·화면 확인 완료(미수금 결과 표 · 견적서 입력 표의 법인명이 매 행 같은 굵기, `-` 구분 행 유지). 머지 대기
 
 ## [2026-08-09] fix/list-first-column-checkbox
 - **목적**: 납품서 입력 표에서 **체크박스가 보이지 않고 선택도 안 되는** 것을 고친다. 사용자가 화면 캡처로 발견했다
-- **변경 내용**: 전날 `style/table-center-align`의 **회귀**였다 — 첫 열 가운데 정렬을 위해 켠 `SetFirstColumnAlign`이 서브아이템 0을 `CDRF_SKIPDEFAULT`로 가져가는데, **체크박스(상태 이미지)는 바로 그 기본 그리기에서 나온다.** 그리기만 죽고 **클릭 판정은 살아 있어** 원인이 보이지 않는 종류였다. 첫 수정은 상태 이미지 폭 20px 자리에 `DrawCheckBox`를 직접 그리는 것이었는데, **화면 확인에서 결함 2건을 냈다**: ① 체크박스와 숫자 사이 **흰 세로줄** ② 숫자가 헤더 「행」과 **10px 어긋남**. 원인이 각각 달랐다 — ①은 `ApplyFixedRowHeight`가 행 높이 34를 만들려고 물린 **1px 더미 이미지리스트**가 첫 열에 아이콘 슬롯을 만들어, `GetSubItemRect(LVIR_LABEL)`이 `left+21`부터 시작하는 탓에 **내가 칠한 두 rect 사이 1px이 미도색**으로 남은 것이고, ②는 텍스트 rect의 **왼쪽만** 20 밀어 중심이 40→50으로 간 것이다(첫 열 폭 80, 어긋남이 정확히 `20/2`). **뿌리는 하나였다** — 첫 열을 `SKIPDEFAULT`로 가져왔으면 그 열 전체가 우리 책임인데 **리스트뷰가 준 rect 조각에 얹어 그렸다.** `GetColumnWidth(0)`으로 열 경계를 직접 계산해 전체를 칠하고, 텍스트 인셋을 `DeflateRect(w, 0)`로 **좌우 대칭**으로 줘 헤더 중앙과 다시 맞췄다. 사용자 지시로 둘을 더 넣었다 — 액센트 바(3px)와 체크박스가 맞닿던 것에 **여백 2px**(`TAECHANG_LIST_CHECK_ACCENT_GAP`, 단 클릭 판정이 20px 상태 이미지 영역에 묶여 있어 **그 안에서만** 조정), `DrawGroupColumn`처럼 **DC 상태 복원**. **부채 하나는 등재하려다 해소했다** — 그리기는 `TAECHANG_LIST_CHECK_IMAGE_WIDTH` 상수를, 클릭 판정은 실제 이미지리스트 폭을 봐서 **둘이 갈라지면 클릭만 조용히 죽는** 구조였다. `FindCheckImageRect`가 `LVSIL_STATE`에서 **실제 폭을 읽게** 해 소스를 하나로 만들었고, 이제 이미지리스트가 사라지면 **체크박스가 화면에서 함께 사라져 눈에 보인다.** 남은 1px 스페이서는 없애려면 `LVS_OWNERDRAWFIXED`로 가야 하고 **표 6곳이 영향권**이라 근거를 달아 등재했다. **사용자 지적 2건**: 원인 분석 없이 부채를 **기록으로 넘기려 한 것**(「부채를 해결할 생각을 해야지 왜 기록만 하려고 하냐」), 코드 규칙 스킬을 `Read`로 읽고 **정식 호출하지 않은 것**(「지금 코드 관련 스킬들 불러와서 수정하는 거 맞냐」)
+- **변경 내용**: 전날 `style/table-center-align`의 **회귀**였다 — 첫 열 가운데 정렬을 위해 켠 `SetFirstColumnAlign`이 서브아이템 0을 `CDRF_SKIPDEFAULT`로 가져가는데, **체크박스(상태 이미지)는 바로 그 기본 그리기에서 나온다.** 그리기만 죽고 **클릭 판정은 살아 있어** 원인이 보이지 않는 종류였다. 첫 수정은 상태 이미지 폭 20px 자리에 `DrawCheckBox`를 직접 그리는 것이었는데, **화면 확인에서 결함 2건을 냈다**: ① 체크박스와 숫자 사이 **흰 세로줄** ② 숫자가 헤더 「행」과 **10px 어긋남**. 원인이 각각 달랐다 — ①은 `ApplyFixedRowHeight`가 행 높이 34를 만들려고 물린 **1px 더미 이미지리스트**가 첫 열에 아이콘 슬롯을 만들어, `GetSubItemRect(LVIR_LABEL)`이 `left+21`부터 시작하는 탓에 **내가 칠한 두 rect 사이 1px이 미도색**으로 남은 것이고, ②는 텍스트 rect의 **왼쪽만** 20 밀어 중심이 40→50으로 간 것이다(첫 열 폭 80, 어긋남이 정확히 `20/2`). **뿌리는 하나였다** — 첫 열을 `SKIPDEFAULT`로 가져왔으면 그 열 전체가 우리 책임인데 **리스트뷰가 준 rect 조각에 얹어 그렸다.** `GetColumnWidth(0)`으로 열 경계를 직접 계산해 전체를 칠하고, 텍스트 인셋을 `DeflateRect(w, 0)`로 **좌우 대칭**으로 줘 헤더 중앙과 다시 맞췄다. 사용자 지시로 둘을 더 넣었다 — 액센트 바(3px)와 체크박스가 맞닿던 것에 **여백 2px**(`SAGE_LIST_CHECK_ACCENT_GAP`, 단 클릭 판정이 20px 상태 이미지 영역에 묶여 있어 **그 안에서만** 조정), `DrawGroupColumn`처럼 **DC 상태 복원**. **부채 하나는 등재하려다 해소했다** — 그리기는 `SAGE_LIST_CHECK_IMAGE_WIDTH` 상수를, 클릭 판정은 실제 이미지리스트 폭을 봐서 **둘이 갈라지면 클릭만 조용히 죽는** 구조였다. `FindCheckImageRect`가 `LVSIL_STATE`에서 **실제 폭을 읽게** 해 소스를 하나로 만들었고, 이제 이미지리스트가 사라지면 **체크박스가 화면에서 함께 사라져 눈에 보인다.** 남은 1px 스페이서는 없애려면 `LVS_OWNERDRAWFIXED`로 가야 하고 **표 6곳이 영향권**이라 근거를 달아 등재했다. **사용자 지적 2건**: 원인 분석 없이 부채를 **기록으로 넘기려 한 것**(「부채를 해결할 생각을 해야지 왜 기록만 하려고 하냐」), 코드 규칙 스킬을 `Read`로 읽고 **정식 호출하지 않은 것**(「지금 코드 관련 스킬들 불러와서 수정하는 거 맞냐」)
 - **PR 링크**: 없음
 - **결과**: 빌드·화면 확인 완료(체크박스 표시 · 클릭 건수 증가 · 헤더 중앙 정렬 · 흰 줄 소멸 · 액센트 여백). 머지 대기
 
@@ -132,8 +132,8 @@
 
 ## [2026-08-07] feature/workflow-status-card
 - **목적**: D7-4 2단계 — 실행 상태를 카드 하나로 만들어 대기 → 처리 중 → 완료를 한 자리에서 연속으로 보여준다
-- **변경 내용**: **1단계와 같이 목업 HTML을 직접 실측해서 시작했고, 스킬도 함께 다시 읽었다**(사용자 지시). 실측으로 얻은 것: 진행 카드 흰 면 + dot 8px `#B88746` + 문구 13/600 + 우측 `54%` 13/700 · **진행바 6px** 트랙 `#EDE8E0`/채움 `#9A6B3F` · 완료 카드 `#F1F5F0`/`#D5E0D3` + 체크 18px + 제목 `#41603F` + 경로 12 `#6E655B`. **목업에 없는 두 상태(대기·실패)를 찾아내 물었고 사용자가 결정했다** — 실패는 3-5 실패 **행** 배경 `#FDF6F4`(목업에서 넓은 면에 쓰인 유일한 붉은 틴트, 배지용 `#F8EBE9`는 pill 전용이라 제외), 대기는 중성 카드 + 안내 한 줄 + 진행바 없음. `CSageStatusCard`(`app/ui/drawing/`)를 신설해 **네이티브 `CProgressCtrl` · 퍼센트 라벨 · 상태 텍스트 3개를 카드 1개로 대체**했고, 그 결과 패널의 `OnCtlColor`에서 **컨트롤 종류를 가르던 분기 하나가 사라졌다**(스킬 *컨트롤이 자기를 그린다*). 컨트롤은 업무를 모른다 — 문구 조립은 전부 `SageWorkspacePanel::ApplyStatusCardResult`에 있다. **건수·경로는 새 배관 없이 얻었다**: 건수는 결과 행 수(납품·견적 생성은 결과 표를 갱신하지 않으므로 선택 행 수), 경로·사유는 응답 JSON의 `filePath`/`message` — 실행 기록 패널이 이미 읽던 키다. **「예상 소요 · Esc 취소」는 뺐다**(취소 기능 없음). 워크플로 전환·초기화에서는 카드를 대기로 되돌린다 — 스킬 *워크플로우 전환*의 「상태 텍스트 자동 초기화」를 따랐고, 워크플로별 저장을 하려면 상태 3개를 `SageWorkflowUiState`에 넣어야 해서 하지 않았다. 내 변경이 만든 orphan 5개(`TAECHANG_PROGRESS_HEIGHT` 등 3 · `TAECHANG_UI_ACTION_STATUS_*` 2)를 함께 지웠고, `ID_TAECHANG_PROGRESS`는 `ID_TAECHANG_STATUS_CARD`로 바꿨다. **1단계의 미검증 부채는 착수 전에 회수했다** — 계획서와 부채 로그 양쪽에 남긴 표시가 다음 세션의 첫 항목을 「확인받기」로 만들었다
-- **덧붙인 수정**: 사용자가 **「시작하면 납품서가 아니라 미수금 내역서 화면이 뜬다」**를 발견했다. **이번 변경과 무관한 4d-3(`5d0f7d5`) 회귀**였다 — 이 브랜치의 커밋 2개는 `SageTaechangView.cpp`를 한 줄도 건드리지 않았고, 시작 시 워크플로 결정은 전부 그 파일 안에 있다. 원인: 4d-3에서 `UpdateWorkflowLabels()`를 `ApplyWorkflowLabels` + 헤더 제목으로 쪼개 `OnWorkflowChanged` 안으로 옮기면서, **`OnInitialUpdate`에 있던 호출 한 줄이 같이 사라졌다.** 그런데 `m_nCurrentWorkflow` 초기값(DELIVERY)과 사이드바 기본 선택(`SelectItem(hDelivery)`)이 같아서 `OnSidebarSelectionChanged`의 `if (nNewWorkflow == m_nCurrentWorkflow) return;`에 걸려 **시작 시 `OnWorkflowChanged`가 한 번도 실행되지 않는다.** 그래서 헤더 제목과 생성 버튼이 생성 시점 문구(`TAECHANG_UI_RECEIVABLES_NAME` · `TAECHANG_UI_RECEIVABLES_GENERATE_BUTTON`)로 남았다 — 사이드바는 납품서, 화면 문구만 미수금. **라벨을 `OnInitialUpdate`에 복사하지 않고 `OnWorkflowChanged()` 호출로 바꿨다** — 복사하면 같은 코드가 두 곳이 되어 다시 갈라진다. 사용자 지시로 별도 `fix/` 브랜치를 파지 않고 이 브랜치에 커밋만 분리해 넣었다
+- **변경 내용**: **1단계와 같이 목업 HTML을 직접 실측해서 시작했고, 스킬도 함께 다시 읽었다**(사용자 지시). 실측으로 얻은 것: 진행 카드 흰 면 + dot 8px `#B88746` + 문구 13/600 + 우측 `54%` 13/700 · **진행바 6px** 트랙 `#EDE8E0`/채움 `#9A6B3F` · 완료 카드 `#F1F5F0`/`#D5E0D3` + 체크 18px + 제목 `#41603F` + 경로 12 `#6E655B`. **목업에 없는 두 상태(대기·실패)를 찾아내 물었고 사용자가 결정했다** — 실패는 3-5 실패 **행** 배경 `#FDF6F4`(목업에서 넓은 면에 쓰인 유일한 붉은 틴트, 배지용 `#F8EBE9`는 pill 전용이라 제외), 대기는 중성 카드 + 안내 한 줄 + 진행바 없음. `CSageStatusCard`(`app/ui/drawing/`)를 신설해 **네이티브 `CProgressCtrl` · 퍼센트 라벨 · 상태 텍스트 3개를 카드 1개로 대체**했고, 그 결과 패널의 `OnCtlColor`에서 **컨트롤 종류를 가르던 분기 하나가 사라졌다**(스킬 *컨트롤이 자기를 그린다*). 컨트롤은 업무를 모른다 — 문구 조립은 전부 `SageWorkspacePanel::ApplyStatusCardResult`에 있다. **건수·경로는 새 배관 없이 얻었다**: 건수는 결과 행 수(납품·견적 생성은 결과 표를 갱신하지 않으므로 선택 행 수), 경로·사유는 응답 JSON의 `filePath`/`message` — 실행 기록 패널이 이미 읽던 키다. **「예상 소요 · Esc 취소」는 뺐다**(취소 기능 없음). 워크플로 전환·초기화에서는 카드를 대기로 되돌린다 — 스킬 *워크플로우 전환*의 「상태 텍스트 자동 초기화」를 따랐고, 워크플로별 저장을 하려면 상태 3개를 `SageWorkflowUiState`에 넣어야 해서 하지 않았다. 내 변경이 만든 orphan 5개(`SAGE_PROGRESS_HEIGHT` 등 3 · `SAGE_UI_ACTION_STATUS_*` 2)를 함께 지웠고, `ID_SAGE_PROGRESS`는 `ID_SAGE_STATUS_CARD`로 바꿨다. **1단계의 미검증 부채는 착수 전에 회수했다** — 계획서와 부채 로그 양쪽에 남긴 표시가 다음 세션의 첫 항목을 「확인받기」로 만들었다
+- **덧붙인 수정**: 사용자가 **「시작하면 납품서가 아니라 미수금 내역서 화면이 뜬다」**를 발견했다. **이번 변경과 무관한 4d-3(`5d0f7d5`) 회귀**였다 — 이 브랜치의 커밋 2개는 `SageTaechangView.cpp`를 한 줄도 건드리지 않았고, 시작 시 워크플로 결정은 전부 그 파일 안에 있다. 원인: 4d-3에서 `UpdateWorkflowLabels()`를 `ApplyWorkflowLabels` + 헤더 제목으로 쪼개 `OnWorkflowChanged` 안으로 옮기면서, **`OnInitialUpdate`에 있던 호출 한 줄이 같이 사라졌다.** 그런데 `m_nCurrentWorkflow` 초기값(DELIVERY)과 사이드바 기본 선택(`SelectItem(hDelivery)`)이 같아서 `OnSidebarSelectionChanged`의 `if (nNewWorkflow == m_nCurrentWorkflow) return;`에 걸려 **시작 시 `OnWorkflowChanged`가 한 번도 실행되지 않는다.** 그래서 헤더 제목과 생성 버튼이 생성 시점 문구(`SAGE_UI_RECEIVABLES_NAME` · `SAGE_UI_RECEIVABLES_GENERATE_BUTTON`)로 남았다 — 사이드바는 납품서, 화면 문구만 미수금. **라벨을 `OnInitialUpdate`에 복사하지 않고 `OnWorkflowChanged()` 호출로 바꿨다** — 복사하면 같은 코드가 두 곳이 되어 다시 갈라진다. 사용자 지시로 별도 `fix/` 브랜치를 파지 않고 이 브랜치에 커밋만 분리해 넣었다
 - **PR 링크**: 없음
 - **결과**: 빌드·화면 확인 완료(4상태 · 시작 직후 화면 · 워크플로 라벨). 머지 대기
 
@@ -145,7 +145,7 @@
 
 ## [2026-08-07] refactor/workflow-controller
 - **목적**: 4d-3 — 실행 상태와 워커 수명을 `SageWorkflowController`로 분리하고 **3-B-4d를 닫는다**
-- **변경 내용**: **`app/ui/workflow/` 폴더를 신설했다**(사용자 승인). 컨트롤러가 `AfxBeginThread`·HWND·`PostMessage`를 쓰므로 `app/core/`(afxwin 금지)에 못 가고, 화면이 아니라 `panels/`도 아니었다. 컨트롤러는 실행 상태 6개와 워커 수명만 담당하고 **컨트롤 API를 한 줄도 부르지 않는다**(스킬 제약). 워커 함수·Task·Result 구조체가 함께 이사했고, 스킬 규정대로 **워커가 워크스페이스 HWND로 `PostMessage`하고 워크스페이스가 자기 메시지맵에서 받는다**(이전에는 View가 받았다). 완료 처리 10가지를 셋으로 갈랐다 — 실행 결과 상태는 컨트롤러, 결과 표·기록·탭 전환·상태 텍스트는 워크스페이스, 프레임 상태바와 UI 상태 저장은 View(통지 2종 신설). **워크플로별 UI 상태 저장·복원도 워크스페이스로 갔다** — 12필드 중 실행 결과 4개가 컨트롤러 소유가 되면서 View가 들고 있을 이유가 없어졌다. **옮기면서 소유권 규약 위반 2건을 고쳤다**: ① `AfxBeginThread` 반환값을 무시하고 있어 스레드 생성 실패 시 `pTask`가 누수됐다(규약 1) ② 워커의 `PostMessage` 앞에 `::IsWindow` 검증이 없었다(규약 3). 하드코딩 4개도 상수화했다(`L"SNX_TAECHANG_WORKFLOW_001"` 등). **결과: View 1,025 → 493줄, 컨트롤 멤버 8(전부 셸), 메시지맵 14 → 11, 워크플로 분기 26 → 9곳, `app/infra` include 5 → 0줄.** **기준 B의 한 축 달성** — View가 SQL·Excel·파일 API를 모른다. **부채 2건이 예고대로 회수됐다**(`m_bRunning` 이중화 · `SageWorkspaceVisibility` 임시 다리). **작업 중 실수 셋을 냈고 전부 「일괄 치환에 검증을 붙이지 않은 것」이 원인이었다** — `sed -i`로 1,683줄 CRLF 손상 / 멤버 블록 치환 실패로 컴파일 오류 6건 / **핸들러 치환 실패로 링크 오류 1건 + 실행·초기화 버튼이 조용히 무반응**. 세 번째가 가장 위험했다: 링크 오류는 하나만 났는데 실제로는 세 핸들러가 잘못돼 있었고 둘은 컴파일·링크를 통과하고 런타임에 아무 일도 하지 않았다. **교훈으로 「헤더 선언 대비 cpp 정의와 메시지맵 항목을 기계적으로 전수 대조한다」**를 남기고 실제로 그 검사를 돌려 누락 0을 확인했다
+- **변경 내용**: **`app/ui/workflow/` 폴더를 신설했다**(사용자 승인). 컨트롤러가 `AfxBeginThread`·HWND·`PostMessage`를 쓰므로 `app/core/`(afxwin 금지)에 못 가고, 화면이 아니라 `panels/`도 아니었다. 컨트롤러는 실행 상태 6개와 워커 수명만 담당하고 **컨트롤 API를 한 줄도 부르지 않는다**(스킬 제약). 워커 함수·Task·Result 구조체가 함께 이사했고, 스킬 규정대로 **워커가 워크스페이스 HWND로 `PostMessage`하고 워크스페이스가 자기 메시지맵에서 받는다**(이전에는 View가 받았다). 완료 처리 10가지를 셋으로 갈랐다 — 실행 결과 상태는 컨트롤러, 결과 표·기록·탭 전환·상태 텍스트는 워크스페이스, 프레임 상태바와 UI 상태 저장은 View(통지 2종 신설). **워크플로별 UI 상태 저장·복원도 워크스페이스로 갔다** — 12필드 중 실행 결과 4개가 컨트롤러 소유가 되면서 View가 들고 있을 이유가 없어졌다. **옮기면서 소유권 규약 위반 2건을 고쳤다**: ① `AfxBeginThread` 반환값을 무시하고 있어 스레드 생성 실패 시 `pTask`가 누수됐다(규약 1) ② 워커의 `PostMessage` 앞에 `::IsWindow` 검증이 없었다(규약 3). 하드코딩 4개도 상수화했다(`L"SNX_SAGE_WORKFLOW_001"` 등). **결과: View 1,025 → 493줄, 컨트롤 멤버 8(전부 셸), 메시지맵 14 → 11, 워크플로 분기 26 → 9곳, `app/infra` include 5 → 0줄.** **기준 B의 한 축 달성** — View가 SQL·Excel·파일 API를 모른다. **부채 2건이 예고대로 회수됐다**(`m_bRunning` 이중화 · `SageWorkspaceVisibility` 임시 다리). **작업 중 실수 셋을 냈고 전부 「일괄 치환에 검증을 붙이지 않은 것」이 원인이었다** — `sed -i`로 1,683줄 CRLF 손상 / 멤버 블록 치환 실패로 컴파일 오류 6건 / **핸들러 치환 실패로 링크 오류 1건 + 실행·초기화 버튼이 조용히 무반응**. 세 번째가 가장 위험했다: 링크 오류는 하나만 났는데 실제로는 세 핸들러가 잘못돼 있었고 둘은 컴파일·링크를 통과하고 런타임에 아무 일도 하지 않았다. **교훈으로 「헤더 선언 대비 cpp 정의와 메시지맵 항목을 기계적으로 전수 대조한다」**를 남기고 실제로 그 검사를 돌려 누락 0을 확인했다
 - **PR 링크**: 없음
 - **결과**: merged — `develop`에 fast-forward 머지. 커밋 3개(`refactor`·`docs`·`docs`). 작업 브랜치 삭제. 빌드·화면 확인 완료(실행·완료·실패·초기화·드롭·워크플로 전환 복원)
 
@@ -181,7 +181,7 @@
 
 ## [2026-08-07] refactor/workflow-input-panel (2차 — 코드 이동)
 - **목적**: 전 세션이 조사만 하고 넘긴 `SageWorkflowInputPanel` 이동을 한 커밋으로 끝낸다 (3-B-4c 첫 항목)
-- **변경 내용**: 컨트롤 15 · 메시지맵 5 · 전용 레이아웃 2 · 핸들러 9를 패널로 옮겼다. View는 **1,873 → 1,685줄**, 컨트롤 멤버 **42 → 27**, 메시지맵 **24 → 20**. **계획서가 확정해 둔 이동 대상 둘을 실제로는 뺐고, 둘 다 전 세션이 좌표를 보지 않아 생긴 오판정이었다.** ① `m_wndEmptyStateHint` — 「입력 탭에서만 보인다」는 가시성만 본 판정이고 배치는 `LayoutResultSection`이 **결과 표 영역**에 한다. 자식은 부모 클라이언트로 클리핑되므로 입력 패널에 넣으면 화면에서 사라진다(사용자 결정으로 View 유지). ② `ON_WM_DROPFILES` — 드롭 진입점이 입력 패널 밖(View 배경 · 결과 표 패널 · 힌트)에도 있고 `View::PreTranslateMessage`가 **자손 전체의** `WM_DROPFILES`를 먼저 가로챈다(`WalkPreTranslateTree`는 타깃→부모 순이라 패널이 먼저 보긴 하지만 나머지 진입점은 못 본다). 옮기면 수신 코드가 두 곳으로 갈라져 **등록 3개만** 패널이 가져갔다. **교훈: 이동 대상은 「어디서 보이는가」가 아니라 「누가 좌표를 정하는가」로 갈린다** — 가시성 행렬과 배치 함수를 둘 다 봐야 한다. **패널이 워크플로 핸들러를 알면 안 되므로 버튼은 판단하지 않는다** — `WM_TAECHANG_WORKFLOW_RUN_REQUESTED`(wParam=태스크 타입)와 `WM_TAECHANG_WORKFLOW_INPUT_RESET` 두 통지를 신설해 View가 답하게 했다. 그 대가로 **워크플로 분기가 23 → 26곳으로 늘었다**(자동 로드 여부 · 라벨 · 다이얼로그 제목을 View가 물어 패널에 넘긴다). **4d에서 컨트롤러가 생기면 회수되는 증가**이고, 지표를 목표로 삼았다면 이 숫자를 되돌리려다 패널에 분기를 넣었을 것이다. **패널 rect는 오른쪽으로 1px 넓다**(`TAECHANG_EDIT_BORDER_WIDTH`) — 경로 에디트가 컨트롤 폭 전체를 쓰는데 `DrawEditBorder`는 **컨트롤 바깥** 1px에 그려서, 패널 폭을 그대로 주면 우측 세로선이 클리핑된다. **자체 리뷰에서 되돌린 것**: `Layout(rect, bInputResetVisible)`로 가시성을 인자로 흘렸다가 `Layout(rect)`로 되돌리고 `UpdateActionVisibility`가 액션 행을 스스로 다시 배치하게 했다 — 다른 패널의 `Layout(rect)` 시그니처와 어긋났고, 두 경로로 들어오는 플래그가 한 박자 어긋날 수 있었다. `SageResultTablePanel`의 `SyncSelectionBar` → `LayoutSelectionRow`와 같은 형태다
+- **변경 내용**: 컨트롤 15 · 메시지맵 5 · 전용 레이아웃 2 · 핸들러 9를 패널로 옮겼다. View는 **1,873 → 1,685줄**, 컨트롤 멤버 **42 → 27**, 메시지맵 **24 → 20**. **계획서가 확정해 둔 이동 대상 둘을 실제로는 뺐고, 둘 다 전 세션이 좌표를 보지 않아 생긴 오판정이었다.** ① `m_wndEmptyStateHint` — 「입력 탭에서만 보인다」는 가시성만 본 판정이고 배치는 `LayoutResultSection`이 **결과 표 영역**에 한다. 자식은 부모 클라이언트로 클리핑되므로 입력 패널에 넣으면 화면에서 사라진다(사용자 결정으로 View 유지). ② `ON_WM_DROPFILES` — 드롭 진입점이 입력 패널 밖(View 배경 · 결과 표 패널 · 힌트)에도 있고 `View::PreTranslateMessage`가 **자손 전체의** `WM_DROPFILES`를 먼저 가로챈다(`WalkPreTranslateTree`는 타깃→부모 순이라 패널이 먼저 보긴 하지만 나머지 진입점은 못 본다). 옮기면 수신 코드가 두 곳으로 갈라져 **등록 3개만** 패널이 가져갔다. **교훈: 이동 대상은 「어디서 보이는가」가 아니라 「누가 좌표를 정하는가」로 갈린다** — 가시성 행렬과 배치 함수를 둘 다 봐야 한다. **패널이 워크플로 핸들러를 알면 안 되므로 버튼은 판단하지 않는다** — `WM_SAGE_WORKFLOW_RUN_REQUESTED`(wParam=태스크 타입)와 `WM_SAGE_WORKFLOW_INPUT_RESET` 두 통지를 신설해 View가 답하게 했다. 그 대가로 **워크플로 분기가 23 → 26곳으로 늘었다**(자동 로드 여부 · 라벨 · 다이얼로그 제목을 View가 물어 패널에 넘긴다). **4d에서 컨트롤러가 생기면 회수되는 증가**이고, 지표를 목표로 삼았다면 이 숫자를 되돌리려다 패널에 분기를 넣었을 것이다. **패널 rect는 오른쪽으로 1px 넓다**(`SAGE_EDIT_BORDER_WIDTH`) — 경로 에디트가 컨트롤 폭 전체를 쓰는데 `DrawEditBorder`는 **컨트롤 바깥** 1px에 그려서, 패널 폭을 그대로 주면 우측 세로선이 클리핑된다. **자체 리뷰에서 되돌린 것**: `Layout(rect, bInputResetVisible)`로 가시성을 인자로 흘렸다가 `Layout(rect)`로 되돌리고 `UpdateActionVisibility`가 액션 행을 스스로 다시 배치하게 했다 — 다른 패널의 `Layout(rect)` 시그니처와 어긋났고, 두 경로로 들어오는 플래그가 한 박자 어긋날 수 있었다. `SageResultTablePanel`의 `SyncSelectionBar` → `LayoutSelectionRow`와 같은 형태다
   **2단계 — 입력 표와 빈 상태를 들였다** (`3975922`). 1단계를 확인받은 뒤, **계획서 *목표 상태*가 입력 표를 입력 패널의 자식으로 두는데 1단계가 그것을 빼놓은 것**을 발견해 이어서 처리했다. 전 세션이 확정한 이동 대상 표에 `m_panelInputTable`이 없었고 1단계가 그 표만 따랐다 — **표와 체크리스트 원문(「… + 입력 표」)이 어긋나 있었다.** 이로써 1단계에서 「클리핑되니 제외」로 뺐던 `m_wndEmptyStateHint`도 제자리를 찾았다(힌트가 뜨는 자리가 정확히 입력 표가 숨은 자리다). 패널 rect가 콘텐츠 바닥까지 늘고 내부에서 `폼 → 액션 → 표 → 빈 상태`를 배치하며, `LayoutResultSection`은 결과·기록 탭 전용이 되고 도달 불가가 된 `FindVisibleResultTablePanel`은 지웠다. **표 내용은 View가 계속 조작한다**(사용자 결정 A안) — 패널이 `SageResultTablePanel& GetInputTable()`로 참조를 노출하고 소유·배치·가시성만 가져간다. 대안이었던 「표 API 전부 감싸기」는 위임 메서드 20개를 만들고 4d에서 다시 걷어내야 하며, `FindResultTablePanel`이 워크플로에 따라 입력 표/결과 표를 고른 뒤 **둘을 구분하지 않는** 4a 구조가 그대로 살아야 하기 때문이다. **자체 리뷰에서 버그를 잡았다** — 패널이 표까지 배치하게 되면서 배치가 가시성보다 먼저 오게 됐는데, 표 패널의 `Layout`은 `m_bSelectAllVisible`·`m_bFilterVisible`을 읽어 밴드 폭과 선택 바 위치를 정하고 `ShowSelectAll`·`ShowFilter`는 **플래그만 세팅하고 배치하지 않는다.** 1단계가 액션 영역에 쓴 패턴(가시성 함수가 자기 배치를 책임진다)을 표에도 적용해 막았고, **「가시성 플래그를 읽어 배치하는 함수가 있으면 그 플래그를 바꾸는 쪽이 재배치를 부른다」**를 규칙으로 남겼다. 결과: View **1,873 → 1,658줄**, 컨트롤 멤버 **42 → 26**, **입력 탭 몫 0**
 - **PR 링크**: 없음
 - **결과**: merged — `develop`에 fast-forward 머지. 커밋 4개(`refactor`·`docs`·`refactor`·`docs`)를 1단계/2단계 구분이 살아 있어 squash하지 않고 보존했다. 작업 브랜치 삭제. 빌드·화면 확인 완료
@@ -200,13 +200,13 @@
 
 ## [2026-08-06] feature/dialog-design
 - **목적**: 다이얼로그 6종을 목업 3-9에 맞춘다 (D7-9)
-- **변경 내용**: **공통 4항목 중 셋은 이미 끝나 있었다** — 인라인 에러(D5a) · 버튼 변형(D2) · 라벨 폭과 높이(D3a·D3b). 남은 것은 **라벨 색**이었는데 6종 라벨이 전부 `CStatic`이라 역할 API가 없었다. **D5a가 「다이얼로그 7종 이관 완료」로 적혀 있었지만 그때 승격된 것은 에디트뿐**이다. `CSageLabel`로 12개를 승격하고 `OnCtlColor`에는 `IsKindOf(RUNTIME_CLASS(CSageLabel))` **가드 2줄만** 넣었다 — 스킬이 금지한 「부모의 컨트롤별 색상 분기」를 늘리지 않는 경로이며 View가 2026-08-02에 쓴 방식과 같다. 상시 힌트 3종(비밀번호 「영문 · 숫자 4~15자」 · 법인 추가 「한글 20자 / 영문 40자 이내」 · 법인 수정 「단가 N건은 그대로 유지됩니다」)과 비밀번호 라벨 문구 2개를 교체했다. **`TaechangCompanyRenameDlg`는 자기 법인을 몰랐다** — 생성자가 부모만 받아서 현재 이름을 채우는 것도 건수를 세는 것도 불가능했다. `SetCompanyContext(법인명, 건수)`를 신설하고 **호출부인 패널이 건수를 넘긴다**(다이얼로그가 서비스를 직접 부르면 화면이 데이터 접근을 알게 된다). 법인 선택에는 「N개 중 M개 일치」 카운터를 붙였다. **`AfxMessageBox` 3개는 유지했다** — 서비스 실패 2개는 화면 밖 사유(R7)이고 나머지 1개는 변경 성공 알림이라 다이얼로그가 닫히는 시점에 인라인으로 옮길 자리가 없다. **되돌린 것**: 법인 추가 placeholder를 `SetCueBanner`로 넣었다가 제거했다 — `EM_SETCUEBANNER`는 멀티라인 에디트에서 동작하지 않고, 그 `ES_MULTILINE`은 텍스트 수직 정렬(`EM_SETRECT`)이 멀티라인에서만 먹어서 걷어낼 수 없다. **잘못 배제한 항목**: 목업의 40px 제목 밴드를 「Win32 캡션이라 재현 대상이 아니다」로 뺐는데 **과한 단정이었다** — `WS_CAPTION`을 걷어내고 직접 그리면 가능하다. **D7-10으로 신설**했다
+- **변경 내용**: **공통 4항목 중 셋은 이미 끝나 있었다** — 인라인 에러(D5a) · 버튼 변형(D2) · 라벨 폭과 높이(D3a·D3b). 남은 것은 **라벨 색**이었는데 6종 라벨이 전부 `CStatic`이라 역할 API가 없었다. **D5a가 「다이얼로그 7종 이관 완료」로 적혀 있었지만 그때 승격된 것은 에디트뿐**이다. `CSageLabel`로 12개를 승격하고 `OnCtlColor`에는 `IsKindOf(RUNTIME_CLASS(CSageLabel))` **가드 2줄만** 넣었다 — 스킬이 금지한 「부모의 컨트롤별 색상 분기」를 늘리지 않는 경로이며 View가 2026-08-02에 쓴 방식과 같다. 상시 힌트 3종(비밀번호 「영문 · 숫자 4~15자」 · 법인 추가 「한글 20자 / 영문 40자 이내」 · 법인 수정 「단가 N건은 그대로 유지됩니다」)과 비밀번호 라벨 문구 2개를 교체했다. **`SageCompanyRenameDlg`는 자기 법인을 몰랐다** — 생성자가 부모만 받아서 현재 이름을 채우는 것도 건수를 세는 것도 불가능했다. `SetCompanyContext(법인명, 건수)`를 신설하고 **호출부인 패널이 건수를 넘긴다**(다이얼로그가 서비스를 직접 부르면 화면이 데이터 접근을 알게 된다). 법인 선택에는 「N개 중 M개 일치」 카운터를 붙였다. **`AfxMessageBox` 3개는 유지했다** — 서비스 실패 2개는 화면 밖 사유(R7)이고 나머지 1개는 변경 성공 알림이라 다이얼로그가 닫히는 시점에 인라인으로 옮길 자리가 없다. **되돌린 것**: 법인 추가 placeholder를 `SetCueBanner`로 넣었다가 제거했다 — `EM_SETCUEBANNER`는 멀티라인 에디트에서 동작하지 않고, 그 `ES_MULTILINE`은 텍스트 수직 정렬(`EM_SETRECT`)이 멀티라인에서만 먹어서 걷어낼 수 없다. **잘못 배제한 항목**: 목업의 40px 제목 밴드를 「Win32 캡션이라 재현 대상이 아니다」로 뺐는데 **과한 단정이었다** — `WS_CAPTION`을 걷어내고 직접 그리면 가능하다. **D7-10으로 신설**했다
 - **PR 링크**: 없음
 - **결과**: merged — `develop`에 fast-forward 머지(`2b86939`). 커밋 3개(`docs`·`style`·`docs`)를 보존했다. 작업 브랜치 삭제
 
 ## [2026-08-06] feature/price-calc-design
 - **목적**: 단가 계산 화면을 목업 3-2에 맞춘다 (D7-2)
-- **변경 내용**: **착수 전 대조에서 세 항목이 전부 부분적으로 틀렸다.** ① 「적용 구간」은 *"이미 내부에서 고른 값"*이라고 적혀 있었으나 `SagePriceCalcResult`에 **구간 경계가 없었다** — `Calculate`가 `dto`에서 단가 2종만 옮기고 `nMinCopies`·`nMaxCopies`·`bHasMaxCopies`를 버렸다. 필드 3개를 결과에 담았다. ② 「최근 10건」 배지를 붙일 `CSageSectionLabel`이 **보조 텍스트를 받지 못했다**(`DrawItem` 하나뿐) — `SetHintText`를 추가했고 **힌트가 비면 기존과 동일하게 그린다**(공용 컨트롤이라 다른 화면의 섹션 제목이 함께 걸린다). ③ 「합계만 강조」는 **이미 합계 값이 카멜**이었고 오히려 **합계 라벨까지 카멜**이라 목업과 달랐다 — 실제 작업은 「강조를 넣기」가 아니라 **「강조를 값 하나로 좁히기」**였다. 결과 4행 라벨은 `SAGE_TEXT_MUTED`로 내렸는데 **이 역할이 없어서 새로 만들었다** — 스킬 색 표에는 `#6E655B`가 「폼 라벨」로 등재돼 있는데 `SageTextRole`에는 `SECONDARY`(#7A7064)까지만 있던 간극이다. 합계 행은 `ACCENT_SURFACE` 밴드 + `SAGE_FONT_SUMMARY`로 올렸다. **상수 이름을 여기서 확정했다** — 계획서 C1은 이 색(`#F7F2EA`)을 `PILL_BG`(D7-5 몫)로 적었으나 합계 박스도 같은 색이라 `ACCENT_SURFACE`로 바꿨다(**색을 처음 쓰는 Step이 이름을 정한다**). 목업 3-1 합계 밴드는 `#F2EEE7`이고 3-2는 `#F7F2EA`로 **화면마다 다르며**, D7-1은 목업대로였으므로 정정하지 않았다. **「최근 10건」은 문구를 그대로 쓰지 않았다**(사용자 결정) — `TAECHANG_CALC_MAX_HISTORY = 10`이 상한처럼 보이지만 실제 보관량은 `GetCountPerPage()`로 잘려 창 크기에 따라 달라진다. 정적 문구는 거짓 안내가 되므로 **동적 「최근 N건」**으로 넣었다(`DEBT_LOG`). **작업 중 낸 사고**: 라벨 4개 역할을 Python 일괄 치환으로 넣다가 **CRLF 754줄이 LF로 바뀌었다.** `git status` 경고로 발견해 바이트 단위 복원했고 커밋 diff에는 실제 변경분만 들어갔다. **D7-2는 표현만 맞췄고 화면 구조(카드 가로 배치 · 카드 헤더 밴드 · 버튼 위치)는 범위 밖**이다 — `DESIGN_PLAN` D7-2 > *남은 목업 차이*
+- **변경 내용**: **착수 전 대조에서 세 항목이 전부 부분적으로 틀렸다.** ① 「적용 구간」은 *"이미 내부에서 고른 값"*이라고 적혀 있었으나 `SagePriceCalcResult`에 **구간 경계가 없었다** — `Calculate`가 `dto`에서 단가 2종만 옮기고 `nMinCopies`·`nMaxCopies`·`bHasMaxCopies`를 버렸다. 필드 3개를 결과에 담았다. ② 「최근 10건」 배지를 붙일 `CSageSectionLabel`이 **보조 텍스트를 받지 못했다**(`DrawItem` 하나뿐) — `SetHintText`를 추가했고 **힌트가 비면 기존과 동일하게 그린다**(공용 컨트롤이라 다른 화면의 섹션 제목이 함께 걸린다). ③ 「합계만 강조」는 **이미 합계 값이 카멜**이었고 오히려 **합계 라벨까지 카멜**이라 목업과 달랐다 — 실제 작업은 「강조를 넣기」가 아니라 **「강조를 값 하나로 좁히기」**였다. 결과 4행 라벨은 `SAGE_TEXT_MUTED`로 내렸는데 **이 역할이 없어서 새로 만들었다** — 스킬 색 표에는 `#6E655B`가 「폼 라벨」로 등재돼 있는데 `SageTextRole`에는 `SECONDARY`(#7A7064)까지만 있던 간극이다. 합계 행은 `ACCENT_SURFACE` 밴드 + `SAGE_FONT_SUMMARY`로 올렸다. **상수 이름을 여기서 확정했다** — 계획서 C1은 이 색(`#F7F2EA`)을 `PILL_BG`(D7-5 몫)로 적었으나 합계 박스도 같은 색이라 `ACCENT_SURFACE`로 바꿨다(**색을 처음 쓰는 Step이 이름을 정한다**). 목업 3-1 합계 밴드는 `#F2EEE7`이고 3-2는 `#F7F2EA`로 **화면마다 다르며**, D7-1은 목업대로였으므로 정정하지 않았다. **「최근 10건」은 문구를 그대로 쓰지 않았다**(사용자 결정) — `SAGE_CALC_MAX_HISTORY = 10`이 상한처럼 보이지만 실제 보관량은 `GetCountPerPage()`로 잘려 창 크기에 따라 달라진다. 정적 문구는 거짓 안내가 되므로 **동적 「최근 N건」**으로 넣었다(`DEBT_LOG`). **작업 중 낸 사고**: 라벨 4개 역할을 Python 일괄 치환으로 넣다가 **CRLF 754줄이 LF로 바뀌었다.** `git status` 경고로 발견해 바이트 단위 복원했고 커밋 diff에는 실제 변경분만 들어갔다. **D7-2는 표현만 맞췄고 화면 구조(카드 가로 배치 · 카드 헤더 밴드 · 버튼 위치)는 범위 밖**이다 — `DESIGN_PLAN` D7-2 > *남은 목업 차이*
 - **PR 링크**: 없음
 - **결과**: merged — `develop`에 fast-forward 머지(`4a5027a`). 커밋 3개(`docs`·`style`·`docs`)를 보존했다. 작업 브랜치 삭제
 
@@ -224,13 +224,13 @@
 
 ## [2026-08-06] feature/estimate-one-page-inline
 - **목적**: 「한 페이지 작성」을 목업대로 테두리 박스에 담고 6행 제한을 상시 안내해 모달 경고창을 없앤다 (D7-8 2단계, D7-7·D7-8 완결)
-- **변경 내용**: `CSageOptionCheck` 신설 — 테두리 박스 + 체크박스 + 라벨 + 힌트를 **스스로 그리고 폭을 실측**한다(고정 폭 상수 `TAECHANG_ESTIMATE_ONE_PAGE_WIDTH`는 참조 0곳이 되어 제거). `SageUiStyle::DrawCheckBox`를 `CSageListCtrl`에서 올려 표 체크박스와 공유했다 — 스킬이 *「두 컨트롤이 실제로 같은 코드를 가질 때만 모은다」*고 한 조건에 처음 해당했고 `SageUiStyle`의 두 번째 조각이다. **`AfxMessageBox` 3곳 제거**(패널 내 참조 0곳). 초과분은 지금도 자동 해제되고 힌트가 상시 보이므로 사전 차단된다. **착수 전 목업 재대조에서 2건을 잡았다** — 박스 좌우 여백은 목업 10이지만 「간격은 4의 배수」 규칙에 따라 8, 그리고 목업 3-8에는 「선택 해제」가 없지만 입력 표가 납품·견적 공용 인스턴스라 양쪽에 보인다(`DEBT_LOG`). **작업 중 잡은 것**: 「선택 해제」가 잘렸다 — 선택 바 폭이 `Layout()` 시점 건수(「0건 중 0건」)로 정해지는데 690행이 들어오면 「690건 중 6건」으로 텍스트가 길어져 버튼이 바 밖으로 밀렸다. `LayoutSelectionRow()`를 분리해 건수가 바뀔 때도 재배치한다. **생성 버튼 문구는 고정으로 되돌렸다**(사용자 결정) — `BuildActionButtonLabel` 확장점과 포맷 상수 2개를 걷어냈고 0건 비활성은 유지한다. **성능**: 690행에서 로드·전환·초기화가 각각 약 1초 멈추는 것을 판별 실험 3개로 「690행에 도착하는 비용」으로 좁힌 뒤, 일회용 계측 브랜치(`perf/measure-refresh-rows`, 폐기)로 구간을 갈라 **`InsertItem` 221ms · `SetItemText` 305ms**로 확정했다 — 문자열 생성 5ms, 행 복사 1ms, 이번에 추가한 선택바 동기화 1ms는 무관했다. `SetItemCount` 예약 가설은 측정으로 폐기(526 → 523ms). 수치와 후속(`LPSTR_TEXTCALLBACK` → 가상 리스트)은 `DEBT_LOG`
+- **변경 내용**: `CSageOptionCheck` 신설 — 테두리 박스 + 체크박스 + 라벨 + 힌트를 **스스로 그리고 폭을 실측**한다(고정 폭 상수 `SAGE_ESTIMATE_ONE_PAGE_WIDTH`는 참조 0곳이 되어 제거). `SageUiStyle::DrawCheckBox`를 `CSageListCtrl`에서 올려 표 체크박스와 공유했다 — 스킬이 *「두 컨트롤이 실제로 같은 코드를 가질 때만 모은다」*고 한 조건에 처음 해당했고 `SageUiStyle`의 두 번째 조각이다. **`AfxMessageBox` 3곳 제거**(패널 내 참조 0곳). 초과분은 지금도 자동 해제되고 힌트가 상시 보이므로 사전 차단된다. **착수 전 목업 재대조에서 2건을 잡았다** — 박스 좌우 여백은 목업 10이지만 「간격은 4의 배수」 규칙에 따라 8, 그리고 목업 3-8에는 「선택 해제」가 없지만 입력 표가 납품·견적 공용 인스턴스라 양쪽에 보인다(`DEBT_LOG`). **작업 중 잡은 것**: 「선택 해제」가 잘렸다 — 선택 바 폭이 `Layout()` 시점 건수(「0건 중 0건」)로 정해지는데 690행이 들어오면 「690건 중 6건」으로 텍스트가 길어져 버튼이 바 밖으로 밀렸다. `LayoutSelectionRow()`를 분리해 건수가 바뀔 때도 재배치한다. **생성 버튼 문구는 고정으로 되돌렸다**(사용자 결정) — `BuildActionButtonLabel` 확장점과 포맷 상수 2개를 걷어냈고 0건 비활성은 유지한다. **성능**: 690행에서 로드·전환·초기화가 각각 약 1초 멈추는 것을 판별 실험 3개로 「690행에 도착하는 비용」으로 좁힌 뒤, 일회용 계측 브랜치(`perf/measure-refresh-rows`, 폐기)로 구간을 갈라 **`InsertItem` 221ms · `SetItemText` 305ms**로 확정했다 — 문자열 생성 5ms, 행 복사 1ms, 이번에 추가한 선택바 동기화 1ms는 무관했다. `SetItemCount` 예약 가설은 측정으로 폐기(526 → 523ms). 수치와 후속(`LPSTR_TEXTCALLBACK` → 가상 리스트)은 `DEBT_LOG`
 - **PR 링크**: 없음
 - **결과**: pending — `develop` 미머지. 빌드 + 화면 확인 완료
 
 ## [2026-08-06] feature/table-selection-bar
 - **목적**: 입력 표에 선택 바를 올려 D7-7·D7-8의 공통 부분을 끝내고(1단계), 작업 중 드러난 체크박스 회귀를 함께 차단
-- **변경 내용**: `CSageSelectionBar` 신설 — 「전체 선택」 체크박스와 「선택 해제」를 **소유하고 클릭은 커맨드 ID로 부모에 올린다**(`CSageEmptyState` 선례). 「N건 중 **M건** 선택됨」에서 건수만 `PRIMARY` SemiBold로 그리며, 이를 위해 `SAGE_FONT_CONTENT_SEMIBOLD`(105 SemiBold가 없었다)를 신설했다. 폭은 상수로 박지 않고 **바가 자기 텍스트를 GDI로 실측**해(`GetContentWidth`) 패널이 그 뒤에 「한 페이지 작성」을 붙인다. 생성 버튼 문구는 `ISageWorkflowHandler::BuildActionButtonLabel(int)`로 **핸들러가 답한다**(미수금은 기존 문구). 체크 변경은 `WM_TAECHANG_RESULT_SELECTION_CHANGED`로 흐르며 **행 집합 변경과 분리**했다 — 체크 토글마다 요약 바·합계 밴드를 재계산할 이유가 없다. 대량 `SetCheck` 구간은 알림을 억제하고 끝난 뒤 한 번만 보낸다. **입력 표는 납품·견적 공용 인스턴스**라 선택 바가 두 화면에 함께 붙었다. **겹침 수정**: 밴드 행 컨트롤은 32px인데 그 행에 26px만 할당되어 있어 표와 **4px 겹쳐 있었다**(미수금은 요약 바가 밀어내서, 납품·견적은 겹치는 폭이 버튼 하나뿐이라 가려져 있었다) — 선택 바가 보일 때 리스트 시작점을 밴드 아래로 내렸다. **함께 고친 D4 회귀**: `f4690b8`(행 높이 34) 이후 입력 표의 체크박스가 보이지 않았다. `CSageListCtrl`이 상태 이미지 2장을 직접 그려 `LVSIL_STATE`에 지정한다(목업대로 카멜색). **확인 빌드를 4회 썼고 원인이 셋이었다** — ① 스타일을 켜기 전에 이미지를 물려 자동 생성분에 덮어써짐 ② 상태 이미지 인덱스가 **1-based**라 0번을 빈 이미지로 두어 「해제는 안 보이고 선택하면 빈 박스」가 됨 ③ `SetColumns`가 확장 스타일을 통째로 덮어써 체크박스 스타일이 꺼질 때 **comctl32가 상태 이미지리스트를 파괴**하는데 멤버로 재사용해 두 번째 워크플로부터 죽은 핸들을 물었다 — 매번 새로 만들어 `Detach`로 소유권을 넘기는 것으로 해결. **기록 정정**: 첫 수정 커밋(`defb468`)의 메시지는 원인을 「1×34 더미 이미지리스트 때문」이라고 단정했으나 **그 인과는 끝내 증명되지 않았다.** 현재 구현은 자동 생성분을 쓰지 않아 원인과 무관하게 동작한다. 커밋 순서가 `fix → feat → fix ×3`으로 섞여 있어 이력 재작성 위험이 정정 이득보다 커 메시지는 그대로 두고 여기에 남긴다
+- **변경 내용**: `CSageSelectionBar` 신설 — 「전체 선택」 체크박스와 「선택 해제」를 **소유하고 클릭은 커맨드 ID로 부모에 올린다**(`CSageEmptyState` 선례). 「N건 중 **M건** 선택됨」에서 건수만 `PRIMARY` SemiBold로 그리며, 이를 위해 `SAGE_FONT_CONTENT_SEMIBOLD`(105 SemiBold가 없었다)를 신설했다. 폭은 상수로 박지 않고 **바가 자기 텍스트를 GDI로 실측**해(`GetContentWidth`) 패널이 그 뒤에 「한 페이지 작성」을 붙인다. 생성 버튼 문구는 `ISageWorkflowHandler::BuildActionButtonLabel(int)`로 **핸들러가 답한다**(미수금은 기존 문구). 체크 변경은 `WM_SAGE_RESULT_SELECTION_CHANGED`로 흐르며 **행 집합 변경과 분리**했다 — 체크 토글마다 요약 바·합계 밴드를 재계산할 이유가 없다. 대량 `SetCheck` 구간은 알림을 억제하고 끝난 뒤 한 번만 보낸다. **입력 표는 납품·견적 공용 인스턴스**라 선택 바가 두 화면에 함께 붙었다. **겹침 수정**: 밴드 행 컨트롤은 32px인데 그 행에 26px만 할당되어 있어 표와 **4px 겹쳐 있었다**(미수금은 요약 바가 밀어내서, 납품·견적은 겹치는 폭이 버튼 하나뿐이라 가려져 있었다) — 선택 바가 보일 때 리스트 시작점을 밴드 아래로 내렸다. **함께 고친 D4 회귀**: `f4690b8`(행 높이 34) 이후 입력 표의 체크박스가 보이지 않았다. `CSageListCtrl`이 상태 이미지 2장을 직접 그려 `LVSIL_STATE`에 지정한다(목업대로 카멜색). **확인 빌드를 4회 썼고 원인이 셋이었다** — ① 스타일을 켜기 전에 이미지를 물려 자동 생성분에 덮어써짐 ② 상태 이미지 인덱스가 **1-based**라 0번을 빈 이미지로 두어 「해제는 안 보이고 선택하면 빈 박스」가 됨 ③ `SetColumns`가 확장 스타일을 통째로 덮어써 체크박스 스타일이 꺼질 때 **comctl32가 상태 이미지리스트를 파괴**하는데 멤버로 재사용해 두 번째 워크플로부터 죽은 핸들을 물었다 — 매번 새로 만들어 `Detach`로 소유권을 넘기는 것으로 해결. **기록 정정**: 첫 수정 커밋(`defb468`)의 메시지는 원인을 「1×34 더미 이미지리스트 때문」이라고 단정했으나 **그 인과는 끝내 증명되지 않았다.** 현재 구현은 자동 생성분을 쓰지 않아 원인과 무관하게 동작한다. 커밋 순서가 `fix → feat → fix ×3`으로 섞여 있어 이력 재작성 위험이 정정 이득보다 커 메시지는 그대로 두고 여기에 남긴다
 - **PR 링크**: 없음
 - **결과**: pending — `develop` 미머지. 빌드 + 화면 확인 완료(납품 → 견적 → 납품 전환 포함)
 
@@ -242,7 +242,7 @@
 
 ## [2026-08-06] feature/receivables-summary-bar
 - **목적**: 미수금 결과 표 상단에 요약 바를 올리고(D7-1 1단계), 작업 중 발견한 Excel 프로세스 누수를 함께 차단
-- **변경 내용**: `CSageSummaryBar` 신설(`app/ui/drawing/`) — 라벨·수치·단위 문자열만 받고 워크플로 타입을 모른다. 요약 데이터는 `ISageWorkflowHandler::BuildResultSummary`로 **핸들러가 답한다**(미수금만 채우고 납품·견적은 FALSE) — View에 워크플로 분기를 만들지 않기 위한 확장점이다. **계획서 전제가 틀렸다**: `RECEIVABLES_PREVIEW_TOTAL`·`MISSING_COMPANIES` 두 상수가 참조 0곳이었고 미수금 합계를 계산하는 코드가 없었다. 행 금액은 `FormatAmountCellText`로 포맷된 **문자열만** 있어 더할 수 없었으므로 `TaechangResultRow`에 `__int64` 3종을 함께 담고 `FormatAmountNumber`를 추가했다. `missingCompanies`는 PowerShell이 이미 내보내던 것을 처음 읽었다. 건수·합계는 **보이는 행 기준**으로 갱신하고(기존 `WM_TAECHANG_RESULT_TABLE_CHANGED` 흐름에 얹음) **구분 표기(`-`) 행은 건수에서 제외**한다 — 데이터 구분선이지 미수금 건이 아니다. 폰트는 `sagetaechang-ui` 타입 스케일대로 `SAGE_FONT_SUMMARY`(128 = 17px SemiBold)를 신설했다(C7의 16px 기술과 어긋나며 스킬 표를 따랐다). **성능 조사**: 사용자가 내역서 생성이 느려졌다고 해 추적한 결과 원인은 요약 바가 아니라 **워크플로 스크립트 7개가 띄운 Excel 인스턴스가 남는 것**이었다 — 좀비가 쌓이며 생성이 4초에서 12초까지 늘었다. COM 참조 해제 + GC 방식은 측정해보니 누수를 막지 못하고 실행당 수 초를 더 써서 폐기하고, 프로세스 목록 차이로 **자기가 띄운 PID만 특정해 종료**하는 방식(`tools/excel-process.ps1`, 7개가 dot-source)으로 바꿨다. 리빌드 후 생성 3회 연속 4초대 유지 확인. **진단 교훈**: `Handles=0`·`WS 44KB` EXCEL 항목은 이미 죽은 껍데기이므로 프로세스 개수로 누수를 판정하면 안 된다
+- **변경 내용**: `CSageSummaryBar` 신설(`app/ui/drawing/`) — 라벨·수치·단위 문자열만 받고 워크플로 타입을 모른다. 요약 데이터는 `ISageWorkflowHandler::BuildResultSummary`로 **핸들러가 답한다**(미수금만 채우고 납품·견적은 FALSE) — View에 워크플로 분기를 만들지 않기 위한 확장점이다. **계획서 전제가 틀렸다**: `RECEIVABLES_PREVIEW_TOTAL`·`MISSING_COMPANIES` 두 상수가 참조 0곳이었고 미수금 합계를 계산하는 코드가 없었다. 행 금액은 `FormatAmountCellText`로 포맷된 **문자열만** 있어 더할 수 없었으므로 `SageResultRow`에 `__int64` 3종을 함께 담고 `FormatAmountNumber`를 추가했다. `missingCompanies`는 PowerShell이 이미 내보내던 것을 처음 읽었다. 건수·합계는 **보이는 행 기준**으로 갱신하고(기존 `WM_SAGE_RESULT_TABLE_CHANGED` 흐름에 얹음) **구분 표기(`-`) 행은 건수에서 제외**한다 — 데이터 구분선이지 미수금 건이 아니다. 폰트는 `sagetaechang-ui` 타입 스케일대로 `SAGE_FONT_SUMMARY`(128 = 17px SemiBold)를 신설했다(C7의 16px 기술과 어긋나며 스킬 표를 따랐다). **성능 조사**: 사용자가 내역서 생성이 느려졌다고 해 추적한 결과 원인은 요약 바가 아니라 **워크플로 스크립트 7개가 띄운 Excel 인스턴스가 남는 것**이었다 — 좀비가 쌓이며 생성이 4초에서 12초까지 늘었다. COM 참조 해제 + GC 방식은 측정해보니 누수를 막지 못하고 실행당 수 초를 더 써서 폐기하고, 프로세스 목록 차이로 **자기가 띄운 PID만 특정해 종료**하는 방식(`tools/excel-process.ps1`, 7개가 dot-source)으로 바꿨다. 리빌드 후 생성 3회 연속 4초대 유지 확인. **진단 교훈**: `Handles=0`·`WS 44KB` EXCEL 항목은 이미 죽은 껍데기이므로 프로세스 개수로 누수를 판정하면 안 된다
 - **PR 링크**: 없음
 - **결과**: merged — `develop`에 fast-forward 머지(`7926a1c`, 2026-08-06). 커밋 3개가 `feat`·`fix`·`docs` 세 목적이라 squash하지 않고 보존했다. 작업 브랜치 삭제. D7-1 2단계(합계 밴드)는 `feature/receivables-total-row`
 
@@ -260,7 +260,7 @@
 
 ## [2026-08-01] refactor/sage-ui-style
 - **목적**: 컨트롤 간 실제 중복을 조사하고 공유 그리기 조각을 추출 (3-A-7)
-- **변경 내용**: 컨트롤 7개를 전수 조사한 결과 **진짜 중복은 콤보 화살표 삼각형 14줄 하나**였고, SageComboBox와 SageFilterComboBox가 들여쓰기만 다른 동일 코드를 갖고 있었다. `namespace SageUiStyle`에 `DrawComboArrow` 하나만 두고 두 곳을 한 줄 호출로 교체(28줄 제거). **추출하지 않은 후보 3건과 이유를 함께 기록** — 배경 채우기(컨트롤마다 색이 다르고 FillSolidRect 한 줄), 테두리(CSageButton Secondary 한 곳뿐), 가운데 텍스트(6곳이나 색·rect·포맷이 매번 달라 관용구지 로직이 아님). SageUiStyle을 색상 파사드로 만드는 안은 색이 이미 TaechangDefine.h에 모여 있어 기각. 조사 중 폰트 선택 가드 불일치 2곳 발견해 DEBT_LOG 기록
+- **변경 내용**: 컨트롤 7개를 전수 조사한 결과 **진짜 중복은 콤보 화살표 삼각형 14줄 하나**였고, SageComboBox와 SageFilterComboBox가 들여쓰기만 다른 동일 코드를 갖고 있었다. `namespace SageUiStyle`에 `DrawComboArrow` 하나만 두고 두 곳을 한 줄 호출로 교체(28줄 제거). **추출하지 않은 후보 3건과 이유를 함께 기록** — 배경 채우기(컨트롤마다 색이 다르고 FillSolidRect 한 줄), 테두리(CSageButton Secondary 한 곳뿐), 가운데 텍스트(6곳이나 색·rect·포맷이 매번 달라 관용구지 로직이 아님). SageUiStyle을 색상 파사드로 만드는 안은 색이 이미 SageDefine.h에 모여 있어 기각. 조사 중 폰트 선택 가드 불일치 2곳 발견해 DEBT_LOG 기록
 - **PR 링크**: 없음 (develop 직접 머지)
 - **결과**: merged
 
@@ -284,7 +284,7 @@
 
 ## [2026-07-31] refactor/sage-button-dialogs
 - **목적**: 다이얼로그의 버튼 그리기 복제를 제거하고 CSageButton으로 통일 (3-A-2)
-- **변경 내용**: 다이얼로그 파일 7개(클래스 8개 — TaechangPriceSimpleDlg에 CompanyRenameDlg/CoverPriceDlg 2개)의 m_wndOkBtn/m_wndCancelBtn을 CSageButton으로 교체하고 확인 버튼에 SetVariant(PRIMARY) 호출. OnDrawItem 함수 8개, 메시지맵 ON_WM_DRAWITEM() 8개, 헤더 선언 8개, static DrawSimpleButton 1개 제거(총 325줄 삭제). 버튼 외 오너드로우 컨트롤이 없어 핸들러를 통째로 제거해도 안전했고, 체크박스는 BS_AUTOCHECKBOX라 영향 없음. 커밋 2개로 나눠 교체 후 화면 무변화, 제거 후 컨트롤 그리기를 각각 확인. 작업 중 발견한 CoverPriceDlg 미호출·파일명 불일치는 DEBT_LOG에 기록
+- **변경 내용**: 다이얼로그 파일 7개(클래스 8개 — SagePriceSimpleDlg에 CompanyRenameDlg/CoverPriceDlg 2개)의 m_wndOkBtn/m_wndCancelBtn을 CSageButton으로 교체하고 확인 버튼에 SetVariant(PRIMARY) 호출. OnDrawItem 함수 8개, 메시지맵 ON_WM_DRAWITEM() 8개, 헤더 선언 8개, static DrawSimpleButton 1개 제거(총 325줄 삭제). 버튼 외 오너드로우 컨트롤이 없어 핸들러를 통째로 제거해도 안전했고, 체크박스는 BS_AUTOCHECKBOX라 영향 없음. 커밋 2개로 나눠 교체 후 화면 무변화, 제거 후 컨트롤 그리기를 각각 확인. 작업 중 발견한 CoverPriceDlg 미호출·파일명 불일치는 DEBT_LOG에 기록
 - **PR 링크**: 없음 (develop 직접 머지)
 - **결과**: merged
 
@@ -296,19 +296,19 @@
 
 ## [2026-07-31] refactor/view-control-extract
 - **목적**: View에 정의돼 있던 MFC 컨트롤 서브클래스를 app/ui/drawing으로 분리하고, 신규 코드 접두사를 Sage로 전환
-- **변경 내용**: CTaechangHeaderCtrl / CTaechangTabCtrl / CTaechangComboBox / CTaechangFilterComboBox 4개를 클래스당 파일로 app/ui/drawing에 분리(SageTaechangView.h의 클래스 정의와 .cpp 구현 193줄 제거). 이후 파일명·클래스명을 CSage*로 전환. vcxproj 78→86 항목, filters에 app\ui\drawing 필터 생성. View.cpp 4,499→4,305줄, View.h 428→397줄. 부수적으로 CSageTabCtrl은 메시지맵과 OnPaint 구현이 100줄 떨어져 있던 것이 한 파일로 모임. 리팩토링 계획을 docs/decisions/REFACTORING_PLAN.md로 이관하고 작성 절차는 sagetaechang-plan skill로 분리
+- **변경 내용**: CSageHeaderCtrl / CSageTabCtrl / CSageComboBox / CSageFilterComboBox 4개를 클래스당 파일로 app/ui/drawing에 분리(SageTaechangView.h의 클래스 정의와 .cpp 구현 193줄 제거). 이후 파일명·클래스명을 CSage*로 전환. vcxproj 78→86 항목, filters에 app\ui\drawing 필터 생성. View.cpp 4,499→4,305줄, View.h 428→397줄. 부수적으로 CSageTabCtrl은 메시지맵과 OnPaint 구현이 100줄 떨어져 있던 것이 한 파일로 모임. 리팩토링 계획을 docs/decisions/REFACTORING_PLAN.md로 이관하고 작성 절차는 sagetaechang-plan skill로 분리
 - **PR 링크**: 없음 (develop 직접 머지)
 - **결과**: merged
 
 ## [2026-07-31] refactor/layer-cleanup
 - **목적**: Step 1 재배치 이후 남은 계층 정리 — 앱 헤더의 DB 계층 전역 노출 제거, SqlInitializer 클래스명 정합
-- **변경 내용**: SageTaechang.h(CWinApp 헤더)에서 SageDBMgr.h include를 제거하고 실제 사용처인 SageTaechang.cpp에 직접 추가. 이 과정에서 SageTaechangView.h가 SageTaechang.h → SageDBMgr.h → TaechangPriceRepository.h 사슬로 TaechangPriceDto를 간접 획득하던 것이 빌드 오류로 드러나, 전방 선언 + 직접 include로 정리(별도 fix 커밋). SQLInitializer 클래스명을 SqlInitializer로 변경(13곳). DEBT_LOG 2건 해소. 별건으로 coding-rules의 "함수 반환 타입에 포인터 사용 금지"를 제거하고 계약 규약(기본 비소유 / Get*·Find* 네이밍 / 소유권 이전 동사)으로 전환해, SageDBMgr Getter 부채 1건은 코드 변경 없이 철회
+- **변경 내용**: SageTaechang.h(CWinApp 헤더)에서 SageDBMgr.h include를 제거하고 실제 사용처인 SageTaechang.cpp에 직접 추가. 이 과정에서 SageTaechangView.h가 SageTaechang.h → SageDBMgr.h → SagePriceRepository.h 사슬로 SagePriceDto를 간접 획득하던 것이 빌드 오류로 드러나, 전방 선언 + 직접 include로 정리(별도 fix 커밋). SQLInitializer 클래스명을 SqlInitializer로 변경(13곳). DEBT_LOG 2건 해소. 별건으로 coding-rules의 "함수 반환 타입에 포인터 사용 금지"를 제거하고 계약 규약(기본 비소유 / Get*·Find* 네이밍 / 소유권 이전 동사)으로 전환해, SageDBMgr Getter 부채 1건은 코드 변경 없이 철회
 - **PR 링크**: 없음 (develop 직접 머지)
 - **결과**: merged
 
 ## [2026-07-31] refactor/layer-relocation
 - **목적**: 소스 구조를 core/infra/ui 3계층으로 재배치해 신규 파일 배치 기준을 확립. 기존에는 루트 평면 배치와 app/ 4계층이 공존해 새 파일을 어디 둘지 판단이 서지 않았고, 그 결과 기능이 SageTaechangView(4,497줄)로 몰렸다
-- **변경 내용**: 루트 파일 20여 개와 기존 app/application·infrastructure·presentation을 app/core(price·receivable·auth·workflow) / app/infra(db·office·file) / app/ui(frame·view·dialogs)로 이동. include를 프로젝트 루트 기준 전체 경로로 통일. vcxproj 78항목 경로 갱신, filters를 "소스 파일\app\..." 37개 필터로 전면 재작성. SQLContext/SQLInitializer 파일명을 Sql 표기로 정합(클래스명은 유지). 실체가 없던 bridge 폴더 제거하고 TaechangBridgeResponse를 core/workflow/TaechangWorkflowResponse로 이동. **로직 변경 없음** — 이동 커밋이 0 insertions/0 deletions. 남은 의존 위반 6건은 docs/DEBT_LOG.md에 기록
+- **변경 내용**: 루트 파일 20여 개와 기존 app/application·infrastructure·presentation을 app/core(price·receivable·auth·workflow) / app/infra(db·office·file) / app/ui(frame·view·dialogs)로 이동. include를 프로젝트 루트 기준 전체 경로로 통일. vcxproj 78항목 경로 갱신, filters를 "소스 파일\app\..." 37개 필터로 전면 재작성. SQLContext/SQLInitializer 파일명을 Sql 표기로 정합(클래스명은 유지). 실체가 없던 bridge 폴더 제거하고 SageBridgeResponse를 core/workflow/SageWorkflowResponse로 이동. **로직 변경 없음** — 이동 커밋이 0 insertions/0 deletions. 남은 의존 위반 6건은 docs/DEBT_LOG.md에 기록
 - **PR 링크**: 없음 (develop 직접 머지)
 - **결과**: merged
 
@@ -320,7 +320,7 @@
 
 ## [2026-06-23] feature/result-filter-criteria-select
 - **목적**: 미수금/납품서/견적서 결과 검색에 기준 셀렉박스 추가
-- **변경 내용**: 검색 기준 콤보(미수금: 법인명/담당자/품목명, 납품서·견적서: 품목명/법인명) 추가, 기준별 필드 매칭, 워크플로우별 상태 저장, 검색 영역 흰 띠 배경, 전용 오너드로우 콤보(CTaechangFilterComboBox)로 글자 상하좌우 가운데 정렬
+- **변경 내용**: 검색 기준 콤보(미수금: 법인명/담당자/품목명, 납품서·견적서: 품목명/법인명) 추가, 기준별 필드 매칭, 워크플로우별 상태 저장, 검색 영역 흰 띠 배경, 전용 오너드로우 콤보(CSageFilterComboBox)로 글자 상하좌우 가운데 정렬
 - **PR 링크**: 없음 (develop 직접 머지)
 - **결과**: merged
 
@@ -428,13 +428,13 @@
 
 ## [2026-05-07] fix/price-login-guard
 - **목적**: 단가 데이터 관리, 단가 계산 사이드바 메뉴를 로그인 미인증 시 접근 차단
-- **변경 내용**: `OnSidebarSelChanged`에 `TAECHANG_WORKFLOW_PRICE_MANAGE` / `TAECHANG_WORKFLOW_PRICE_CALC` 로그인 체크 추가
+- **변경 내용**: `OnSidebarSelChanged`에 `SAGE_WORKFLOW_PRICE_MANAGE` / `SAGE_WORKFLOW_PRICE_CALC` 로그인 체크 추가
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/52
 - **결과**: merged
 
 ## [2026-05-07] develop → main
 - **목적**: 비밀번호 변경 기능, 단가 관리 UI 개선, 문서 생성 및 미수금 결과 UI 개선을 main에 반영
-- **변경 내용**: 비밀번호 변경 다이얼로그/메뉴 추가, 비밀번호 정책 제한, 단가 관리 신규 다이얼로그(TaechangPriceRangeDlg/TaechangPriceSimpleDlg), 법인 추가 다이얼로그, 부수 계산 패널 이력 UI, 문서 생성 스크립트 개선
+- **변경 내용**: 비밀번호 변경 다이얼로그/메뉴 추가, 비밀번호 정책 제한, 단가 관리 신규 다이얼로그(SagePriceRangeDlg/SagePriceSimpleDlg), 법인 추가 다이얼로그, 부수 계산 패널 이력 UI, 문서 생성 스크립트 개선
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/51
 - **결과**: merged
 
@@ -464,7 +464,7 @@
 
 ## [2026-05-05] feature/user-auth-login — feat: 사용자 인증 및 로그인 시스템 구현
 - **목적**: 관리자/사용자 2-Role 로그인 시스템 구현 — 이후 관리자 전용 기능 권한 분리 기반
-- **변경 내용**: TaechangUser DB 테이블 + 기본 admin 계정 시딩, DTO/Repository/Service/AuthSession 계층 구현(BCrypt SHA-256), 메인 화면 우측 상단 로그인 버튼 및 로그인 다이얼로그 추가
+- **변경 내용**: SageUser DB 테이블 + 기본 admin 계정 시딩, DTO/Repository/Service/AuthSession 계층 구현(BCrypt SHA-256), 메인 화면 우측 상단 로그인 버튼 및 로그인 다이얼로그 추가
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/38
 - **결과**: merged
 
@@ -482,7 +482,7 @@
 
 ## [2026-05-05] develop — feat: 납품서/견적서 생성 화면 UI 개선
 - **목적**: 전반적인 UI 완성도 향상 — 학교 과제물 느낌 탈피, 컬러 통일성 확보
-- **변경 내용**: 타이틀 브라운 accent 컬러, 상태 배지 배경색, 파일/폴더 선택 버튼 왼쪽 이동, 섹션 레이블 accent bar, 전체 선택 버튼 테이블 헤더 라인으로 이동, 테이블 헤더 다크 브라운 + 흰색 텍스트(CTaechangHeaderCtrl 서브클래스)
+- **변경 내용**: 타이틀 브라운 accent 컬러, 상태 배지 배경색, 파일/폴더 선택 버튼 왼쪽 이동, 섹션 레이블 accent bar, 전체 선택 버튼 테이블 헤더 라인으로 이동, 테이블 헤더 다크 브라운 + 흰색 텍스트(CSageHeaderCtrl 서브클래스)
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/35
 - **결과**: merged
 
@@ -517,7 +517,7 @@
 
 ## [2026-05-05] fix/tab-custom-draw — fix: 탭/사이드바/버튼 UI 개선
 - **목적**: 탭 색감 불일치, 사이드바 파란 선택색, 버튼 텍스트 위치 등 시각적 문제 수정
-- **변경 내용**: CTaechangTabCtrl OnPaint 직접 드로잉, 사이드바 NM_CUSTOMDRAW 선택색, 버튼 텍스트 2px 하향, 상태 초기화 버그 수정
+- **변경 내용**: CSageTabCtrl OnPaint 직접 드로잉, 사이드바 NM_CUSTOMDRAW 선택색, 버튼 텍스트 2px 하향, 상태 초기화 버그 수정
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/28
 - **결과**: merged
 
@@ -540,7 +540,7 @@
 
 ## [2026-05-04] develop — refactor: 중복 코드 제거 및 코드 품질 개선
 - **목적**: 전체 코드 리뷰 결과 발견된 Blocker/Major/Minor 항목 수정
-- **변경 내용**: TaechangFileUtils/TaechangDialogHelper 신규 분리, FileExists 등 5개 파일 중복 제거, ExtractJsonArray 3개 파일 중복 제거, PostMessage 누수 Blocker 수정, 레이아웃 매직 넘버·스트링 상수화, 주석 제거 (17개 파일, 순 463줄 감소)
+- **변경 내용**: SageFileUtils/SageDialogHelper 신규 분리, FileExists 등 5개 파일 중복 제거, ExtractJsonArray 3개 파일 중복 제거, PostMessage 누수 Blocker 수정, 레이아웃 매직 넘버·스트링 상수화, 주석 제거 (17개 파일, 순 463줄 감소)
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/24
 - **결과**: merged
 
@@ -602,7 +602,7 @@
 
 ## [2026-05-03] fix/compare-result-file-column
 - **목적**: 가이드의 검수 결과 컬럼(파일명/항목/값/상태/사유)을 적용
-- **변경 내용**: TaechangResultRow에 m_strFile 추가, ApplyResultColumns로 워크플로우별 동적 컬럼 구성(검수 5컬럼/문서 생성 4컬럼), AddCompareFileRows 매핑 재정의(fileName→m_strFile, leftValue→m_strValue), 사유 prefix를 "기준="으로 변경, 관련 상수 추가
+- **변경 내용**: SageResultRow에 m_strFile 추가, ApplyResultColumns로 워크플로우별 동적 컬럼 구성(검수 5컬럼/문서 생성 4컬럼), AddCompareFileRows 매핑 재정의(fileName→m_strFile, leftValue→m_strValue), 사유 prefix를 "기준="으로 변경, 관련 상수 추가
 - **PR 링크**: https://github.com/JakeKim4926/SageTaechang/pull/14
 - **결과**: merged
 
@@ -793,7 +793,7 @@
 
 ## [2026-08-06] fix/design-tokens
 - **목적**: 색 토큰 · 서체 · 버튼 위계 · 컨트롤 높이 · 표 렌더링을 개선안 기준으로 교체 (D1a · D2 · D3a · D4a · D1b, 커밋 14개)
-- **변경 내용**: C1이 토큰 7개를 D1에서 한꺼번에 추가하도록 적었지만 참조 없는 dead 상수가 되므로 **쓰는 Step에서 추가**하는 쪽으로 바꿨다. **D4a(표)에서 세 번 헛짚었고 원인이 전부 그리기 코드가 아니라 적용 시점과 무효화 범위였다** — 행 높이는 `PreSubclassWindow`(WM_NCCREATE 시점)에서 `LVM_SETIMAGELIST`가 리스트뷰 내부 초기화 전이라 무시되어 `WM_CREATE` 기본 처리 뒤로 옮겼고, 헤더 글씨 뭉개짐은 `SetImageList`를 `CDDS_PREPAINT`에서 호출해 페인트 중 재레이아웃이 일어난 것이었고, 선택 액센트 바가 안 지워지는 것은 1열을 `CDRF_SKIPDEFAULT`로 직접 그리면 3px 구간을 아무도 덮지 않아서였고, 깜빡임은 전체 `Invalidate()`를 해당 행 rect로 축소해 잡았다. **다음 커스텀 드로잉은 그리기 코드보다 적용 시점·무효화 경로를 먼저 확정한다.** 강조 컬럼 색을 카멜로 바꾸자 이후 컬럼(입금 은행·비고)이 색을 물려받는 누수가 드러났다 — 본문색과 같을 때는 보이지 않던 결함이고, **강조가 켜지면 모든 서브아이템에서 색을 명시**해야 한다. `LVS_EX_GRIDLINES`는 가로·세로가 한 묶음이라 "가로만"을 만들 수 없어 커스텀 드로잉으로 하단 1px만 그었다. **D1b(서체)** — 기존 Gmarket 3종의 `AddFontMemResourceEx` 임베드 구조를 그대로 복제했고(폰트 6개가 되어 개별 핸들 멤버를 배열로 교체), 폰트 name 테이블을 직접 확인해 **GDI 패밀리 이름이 굵기마다 다르다**는 것을 확인했다 — GDI는 한 패밀리에 Regular/Bold/Italic/BoldItalic 4종만 담으므로 SemiBold가 자기 패밀리(`Pretendard SemiBold`)를 갖는다. **R1 재결정** — 목업 그대로(본문 13px) 적용하니 기존 앱(14.7px) 대비 체감 낙차가 커서 위계 비율만 유지하고 절대 크기를 한 단계 올렸다(제목 19 · 섹션 15 · 본문 14 · 표 셀 13px). **의도적으로 목업을 벗어난 유일한 지점이며 상수 5개라 되돌리기 쉽다.** `TAECHANG_BUTTON_TEXT_TOP_OFFSET`은 추측하지 않고 폰트 메트릭에서 계산했다 — Gmarket은 `winAsc/winDesc = 800/350`(비대칭)이라 계산값 +1.84로 기존 튜닝값 `2`와 일치해 계산 모델의 검증이 됐고, Pretendard는 `1949/494`로 거의 대칭이라 **0**이 됐다
+- **변경 내용**: C1이 토큰 7개를 D1에서 한꺼번에 추가하도록 적었지만 참조 없는 dead 상수가 되므로 **쓰는 Step에서 추가**하는 쪽으로 바꿨다. **D4a(표)에서 세 번 헛짚었고 원인이 전부 그리기 코드가 아니라 적용 시점과 무효화 범위였다** — 행 높이는 `PreSubclassWindow`(WM_NCCREATE 시점)에서 `LVM_SETIMAGELIST`가 리스트뷰 내부 초기화 전이라 무시되어 `WM_CREATE` 기본 처리 뒤로 옮겼고, 헤더 글씨 뭉개짐은 `SetImageList`를 `CDDS_PREPAINT`에서 호출해 페인트 중 재레이아웃이 일어난 것이었고, 선택 액센트 바가 안 지워지는 것은 1열을 `CDRF_SKIPDEFAULT`로 직접 그리면 3px 구간을 아무도 덮지 않아서였고, 깜빡임은 전체 `Invalidate()`를 해당 행 rect로 축소해 잡았다. **다음 커스텀 드로잉은 그리기 코드보다 적용 시점·무효화 경로를 먼저 확정한다.** 강조 컬럼 색을 카멜로 바꾸자 이후 컬럼(입금 은행·비고)이 색을 물려받는 누수가 드러났다 — 본문색과 같을 때는 보이지 않던 결함이고, **강조가 켜지면 모든 서브아이템에서 색을 명시**해야 한다. `LVS_EX_GRIDLINES`는 가로·세로가 한 묶음이라 "가로만"을 만들 수 없어 커스텀 드로잉으로 하단 1px만 그었다. **D1b(서체)** — 기존 Gmarket 3종의 `AddFontMemResourceEx` 임베드 구조를 그대로 복제했고(폰트 6개가 되어 개별 핸들 멤버를 배열로 교체), 폰트 name 테이블을 직접 확인해 **GDI 패밀리 이름이 굵기마다 다르다**는 것을 확인했다 — GDI는 한 패밀리에 Regular/Bold/Italic/BoldItalic 4종만 담으므로 SemiBold가 자기 패밀리(`Pretendard SemiBold`)를 갖는다. **R1 재결정** — 목업 그대로(본문 13px) 적용하니 기존 앱(14.7px) 대비 체감 낙차가 커서 위계 비율만 유지하고 절대 크기를 한 단계 올렸다(제목 19 · 섹션 15 · 본문 14 · 표 셀 13px). **의도적으로 목업을 벗어난 유일한 지점이며 상수 5개라 되돌리기 쉽다.** `SAGE_BUTTON_TEXT_TOP_OFFSET`은 추측하지 않고 폰트 메트릭에서 계산했다 — Gmarket은 `winAsc/winDesc = 800/350`(비대칭)이라 계산값 +1.84로 기존 튜닝값 `2`와 일치해 계산 모델의 검증이 됐고, Pretendard는 `1949/494`로 거의 대칭이라 **0**이 됐다
 - **PR 링크**: 없음 (develop 직접 머지)
 - **결과**: merged
 
@@ -805,7 +805,7 @@
 
 ## [2026-08-06] design/label-widths
 - **목적**: 폼 라벨 폭을 목업 기준으로 통일하고 금액 표현을 정리 (D3b · D4b)
-- **변경 내용**: **D3b** — `TaechangDefine.h` 상수 5개만 바꿨고 **좌표 코드는 한 줄도 손대지 않았다**. 카드 폭·에디트 폭이 전부 라벨 폭 상수에서 파생되어 자동 전파됐다(단가계산 입력 카드 274→310, 비밀번호 변경 에디트 202→222). 착수 전 결론은 "본문 80 · 다이얼로그 64/96"이었는데 다이얼로그만 보고 낸 판단이었고, `<label style="width:">`를 목업 전체에서 뽑으니 **80은 두 개뿐이고 본문 폼도 64**였다. 폰트 의존 치수는 빌드 없이 PowerShell + `AddFontResourceEx(FR_PRIVATE)` + `GetTextExtentPoint32W`로 실측했다 — GDI+(`System.Drawing.Font`)는 private 폰트를 못 보고 **예외 없이 Microsoft Sans Serif로 폴백**해 8px 과대값을 내놨으므로 `GetTextFaceW`로 선택된 face를 찍어 확인했다. **D4b** — 계획 3항목 중 금액 우측 정렬은 결과 표 3종에 이미 적용돼 있었고(남은 건 `CListCtrl`을 직접 쓰는 단가 2표), Bold는 목업이 **미수금 열 하나만** 굵어 C6의 "금액 컬럼 + Bold"가 과잉이었으며, 음수 표시는 출처가 없어 **범위에서 뺐다**. 대신 계획에 없던 빈 금액 `—` 표시가 나왔다. `CListCtrl`이 0번 열 `LVCFMT`를 무시하므로 `SetCenterFirstColumn(BOOL)`을 `SetFirstColumnAlign(enum)`으로 확장했다. 우측 정렬로 바꾸자 `SagePriceManagePanel` 마지막 열이 남는 폭을 전부 흡수하던 결함이 드러나 균등 분배로 고쳤고, 단가 워크플로 전환 시 미수금 데이터 관리 컨트롤이 남는 버그도 함께 잡았다
+- **변경 내용**: **D3b** — `SageDefine.h` 상수 5개만 바꿨고 **좌표 코드는 한 줄도 손대지 않았다**. 카드 폭·에디트 폭이 전부 라벨 폭 상수에서 파생되어 자동 전파됐다(단가계산 입력 카드 274→310, 비밀번호 변경 에디트 202→222). 착수 전 결론은 "본문 80 · 다이얼로그 64/96"이었는데 다이얼로그만 보고 낸 판단이었고, `<label style="width:">`를 목업 전체에서 뽑으니 **80은 두 개뿐이고 본문 폼도 64**였다. 폰트 의존 치수는 빌드 없이 PowerShell + `AddFontResourceEx(FR_PRIVATE)` + `GetTextExtentPoint32W`로 실측했다 — GDI+(`System.Drawing.Font`)는 private 폰트를 못 보고 **예외 없이 Microsoft Sans Serif로 폴백**해 8px 과대값을 내놨으므로 `GetTextFaceW`로 선택된 face를 찍어 확인했다. **D4b** — 계획 3항목 중 금액 우측 정렬은 결과 표 3종에 이미 적용돼 있었고(남은 건 `CListCtrl`을 직접 쓰는 단가 2표), Bold는 목업이 **미수금 열 하나만** 굵어 C6의 "금액 컬럼 + Bold"가 과잉이었으며, 음수 표시는 출처가 없어 **범위에서 뺐다**. 대신 계획에 없던 빈 금액 `—` 표시가 나왔다. `CListCtrl`이 0번 열 `LVCFMT`를 무시하므로 `SetCenterFirstColumn(BOOL)`을 `SetFirstColumnAlign(enum)`으로 확장했다. 우측 정렬로 바꾸자 `SagePriceManagePanel` 마지막 열이 남는 폭을 전부 흡수하던 결함이 드러나 균등 분배로 고쳤고, 단가 워크플로 전환 시 미수금 데이터 관리 컨트롤이 남는 버그도 함께 잡았다
 - **PR 링크**: 없음 (develop 직접 머지)
 - **결과**: merged
 
@@ -823,7 +823,7 @@
 
 ## [2026-08-06] feature/price-empty-state
 - **목적**: 단가 데이터 관리에 빈 상태 화면 추가 (D5b)
-- **변경 내용**: `CSageEmptyState`를 신설해 `SagePriceManagePanel`의 빈 격자를 안내문 + 1차 액션으로 교체했다. 작업 중 `TAECHANG_COLOR_SURFACE_MUTED`를 쓰다 빌드가 깨졌는데 **존재한 적이 없는 이름**이었다 — C1의 「신규 상수」 표는 *만들 것*의 목록이었고 D1a가 기존 `TAECHANG_COLOR_LIST_HEADER`의 값만 바꾸는 쪽을 택했으나 그 결정이 표에 반영되지 않았다. 스킬 색상표도 같은 이름을 적고 있었다. 전수 조사하니 신규 7개 중 **2개가 실체 없는 이름**이었다(`SURFACE_MUTED`, `SIDEBAR_ACCENT_WIDTH`). D3b에서 발견한 "스킬 타입 스케일이 코드와 어긋남"과 같은 뿌리이며, 그때는 **값**이 틀렸고 이번엔 **이름**이 틀렸다 — 이름이 틀리면 빌드가 깨지므로 **조용히 틀리는 값 쪽이 더 위험하다**
+- **변경 내용**: `CSageEmptyState`를 신설해 `SagePriceManagePanel`의 빈 격자를 안내문 + 1차 액션으로 교체했다. 작업 중 `SAGE_COLOR_SURFACE_MUTED`를 쓰다 빌드가 깨졌는데 **존재한 적이 없는 이름**이었다 — C1의 「신규 상수」 표는 *만들 것*의 목록이었고 D1a가 기존 `SAGE_COLOR_LIST_HEADER`의 값만 바꾸는 쪽을 택했으나 그 결정이 표에 반영되지 않았다. 스킬 색상표도 같은 이름을 적고 있었다. 전수 조사하니 신규 7개 중 **2개가 실체 없는 이름**이었다(`SURFACE_MUTED`, `SIDEBAR_ACCENT_WIDTH`). D3b에서 발견한 "스킬 타입 스케일이 코드와 어긋남"과 같은 뿌리이며, 그때는 **값**이 틀렸고 이번엔 **이름**이 틀렸다 — 이름이 틀리면 빌드가 깨지므로 **조용히 틀리는 값 쪽이 더 위험하다**
 - **PR 링크**: 없음 (develop 직접 머지)
 - **결과**: merged
 

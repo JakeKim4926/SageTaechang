@@ -75,8 +75,8 @@ SageTaechang/
   SageDBMgr.*                   DB 서비스 구성
   SQLContext.*                  SQLite 연결 관리
   SQLInitializer.*              DB 테이블 초기화
-  Taechang*Repository.*         DB 접근 계층
-  Taechang*Service.*            도메인 서비스 계층
+  Sage*Repository.*         DB 접근 계층
+  Sage*Service.*            도메인 서비스 계층
 ```
 
 ## 주요 파일
@@ -91,7 +91,7 @@ SageTaechang/
   SQLite 컨텍스트, Repository, Service 객체를 구성하고 앱 전역에서 사용할 수 있게 관리합니다.
 
 - `SageTaechang/SQLInitializer.cpp`
-  `TaechangPrice`, `TaechangUser`, `TaechangReceivableCompanyOrder` 테이블을 초기화합니다.
+  `SagePrice`, `SageUser`, `SageReceivableCompanyOrder` 테이블을 초기화합니다.
 
 - `SageTaechang/tools/`
   문서 생성과 엑셀 데이터 로드를 수행하는 PowerShell 스크립트가 들어 있습니다.

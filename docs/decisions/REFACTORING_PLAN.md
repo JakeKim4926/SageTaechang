@@ -257,7 +257,7 @@ D4c 교훈 16(「쓰이는 화면 N곳을 세어 보고 만든다」)이 성능 
 
 **좌표 계약**(검증됨, 픽셀 동일): 패널 rect =
 `CRect(nLeft, nTop - GetBandHeight(), nLeft + nWidth, nTop + RESULT_HEADER_HEIGHT + nBodyHeight)`,
-`GetBandHeight()` = `TAECHANG_RESULT_FILTER_TOP_LIFT + TAECHANG_RESULT_FILTER_BOX_PAD`.
+`GetBandHeight()` = `SAGE_RESULT_FILTER_TOP_LIFT + SAGE_RESULT_FILTER_BOX_PAD`.
 제목·리스트·필터·필터 카드 네 좌표를 손으로 대조해 이전 `LayoutResultSection`과 일치함을 확인했다.
 
 **호출 순서를 바꿨다.** `LayoutChildControls`에서 `UpdateTaskTabVisibility()`를
@@ -266,7 +266,7 @@ D4c 교훈 16(「쓰이는 화면 N곳을 세어 보고 만든다」)이 성능 
 순서 의존이 없었다 — 그 중복이 패널로 옮겨간 결과다.
 
 삭제: 컨트롤 멤버 9개 + 상태 3개, 함수 17개, 메시지맵 6항목. `SageTaechangView.cpp` 2,207 → 1,815줄.
-추가: `WM_TAECHANG_RESULT_TABLE_CHANGED` 핸들러 1개, 패널 조회·스키마·행 공급 헬퍼 5개.
+추가: `WM_SAGE_RESULT_TABLE_CHANGED` 핸들러 1개, 패널 조회·스키마·행 공급 헬퍼 5개.
 
 패널에 추가한 API: `PreTranslateMessage`(Enter 검색) · `EnableFileDrop` ·
 `EnableSelectionControls`(실행 중 비활성) · `SetOnePageChecked`.
@@ -363,7 +363,7 @@ D7이 3-B-4a를 전제로 하고, 3-B는 D 시리즈가 바꾼 화면 코드를 
 | 메시지 라우팅 | 맵 **50항목**, 핸들러 49개 |
 | 레이아웃 계산 | **1,032줄** |
 | 워크플로 실행 조정 | 워커 시작 · 진행 · 완료 |
-| 화면 상태 보관 | `TaechangWorkflowUiState` 멤버 3개 |
+| 화면 상태 보관 | `SageWorkflowUiState` 멤버 3개 |
 | 배경 그리기 | `OnDraw` · `OnEraseBkgnd` |
 | 업무 탐색 | 사이드바 구성 · 선택 처리 |
 | 인증 상태 표시 | 로그인 · 사용자명 |
@@ -585,14 +585,14 @@ View의 호출 방식은 계산 패널과 동일하게 `ShowWindow` 하나로 �
 **부수 효과 3개**: ① `ShowWindow` 24줄이 패널 하나 토글로 접혀 35줄이 1줄이 됐다
 ② `OnDraw`/`OnEraseBkgnd`에 4벌로 흩어져 있던 그리기가 패널 `OnEraseBkgnd` 한 곳으로 모였다
 (첫 벌은 카드 채우기에 덮여 무효였음을 확인하고 뺐다) ③ `PreTranslateMessage`의
-`GetSelectedWorkflow() == TAECHANG_WORKFLOW_PRICE_CALC` 가드가 불필요해져 워크플로 상수 참조가 1곳 줄었다.
+`GetSelectedWorkflow() == SAGE_WORKFLOW_PRICE_CALC` 가드가 불필요해져 워크플로 상수 참조가 1곳 줄었다.
 
 **기준 A 재점검**: 이 패널이 열리는 이유는 "계산 화면 배치·표시가 바뀔 때" 하나다.
 계산 규칙은 1a에서 core로 나갔고, 내역 보관은 화면에 보이는 개수에 종속된 화면 상태라 같은 이유에 속한다.
 **분할하지 않는다.**
 
 **교훈: 커밋을 목적별로 쪼개려 해도 파일이 엉키면 나눌 수 없다.** 유틸 승격과 패널 이관을
-2커밋으로 계획했지만 두 변경이 `View.cpp` · `TaechangDefine.h` · `vcxproj`를 함께 건드려,
+2커밋으로 계획했지만 두 변경이 `View.cpp` · `SageDefine.h` · `vcxproj`를 함께 건드려,
 쪼개면 빌드되지 않는 중간 커밋이 생겼다. 한 커밋으로 합치고 본문에 두 부분을 적었다.
 
 **Step 3-B-1a — 단가 계산 서비스 추출** (`8bcd967`~`a36f03e`)
@@ -617,7 +617,7 @@ View의 호출 방식은 계산 패널과 동일하게 `ShowWindow` 하나로 �
 |---|---|---|---|
 | R5 | **레이아웃 좌표계 전환** — 현재 모든 레이아웃이 View 클라이언트 좌표 기준. 패널로 옮기면 패널 기준이 된다 | 패널 내부 컨트롤 위치가 통째로 어긋날 수 있다 | 3-B-1(단가 계산)로 먼저 검증. 실패 시 그 패널만 되돌린다 |
 | R6 | **notification 라우팅 변경** — `NM_CUSTOMDRAW`는 컨트롤이 리플렉션으로 처리하지만 `TVN_SELCHANGED` · `LVN_ITEMCHANGED` · `CBN_SELCHANGE`는 부모가 받는다. 부모가 View → 패널로 바뀐다 | 핸들러가 안 불리면 선택 · 체크 동작이 죽는다 | 패널 이동 전에 해당 notification 목록을 세고 함께 옮긴다 |
-| R7 | **워커 결과 수신처 변경** — `PostMessage(WM_TAECHANG_WORKFLOW_COMPLETE)` 대상이 View HWND다 | 전환 중 결과가 유실되면 진행바가 95%에서 멈춘 채 남는다 | 3-B-6a에서 한 번에 전환. 그 전까지는 View가 받아 패널로 넘긴다 |
+| R7 | **워커 결과 수신처 변경** — `PostMessage(WM_SAGE_WORKFLOW_COMPLETE)` 대상이 View HWND다 | 전환 중 결과가 유실되면 진행바가 95%에서 멈춘 채 남는다 | 3-B-6a에서 한 번에 전환. 그 전까지는 View가 받아 패널로 넘긴다 |
 | R8 | **미수금 데이터 관리 탭의 부모** — 법인 발주는 미수금의 탭 하나다 | 독립 패널로 먼저 만들면 부모를 두 번 바꾸게 된다 | 3-B-4d에서 워크스페이스 하위 탭 패널로 배치한다 |
 | R10 | **부모가 컨트롤 영역 밖에 그리는 것** — 카드 배경 2개(`m_rectResultFilterBox` · `m_rectCoCard`)와 `DrawEditBorder`의 **컨트롤 바깥 1px 테두리 링**(대상 16개) | 컨트롤을 숨기거나 옮겨도 Windows는 컨트롤 자기 영역만 무효화하므로 링·카드가 남는다. 3-B-2·4-6b에서 두 번 연속 잔상으로 드러났다 | `SetCardRect`(카드 rect 변경 시 이전 ∪ 새 영역) + `InvalidateContentArea`(레이아웃 재구성 시 작업 영역). 패널로 옮길 때도 같은 규칙을 유지한다 |
 | ~~R9~~ | ~~헤더 상태 컨트롤 처리 미결정~~ | — | **해소 2026-08-08 (3-B-5b).** 사용자 결정으로 **제거**했다. 상태 표시가 세 겹이었고 셋째만 안 보였다 |
@@ -678,7 +678,7 @@ View의 호출 방식은 계산 패널과 동일하게 `ShowWindow` 하나로 �
 
 ### 3-B-2 — `SagePriceManagePanel` — **완료** (2026-08-05)
 
-결과는 *완료된 작업* 참조. `PriceTextToInt` 복제(`TaechangPriceSimpleDlg.cpp:60`) 통일과
+결과는 *완료된 작업* 참조. `PriceTextToInt` 복제(`SagePriceSimpleDlg.cpp:60`) 통일과
 `m_wndPriceCompanyLabel` 배경색 수정은 범위 밖으로 남겼다(`DEBT_LOG`).
 
 ### 3-B-3 — 워크플로 축 마무리 (Step 4 잔여 삽입)
@@ -753,8 +753,8 @@ View의 호출 방식은 계산 패널과 동일하게 `ShowWindow` 하나로 �
 
 | 메시지 | 보내는 쪽 | 받는 쪽이 하는 일 |
 |---|---|---|
-| `WM_TAECHANG_WORKFLOW_RUN_REQUESTED` | 실행 버튼 · 입력 선택 후 자동 로드 | `RunWorkflowTask(wParam)` |
-| `WM_TAECHANG_WORKFLOW_INPUT_RESET` | 초기화 버튼 | 결과 표 · 응답 JSON · 태스크 상태 초기화 |
+| `WM_SAGE_WORKFLOW_RUN_REQUESTED` | 실행 버튼 · 입력 선택 후 자동 로드 | `RunWorkflowTask(wParam)` |
+| `WM_SAGE_WORKFLOW_INPUT_RESET` | 초기화 버튼 | 결과 표 · 응답 JSON · 태스크 상태 초기화 |
 
 **계획과 달라진 것 둘 — 조사 단계에서 좌표를 보지 않아 생긴 오판정이다**
 
@@ -767,7 +767,7 @@ View의 호출 방식은 계산 패널과 동일하게 `ShowWindow` 하나로 �
 `m_wndEmptyStateHint`는 입력 탭에서만 보이지만 배치 주체가 결과 영역이다.
 가시성 행렬(`UpdateTaskTabVisibility`)과 배치 함수(`Layout*`)를 **둘 다** 보지 않으면 같은 오판을 반복한다.
 
-**패널 rect는 오른쪽으로 1px 넓다** (`TAECHANG_EDIT_BORDER_WIDTH`). 경로 에디트가 컨트롤 폭 전체를 쓰고
+**패널 rect는 오른쪽으로 1px 넓다** (`SAGE_EDIT_BORDER_WIDTH`). 경로 에디트가 컨트롤 폭 전체를 쓰고
 테두리는 `DrawEditBorder`가 **컨트롤 바깥** 1px에 그리므로, 패널 폭을 그대로 주면 우측 세로선이 클리핑된다.
 `CSageEdit` 승격으로 사라질 보정이며 그 전까지는 필요하다 (`sagetaechang-ui` > *`CSageEdit`은 화면에 따라 갈린다*).
 
@@ -885,7 +885,7 @@ void SageWorkspacePanel::UpdateVisibility(const SageWorkspaceVisibility& state);
 
 | 항목 | 문제 |
 |---|---|
-| `m_nSelectedTaskTab` | `TaechangWorkflowUiState`의 첫 필드다. `SaveWorkflowUiState`/`RestoreWorkflowUiState`가 워크플로별로 탭 선택을 저장·복원하므로 **워크스페이스에 묻고 되돌려주는 경로**가 필요하다 |
+| `m_nSelectedTaskTab` | `SageWorkflowUiState`의 첫 필드다. `SaveWorkflowUiState`/`RestoreWorkflowUiState`가 워크플로별로 탭 선택을 저장·복원하므로 **워크스페이스에 묻고 되돌려주는 경로**가 필요하다 |
 | 통지 경로 | 표 → 입력패널 → **워크스페이스** → View로 한 단계 깊어진다. 재전송은 이미 입력·결과 패널에 있는 형태(`ForwardToParent`)를 그대로 쓴다 |
 
 **이번에도 화면은 바뀌지 않아야 한다.** 좌우 2단(D7-6)은 4d-2가 아니라 디자인 Step 몫으로 미뤘고,
@@ -1066,7 +1066,7 @@ Runner 문제인지 가릴 수 없다.
 
 ### 완료 기준
 
-- [ ] `View.cpp`에 `TAECHANG_WORKFLOW_RECEIVABLES` · `_DELIVERY` · `_ESTIMATE` 사용 **0곳**
+- [ ] `View.cpp`에 `SAGE_WORKFLOW_RECEIVABLES` · `_DELIVERY` · `_ESTIMATE` 사용 **0곳**
       (사이드바 등록 데이터는 제외)
 - [ ] `View.cpp`에 `#include "app/infra/..."` **0줄**
 - [ ] 워크플로 추가 = `handlers/`에 파일 1쌍 + 등록부 1곳 수정
@@ -1084,7 +1084,7 @@ Runner 문제인지 가릴 수 없다.
 `DEBT_LOG` 3건 중 Step 4에서 해소되지 않는 2.5건.
 
 - [ ] core Service 헤더가 infra Repository 헤더에 컴파일 의존 (auth · price · receivable 3개)
-- [ ] `infra/office`가 `infra/db`를 직접 참조 (`TaechangReceivablesExcelService`)
+- [ ] `infra/office`가 `infra/db`를 직접 참조 (`SageReceivablesExcelService`)
 - [ ] 다이얼로그 3개가 `SageDBMgr`을 직접 호출 (단가 · 인증 경로)
 
 Step 4에서 `core`가 인터페이스를 정의하는 패턴이 자리잡은 뒤에 한다.
@@ -1095,13 +1095,13 @@ Step 4에서 `core`가 인터페이스를 정의하는 패턴이 자리잡은 �
 
 브랜치: `refactor/sage-prefix-constants`
 
-- [ ] `TaechangDefine.h` → `SageDefine.h` (`git mv`)
-- [ ] 상수 `TAECHANG_` → `SAGE_` (정의 **648개** + 전 소스 참조)
+- [ ] `SageDefine.h` → `SageDefine.h` (`git mv`)
+- [ ] 상수 `SAGE_` → `SAGE_` (정의 **648개** + 전 소스 참조)
 - [ ] `#include` 참조, vcxproj / filters 갱신
 - [ ] `coding-rules`의 공용 상수 접두사 규칙을 `SAGE_`로 수정
 - [ ] 치환은 **파일로 저장한 Python 스크립트**로 (heredoc은 백슬래시를 먹는다)
 
-**범위 밖**: 나머지 `Taechang*` 클래스와 파일명. 해당 파일을 구조적으로 손댈 때 함께 전환한다.
+**범위 밖**: 나머지 `Sage*` 클래스와 파일명. 해당 파일을 구조적으로 손댈 때 함께 전환한다.
 
 ---
 
