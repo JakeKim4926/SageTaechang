@@ -136,8 +136,6 @@ int CSageButton::GetIconSize() const {
 void CSageButton::DrawIconAt(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon) {
 	if (m_nIcon == SAGE_BUTTON_ICON_SEARCH)
 		DrawSearchIcon(dc, ptCenter, clrIcon);
-	else if (m_nIcon == SAGE_BUTTON_ICON_CALCULATE)
-		DrawCalculateIcon(dc, ptCenter, clrIcon);
 	else if (m_nIcon == SAGE_BUTTON_ICON_ADD)
 		DrawAddIcon(dc, ptCenter, clrIcon);
 	else if (m_nIcon == SAGE_BUTTON_ICON_CLOSE)
@@ -195,32 +193,6 @@ void CSageButton::DrawArrowIcon(CDC& dc, const CPoint& ptCenter, COLORREF clrIco
 
 	if (pOldPen)
 		dc.SelectObject(pOldPen);
-}
-
-void CSageButton::DrawCalculateIcon(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon) {
-	CPen pen(PS_SOLID, 1, clrIcon);
-	CPen* pOldPen = dc.SelectObject(&pen);
-	CBrush* pOldBrush = (CBrush*)dc.SelectStockObject(NULL_BRUSH);
-	int cx = ptCenter.x;
-	int cy = ptCenter.y;
-	int dw = 6, dh = 7, fc = 3;
-	POINT pts[] = {
-		{cx - dw,      cy - dh},
-		{cx + dw - fc, cy - dh},
-		{cx + dw,      cy - dh + fc},
-		{cx + dw,      cy + dh},
-		{cx - dw,      cy + dh},
-		{cx - dw,      cy - dh},
-	};
-	dc.Polyline(pts, 6);
-	dc.MoveTo(cx + dw - fc, cy - dh);
-	dc.LineTo(cx + dw - fc, cy - dh + fc);
-	dc.LineTo(cx + dw,      cy - dh + fc);
-	dc.MoveTo(cx - dw + 2, cy - 2); dc.LineTo(cx + dw - 2, cy - 2);
-	dc.MoveTo(cx - dw + 2, cy + 1); dc.LineTo(cx + dw - 2, cy + 1);
-	dc.MoveTo(cx - dw + 2, cy + 4); dc.LineTo(cx + dw - 4, cy + 4);
-	if (pOldBrush) dc.SelectObject(pOldBrush);
-	if (pOldPen)   dc.SelectObject(pOldPen);
 }
 
 void CSageButton::DrawResetIcon(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon) {

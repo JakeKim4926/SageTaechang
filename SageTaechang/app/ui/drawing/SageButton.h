@@ -10,7 +10,6 @@ enum SageButtonVariant {
 enum SageButtonIcon {
 	SAGE_BUTTON_ICON_NONE,
 	SAGE_BUTTON_ICON_SEARCH,
-	SAGE_BUTTON_ICON_CALCULATE,
 	SAGE_BUTTON_ICON_RESET,
 	SAGE_BUTTON_ICON_ADD,
 	SAGE_BUTTON_ICON_CLOSE,
@@ -37,7 +36,6 @@ private:
 	COLORREF GetFocusRingColor() const;
 	void DrawIconAt(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon);
 	void DrawSearchIcon(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon);
-	void DrawCalculateIcon(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon);
 	void DrawResetIcon(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon);
 	void DrawAddIcon(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon);
 	void DrawCloseIcon(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon);
