@@ -3,6 +3,22 @@
 #include "SageDefine.h"
 #include "app/infra/db/SageUserRepository.h"
 #include "app/core/auth/SageUserService.h"
+#include "app/infra/db/RepositoryHelper.h"
+
+namespace {
+
+constexpr LPCWSTR SAGE_LEGACY_TABLE_PRICE = L"TaechangPrice";
+constexpr LPCWSTR SAGE_LEGACY_TABLE_USER = L"TaechangUser";
+constexpr LPCWSTR SAGE_LEGACY_TABLE_RECEIVABLE_ORDER = L"TaechangReceivableCompanyOrder";
+constexpr LPCWSTR SAGE_TABLE_PRICE = L"SagePrice";
+constexpr LPCWSTR SAGE_TABLE_USER = L"SageUser";
+constexpr LPCWSTR SAGE_TABLE_RECEIVABLE_ORDER = L"SageReceivableCompanyOrder";
+constexpr LPCWSTR SAGE_MIGRATION_RENAME_SQL_FORMAT = L"ALTER TABLE %s RENAME TO %s;";
+constexpr LPCWSTR SAGE_MIGRATION_COPY_SQL_FORMAT = L"INSERT INTO %s SELECT * FROM %s;";
+constexpr LPCWSTR SAGE_MIGRATION_COUNT_SQL_FORMAT = L"SELECT COUNT(*) FROM %s;";
+constexpr int SAGE_MIGRATION_TABLE_COUNT = 3;
+
+}
 
 SqlInitializer::SqlInitializer(SqlContext* pSqlContext) {
     m_pSqlContext = pSqlContext;
@@ -27,6 +43,11 @@ BOOL SqlInitializer::Initialize(CString& strError) {
         return FALSE;
     }
 
+    if (MigrateLegacyTableNames(strError) == FALSE) {
+        m_pSqlContext->Rollback(strRollbackError);
+        return FALSE;
+    }
+
     if (CreateTables(strError) == FALSE) {
         m_pSqlContext->Rollback(strRollbackError);
         return FALSE;
@@ -40,6 +61,127 @@ BOOL SqlInitializer::Initialize(CString& strError) {
     if (m_pSqlContext->Commit(strError) == FALSE) {
         m_pSqlContext->Rollback(strRollbackError);
         return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL SqlInitializer::HasTable(const CString& strTableName, BOOL& bExists, CString& strError) {
+    sqlite3_stmt* pStatement;
+    CStringA strSqlA;
+    int nResult;
+
+    bExists = FALSE;
+    pStatement = NULL;
+
+    strSqlA = "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?;";
+
+    nResult = sqlite3_prepare_v2(m_pSqlContext->GetDb(), strSqlA.GetString(), -1, &pStatement, NULL);
+    if (nResult != SQLITE_OK) {
+        strError = RepositoryHelper::GetLastError(m_pSqlContext->GetDb());
+        return FALSE;
+    }
+
+    if (RepositoryHelper::BindText(pStatement, 1, strTableName, strError) == FALSE) {
+        sqlite3_finalize(pStatement);
+        return FALSE;
+    }
+
+    nResult = sqlite3_step(pStatement);
+    sqlite3_finalize(pStatement);
+
+    if (nResult == SQLITE_ROW) {
+        bExists = TRUE;
+        return TRUE;
+    }
+
+    if (nResult != SQLITE_DONE) {
+        strError = RepositoryHelper::GetLastError(m_pSqlContext->GetDb());
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL SqlInitializer::IsTableEmpty(const CString& strTableName, BOOL& bEmpty, CString& strError) {
+    sqlite3_stmt* pStatement;
+    CString strSql;
+    CStringA strSqlA;
+    int nResult;
+
+    bEmpty = TRUE;
+    pStatement = NULL;
+
+    strSql.Format(SAGE_MIGRATION_COUNT_SQL_FORMAT, strTableName.GetString());
+    strSqlA = CStringA(CT2A(strSql, CP_UTF8));
+
+    nResult = sqlite3_prepare_v2(m_pSqlContext->GetDb(), strSqlA.GetString(), -1, &pStatement, NULL);
+    if (nResult != SQLITE_OK) {
+        strError = RepositoryHelper::GetLastError(m_pSqlContext->GetDb());
+        return FALSE;
+    }
+
+    nResult = sqlite3_step(pStatement);
+    if (nResult == SQLITE_ROW)
+        bEmpty = (sqlite3_column_int(pStatement, 0) == 0) ? TRUE : FALSE;
+
+    sqlite3_finalize(pStatement);
+
+    if (nResult != SQLITE_ROW) {
+        strError = RepositoryHelper::GetLastError(m_pSqlContext->GetDb());
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL SqlInitializer::MigrateLegacyTableNames(CString& strError) {
+    LPCWSTR arrLegacyNames[SAGE_MIGRATION_TABLE_COUNT] = {
+        SAGE_LEGACY_TABLE_PRICE,
+        SAGE_LEGACY_TABLE_USER,
+        SAGE_LEGACY_TABLE_RECEIVABLE_ORDER
+    };
+    LPCWSTR arrCurrentNames[SAGE_MIGRATION_TABLE_COUNT] = {
+        SAGE_TABLE_PRICE,
+        SAGE_TABLE_USER,
+        SAGE_TABLE_RECEIVABLE_ORDER
+    };
+
+    for (int nIndex = 0; nIndex < SAGE_MIGRATION_TABLE_COUNT; ++nIndex) {
+        CString strLegacy = arrLegacyNames[nIndex];
+        CString strCurrent = arrCurrentNames[nIndex];
+        CString strSql;
+        BOOL bLegacyExists = FALSE;
+        BOOL bCurrentExists = FALSE;
+        BOOL bCurrentEmpty = FALSE;
+
+        if (HasTable(strLegacy, bLegacyExists, strError) == FALSE)
+            return FALSE;
+
+        if (bLegacyExists == FALSE)
+            continue;
+
+        if (HasTable(strCurrent, bCurrentExists, strError) == FALSE)
+            return FALSE;
+
+        if (bCurrentExists == FALSE) {
+            strSql.Format(SAGE_MIGRATION_RENAME_SQL_FORMAT,
+                strLegacy.GetString(), strCurrent.GetString());
+            if (m_pSqlContext->Execute(strSql, strError) == FALSE)
+                return FALSE;
+            continue;
+        }
+
+        if (IsTableEmpty(strCurrent, bCurrentEmpty, strError) == FALSE)
+            return FALSE;
+
+        if (bCurrentEmpty == FALSE)
+            continue;
+
+        strSql.Format(SAGE_MIGRATION_COPY_SQL_FORMAT,
+            strCurrent.GetString(), strLegacy.GetString());
+        if (m_pSqlContext->Execute(strSql, strError) == FALSE)
+            return FALSE;
     }
 
     return TRUE;

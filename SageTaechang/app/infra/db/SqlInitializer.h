@@ -12,6 +12,9 @@ public:
     BOOL Initialize(CString& strError);
 
 private:
+    BOOL MigrateLegacyTableNames(CString& strError);
+    BOOL HasTable(const CString& strTableName, BOOL& bExists, CString& strError);
+    BOOL IsTableEmpty(const CString& strTableName, BOOL& bEmpty, CString& strError);
     BOOL CreateTables(CString& strError);
     BOOL CreateIndexes(CString& strError);
 
