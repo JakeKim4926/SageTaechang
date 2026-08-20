@@ -715,7 +715,7 @@ constexpr LPCWSTR SAGE_UI_PRICE_PRINT_LABEL      = L"부수 단가";
 constexpr LPCWSTR SAGE_UI_PRICE_COVER_LABEL      = L"표지 단가";
 constexpr LPCWSTR SAGE_UI_PRICE_ADD_BTN          = L"단가 추가";
 constexpr LPCWSTR SAGE_UI_PRICE_SAVE_BTN         = L"저장";
-constexpr LPCWSTR SAGE_UI_PRICE_REMOVE_BTN       = L"이 구간 삭제";
+constexpr LPCWSTR SAGE_UI_PRICE_REMOVE_BTN       = L"구간 삭제";
 constexpr LPCWSTR SAGE_UI_PRICE_CANCEL_BTN       = L"취소";
 
 constexpr LPCWSTR SAGE_UI_PRICE_COL_MIN_COPIES   = L"최소부수";
@@ -983,7 +983,7 @@ constexpr UINT ID_COORDER_LIST_SECTION  = 41084;
 constexpr LPCWSTR SAGE_UI_CO_CRUD_SECTION       = L"선택 항목 편집";
 constexpr LPCWSTR SAGE_UI_CO_LIST_SECTION       = L"법인 출력 순서";
 constexpr LPCWSTR SAGE_UI_CO_ADD_BTN            = L"법인 추가";
-constexpr LPCWSTR SAGE_UI_CO_DELETE_BTN         = L"이 법인 삭제";
+constexpr LPCWSTR SAGE_UI_CO_DELETE_BTN         = L"법인 삭제";
 constexpr LPCWSTR SAGE_UI_CO_COUNT_FORMAT       = L"%d개 법인";
 constexpr LPCWSTR SAGE_UI_CO_SEARCH_PLACEHOLDER = L"법인명 검색";
 constexpr LPCWSTR SAGE_UI_TIP_MOVE_UP           = L"위로 이동";
