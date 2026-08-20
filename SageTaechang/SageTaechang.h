@@ -8,7 +8,7 @@
 #endif
 
 #include "resource.h"       // 주 기호입니다.
-#include "SageDBMgr.h"
+#include "SageDefine.h"
 
 // CSageTaechangApp:
 // 이 클래스의 구현에 대해서는 SageTaechang.cpp을(를) 참조하세요.
@@ -30,9 +30,7 @@ public:
 	DECLARE_MESSAGE_MAP()
 
 private:
-	HANDLE m_hFontBold;
-	HANDLE m_hFontLight;
-	HANDLE m_hFontMedium;
+	HANDLE m_hPrivateFonts[SAGE_PRIVATE_FONT_COUNT];
 
 	HANDLE LoadPrivateFont(UINT nResourceId);
 	void LoadPrivateFonts();

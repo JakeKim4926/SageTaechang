@@ -1,0 +1,143 @@
+﻿#include "pch.h"
+#include "app/core/workflow/handlers/SageEstimateWorkflowHandler.h"
+#include "app/core/workflow/SageWorkflowResultPresenter.h"
+#include "SageDefine.h"
+
+namespace {
+
+const SageWorkflowTab g_tabs[] = {
+	{ SAGE_TAB_INDEX_INPUT, SAGE_UI_TAB_INPUT },
+	{ SAGE_TAB_INDEX_DOCUMENT_HISTORY, SAGE_UI_TAB_HISTORY }
+};
+
+constexpr int SAGE_ESTIMATE_TAB_COUNT = sizeof(g_tabs) / sizeof(g_tabs[0]);
+
+const SageWorkflowColumn g_inputColumns[] = {
+	{ SAGE_UI_ESTIMATE_COL_ROW, SAGE_COLUMN_ALIGN_CENTER, SAGE_ESTIMATE_ROW_WIDTH, FALSE, SAGE_RESULT_FIELD_FIELD },
+	{ SAGE_UI_ESTIMATE_COL_COMPANY, SAGE_COLUMN_ALIGN_CENTER, SAGE_ESTIMATE_COMPANY_WIDTH, FALSE, SAGE_RESULT_FIELD_COMPANY_NAME },
+	{ SAGE_UI_ESTIMATE_COL_DATE, SAGE_COLUMN_ALIGN_CENTER, SAGE_ESTIMATE_DATE_WIDTH, FALSE, SAGE_RESULT_FIELD_ISSUE_DATE },
+	{ SAGE_UI_ESTIMATE_COL_ITEM, SAGE_COLUMN_ALIGN_CENTER, SAGE_ESTIMATE_ITEM_WIDTH, FALSE, SAGE_RESULT_FIELD_ITEM_NAME },
+	{ SAGE_UI_ESTIMATE_COL_COPIES, SAGE_COLUMN_ALIGN_CENTER, SAGE_ESTIMATE_COPIES_WIDTH, FALSE, SAGE_RESULT_FIELD_COMPANY_COPIES },
+	{ SAGE_UI_ESTIMATE_COL_PAGES, SAGE_COLUMN_ALIGN_CENTER, SAGE_ESTIMATE_PAGES_WIDTH, FALSE, SAGE_RESULT_FIELD_CORPORATION_COPIES },
+	{ SAGE_UI_ESTIMATE_COL_UNIT_PRICE, SAGE_COLUMN_ALIGN_CENTER, SAGE_ESTIMATE_UNIT_PRICE_WIDTH, FALSE, SAGE_RESULT_FIELD_TOTAL_COPIES },
+	{ SAGE_UI_ESTIMATE_COL_COVER, SAGE_COLUMN_ALIGN_CENTER, SAGE_ESTIMATE_COVER_WIDTH, FALSE, SAGE_RESULT_FIELD_VALUE },
+	{ SAGE_UI_ESTIMATE_COL_FREIGHT, SAGE_COLUMN_ALIGN_CENTER, SAGE_ESTIMATE_FREIGHT_WIDTH, FALSE, SAGE_RESULT_FIELD_REASON }
+};
+
+constexpr int SAGE_ESTIMATE_INPUT_COLUMN_COUNT = sizeof(g_inputColumns) / sizeof(g_inputColumns[0]);
+
+const SageWorkflowFilterCriteria g_filterCriteria[] = {
+	{ SAGE_FILTER_CRITERIA_ITEM, SAGE_UI_FILTER_CRITERIA_ITEM, SAGE_RESULT_FIELD_ITEM_NAME },
+	{ SAGE_FILTER_CRITERIA_COMPANY, SAGE_UI_FILTER_CRITERIA_COMPANY, SAGE_RESULT_FIELD_COMPANY_NAME }
+};
+
+constexpr int SAGE_ESTIMATE_FILTER_CRITERIA_COUNT = sizeof(g_filterCriteria) / sizeof(g_filterCriteria[0]);
+
+}
+
+int SageEstimateWorkflowHandler::GetWorkflowType() const {
+	return SAGE_WORKFLOW_ESTIMATE;
+}
+
+LPCWSTR SageEstimateWorkflowHandler::GetHeaderTitle() const {
+	return SAGE_UI_ESTIMATE_NAME;
+}
+
+LPCWSTR SageEstimateWorkflowHandler::GetInputSectionLabel() const {
+	return SAGE_UI_SECTION_INPUT;
+}
+
+LPCWSTR SageEstimateWorkflowHandler::GetActionButtonLabel() const {
+	return SAGE_UI_ESTIMATE_GENERATE_BUTTON;
+}
+
+int SageEstimateWorkflowHandler::GetTabCount() const {
+	return SAGE_ESTIMATE_TAB_COUNT;
+}
+
+const SageWorkflowTab& SageEstimateWorkflowHandler::GetTab(int nVisualTabIndex) const {
+	return g_tabs[nVisualTabIndex];
+}
+
+int SageEstimateWorkflowHandler::GetResultColumnCount(int nTaskType) const {
+	if (!UsesCustomResultTable(nTaskType))
+		return SageWorkflowResultTable::GetGenericColumnCount();
+	return SAGE_ESTIMATE_INPUT_COLUMN_COUNT;
+}
+
+const SageWorkflowColumn& SageEstimateWorkflowHandler::GetResultColumn(int nTaskType, int nColumnIndex) const {
+	if (!UsesCustomResultTable(nTaskType))
+		return SageWorkflowResultTable::GetGenericColumn(nColumnIndex);
+	return g_inputColumns[nColumnIndex];
+}
+
+SageWorkflowResultStyle SageEstimateWorkflowHandler::GetResultStyle(int nTaskType) const {
+	SageWorkflowResultStyle style;
+	if (!UsesCustomResultTable(nTaskType))
+		return style;
+	style.bCheckbox = TRUE;
+	style.bGridLines = TRUE;
+	return style;
+}
+
+BOOL SageEstimateWorkflowHandler::UsesCustomResultTable(int nTaskType) const {
+	return (nTaskType == SAGE_TASK_LOAD) ? TRUE : FALSE;
+}
+
+BOOL SageEstimateWorkflowHandler::BuildResultSummary(
+	int nTaskType,
+	const std::vector<SageResultRow>& arrVisibleRows,
+	const CString& strResponseJson,
+	std::vector<SageResultSummaryItem>& outItems) const {
+	UNREFERENCED_PARAMETER(nTaskType);
+	UNREFERENCED_PARAMETER(arrVisibleRows);
+	UNREFERENCED_PARAMETER(strResponseJson);
+	outItems.clear();
+	return FALSE;
+}
+
+BOOL SageEstimateWorkflowHandler::BuildResultTotals(
+	int nTaskType,
+	const std::vector<SageResultRow>& arrVisibleRows,
+	std::vector<SageResultTotalCell>& outCells) const {
+	UNREFERENCED_PARAMETER(nTaskType);
+	UNREFERENCED_PARAMETER(arrVisibleRows);
+	outCells.clear();
+	return FALSE;
+}
+
+int SageEstimateWorkflowHandler::GetFilterCriteriaCount() const {
+	return SAGE_ESTIMATE_FILTER_CRITERIA_COUNT;
+}
+
+const SageWorkflowFilterCriteria& SageEstimateWorkflowHandler::GetFilterCriteria(int nIndex) const {
+	return g_filterCriteria[nIndex];
+}
+
+LPCWSTR SageEstimateWorkflowHandler::GetInputDialogTitle() const {
+	return SAGE_UI_SELECT_ESTIMATE_INPUT_TITLE;
+}
+
+BOOL SageEstimateWorkflowHandler::UsesInputTable() const {
+	return TRUE;
+}
+
+BOOL SageEstimateWorkflowHandler::UsesOnePageOption() const {
+	return TRUE;
+}
+
+LPCWSTR SageEstimateWorkflowHandler::FindGenerateCompletedMessage() const {
+	return SAGE_UI_ESTIMATE_GENERATE_COMPLETED;
+}
+
+BOOL SageEstimateWorkflowHandler::ValidateSelectedRows(int nSelectedCount, BOOL bHasSelectedRowNums, BOOL bOnePage, CString& strError) const {
+	if (!bHasSelectedRowNums) {
+		strError = SAGE_UI_ESTIMATE_SELECT_ROW_REQUIRED;
+		return FALSE;
+	}
+	if (bOnePage && nSelectedCount > SAGE_ESTIMATE_ONE_PAGE_MAX_ROWS) {
+		strError = SAGE_UI_ESTIMATE_ONE_PAGE_LIMIT;
+		return FALSE;
+	}
+	return TRUE;
+}

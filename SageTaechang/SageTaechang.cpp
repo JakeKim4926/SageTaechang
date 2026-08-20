@@ -7,10 +7,12 @@
 #include "afxwinappex.h"
 #include "afxdialogex.h"
 #include "SageTaechang.h"
-#include "MainFrm.h"
+#include "app/infra/db/SageDBMgr.h"
+#include "app/ui/frame/MainFrm.h"
 
-#include "SageTaechangDoc.h"
-#include "SageTaechangView.h"
+#include "app/ui/frame/SageTaechangDoc.h"
+#include "app/ui/view/SageTaechangView.h"
+#include "app/ui/drawing/SageUiResources.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -29,10 +31,9 @@ END_MESSAGE_MAP()
 
 // CSageTaechangApp 생성
 
-CSageTaechangApp::CSageTaechangApp() noexcept
-	: m_hFontBold(NULL)
-	, m_hFontLight(NULL)
-	, m_hFontMedium(NULL) {
+CSageTaechangApp::CSageTaechangApp() noexcept {
+	for (int i = 0; i < SAGE_PRIVATE_FONT_COUNT; ++i)
+		m_hPrivateFonts[i] = NULL;
 
 	// 다시 시작 관리자 지원
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_ALL_ASPECTS;
@@ -65,6 +66,7 @@ BOOL CSageTaechangApp::InitInstance() {
 		return FALSE;
 
 	LoadPrivateFonts();
+	SageUiResources::Create();
 
 	EnableTaskbarInteraction(FALSE);
 
@@ -105,6 +107,7 @@ BOOL CSageTaechangApp::InitInstance() {
 }
 
 int CSageTaechangApp::ExitInstance() {
+	SageUiResources::Destroy();
 	ReleasePrivateFonts();
 
 	sageDBMgr.Finalize();
@@ -132,21 +135,24 @@ HANDLE CSageTaechangApp::LoadPrivateFont(UINT nResourceId) {
 }
 
 void CSageTaechangApp::LoadPrivateFonts() {
-	m_hFontBold = LoadPrivateFont(IDR_GMARKET_SANS_TTF_BOLD);
-	m_hFontLight = LoadPrivateFont(IDR_GMARKET_SANS_TTF_LIGHT);
-	m_hFontMedium = LoadPrivateFont(IDR_GMARKET_SANS_TTF_MEDIUM);
+	const UINT nFontResourceIds[SAGE_PRIVATE_FONT_COUNT] = {
+		IDR_GMARKET_SANS_TTF_BOLD,
+		IDR_GMARKET_SANS_TTF_LIGHT,
+		IDR_GMARKET_SANS_TTF_MEDIUM,
+		IDR_PRETENDARD_TTF_REGULAR,
+		IDR_PRETENDARD_TTF_SEMIBOLD,
+		IDR_PRETENDARD_TTF_BOLD
+	};
+	for (int i = 0; i < SAGE_PRIVATE_FONT_COUNT; ++i)
+		m_hPrivateFonts[i] = LoadPrivateFont(nFontResourceIds[i]);
 }
 
 void CSageTaechangApp::ReleasePrivateFonts() {
-	if (m_hFontBold != NULL)
-		::RemoveFontMemResourceEx(m_hFontBold);
-	if (m_hFontLight != NULL)
-		::RemoveFontMemResourceEx(m_hFontLight);
-	if (m_hFontMedium != NULL)
-		::RemoveFontMemResourceEx(m_hFontMedium);
-	m_hFontBold = NULL;
-	m_hFontLight = NULL;
-	m_hFontMedium = NULL;
+	for (int i = 0; i < SAGE_PRIVATE_FONT_COUNT; ++i) {
+		if (m_hPrivateFonts[i] != NULL)
+			::RemoveFontMemResourceEx(m_hPrivateFonts[i]);
+		m_hPrivateFonts[i] = NULL;
+	}
 }
 
 // CSageTaechangApp 메시지 처리기

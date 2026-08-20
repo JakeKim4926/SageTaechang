@@ -1,0 +1,126 @@
+﻿#pragma once
+
+#include "pch.h"
+#include "app/core/workflow/SageWorkflowResultTable.h"
+#include "app/core/workflow/SageWorkflowResultPresenter.h"
+#include "app/ui/drawing/SageButton.h"
+#include "app/ui/drawing/SageSearchBox.h"
+#include "app/ui/drawing/SageHeaderCtrl.h"
+#include "app/ui/drawing/SageListCtrl.h"
+#include "app/ui/drawing/SageSectionLabel.h"
+#include "app/ui/drawing/SageOptionCheck.h"
+#include "app/ui/drawing/SageSelectionBar.h"
+#include "app/ui/drawing/SageSummaryBar.h"
+#include "app/ui/drawing/SageTableTotalBar.h"
+
+class SageResultTablePanel : public CWnd {
+public:
+    SageResultTablePanel();
+
+public:
+    virtual BOOL PreTranslateMessage(MSG* pMsg);
+
+public:
+    BOOL Create(CWnd* pParent, UINT nId);
+    void Layout(const CRect& rectPanel);
+    void EnableFileDrop();
+    int  GetBandHeight() const;
+
+public:
+    void SetTitle(LPCWSTR pszTitle);
+    void ShowSelectAll(BOOL bShow);
+    void ShowOnePageOption(BOOL bShow);
+    void ShowFilter(BOOL bShow);
+    void EnableSelectionControls(BOOL bEnable);
+    BOOL IsOnePageChecked() const;
+    void SetOnePageChecked(BOOL bChecked);
+
+    void SetColumns(const std::vector<SageWorkflowColumn>& arrColumns, const SageWorkflowResultStyle& style);
+    void SetFilterCriteria(const std::vector<SageWorkflowFilterCriteria>& arrCriteria);
+    void SetRows(const std::vector<SageResultRow>& arrRows);
+    void ClearRows();
+    void BeginBatchUpdate();
+    void EndBatchUpdate();
+    const std::vector<SageResultRow>& GetVisibleRows() const;
+
+    void SetSummaryItems(const std::vector<SageResultSummaryItem>& arrItems);
+    void ClearSummary();
+
+    void SetTotalCells(const std::vector<SageResultTotalCell>& arrCells);
+    void ClearTotals();
+
+    int  GetRowCount() const;
+    int  GetCheckedRowCount() const;
+    BOOL IsRowChecked(int nRow) const;
+    void SetRowChecked(int nRow, BOOL bChecked);
+    DWORD_PTR GetRowData(int nRow) const;
+    CString GetCheckedRowNums() const;
+    void RestoreCheckedRowNums(const CString& strCheckedRowNums);
+
+    CString GetFilterKeyword() const;
+    int  GetFilterCriteria() const;
+    void RestoreFilter(const CString& strKeyword, int nCriteria);
+
+protected:
+    afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+    afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+    afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+    afx_msg void OnSearch();
+    afx_msg void OnFilterReset();
+    afx_msg void OnCriteriaChanged();
+    afx_msg void OnSelectAll();
+    afx_msg void OnSelectionClear();
+    afx_msg void OnOnePageOption();
+    afx_msg void OnListItemChanged(NMHDR* pNMHDR, LRESULT* pResult);
+    afx_msg void OnListGetDispInfo(NMHDR* pNMHDR, LRESULT* pResult);
+    DECLARE_MESSAGE_MAP()
+
+private:
+    void CreateControls();
+    void ApplyControlFonts();
+    void LayoutBandRow();
+    void LayoutTableArea();
+    void LayoutSelectionRow();
+    int  GetFilterTotalWidth() const;
+    int  GetBandRight() const;
+    void RefreshRows();
+    void UpdateColumnWidths();
+    void UpdateTotalBarCells();
+    int  GetColumnLeft(int nColumn) const;
+    int  GetEffectiveCriteria() const;
+    int  GetDefaultCriteria() const;
+    void PopulateCriteria();
+    void NotifyStateChanged();
+    void NotifySelectionChanged();
+    void SyncSelectionBar();
+    void SetAllRowsChecked(BOOL bChecked);
+    void TrimCheckedRowsToOnePage();
+
+private:
+    CSageSectionLabel m_wndTitle;
+    CSageSelectionBar m_wndSelectionBar;
+    CSageOptionCheck m_wndOnePage;
+    CSageSearchBox m_wndSearch;
+    CSageButton m_wndResetBtn;
+    CSageSummaryBar m_wndSummaryBar;
+    CSageTableTotalBar m_wndTotalBar;
+    CSageHeaderCtrl m_wndHeader;
+    CSageListCtrl m_wndList;
+
+private:
+    std::vector<SageWorkflowColumn> m_arrColumns;
+    std::vector<SageWorkflowFilterCriteria> m_arrCriteria;
+    std::vector<SageResultRow> m_arrRows;
+    std::vector<SageResultRow> m_arrVisibleRows;
+    std::vector<SageResultTotalCell> m_arrTotalCells;
+    SageWorkflowResultStyle m_style;
+    CString m_strKeyword;
+    int m_nCriteria;
+    BOOL m_bTitleVisible;
+    BOOL m_bSelectAllVisible;
+    BOOL m_bOnePageVisible;
+    BOOL m_bFilterVisible;
+    BOOL m_bUpdatingChecks;
+    BOOL m_bBatchUpdate;
+    int m_nSelectedRowCount;
+};

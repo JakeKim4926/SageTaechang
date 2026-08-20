@@ -1,0 +1,143 @@
+﻿#include "pch.h"
+#include "app/core/workflow/handlers/SageDeliveryWorkflowHandler.h"
+#include "app/core/workflow/SageWorkflowResultPresenter.h"
+#include "SageDefine.h"
+
+namespace {
+
+const SageWorkflowTab g_tabs[] = {
+	{ SAGE_TAB_INDEX_INPUT, SAGE_UI_TAB_INPUT },
+	{ SAGE_TAB_INDEX_DOCUMENT_HISTORY, SAGE_UI_TAB_HISTORY }
+};
+
+constexpr int SAGE_DELIVERY_TAB_COUNT = sizeof(g_tabs) / sizeof(g_tabs[0]);
+
+const SageWorkflowColumn g_inputColumns[] = {
+	{ SAGE_UI_DELIVERY_COL_ROW, SAGE_COLUMN_ALIGN_CENTER, SAGE_DELIVERY_ROW_WIDTH, FALSE, SAGE_RESULT_FIELD_FIELD },
+	{ SAGE_UI_DELIVERY_COL_COMPANY, SAGE_COLUMN_ALIGN_CENTER, SAGE_DELIVERY_COMPANY_WIDTH, FALSE, SAGE_RESULT_FIELD_COMPANY_NAME },
+	{ SAGE_UI_DELIVERY_COL_DEPARTMENT, SAGE_COLUMN_ALIGN_CENTER, SAGE_DELIVERY_DEPARTMENT_WIDTH, FALSE, SAGE_RESULT_FIELD_DEPARTMENT },
+	{ SAGE_UI_DELIVERY_COL_ORDER_DATE, SAGE_COLUMN_ALIGN_CENTER, SAGE_DELIVERY_DATE_WIDTH, FALSE, SAGE_RESULT_FIELD_ORDER_DATE },
+	{ SAGE_UI_DELIVERY_COL_DELIVERY_DATE, SAGE_COLUMN_ALIGN_CENTER, SAGE_DELIVERY_DATE_WIDTH, FALSE, SAGE_RESULT_FIELD_DELIVERY_DATE },
+	{ SAGE_UI_DELIVERY_COL_DELIVERY_TIME, SAGE_COLUMN_ALIGN_CENTER, SAGE_DELIVERY_TIME_WIDTH, FALSE, SAGE_RESULT_FIELD_DELIVERY_TIME },
+	{ SAGE_UI_DELIVERY_COL_ITEM, SAGE_COLUMN_ALIGN_CENTER, SAGE_DELIVERY_ITEM_WIDTH, FALSE, SAGE_RESULT_FIELD_ITEM_NAME },
+	{ SAGE_UI_DELIVERY_COL_PRODUCT_TYPE, SAGE_COLUMN_ALIGN_CENTER, SAGE_DELIVERY_TYPE_WIDTH, FALSE, SAGE_RESULT_FIELD_PRODUCT_TYPE },
+	{ SAGE_UI_DELIVERY_COL_COMPANY_COPIES, SAGE_COLUMN_ALIGN_CENTER, SAGE_DELIVERY_COPIES_WIDTH, FALSE, SAGE_RESULT_FIELD_COMPANY_COPIES },
+	{ SAGE_UI_DELIVERY_COL_CORPORATION_COPIES, SAGE_COLUMN_ALIGN_CENTER, SAGE_DELIVERY_COPIES_WIDTH, FALSE, SAGE_RESULT_FIELD_CORPORATION_COPIES },
+	{ SAGE_UI_DELIVERY_COL_TOTAL_COPIES, SAGE_COLUMN_ALIGN_CENTER, SAGE_DELIVERY_COPIES_WIDTH, FALSE, SAGE_RESULT_FIELD_TOTAL_COPIES }
+};
+
+constexpr int SAGE_DELIVERY_INPUT_COLUMN_COUNT = sizeof(g_inputColumns) / sizeof(g_inputColumns[0]);
+
+const SageWorkflowFilterCriteria g_filterCriteria[] = {
+	{ SAGE_FILTER_CRITERIA_ITEM, SAGE_UI_FILTER_CRITERIA_ITEM, SAGE_RESULT_FIELD_ITEM_NAME },
+	{ SAGE_FILTER_CRITERIA_COMPANY, SAGE_UI_FILTER_CRITERIA_COMPANY, SAGE_RESULT_FIELD_COMPANY_NAME }
+};
+
+constexpr int SAGE_DELIVERY_FILTER_CRITERIA_COUNT = sizeof(g_filterCriteria) / sizeof(g_filterCriteria[0]);
+
+}
+
+int SageDeliveryWorkflowHandler::GetWorkflowType() const {
+	return SAGE_WORKFLOW_DELIVERY;
+}
+
+LPCWSTR SageDeliveryWorkflowHandler::GetHeaderTitle() const {
+	return SAGE_UI_DELIVERY_NAME;
+}
+
+LPCWSTR SageDeliveryWorkflowHandler::GetInputSectionLabel() const {
+	return SAGE_UI_SECTION_INPUT;
+}
+
+LPCWSTR SageDeliveryWorkflowHandler::GetActionButtonLabel() const {
+	return SAGE_UI_DELIVERY_GENERATE_BUTTON;
+}
+
+int SageDeliveryWorkflowHandler::GetTabCount() const {
+	return SAGE_DELIVERY_TAB_COUNT;
+}
+
+const SageWorkflowTab& SageDeliveryWorkflowHandler::GetTab(int nVisualTabIndex) const {
+	return g_tabs[nVisualTabIndex];
+}
+
+int SageDeliveryWorkflowHandler::GetResultColumnCount(int nTaskType) const {
+	if (!UsesCustomResultTable(nTaskType))
+		return SageWorkflowResultTable::GetGenericColumnCount();
+	return SAGE_DELIVERY_INPUT_COLUMN_COUNT;
+}
+
+const SageWorkflowColumn& SageDeliveryWorkflowHandler::GetResultColumn(int nTaskType, int nColumnIndex) const {
+	if (!UsesCustomResultTable(nTaskType))
+		return SageWorkflowResultTable::GetGenericColumn(nColumnIndex);
+	return g_inputColumns[nColumnIndex];
+}
+
+SageWorkflowResultStyle SageDeliveryWorkflowHandler::GetResultStyle(int nTaskType) const {
+	SageWorkflowResultStyle style;
+	if (!UsesCustomResultTable(nTaskType))
+		return style;
+	style.bCheckbox = TRUE;
+	style.bGridLines = TRUE;
+	return style;
+}
+
+BOOL SageDeliveryWorkflowHandler::UsesCustomResultTable(int nTaskType) const {
+	return (nTaskType == SAGE_TASK_LOAD) ? TRUE : FALSE;
+}
+
+BOOL SageDeliveryWorkflowHandler::BuildResultSummary(
+	int nTaskType,
+	const std::vector<SageResultRow>& arrVisibleRows,
+	const CString& strResponseJson,
+	std::vector<SageResultSummaryItem>& outItems) const {
+	UNREFERENCED_PARAMETER(nTaskType);
+	UNREFERENCED_PARAMETER(arrVisibleRows);
+	UNREFERENCED_PARAMETER(strResponseJson);
+	outItems.clear();
+	return FALSE;
+}
+
+BOOL SageDeliveryWorkflowHandler::BuildResultTotals(
+	int nTaskType,
+	const std::vector<SageResultRow>& arrVisibleRows,
+	std::vector<SageResultTotalCell>& outCells) const {
+	UNREFERENCED_PARAMETER(nTaskType);
+	UNREFERENCED_PARAMETER(arrVisibleRows);
+	outCells.clear();
+	return FALSE;
+}
+
+int SageDeliveryWorkflowHandler::GetFilterCriteriaCount() const {
+	return SAGE_DELIVERY_FILTER_CRITERIA_COUNT;
+}
+
+const SageWorkflowFilterCriteria& SageDeliveryWorkflowHandler::GetFilterCriteria(int nIndex) const {
+	return g_filterCriteria[nIndex];
+}
+
+LPCWSTR SageDeliveryWorkflowHandler::GetInputDialogTitle() const {
+	return SAGE_UI_SELECT_DELIVERY_INPUT_TITLE;
+}
+
+BOOL SageDeliveryWorkflowHandler::UsesInputTable() const {
+	return TRUE;
+}
+
+BOOL SageDeliveryWorkflowHandler::UsesOnePageOption() const {
+	return FALSE;
+}
+
+LPCWSTR SageDeliveryWorkflowHandler::FindGenerateCompletedMessage() const {
+	return SAGE_UI_DELIVERY_GENERATE_COMPLETED;
+}
+
+BOOL SageDeliveryWorkflowHandler::ValidateSelectedRows(int nSelectedCount, BOOL bHasSelectedRowNums, BOOL bOnePage, CString& strError) const {
+	UNREFERENCED_PARAMETER(nSelectedCount);
+	UNREFERENCED_PARAMETER(bOnePage);
+	if (!bHasSelectedRowNums) {
+		strError = SAGE_UI_DELIVERY_SELECT_ROW_REQUIRED;
+		return FALSE;
+	}
+	return TRUE;
+}

@@ -332,10 +332,13 @@ function Apply-OutputFormats($sheet, $outputRows, $startRow) {
 }
 
 $excel = $null
+$excelProcessId = 0
 $inputWorkbook = $null
 $outputWorkbook = $null
 $items = @()
 $missingCompanies = @{}
+
+. (Join-Path $PSScriptRoot 'excel-process.ps1')
 
 try {
     if (-not [System.IO.File]::Exists($InputPath)) { throw "Input file was not found: $InputPath" }
@@ -344,7 +347,9 @@ try {
         [System.IO.Directory]::CreateDirectory($OutputFolder) | Out-Null
     }
 
+    $excelProcessIdsBefore = Get-ExcelProcessIds
     $excel = New-Object -ComObject Excel.Application
+    $excelProcessId = Find-NewExcelProcessId $excelProcessIdsBefore
     $excel.Visible = $false
     $excel.DisplayAlerts = $false
     try { $excel.ScreenUpdating = $false } catch {}
@@ -523,4 +528,5 @@ catch {
 }
 finally {
     if ($excel -ne $null) { try { $excel.Quit() } catch {} }
+    Stop-OwnedExcelProcess $excelProcessId
 }
