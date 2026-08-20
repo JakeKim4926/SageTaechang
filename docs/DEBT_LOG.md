@@ -5,6 +5,18 @@
 
 ## 열린 항목
 
+### [2026-08-20] 구조불일치 — 비활성 에딧 색이 다이얼로그와 패널에서 다르다
+- 위치: `app/ui/drawing/SageEdit.cpp` `CtlColor` · `app/ui/panels/SagePriceManagePanel.cpp` · `SagePriceCalcPanel.cpp` · `SageCompanyOrderPanel.cpp`의 `OnCtlColor`
+- 설명: 다이얼로그는 `CSageEdit`이 비활성 시 `#F2EEE7` 면 + `#B4ABA0` 글자로 스스로 그린다. 반면 패널의 순수 `CEdit`은 부모 `OnCtlColor`의 `CTLCOLOR_STATIC` 분기를 타 `#F8F6F1` 면 + **본문색 글자**로 나온다(비활성용으로 만든 분기가 아니라 정적 라벨용인데 비활성 에딧이 같은 메시지로 오기 때문이다). **같은 「최대부수 없음」이 단가 추가 다이얼로그와 단가 관리 패널 양쪽에 있어 나란히 비교된다.** 패널 쪽 `OnCtlColor`에 비활성 조건을 넣는 것은 `sagetaechang-ui`가 금지한 「부모의 컨트롤별 스타일 분기」이므로 두었다.
+- 위험도: 낮음 — 두 색의 채널 차이가 6~9로 작아 나란히 놓지 않으면 눈에 띄지 않는다
+- 후속: 패널·View 에딧 16곳을 `CSageEdit`으로 승격할 때 함께 사라진다 (테두리 1px 이동 때문에 보류 중인 작업)
+
+### [2026-08-20] 검증누락 — 비활성 에딧의 글자색이 실제 적용되는지 확인하지 않았다
+- 위치: `app/ui/drawing/SageEdit.cpp` `CtlColor`
+- 설명: 반환 브러시로 **배경이 바뀌는 것은 확실하다.** 그러나 비활성 EDIT 컨트롤이 `WM_CTLCOLORSTATIC`으로 넘긴 `SetTextColor`를 존중하는지는 화면으로 확인하지 않았다. 컨트롤이 자체 회색으로 덮으면 글자색 지정만 무효가 된다. `SetWindowTheme(L"", L"")`으로 테마를 끈 상태라 기본 동작을 문서로 단정할 수 없었다.
+- 위험도: 낮음 — 무효가 되더라도 배경이 바뀌므로 비활성은 읽힌다
+- 후속: 화면 확인. 무시된다면 `CSageEdit`이 비활성 시 텍스트를 직접 그리는 방식을 검토한다
+
 ### [2026-08-09] 기존부채 — 행 높이용 1px 스페이서가 첫 열에 아이콘 슬롯을 만든다
 - 위치: `app/ui/drawing/SageListCtrl.cpp` `ApplyFixedRowHeight` (`LVSIL_SMALL`, 1×34)
 - 설명: `CListCtrl`에 행 높이 API가 없어 1px 더미 이미지리스트로 34를 확보하는데, 그 부작용으로 첫 열에 **1px 아이콘 슬롯**이 생긴다. 첫 열 커스텀드로우가 `LVIR_LABEL` rect에 얹혀 그리던 동안 이 슬롯이 미도색으로 남아 **흰 세로줄**로 드러났다(2026-08-09). 지금은 첫 열 **전체**를 직접 칠해 덮었다.
