@@ -1,13 +1,17 @@
 #include "pch.h"
 #include "app/ui/drawing/SageEdit.h"
+#include "app/ui/drawing/SageUiResources.h"
 #include "SageDefine.h"
 
 #include <uxtheme.h>
+
+IMPLEMENT_DYNAMIC(CSageEdit, CEdit)
 
 BEGIN_MESSAGE_MAP(CSageEdit, CEdit)
 	ON_WM_CREATE()
 	ON_WM_NCCALCSIZE()
 	ON_WM_NCPAINT()
+	ON_WM_CTLCOLOR_REFLECT()
 END_MESSAGE_MAP()
 
 CSageEdit::CSageEdit()
@@ -35,6 +39,18 @@ void CSageEdit::SetState(SageEditState nState) {
 	if (::IsWindow(GetSafeHwnd()))
 		SetWindowPos(NULL, 0, 0, 0, 0,
 			SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+}
+
+HBRUSH CSageEdit::CtlColor(CDC* pDC, UINT nCtlColor) {
+	if (IsWindowEnabled()) {
+		pDC->SetTextColor(SAGE_COLOR_TEXT);
+		pDC->SetBkColor(SAGE_COLOR_PANEL);
+		return SageUiResources::GetBrush(SAGE_BG_PANEL);
+	}
+
+	pDC->SetTextColor(SAGE_COLOR_TEXT_PLACEHOLDER);
+	pDC->SetBkColor(SAGE_COLOR_LIST_HEADER);
+	return SageUiResources::GetBrush(SAGE_BG_LIST_HEADER);
 }
 
 void CSageEdit::OnNcPaint() {

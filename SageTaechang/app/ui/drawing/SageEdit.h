@@ -8,6 +8,7 @@ enum SageEditState
 
 class CSageEdit : public CEdit
 {
+	DECLARE_DYNAMIC(CSageEdit)
 	DECLARE_MESSAGE_MAP()
 
 public:
@@ -19,6 +20,7 @@ protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnNcCalcSize(BOOL bCalcValidRects, NCCALCSIZE_PARAMS* lpncsp);
 	afx_msg void OnNcPaint();
+	afx_msg HBRUSH CtlColor(CDC* pDC, UINT nCtlColor);
 
 private:
 	SageEditState m_nState;

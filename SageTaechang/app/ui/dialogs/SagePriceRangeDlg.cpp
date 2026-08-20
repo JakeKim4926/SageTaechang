@@ -431,6 +431,9 @@ HBRUSH SagePriceRangeDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
     if (pWnd != NULL && pWnd->IsKindOf(RUNTIME_CLASS(CSageLabel)))
         return hBrush;
 
+    if (pWnd != NULL && pWnd->IsKindOf(RUNTIME_CLASS(CSageEdit)))
+        return hBrush;
+
     if (nCtlColor == CTLCOLOR_STATIC) {
         pDC->SetTextColor(SAGE_COLOR_TEXT);
         pDC->SetBkColor(SAGE_COLOR_PANEL);
