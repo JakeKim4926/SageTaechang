@@ -1,4 +1,12 @@
-﻿## [2026-08-20] style/price-calc-two-column
+﻿## [2026-08-21] fix/legacy-table-migration
+- **목적**: Release 빌드로 실행하니 기존 법인·단가가 사라진 것처럼 보이는 문제를 고친다
+- **원인**: `Taechang` → `Sage` 이름 치환이 **테이블 이름까지** 바꿨다. 기존 DB에는 `TaechangPrice` · `TaechangUser` · `TaechangReceivableCompanyOrder`가 있는데 새 코드는 `SagePrice` 등을 찾으므로, `CREATE TABLE IF NOT EXISTS`가 **빈 테이블을 만들고** 그것을 조회했다. DB 파일을 열어 확인한 결과 옛 테이블과 데이터(법인명 105건)는 **그대로 남아 있었다** — 돌아간 SQL이 `CREATE ... IF NOT EXISTS`와 `SELECT`뿐이어서 삭제·덮어쓰기는 없었다
+- **변경 내용**: `SqlInitializer::MigrateLegacyTableNames`를 추가해 시작 시(테이블 생성 **전**, 기존 트랜잭션 안) 옛 이름을 새 이름으로 잇는다. 새 테이블이 없으면 `ALTER TABLE ... RENAME TO`, 이미 있고 **비어 있으면** `INSERT INTO ... SELECT *`로 복사, 데이터가 있으면 **아무것도 하지 않는다**(합치는 판단을 코드가 임의로 하지 않는다). 옛 테이블은 지우지 않는다
+- **PR 링크**: 없음
+- **결과**: merged — `develop`에 fast-forward(`9c3abdb`). 커밋 1개, 작업 브랜치 삭제. 사용자가 실행해 데이터가 다시 보이는 것까지 확인
+- **되돌아보면**: 직전 작업(`feature/price-company-table`)에서 `SqlInitializer`와 실제 DB 파일을 둘 다 열어 이름이 일치함을 확인했는데, 그 뒤 치환이 들어오면서 어긋났다. **이름 치환은 DB 스키마 이름이 함께 바뀌는지 확인하고, 바뀌면 마이그레이션을 같은 커밋에 넣어야 한다.** `DEBT_LOG`에 규칙으로 등재했다. **컬럼 이름까지 치환됐는지는 아직 확인하지 않았다**
+
+## [2026-08-20] style/price-calc-two-column
 - **목적**: D7-12 — 단가 계산 화면을 목업 3-2의 카드 배치로 바꾼다. D7-2가 **표현만** 맞추고 배치를 미뤘는데 그 「별도 Step」이 D7이 닫힐 때 열리지 않아 묻혀 있었다
 - **변경 내용**: 착수 전 코드 실측으로 목업과의 차이가 **10항목**임을 확정했다(계획서 D7-12). 세로 스택 → 좌우 2단(입력 420 고정 + 결과 가변, gap 20) · 카드 헤더 3개(`CSageSectionLabel` 38px, 이 화면만 22px로 눌려 있어 D7-4 승격분이 잘려 그려지고 있었다) · 운임 에딧을 결과 카드에서 입력 카드로 옮기고 결과에는 읽기 전용 값 행을 새로 만들었다 · 아이콘 버튼 2개(카드 **바깥**) → 카드 안쪽 하단 텍스트 버튼(Primary + Ghost, 34) · 결과 4행을 34px + 하단 1px `#EDE8E0`로(2px `SS_ETCHEDHORZ` 2개 제거) · 최근 생성 내역을 전체 폭 카드로(품목명이 남는 폭 흡수, `WS_BORDER` 제거) · `SageWorkspacePanel`이 이미 24px을 뺀 rect를 주는데 패널이 `SAGE_MARGIN`(16)을 **또** 빼고 있어 콘텐츠 여백이 40이던 것을 24로. 상수 12개 제거 · 8개 신설, `SAGE_BUTTON_ICON_CALCULATE`와 `DrawCalculateIcon`은 참조 0곳이 되어 제거했다
 - **함께 고친 것 — 카드 헤더가 카드 테두리를 덮고 있었다**: 사용자가 화면을 보고 「카드들 다 헤더쪽에는 겉에 선이 없다」고 지적했다. 밴드를 카드 rect 그대로 배치해 `FrameRect`의 좌·우·상단 1px이 헤더 구간에서만 덮였고, **목업은 테두리가 헤더를 둘러싸고 밴드가 그 안쪽**이다. `SageWorkflowInputPanel`(미수금 입력) · `SageCompanyOrderPanel`(데이터 관리 2카드)에 같은 코드가 있어 **세 화면을 함께** 고쳤다(사용자 결정 — 한 화면만 고치면 카드 테두리가 화면마다 달라진다). 콘텐츠 시작 산술이 입력 패널에 3곳 복제돼 있어 `GetCardContentTop()`으로 모았다. 카드 높이 규격이 세 화면 공통 `1 + 38 + 16 + 본문 + 16 + 1`이 됐다
