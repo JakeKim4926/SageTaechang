@@ -58,6 +58,14 @@ private:
     void ApplyControlFonts();
     void ApplyLabelRoles();
     void LayoutChildControls(int nWidth, int nHeight);
+    int  GetInputCardHeight() const;
+    int  GetResultCardHeight() const;
+    void LayoutInputCard(const CRect& rectCard);
+    void LayoutResultCard(const CRect& rectCard);
+    void LayoutHistoryCard(const CRect& rectCard);
+    void LayoutResultRow(int nTop, int nLeft, int nRight, CSageLabel& wndLabel, CSageLabel& wndValue);
+    void ApplyEditTextRect(CEdit& wndEdit);
+    void DrawCard(CDC* pDC, const CRect& rectCard);
     void DrawEditBorder(CDC* pDC, CWnd& wnd);
     void ClearResult();
     BOOL UpdatePreview(BOOL bShowMessage);
@@ -71,26 +79,29 @@ private:
     void UpdateRangeHint();
 
 private:
+    CSageSectionLabel m_wndInputSection;
     CSageLabel m_wndCompanyLabel;
     CSageComboBox m_wndCompanyCombo;
     CSageButton m_wndCompanyPickBtn;
     CSageLabel m_wndCopiesLabel;
     CEdit m_wndCopiesEdit;
+    CSageLabel m_wndCopiesUnitLabel;
     CSageLabel m_wndPagesLabel;
     CEdit m_wndPagesEdit;
+    CSageLabel m_wndFreightLabel;
+    CEdit m_wndFreightEdit;
+    CSageLabel m_wndFreightUnitLabel;
     CSageButton m_wndCalcBtn;
     CSageButton m_wndCalcResetBtn;
+    CSageSectionLabel m_wndResultSection;
     CSageLabel m_wndPrintLabel;
     CSageLabel m_wndPrintValue;
     CSageLabel m_wndCoverLabel;
     CSageLabel m_wndCoverValue;
     CSageLabel m_wndSubtotalLabel;
     CSageLabel m_wndSubtotalValue;
-    CSageLabel m_wndFreightLabel;
-    CEdit m_wndFreightEdit;
-    CSageLabel m_wndFreightUnitLabel;
-    CSageLabel m_wndDivider;
-    CSageLabel m_wndTotalDivider;
+    CSageLabel m_wndFreightResultLabel;
+    CSageLabel m_wndFreightValue;
     CSageLabel m_wndTotalLabel;
     CSageLabel m_wndTotalValue;
     CSageLabel m_wndRangeHint;
@@ -101,6 +112,8 @@ private:
 private:
     CRect m_rectInputCard;
     CRect m_rectResultCard;
+    CRect m_rectHistoryCard;
+    CRect m_rectResultRows;
     CRect m_rectTotalBand;
     SagePriceCalcResult m_calcResult;
     BOOL m_bFormattingFreight;
