@@ -116,13 +116,18 @@ int SageWorkflowInputPanel::GetContentWidth() const {
 	return rectClient.Width() - SAGE_EDIT_BORDER_WIDTH;
 }
 
+int SageWorkflowInputPanel::GetCardContentTop() const {
+	return SAGE_BORDER_THICKNESS + SAGE_CARD_HEADER_HEIGHT;
+}
+
 int SageWorkflowInputPanel::GetInputCardHeight() const {
-	return SAGE_CARD_HEADER_HEIGHT
+	return GetCardContentTop()
 		+ SAGE_CARD_PADDING
 		+ SAGE_EDIT_HEIGHT + SAGE_CARD_ROW_GAP
 		+ SAGE_EDIT_HEIGHT + SAGE_CARD_ROW_GAP
 		+ SAGE_CARD_ACTION_BUTTON_HEIGHT
-		+ SAGE_CARD_PADDING;
+		+ SAGE_CARD_PADDING
+		+ SAGE_BORDER_THICKNESS;
 }
 
 int SageWorkflowInputPanel::GetTableAreaTop() const {
@@ -171,9 +176,10 @@ void SageWorkflowInputPanel::LayoutFormRow(int nTop, int nWidth, CSageLabel& wnd
 }
 
 void SageWorkflowInputPanel::LayoutInputCard(int nWidth) {
-	m_wndCardHeader.MoveWindow(0, 0, nWidth, SAGE_CARD_HEADER_HEIGHT);
+	m_wndCardHeader.MoveWindow(SAGE_BORDER_THICKNESS, SAGE_BORDER_THICKNESS,
+		nWidth - SAGE_BORDER_THICKNESS * 2, SAGE_CARD_HEADER_HEIGHT);
 
-	int nTop = SAGE_CARD_HEADER_HEIGHT + SAGE_CARD_PADDING;
+	int nTop = GetCardContentTop() + SAGE_CARD_PADDING;
 	LayoutFormRow(nTop, nWidth, m_wndInputLabel, m_wndInputPath, m_wndSelectInput);
 	nTop += SAGE_EDIT_HEIGHT + SAGE_CARD_ROW_GAP;
 	LayoutFormRow(nTop, nWidth, m_wndOutputLabel, m_wndOutputFolder, m_wndSelectOutput);
@@ -187,7 +193,7 @@ void SageWorkflowInputPanel::LayoutActionSection() {
 	if (nWidth <= 0)
 		return;
 
-	int nActionTop = SAGE_CARD_HEADER_HEIGHT + SAGE_CARD_PADDING
+	int nActionTop = GetCardContentTop() + SAGE_CARD_PADDING
 		+ (SAGE_EDIT_HEIGHT + SAGE_CARD_ROW_GAP) * 2;
 	int nX = SAGE_CARD_PADDING + SAGE_FORM_LABEL_WIDTH + SAGE_CARD_ROW_GAP;
 	m_wndGenerate.MoveWindow(nX, nActionTop, SAGE_BUTTON_WIDTH, SAGE_CARD_ACTION_BUTTON_HEIGHT);

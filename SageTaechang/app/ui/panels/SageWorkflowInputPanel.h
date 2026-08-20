@@ -58,6 +58,7 @@ private:
     void LayoutActionSection();
     void LayoutTableArea();
     int  GetContentWidth() const;
+    int  GetCardContentTop() const;
     int  GetInputCardHeight() const;
     int  GetTableAreaTop() const;
     void LayoutFormRow(int nTop, int nWidth, CSageLabel& wndLabel, CEdit& wndEdit, CSageButton& wndButton);

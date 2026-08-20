@@ -45,6 +45,8 @@ private:
     void ApplyOrderEditTextRect();
     void SetCardRects(const CRect& rectList, const CRect& rectEdit);
     void DrawEditBorder(CDC* pDC, CWnd& wnd);
+    int  GetCardContentTop(int nCardTop) const;
+    void LayoutCardHeader(CSageSectionLabel& wndSection, int nLeft, int nTop, int nWidth);
     void LayoutListCard(const CRect& rectCard);
     int  LayoutEditCard(int nLeft, int nWidth);
     void FillEditFromSelection();

@@ -174,11 +174,22 @@ void SageCompanyOrderPanel::Layout(const CRect& rectPanel) {
 		CRect(nEditCardLeft, 0, nEditCardLeft + SAGE_CO_EDIT_CARD_WIDTH, nEditCardBottom));
 }
 
-void SageCompanyOrderPanel::LayoutListCard(const CRect& rectCard) {
-	m_wndListSection.MoveWindow(
-		rectCard.left, rectCard.top, rectCard.Width(), SAGE_CARD_HEADER_HEIGHT);
+int SageCompanyOrderPanel::GetCardContentTop(int nCardTop) const {
+	return nCardTop + SAGE_BORDER_THICKNESS + SAGE_CARD_HEADER_HEIGHT;
+}
 
-	int nRowTop = rectCard.top + SAGE_CARD_HEADER_HEIGHT;
+void SageCompanyOrderPanel::LayoutCardHeader(CSageSectionLabel& wndSection, int nLeft, int nTop, int nWidth) {
+	wndSection.MoveWindow(
+		nLeft + SAGE_BORDER_THICKNESS,
+		nTop + SAGE_BORDER_THICKNESS,
+		nWidth - SAGE_BORDER_THICKNESS * 2,
+		SAGE_CARD_HEADER_HEIGHT);
+}
+
+void SageCompanyOrderPanel::LayoutListCard(const CRect& rectCard) {
+	LayoutCardHeader(m_wndListSection, rectCard.left, rectCard.top, rectCard.Width());
+
+	int nRowTop = GetCardContentTop(rectCard.top);
 	int nSearchTop = nRowTop + (SAGE_CO_SEARCH_ROW_HEIGHT - SAGE_EDIT_HEIGHT) / 2;
 	int nContentLeft = rectCard.left + SAGE_CARD_PADDING;
 	int nContentRight = rectCard.right - SAGE_CARD_PADDING;
@@ -203,11 +214,11 @@ void SageCompanyOrderPanel::LayoutListCard(const CRect& rectCard) {
 }
 
 int SageCompanyOrderPanel::LayoutEditCard(int nLeft, int nWidth) {
-	m_wndCrudSection.MoveWindow(nLeft, 0, nWidth, SAGE_CARD_HEADER_HEIGHT);
+	LayoutCardHeader(m_wndCrudSection, nLeft, 0, nWidth);
 
 	int nContentLeft = nLeft + SAGE_CARD_PADDING;
 	int nContentRight = nLeft + nWidth - SAGE_CARD_PADDING;
-	int nTop = SAGE_CARD_HEADER_HEIGHT + SAGE_CARD_PADDING;
+	int nTop = GetCardContentTop(0) + SAGE_CARD_PADDING;
 
 	m_wndOrderLabel.MoveWindow(
 		nContentLeft, nTop, SAGE_CO_FORM_LABEL_WIDTH, SAGE_EDIT_HEIGHT);
@@ -244,7 +255,7 @@ int SageCompanyOrderPanel::LayoutEditCard(int nLeft, int nWidth) {
 
 	nTop += SAGE_BUTTON_HEIGHT + SAGE_CARD_ROW_GAP;
 	m_wndGuide.MoveWindow(nContentLeft, nTop, nContentRight - nContentLeft, SAGE_CO_GUIDE_HEIGHT);
-	return nTop + SAGE_CO_GUIDE_HEIGHT + SAGE_CARD_PADDING;
+	return nTop + SAGE_CO_GUIDE_HEIGHT + SAGE_CARD_PADDING + SAGE_BORDER_THICKNESS;
 }
 
 void SageCompanyOrderPanel::SetCardRects(const CRect& rectList, const CRect& rectEdit) {
