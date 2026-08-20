@@ -9,7 +9,11 @@
 - 위치: `app/infra/db/SqlInitializer.cpp` (`MigrateLegacyTableNames`) · `docs/decisions/REFACTORING_PLAN.md` Step 5
 - 설명: `Taechang` → `Sage` 치환이 **테이블 이름까지** 바꿨다. 기존 DB에는 `TaechangPrice` 등이 있는데 새 코드는 `SagePrice`를 찾으므로, 배포하면 `CREATE TABLE IF NOT EXISTS`가 **빈 테이블을 만들고** 화면에는 데이터가 사라진 것처럼 보인다. 실제로 Release 빌드에서 재현됐다. 삭제된 데이터는 없었지만 **운영 데이터를 잃을 수 있는 종류의 변경**이었다.
 - 위험도: **높음** — 남은 치환 대상에 스키마가 또 걸릴 수 있다
-- 후속: ① 치환 작업 체크리스트에 「DB 테이블·컬럼 이름이 바뀌는지, 바뀌면 마이그레이션을 같은 커밋에 넣었는지」를 넣는다. ② 마이그레이션은 옛 테이블을 **지우지 않는다**(현재 그렇게 되어 있다). ③ **컬럼 이름**이 치환된 적이 있는지 아직 확인하지 않았다 — 테이블만 봤다. 컬럼이 바뀌었다면 `INSERT ... SELECT *` 복사 경로가 어긋나므로 별도로 대조해야 한다
+- 후속: ① 치환 작업 체크리스트에 「DB 테이블·컬럼 이름이 바뀌는지, 바뀌면 마이그레이션을 같은 커밋에 넣었는지」를 넣는다. ② 마이그레이션은 옛 테이블을 **지우지 않는다**(현재 그렇게 되어 있다)
+- **컬럼 대조 완료 (2026-08-21)**: DB 파일 사본의 저장된 스키마와 `SqlInitializer.cpp`의 `CREATE TABLE` 정의를 대조했다. **컬럼 이름·개수·순서가 세 테이블 모두 일치**한다 — 치환은 파일명·클래스명·상수명·테이블명까지였고 컬럼명은 건드리지 않았다. 따라서 마이그레이션의 `INSERT ... SELECT *` 복사 경로도 값이 어긋날 수 없다
+  - `SagePrice` — `price_id, company_name, report_type, min_copies, max_copies, print_price, cover_price, memo, created_at, updated_at`
+  - `SageUser` — `user_id, login_id, pw_hash, role`
+  - `SageReceivableCompanyOrder` — `order_id, company_name, sort_order, created_at, updated_at`
 
 ### [2026-08-20] 중복로직 — 「초기화」 문자열 상수가 셋이다
 - 위치: `SageDefine.h` — `SAGE_UI_RESULT_RESET_BTN` · `SAGE_UI_INPUT_RESET_BTN` · `SAGE_UI_CALC_RESET_BTN`
