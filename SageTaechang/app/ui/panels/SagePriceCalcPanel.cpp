@@ -225,7 +225,8 @@ void SagePriceCalcPanel::LayoutChildControls(int nWidth, int nHeight) {
 
 	int nHistoryTop = max(m_rectInputCard.bottom, m_rectResultCard.bottom) + SAGE_CARD_GAP;
 	int nHistoryBottom = nHeight;
-	int nHistoryMinBottom = nHistoryTop + SAGE_CARD_HEADER_HEIGHT + SAGE_RESULT_MIN_HEIGHT;
+	int nHistoryMinBottom = nHistoryTop + SAGE_BORDER_THICKNESS * 2
+		+ SAGE_CARD_HEADER_HEIGHT + SAGE_RESULT_MIN_HEIGHT;
 	if (nHistoryBottom < nHistoryMinBottom)
 		nHistoryBottom = nHistoryMinBottom;
 	m_rectHistoryCard = CRect(0, nHistoryTop, nWidth, nHistoryBottom);
@@ -238,34 +239,49 @@ void SagePriceCalcPanel::LayoutChildControls(int nWidth, int nHeight) {
 }
 
 int SagePriceCalcPanel::GetInputCardHeight() const {
-	return SAGE_CARD_HEADER_HEIGHT
+	return SAGE_BORDER_THICKNESS
+		+ SAGE_CARD_HEADER_HEIGHT
 		+ SAGE_CARD_PADDING
 		+ SAGE_EDIT_HEIGHT + SAGE_CARD_ROW_GAP
 		+ SAGE_EDIT_HEIGHT + SAGE_CARD_ROW_GAP
 		+ SAGE_EDIT_HEIGHT + SAGE_CARD_ROW_GAP
 		+ SAGE_CARD_ACTION_BUTTON_HEIGHT
-		+ SAGE_CARD_PADDING;
+		+ SAGE_CARD_PADDING
+		+ SAGE_BORDER_THICKNESS;
 }
 
 int SagePriceCalcPanel::GetResultCardHeight() const {
-	return SAGE_CARD_HEADER_HEIGHT
+	return SAGE_BORDER_THICKNESS
+		+ SAGE_CARD_HEADER_HEIGHT
 		+ SAGE_CARD_PADDING
 		+ SAGE_CALC_RESULT_ROW_HEIGHT * SAGE_CALC_RESULT_ROW_COUNT
 		+ SAGE_CALC_TOTAL_BAND_GAP
 		+ SAGE_CALC_TOTAL_BAND_HEIGHT
 		+ SAGE_CARD_ROW_GAP
 		+ SAGE_CALC_RANGE_HINT_HEIGHT
-		+ SAGE_CARD_PADDING;
+		+ SAGE_CARD_PADDING
+		+ SAGE_BORDER_THICKNESS;
+}
+
+void SagePriceCalcPanel::LayoutCardHeader(CSageSectionLabel& wndSection, const CRect& rectCard) {
+	wndSection.MoveWindow(
+		rectCard.left + SAGE_BORDER_THICKNESS,
+		rectCard.top + SAGE_BORDER_THICKNESS,
+		rectCard.Width() - SAGE_BORDER_THICKNESS * 2,
+		SAGE_CARD_HEADER_HEIGHT);
+}
+
+int SagePriceCalcPanel::GetCardContentTop(const CRect& rectCard) const {
+	return rectCard.top + SAGE_BORDER_THICKNESS + SAGE_CARD_HEADER_HEIGHT;
 }
 
 void SagePriceCalcPanel::LayoutInputCard(const CRect& rectCard) {
-	m_wndInputSection.MoveWindow(
-		rectCard.left, rectCard.top, rectCard.Width(), SAGE_CARD_HEADER_HEIGHT);
+	LayoutCardHeader(m_wndInputSection, rectCard);
 
 	int nContentLeft = rectCard.left + SAGE_CARD_PADDING;
 	int nContentRight = rectCard.right - SAGE_CARD_PADDING;
 	int nFieldLeft = nContentLeft + SAGE_FORM_LABEL_WIDTH + SAGE_LABEL_EDIT_GAP;
-	int nTop = rectCard.top + SAGE_CARD_HEADER_HEIGHT + SAGE_CARD_PADDING;
+	int nTop = GetCardContentTop(rectCard) + SAGE_CARD_PADDING;
 
 	int nPickBtnLeft = nContentRight - SAGE_CALC_COMPANY_PICK_BTN_W;
 	m_wndCompanyLabel.MoveWindow(nContentLeft, nTop, SAGE_FORM_LABEL_WIDTH, SAGE_EDIT_HEIGHT);
@@ -303,12 +319,11 @@ void SagePriceCalcPanel::LayoutInputCard(const CRect& rectCard) {
 }
 
 void SagePriceCalcPanel::LayoutResultCard(const CRect& rectCard) {
-	m_wndResultSection.MoveWindow(
-		rectCard.left, rectCard.top, rectCard.Width(), SAGE_CARD_HEADER_HEIGHT);
+	LayoutCardHeader(m_wndResultSection, rectCard);
 
 	int nContentLeft = rectCard.left + SAGE_CARD_PADDING;
 	int nContentRight = rectCard.right - SAGE_CARD_PADDING;
-	int nTop = rectCard.top + SAGE_CARD_HEADER_HEIGHT + SAGE_CARD_PADDING;
+	int nTop = GetCardContentTop(rectCard) + SAGE_CARD_PADDING;
 
 	m_rectResultRows = CRect(nContentLeft, nTop, nContentRight,
 		nTop + SAGE_CALC_RESULT_ROW_HEIGHT * SAGE_CALC_RESULT_ROW_COUNT);
@@ -343,13 +358,12 @@ void SagePriceCalcPanel::LayoutResultRow(int nTop, int nLeft, int nRight,
 }
 
 void SagePriceCalcPanel::LayoutHistoryCard(const CRect& rectCard) {
-	m_wndHistorySection.MoveWindow(
-		rectCard.left, rectCard.top, rectCard.Width(), SAGE_CARD_HEADER_HEIGHT);
+	LayoutCardHeader(m_wndHistorySection, rectCard);
 
-	int nListTop = rectCard.top + SAGE_CARD_HEADER_HEIGHT;
-	int nListWidth = rectCard.Width() - SAGE_EDIT_BORDER_WIDTH * 2;
-	m_wndHistoryList.MoveWindow(rectCard.left + SAGE_EDIT_BORDER_WIDTH, nListTop,
-		nListWidth, rectCard.bottom - nListTop - SAGE_EDIT_BORDER_WIDTH);
+	int nListTop = GetCardContentTop(rectCard);
+	int nListWidth = rectCard.Width() - SAGE_BORDER_THICKNESS * 2;
+	m_wndHistoryList.MoveWindow(rectCard.left + SAGE_BORDER_THICKNESS, nListTop,
+		nListWidth, rectCard.bottom - nListTop - SAGE_BORDER_THICKNESS);
 
 	int nFixedWidth = SAGE_CALC_HIST_COL_COMPANY_W + SAGE_CALC_HIST_COL_DATE_W
 		+ SAGE_CALC_HIST_COL_COPIES_W + SAGE_CALC_HIST_COL_PAGES_W

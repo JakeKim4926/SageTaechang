@@ -60,6 +60,8 @@ private:
     void LayoutChildControls(int nWidth, int nHeight);
     int  GetInputCardHeight() const;
     int  GetResultCardHeight() const;
+    void LayoutCardHeader(CSageSectionLabel& wndSection, const CRect& rectCard);
+    int  GetCardContentTop(const CRect& rectCard) const;
     void LayoutInputCard(const CRect& rectCard);
     void LayoutResultCard(const CRect& rectCard);
     void LayoutHistoryCard(const CRect& rectCard);
