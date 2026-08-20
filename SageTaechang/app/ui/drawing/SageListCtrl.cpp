@@ -2,7 +2,7 @@
 #include "app/ui/drawing/SageListCtrl.h"
 #include "app/ui/drawing/SageUiResources.h"
 #include "app/ui/drawing/SageUiStyle.h"
-#include "TaechangDefine.h"
+#include "SageDefine.h"
 
 BEGIN_MESSAGE_MAP(CSageListCtrl, CListCtrl)
 	ON_WM_CREATE()
@@ -21,7 +21,7 @@ BOOL CSageListCtrl::OnSelectionChanged(NMHDR* pNMHDR, LRESULT* pResult) {
 }
 
 void CSageListCtrl::InvalidateItemRow(int nItem) {
-	if (nItem == TAECHANG_LIST_NO_ITEM) {
+	if (nItem == SAGE_LIST_NO_ITEM) {
 		Invalidate();
 		return;
 	}
@@ -50,8 +50,8 @@ CSageListCtrl::CSageListCtrl()
 	, m_nHighlightFirst(0)
 	, m_nHighlightCount(0)
 	, m_bRowSeparator(FALSE)
-	, m_nBadgeColumn(TAECHANG_LIST_NO_BADGE_COLUMN)
-	, m_clrMutedText(TAECHANG_COLOR_SECONDARY_TEXT) {
+	, m_nBadgeColumn(SAGE_LIST_NO_BADGE_COLUMN)
+	, m_clrMutedText(SAGE_COLOR_SECONDARY_TEXT) {
 }
 
 void CSageListCtrl::SetBadgeColumn(int nColumn) {
@@ -78,27 +78,27 @@ const SageListRowStyle* CSageListCtrl::FindRowStyle(int nItem) const {
 void CSageListCtrl::ApplyFixedRowHeight() {
 	if (m_imgRowSpacer.GetSafeHandle() != NULL)
 		return;
-	if (!m_imgRowSpacer.Create(TAECHANG_LIST_ROW_SPACER_WIDTH, TAECHANG_LIST_ROW_HEIGHT, ILC_COLOR32, 1, 1))
+	if (!m_imgRowSpacer.Create(SAGE_LIST_ROW_SPACER_WIDTH, SAGE_LIST_ROW_HEIGHT, ILC_COLOR32, 1, 1))
 		return;
 	SetImageList(&m_imgRowSpacer, LVSIL_SMALL);
 }
 
 void CSageListCtrl::DrawCheckBox(CDC* pDC, const CRect& rectImage, BOOL bChecked) {
-	CRect rectBox(0, 0, TAECHANG_LIST_CHECK_BOX_SIZE, TAECHANG_LIST_CHECK_BOX_SIZE);
+	CRect rectBox(0, 0, SAGE_LIST_CHECK_BOX_SIZE, SAGE_LIST_CHECK_BOX_SIZE);
 	rectBox.OffsetRect(
-		rectImage.left + (rectImage.Width() - TAECHANG_LIST_CHECK_BOX_SIZE) / 2,
-		rectImage.top + (rectImage.Height() - TAECHANG_LIST_CHECK_BOX_SIZE) / 2);
+		rectImage.left + (rectImage.Width() - SAGE_LIST_CHECK_BOX_SIZE) / 2,
+		rectImage.top + (rectImage.Height() - SAGE_LIST_CHECK_BOX_SIZE) / 2);
 	SageUiStyle::DrawCheckBox(*pDC, rectBox, bChecked);
 }
 
 BOOL CSageListCtrl::BuildCheckStateImages(CImageList& imgState) {
-	if (!imgState.Create(TAECHANG_LIST_CHECK_IMAGE_WIDTH, TAECHANG_LIST_ROW_HEIGHT,
-			ILC_COLOR32 | ILC_MASK, TAECHANG_LIST_CHECK_STATE_COUNT, 1))
+	if (!imgState.Create(SAGE_LIST_CHECK_IMAGE_WIDTH, SAGE_LIST_ROW_HEIGHT,
+			ILC_COLOR32 | ILC_MASK, SAGE_LIST_CHECK_STATE_COUNT, 1))
 		return FALSE;
 
-	CRect rectImage(0, 0, TAECHANG_LIST_CHECK_IMAGE_WIDTH, TAECHANG_LIST_ROW_HEIGHT);
+	CRect rectImage(0, 0, SAGE_LIST_CHECK_IMAGE_WIDTH, SAGE_LIST_ROW_HEIGHT);
 	CClientDC dcScreen(this);
-	for (int i = 0; i < TAECHANG_LIST_CHECK_STATE_COUNT; ++i) {
+	for (int i = 0; i < SAGE_LIST_CHECK_STATE_COUNT; ++i) {
 		CDC dcMem;
 		CBitmap bmpState;
 		if (!dcMem.CreateCompatibleDC(&dcScreen))
@@ -107,10 +107,10 @@ BOOL CSageListCtrl::BuildCheckStateImages(CImageList& imgState) {
 			return FALSE;
 
 		CBitmap* pOldBitmap = dcMem.SelectObject(&bmpState);
-		dcMem.FillSolidRect(rectImage, TAECHANG_COLOR_IMAGE_MASK);
-		DrawCheckBox(&dcMem, rectImage, (i == TAECHANG_LIST_CHECK_STATE_CHECKED) ? TRUE : FALSE);
+		dcMem.FillSolidRect(rectImage, SAGE_COLOR_IMAGE_MASK);
+		DrawCheckBox(&dcMem, rectImage, (i == SAGE_LIST_CHECK_STATE_CHECKED) ? TRUE : FALSE);
 		dcMem.SelectObject(pOldBitmap);
-		imgState.Add(&bmpState, TAECHANG_COLOR_IMAGE_MASK);
+		imgState.Add(&bmpState, SAGE_COLOR_IMAGE_MASK);
 	}
 	return TRUE;
 }
@@ -146,7 +146,7 @@ BOOL CSageListCtrl::FindCheckImageRect(int nColumn, const CRect& rcColumn, CRect
 		return FALSE;
 
 	rectCheckImage.SetRect(
-		rcColumn.left + TAECHANG_LIST_SELECTION_ACCENT_WIDTH + TAECHANG_LIST_CHECK_ACCENT_GAP,
+		rcColumn.left + SAGE_LIST_SELECTION_ACCENT_WIDTH + SAGE_LIST_CHECK_ACCENT_GAP,
 		rcColumn.top,
 		rcColumn.left + nImageWidth,
 		rcColumn.bottom);
@@ -202,8 +202,8 @@ void CSageListCtrl::DrawRowSeparator(int nItem, NMLVCUSTOMDRAW* pCD) {
 	if (!GetItemRect(nItem, rcItem, LVIR_BOUNDS))
 		return;
 	CDC* pDC = CDC::FromHandle(pCD->nmcd.hdc);
-	pDC->FillSolidRect(rcItem.left, rcItem.bottom - TAECHANG_LIST_GRID_THICKNESS,
-		rcItem.Width(), TAECHANG_LIST_GRID_THICKNESS, TAECHANG_COLOR_LIST_GRID);
+	pDC->FillSolidRect(rcItem.left, rcItem.bottom - SAGE_LIST_GRID_THICKNESS,
+		rcItem.Width(), SAGE_LIST_GRID_THICKNESS, SAGE_COLOR_LIST_GRID);
 }
 
 void CSageListCtrl::DrawSelectionAccent(int nItem, NMLVCUSTOMDRAW* pCD) {
@@ -212,7 +212,7 @@ void CSageListCtrl::DrawSelectionAccent(int nItem, NMLVCUSTOMDRAW* pCD) {
 		return;
 	CDC* pDC = CDC::FromHandle(pCD->nmcd.hdc);
 	pDC->FillSolidRect(rcItem.left, rcItem.top,
-		TAECHANG_LIST_SELECTION_ACCENT_WIDTH, rcItem.Height(), TAECHANG_COLOR_PRIMARY);
+		SAGE_LIST_SELECTION_ACCENT_WIDTH, rcItem.Height(), SAGE_COLOR_PRIMARY);
 }
 
 void CSageListCtrl::SetAlternateRowColor(BOOL bEnable) {
@@ -244,7 +244,7 @@ COLORREF CSageListCtrl::GetRowBackColor(int nItem) const {
 	const SageListRowStyle* pStyle = FindRowStyle(nItem);
 	if (pStyle != NULL && pStyle->clrRowBackground != CLR_NONE)
 		return pStyle->clrRowBackground;
-	return (nItem % 2 == 1) ? TAECHANG_COLOR_LIST_ROW_ALT : TAECHANG_COLOR_PANEL;
+	return (nItem % 2 == 1) ? SAGE_COLOR_LIST_ROW_ALT : SAGE_COLOR_PANEL;
 }
 
 void CSageListCtrl::DrawBadgeColumn(int nItem, BOOL bSelected, NMLVCUSTOMDRAW* pCD) {
@@ -253,7 +253,7 @@ void CSageListCtrl::DrawBadgeColumn(int nItem, BOOL bSelected, NMLVCUSTOMDRAW* p
 		return;
 
 	CDC* pDC = CDC::FromHandle(pCD->nmcd.hdc);
-	pDC->FillSolidRect(&rcColumn, bSelected ? TAECHANG_COLOR_LIST_ROW_SELECTED : GetRowBackColor(nItem));
+	pDC->FillSolidRect(&rcColumn, bSelected ? SAGE_COLOR_LIST_ROW_SELECTED : GetRowBackColor(nItem));
 
 	CRect rcContent(rcColumn);
 	CRect rectCheckImage;
@@ -273,19 +273,19 @@ void CSageListCtrl::DrawBadgeColumn(int nItem, BOOL bSelected, NMLVCUSTOMDRAW* p
 	CFont* pOldFont = pDC->SelectObject(SageUiResources::GetFont(SAGE_FONT_CAPTION));
 	CSize sizeText = pDC->GetTextExtent(strText);
 
-	int nBadgeWidth = sizeText.cx + TAECHANG_LIST_BADGE_PAD_X * 2;
+	int nBadgeWidth = sizeText.cx + SAGE_LIST_BADGE_PAD_X * 2;
 	CRect rectBadge(rcContent);
 	rectBadge.left += (rcContent.Width() - nBadgeWidth) / 2;
 	rectBadge.right = rectBadge.left + nBadgeWidth;
-	rectBadge.top += (rcContent.Height() - TAECHANG_LIST_BADGE_HEIGHT) / 2;
-	rectBadge.bottom = rectBadge.top + TAECHANG_LIST_BADGE_HEIGHT;
+	rectBadge.top += (rcContent.Height() - SAGE_LIST_BADGE_HEIGHT) / 2;
+	rectBadge.bottom = rectBadge.top + SAGE_LIST_BADGE_HEIGHT;
 
 	CBrush brushBadge(pStyle->clrBadgeBackground);
-	CPen penBadge(PS_SOLID, TAECHANG_BORDER_THICKNESS, pStyle->clrBadgeBackground);
+	CPen penBadge(PS_SOLID, SAGE_BORDER_THICKNESS, pStyle->clrBadgeBackground);
 	CBrush* pOldBrush = pDC->SelectObject(&brushBadge);
 	CPen* pOldPen = pDC->SelectObject(&penBadge);
 	pDC->RoundRect(rectBadge,
-		CPoint(TAECHANG_LIST_BADGE_RADIUS * 2, TAECHANG_LIST_BADGE_RADIUS * 2));
+		CPoint(SAGE_LIST_BADGE_RADIUS * 2, SAGE_LIST_BADGE_RADIUS * 2));
 	pDC->SelectObject(pOldPen);
 	pDC->SelectObject(pOldBrush);
 
@@ -299,11 +299,11 @@ void CSageListCtrl::DrawBadgeColumn(int nItem, BOOL bSelected, NMLVCUSTOMDRAW* p
 
 COLORREF CSageListCtrl::ResolveSubItemTextColor(int nItem, int nSubItem, BOOL bHighlight) const {
 	CString strText = GetItemText(nItem, nSubItem);
-	if (strText == TAECHANG_UI_AMOUNT_EMPTY_MARK)
-		return TAECHANG_COLOR_TEXT_PLACEHOLDER;
+	if (strText == SAGE_UI_AMOUNT_EMPTY_MARK)
+		return SAGE_COLOR_TEXT_PLACEHOLDER;
 	if (!m_strMutedText.IsEmpty() && strText == m_strMutedText)
 		return m_clrMutedText;
-	return bHighlight ? TAECHANG_COLOR_PRIMARY : TAECHANG_COLOR_TEXT;
+	return bHighlight ? SAGE_COLOR_PRIMARY : SAGE_COLOR_TEXT;
 }
 
 void CSageListCtrl::DrawFirstColumn(int nItem, BOOL bSelected, NMLVCUSTOMDRAW* pCD) {
@@ -312,7 +312,7 @@ void CSageListCtrl::DrawFirstColumn(int nItem, BOOL bSelected, NMLVCUSTOMDRAW* p
 		return;
 
 	CDC* pDC = CDC::FromHandle(pCD->nmcd.hdc);
-	COLORREF clrBk = bSelected ? TAECHANG_COLOR_LIST_ROW_SELECTED : GetRowBackColor(nItem);
+	COLORREF clrBk = bSelected ? SAGE_COLOR_LIST_ROW_SELECTED : GetRowBackColor(nItem);
 	pDC->FillSolidRect(&rcColumn, clrBk);
 
 	CRect rcText(rcColumn);
@@ -325,10 +325,10 @@ void CSageListCtrl::DrawFirstColumn(int nItem, BOOL bSelected, NMLVCUSTOMDRAW* p
 	UINT nAlignFormat = DT_CENTER;
 	if (m_nFirstColumnAlign == SAGE_LIST_FIRST_COLUMN_RIGHT) {
 		nAlignFormat = DT_RIGHT;
-		rcText.right -= TAECHANG_LIST_CELL_RIGHT_PAD;
+		rcText.right -= SAGE_LIST_CELL_RIGHT_PAD;
 	}
 
-	COLORREF clrOldText = pDC->SetTextColor(TAECHANG_COLOR_TEXT);
+	COLORREF clrOldText = pDC->SetTextColor(SAGE_COLOR_TEXT);
 	int nOldBkMode = pDC->SetBkMode(TRANSPARENT);
 
 	pDC->DrawText(GetItemText(nItem, 0), &rcText,
@@ -356,17 +356,17 @@ void CSageListCtrl::OnNMCustomDraw(NMHDR* pNMHDR, LRESULT* pResult) {
 			pCD->nmcd.uItemState &= ~CDIS_FOCUS;
 			if (bSelected) {
 				pCD->nmcd.uItemState &= ~CDIS_SELECTED;
-				pCD->clrTextBk = TAECHANG_COLOR_LIST_ROW_SELECTED;
-				pCD->clrText = TAECHANG_COLOR_TEXT;
+				pCD->clrTextBk = SAGE_COLOR_LIST_ROW_SELECTED;
+				pCD->clrText = SAGE_COLOR_TEXT;
 				*pResult |= CDRF_NEWFONT;
 			} else if (m_bAlternateRow) {
 				pCD->clrTextBk = GetRowBackColor(nItem);
-				pCD->clrText = TAECHANG_COLOR_TEXT;
+				pCD->clrText = SAGE_COLOR_TEXT;
 				*pResult |= CDRF_NEWFONT;
 			}
 			if (m_nHighlightCount > 0 || m_nFirstColumnAlign != SAGE_LIST_FIRST_COLUMN_DEFAULT
 				|| !m_strMutedText.IsEmpty()
-				|| m_nBadgeColumn != TAECHANG_LIST_NO_BADGE_COLUMN)
+				|| m_nBadgeColumn != SAGE_LIST_NO_BADGE_COLUMN)
 				*pResult |= CDRF_NOTIFYSUBITEMDRAW;
 			break;
 		}

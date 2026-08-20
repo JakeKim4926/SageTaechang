@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "pch.h"
-#include "app/core/price/TaechangPriceDto.h"
+#include "app/core/price/SagePriceDto.h"
 #include "app/ui/drawing/SageButton.h"
 #include "app/ui/drawing/SageComboBox.h"
 #include "app/ui/drawing/SageHeaderCtrl.h"
@@ -56,7 +56,7 @@ private:
     CString GetSelectedCompanyName() const;
     void LoadSelectedCopiesRowToForm();
     void ClearForm();
-    BOOL ReadFormToDto(TaechangPriceDto& dto, CString& strError);
+    BOOL ReadFormToDto(SagePriceDto& dto, CString& strError);
 
 private:
     CSageLabel m_wndCompanyLabel;

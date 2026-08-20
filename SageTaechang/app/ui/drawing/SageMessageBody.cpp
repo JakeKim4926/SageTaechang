@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "app/ui/drawing/SageMessageBody.h"
 #include "app/ui/drawing/SageUiResources.h"
-#include "TaechangDefine.h"
+#include "SageDefine.h"
 
 BEGIN_MESSAGE_MAP(CSageMessageBody, CStatic)
 END_MESSAGE_MAP()
@@ -26,55 +26,55 @@ int CSageMessageBody::MeasureHeight(int nWidth) {
 	dc.SelectObject(pOldFont);
 
 	int nHeight = rectText.Height();
-	if (nHeight > TAECHANG_MSGBOX_MAX_TEXT_HEIGHT)
-		nHeight = TAECHANG_MSGBOX_MAX_TEXT_HEIGHT;
-	if (nHeight < TAECHANG_MSGBOX_ICON_SIZE)
-		nHeight = TAECHANG_MSGBOX_ICON_SIZE;
+	if (nHeight > SAGE_MSGBOX_MAX_TEXT_HEIGHT)
+		nHeight = SAGE_MSGBOX_MAX_TEXT_HEIGHT;
+	if (nHeight < SAGE_MSGBOX_ICON_SIZE)
+		nHeight = SAGE_MSGBOX_ICON_SIZE;
 
 	return nHeight;
 }
 
 COLORREF CSageMessageBody::GetIconColor() const {
 	if (m_nIcon == SAGE_MESSAGE_ICON_ERROR)
-		return TAECHANG_COLOR_ERROR;
+		return SAGE_COLOR_ERROR;
 	if (m_nIcon == SAGE_MESSAGE_ICON_WARNING)
-		return TAECHANG_COLOR_WARNING;
-	return TAECHANG_COLOR_PRIMARY;
+		return SAGE_COLOR_WARNING;
+	return SAGE_COLOR_PRIMARY;
 }
 
 int CSageMessageBody::GetTextLeft() const {
 	if (m_nIcon == SAGE_MESSAGE_ICON_NONE)
 		return 0;
-	return TAECHANG_MSGBOX_ICON_SIZE + TAECHANG_MSGBOX_ICON_TEXT_GAP;
+	return SAGE_MSGBOX_ICON_SIZE + SAGE_MSGBOX_ICON_TEXT_GAP;
 }
 
 void CSageMessageBody::DrawAlertGlyph(CDC* pDC, const CRect& rectIcon, COLORREF clrIcon) {
 	CPoint ptCenter = rectIcon.CenterPoint();
-	pDC->MoveTo(ptCenter.x, rectIcon.top + TAECHANG_MSGBOX_ALERT_STEM_TOP);
-	pDC->LineTo(ptCenter.x, rectIcon.top + TAECHANG_MSGBOX_ALERT_STEM_BOTTOM);
-	pDC->FillSolidRect(ptCenter.x - TAECHANG_MSGBOX_ICON_DOT_SIZE / 2,
-		rectIcon.top + TAECHANG_MSGBOX_ALERT_DOT_TOP,
-		TAECHANG_MSGBOX_ICON_DOT_SIZE, TAECHANG_MSGBOX_ICON_DOT_SIZE, clrIcon);
+	pDC->MoveTo(ptCenter.x, rectIcon.top + SAGE_MSGBOX_ALERT_STEM_TOP);
+	pDC->LineTo(ptCenter.x, rectIcon.top + SAGE_MSGBOX_ALERT_STEM_BOTTOM);
+	pDC->FillSolidRect(ptCenter.x - SAGE_MSGBOX_ICON_DOT_SIZE / 2,
+		rectIcon.top + SAGE_MSGBOX_ALERT_DOT_TOP,
+		SAGE_MSGBOX_ICON_DOT_SIZE, SAGE_MSGBOX_ICON_DOT_SIZE, clrIcon);
 }
 
 void CSageMessageBody::DrawInfoGlyph(CDC* pDC, const CRect& rectIcon, COLORREF clrIcon) {
 	CPoint ptCenter = rectIcon.CenterPoint();
-	pDC->FillSolidRect(ptCenter.x - TAECHANG_MSGBOX_ICON_DOT_SIZE / 2,
-		rectIcon.top + TAECHANG_MSGBOX_INFO_DOT_TOP,
-		TAECHANG_MSGBOX_ICON_DOT_SIZE, TAECHANG_MSGBOX_ICON_DOT_SIZE, clrIcon);
-	pDC->MoveTo(ptCenter.x, rectIcon.top + TAECHANG_MSGBOX_INFO_STEM_TOP);
-	pDC->LineTo(ptCenter.x, rectIcon.top + TAECHANG_MSGBOX_INFO_STEM_BOTTOM);
+	pDC->FillSolidRect(ptCenter.x - SAGE_MSGBOX_ICON_DOT_SIZE / 2,
+		rectIcon.top + SAGE_MSGBOX_INFO_DOT_TOP,
+		SAGE_MSGBOX_ICON_DOT_SIZE, SAGE_MSGBOX_ICON_DOT_SIZE, clrIcon);
+	pDC->MoveTo(ptCenter.x, rectIcon.top + SAGE_MSGBOX_INFO_STEM_TOP);
+	pDC->LineTo(ptCenter.x, rectIcon.top + SAGE_MSGBOX_INFO_STEM_BOTTOM);
 }
 
 void CSageMessageBody::DrawMessageIcon(CDC* pDC, const CRect& rectIcon) {
 	COLORREF clrIcon = GetIconColor();
-	CPen penIcon(PS_SOLID, TAECHANG_ICON_STROKE, clrIcon);
+	CPen penIcon(PS_SOLID, SAGE_ICON_STROKE, clrIcon);
 	CPen* pOldPen = pDC->SelectObject(&penIcon);
 	CGdiObject* pOldBrush = pDC->SelectStockObject(NULL_BRUSH);
 
 	CPoint ptCenter = rectIcon.CenterPoint();
-	pDC->Ellipse(ptCenter.x - TAECHANG_MSGBOX_ICON_RADIUS, ptCenter.y - TAECHANG_MSGBOX_ICON_RADIUS,
-		ptCenter.x + TAECHANG_MSGBOX_ICON_RADIUS, ptCenter.y + TAECHANG_MSGBOX_ICON_RADIUS);
+	pDC->Ellipse(ptCenter.x - SAGE_MSGBOX_ICON_RADIUS, ptCenter.y - SAGE_MSGBOX_ICON_RADIUS,
+		ptCenter.x + SAGE_MSGBOX_ICON_RADIUS, ptCenter.y + SAGE_MSGBOX_ICON_RADIUS);
 
 	if (m_nIcon == SAGE_MESSAGE_ICON_INFO)
 		DrawInfoGlyph(pDC, rectIcon, clrIcon);
@@ -96,8 +96,8 @@ void CSageMessageBody::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 
 	if (m_nIcon != SAGE_MESSAGE_ICON_NONE) {
 		CRect rectIcon(rectClient.left, rectClient.top,
-			rectClient.left + TAECHANG_MSGBOX_ICON_SIZE,
-			rectClient.top + TAECHANG_MSGBOX_ICON_SIZE);
+			rectClient.left + SAGE_MSGBOX_ICON_SIZE,
+			rectClient.top + SAGE_MSGBOX_ICON_SIZE);
 		DrawMessageIcon(pDC, rectIcon);
 	}
 
@@ -105,7 +105,7 @@ void CSageMessageBody::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 	rectText.left += GetTextLeft();
 
 	pDC->SetBkMode(TRANSPARENT);
-	pDC->SetTextColor(TAECHANG_COLOR_TEXT);
+	pDC->SetTextColor(SAGE_COLOR_TEXT);
 	CFont* pOldFont = pDC->SelectObject(SageUiResources::GetFont(SAGE_FONT_CONTENT));
 
 	CRect rectCalc(rectText);

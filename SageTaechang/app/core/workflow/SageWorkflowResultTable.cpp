@@ -1,15 +1,15 @@
 ﻿#include "pch.h"
 #include "app/core/workflow/SageWorkflowResultTable.h"
-#include "app/core/workflow/TaechangWorkflowResultPresenter.h"
-#include "TaechangDefine.h"
+#include "app/core/workflow/SageWorkflowResultPresenter.h"
+#include "SageDefine.h"
 
 namespace {
 
 const SageWorkflowColumn g_genericColumns[] = {
-	{ TAECHANG_UI_RESULT_FIELD, SAGE_COLUMN_ALIGN_CENTER, TAECHANG_RESULT_FIELD_WIDTH, FALSE, SAGE_RESULT_FIELD_FIELD },
-	{ TAECHANG_UI_RESULT_VALUE, SAGE_COLUMN_ALIGN_CENTER, TAECHANG_RESULT_MIN_VALUE_WIDTH, TRUE, SAGE_RESULT_FIELD_VALUE },
-	{ TAECHANG_UI_RESULT_STATUS, SAGE_COLUMN_ALIGN_CENTER, TAECHANG_RESULT_STATUS_WIDTH, FALSE, SAGE_RESULT_FIELD_STATUS },
-	{ TAECHANG_UI_RESULT_REASON, SAGE_COLUMN_ALIGN_CENTER, TAECHANG_RESULT_REASON_WIDTH, FALSE, SAGE_RESULT_FIELD_REASON }
+	{ SAGE_UI_RESULT_FIELD, SAGE_COLUMN_ALIGN_CENTER, SAGE_RESULT_FIELD_WIDTH, FALSE, SAGE_RESULT_FIELD_FIELD },
+	{ SAGE_UI_RESULT_VALUE, SAGE_COLUMN_ALIGN_CENTER, SAGE_RESULT_MIN_VALUE_WIDTH, TRUE, SAGE_RESULT_FIELD_VALUE },
+	{ SAGE_UI_RESULT_STATUS, SAGE_COLUMN_ALIGN_CENTER, SAGE_RESULT_STATUS_WIDTH, FALSE, SAGE_RESULT_FIELD_STATUS },
+	{ SAGE_UI_RESULT_REASON, SAGE_COLUMN_ALIGN_CENTER, SAGE_RESULT_REASON_WIDTH, FALSE, SAGE_RESULT_FIELD_REASON }
 };
 
 constexpr int SAGE_GENERIC_COLUMN_COUNT = sizeof(g_genericColumns) / sizeof(g_genericColumns[0]);
@@ -26,7 +26,7 @@ const SageWorkflowColumn& GetGenericColumn(int nColumnIndex) {
 	return g_genericColumns[nColumnIndex];
 }
 
-CString GetRowText(const TaechangResultRow& row, SageResultField nField) {
+CString GetRowText(const SageResultRow& row, SageResultField nField) {
 	switch (nField) {
 	case SAGE_RESULT_FIELD_VALUE:               return row.m_strValue;
 	case SAGE_RESULT_FIELD_STATUS:              return row.m_strStatus;
@@ -56,12 +56,12 @@ CString GetRowText(const TaechangResultRow& row, SageResultField nField) {
 CString FormatAmountNumber(__int64 nAmount) {
 	BOOL bNegative = (nAmount < 0) ? TRUE : FALSE;
 	CString strDigits;
-	strDigits.Format(TAECHANG_UI_SUMMARY_AMOUNT_FORMAT, bNegative ? -nAmount : nAmount);
+	strDigits.Format(SAGE_UI_SUMMARY_AMOUNT_FORMAT, bNegative ? -nAmount : nAmount);
 
-	for (int i = strDigits.GetLength() - TAECHANG_AMOUNT_GROUP_DIGITS; i > 0; i -= TAECHANG_AMOUNT_GROUP_DIGITS)
-		strDigits.Insert(i, TAECHANG_UI_AMOUNT_GROUP_SEPARATOR);
+	for (int i = strDigits.GetLength() - SAGE_AMOUNT_GROUP_DIGITS; i > 0; i -= SAGE_AMOUNT_GROUP_DIGITS)
+		strDigits.Insert(i, SAGE_UI_AMOUNT_GROUP_SEPARATOR);
 
-	return bNegative ? CString(TAECHANG_UI_AMOUNT_NEGATIVE_MARK) + strDigits : strDigits;
+	return bNegative ? CString(SAGE_UI_AMOUNT_NEGATIVE_MARK) + strDigits : strDigits;
 }
 
 void DistributeColumnWidths(
@@ -76,7 +76,7 @@ void DistributeColumnWidths(
 	int nFixedWidth = 0;
 	int nStretchDefinedWidth = 0;
 	int nDefinedWidth = 0;
-	int nLastStretchIndex = TAECHANG_LIST_NO_ITEM;
+	int nLastStretchIndex = SAGE_LIST_NO_ITEM;
 	for (int i = 0; i < nColumnCount; ++i) {
 		nDefinedWidth += arrSpecs[i].nWidth;
 		if (arrSpecs[i].bStretch) {

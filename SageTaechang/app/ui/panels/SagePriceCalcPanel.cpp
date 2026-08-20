@@ -2,13 +2,13 @@
 #include "app/ui/panels/SagePriceCalcPanel.h"
 #include "app/ui/dialogs/SageMessageBoxDlg.h"
 #include "app/common/SageNumberFormat.h"
-#include "app/core/price/TaechangPriceService.h"
+#include "app/core/price/SagePriceService.h"
 #include "app/infra/db/SageDBMgr.h"
-#include "app/infra/file/TaechangFileUtils.h"
-#include "app/ui/dialogs/TaechangCalcCompanyPickerDlg.h"
-#include "app/ui/dialogs/TaechangCalcEstimateDlg.h"
+#include "app/infra/file/SageFileUtils.h"
+#include "app/ui/dialogs/SageCalcCompanyPickerDlg.h"
+#include "app/ui/dialogs/SageCalcEstimateDlg.h"
 #include "app/ui/drawing/SageUiResources.h"
-#include "TaechangDefine.h"
+#include "SageDefine.h"
 #include <uxtheme.h>
 
 BEGIN_MESSAGE_MAP(SagePriceCalcPanel, CWnd)
@@ -48,14 +48,14 @@ int SagePriceCalcPanel::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 
 void SagePriceCalcPanel::CreateControls() {
 	CRect r(0, 0, 0, 0);
-	m_wndCompanyLabel.Create(TAECHANG_UI_CALC_COMPANY_LABEL, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
+	m_wndCompanyLabel.Create(SAGE_UI_CALC_COMPANY_LABEL, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
 	m_wndCompanyCombo.Create(WS_CHILD | WS_VISIBLE | CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL, r, this, ID_CALC_COMPANY_COMBO);
-	m_wndCompanyPickBtn.Create(TAECHANG_UI_CALC_COMPANY_PICK_LABEL, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_CALC_COMPANY_PICK_BTN);
+	m_wndCompanyPickBtn.Create(SAGE_UI_CALC_COMPANY_PICK_LABEL, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_CALC_COMPANY_PICK_BTN);
 	m_wndCompanyPickBtn.SetIcon(SAGE_BUTTON_ICON_SEARCH);
-	m_wndCompanyPickBtn.SetTooltip(TAECHANG_UI_TIP_PICK_COMPANY);
-	m_wndCopiesLabel.Create(TAECHANG_UI_CALC_COPIES_LABEL, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
+	m_wndCompanyPickBtn.SetTooltip(SAGE_UI_TIP_PICK_COMPANY);
+	m_wndCopiesLabel.Create(SAGE_UI_CALC_COPIES_LABEL, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
 	m_wndCopiesEdit.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_NUMBER | ES_RIGHT | ES_AUTOHSCROLL, r, this, ID_CALC_COPIES_EDIT);
-	m_wndPagesLabel.Create(TAECHANG_UI_CALC_PAGES_LABEL, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
+	m_wndPagesLabel.Create(SAGE_UI_CALC_PAGES_LABEL, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
 	m_wndPagesEdit.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_NUMBER | ES_RIGHT | ES_AUTOHSCROLL, r, this, ID_CALC_PAGES_EDIT);
 	m_wndCalcBtn.Create(L"", WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_CALC_BTN);
 	m_wndCalcBtn.SetVariant(SAGE_BUTTON_PRIMARY);
@@ -63,24 +63,24 @@ void SagePriceCalcPanel::CreateControls() {
 	m_wndCalcResetBtn.Create(L"", WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_CALC_RESET_BTN);
 	m_wndCalcResetBtn.SetVariant(SAGE_BUTTON_GHOST);
 	m_wndCalcResetBtn.SetIcon(SAGE_BUTTON_ICON_RESET);
-	m_wndCalcResetBtn.SetTooltip(TAECHANG_UI_TIP_RESET);
+	m_wndCalcResetBtn.SetTooltip(SAGE_UI_TIP_RESET);
 
-	m_wndPrintLabel.Create(TAECHANG_UI_CALC_PRINT_LABEL, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
-	m_wndPrintValue.Create(TAECHANG_UI_PRICE_SUMMARY_EMPTY, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
-	m_wndCoverLabel.Create(TAECHANG_UI_CALC_COVER_LABEL, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
-	m_wndCoverValue.Create(TAECHANG_UI_PRICE_SUMMARY_EMPTY, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
-	m_wndSubtotalLabel.Create(TAECHANG_UI_CALC_SUBTOTAL_LABEL, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
-	m_wndSubtotalValue.Create(TAECHANG_UI_PRICE_SUMMARY_EMPTY, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
-	m_wndFreightLabel.Create(TAECHANG_UI_CALC_FREIGHT_LABEL, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
+	m_wndPrintLabel.Create(SAGE_UI_CALC_PRINT_LABEL, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
+	m_wndPrintValue.Create(SAGE_UI_PRICE_SUMMARY_EMPTY, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
+	m_wndCoverLabel.Create(SAGE_UI_CALC_COVER_LABEL, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
+	m_wndCoverValue.Create(SAGE_UI_PRICE_SUMMARY_EMPTY, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
+	m_wndSubtotalLabel.Create(SAGE_UI_CALC_SUBTOTAL_LABEL, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
+	m_wndSubtotalValue.Create(SAGE_UI_PRICE_SUMMARY_EMPTY, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
+	m_wndFreightLabel.Create(SAGE_UI_CALC_FREIGHT_LABEL, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
 	m_wndFreightEdit.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_RIGHT | ES_AUTOHSCROLL, r, this, ID_CALC_FREIGHT_EDIT);
-	m_wndFreightUnitLabel.Create(TAECHANG_UI_CALC_WON_UNIT, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
+	m_wndFreightUnitLabel.Create(SAGE_UI_CALC_WON_UNIT, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
 	m_wndDivider.Create(L"", WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ, r, this);
 	m_wndTotalDivider.Create(L"", WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ, r, this);
-	m_wndTotalLabel.Create(TAECHANG_UI_CALC_TOTAL_LABEL, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, r, this);
-	m_wndTotalValue.Create(TAECHANG_UI_PRICE_SUMMARY_EMPTY, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
+	m_wndTotalLabel.Create(SAGE_UI_CALC_TOTAL_LABEL, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, r, this);
+	m_wndTotalValue.Create(SAGE_UI_PRICE_SUMMARY_EMPTY, WS_CHILD | WS_VISIBLE | SS_RIGHT | SS_CENTERIMAGE, r, this);
 	m_wndRangeHint.Create(L"", WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, r, this);
 
-	m_wndHistorySection.Create(TAECHANG_UI_CALC_SECTION_HISTORY, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, r, this, ID_CALC_HISTORY_SECTION);
+	m_wndHistorySection.Create(SAGE_UI_CALC_SECTION_HISTORY, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, r, this, ID_CALC_HISTORY_SECTION);
 	m_wndHistoryList.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SINGLESEL, r, this, ID_CALC_HISTORY_LIST);
 	m_wndHistoryList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
 	m_wndHistoryList.SetRowSeparator(TRUE);
@@ -92,21 +92,21 @@ void SagePriceCalcPanel::CreateControls() {
 		}
 	}
 	m_wndHistoryList.SetFirstColumnAlign(SAGE_LIST_FIRST_COLUMN_CENTER);
-	m_wndHistoryList.InsertColumn(0, TAECHANG_UI_CALC_HIST_COL_COMPANY, LVCFMT_CENTER, TAECHANG_CALC_HIST_COL_COMPANY_W);
-	m_wndHistoryList.InsertColumn(1, TAECHANG_UI_CALC_HIST_COL_ITEM, LVCFMT_CENTER, TAECHANG_CALC_HIST_COL_ITEM_W);
-	m_wndHistoryList.InsertColumn(2, TAECHANG_UI_CALC_HIST_COL_DATE, LVCFMT_CENTER, TAECHANG_CALC_HIST_COL_DATE_W);
-	m_wndHistoryList.InsertColumn(3, TAECHANG_UI_CALC_HIST_COL_COPIES, LVCFMT_CENTER, TAECHANG_CALC_HIST_COL_COPIES_W);
-	m_wndHistoryList.InsertColumn(4, TAECHANG_UI_CALC_HIST_COL_PAGES, LVCFMT_CENTER, TAECHANG_CALC_HIST_COL_PAGES_W);
-	m_wndHistoryList.InsertColumn(5, TAECHANG_UI_CALC_HIST_COL_PRINT, LVCFMT_CENTER, TAECHANG_CALC_HIST_COL_PRINT_W);
-	m_wndHistoryList.InsertColumn(6, TAECHANG_UI_CALC_HIST_COL_COVER, LVCFMT_CENTER, TAECHANG_CALC_HIST_COL_COVER_W);
-	m_wndHistoryList.InsertColumn(7, TAECHANG_UI_CALC_HIST_COL_FREIGHT, LVCFMT_CENTER, TAECHANG_CALC_HIST_COL_FREIGHT_W);
-	m_wndHistoryList.InsertColumn(8, TAECHANG_UI_CALC_HIST_COL_TOTAL, LVCFMT_CENTER, TAECHANG_CALC_HIST_COL_TOTAL_W);
-	m_wndHistoryList.InsertColumn(9, TAECHANG_UI_CALC_HIST_COL_TIME, LVCFMT_CENTER, TAECHANG_CALC_HIST_COL_TIME_W);
+	m_wndHistoryList.InsertColumn(0, SAGE_UI_CALC_HIST_COL_COMPANY, LVCFMT_CENTER, SAGE_CALC_HIST_COL_COMPANY_W);
+	m_wndHistoryList.InsertColumn(1, SAGE_UI_CALC_HIST_COL_ITEM, LVCFMT_CENTER, SAGE_CALC_HIST_COL_ITEM_W);
+	m_wndHistoryList.InsertColumn(2, SAGE_UI_CALC_HIST_COL_DATE, LVCFMT_CENTER, SAGE_CALC_HIST_COL_DATE_W);
+	m_wndHistoryList.InsertColumn(3, SAGE_UI_CALC_HIST_COL_COPIES, LVCFMT_CENTER, SAGE_CALC_HIST_COL_COPIES_W);
+	m_wndHistoryList.InsertColumn(4, SAGE_UI_CALC_HIST_COL_PAGES, LVCFMT_CENTER, SAGE_CALC_HIST_COL_PAGES_W);
+	m_wndHistoryList.InsertColumn(5, SAGE_UI_CALC_HIST_COL_PRINT, LVCFMT_CENTER, SAGE_CALC_HIST_COL_PRINT_W);
+	m_wndHistoryList.InsertColumn(6, SAGE_UI_CALC_HIST_COL_COVER, LVCFMT_CENTER, SAGE_CALC_HIST_COL_COVER_W);
+	m_wndHistoryList.InsertColumn(7, SAGE_UI_CALC_HIST_COL_FREIGHT, LVCFMT_CENTER, SAGE_CALC_HIST_COL_FREIGHT_W);
+	m_wndHistoryList.InsertColumn(8, SAGE_UI_CALC_HIST_COL_TOTAL, LVCFMT_CENTER, SAGE_CALC_HIST_COL_TOTAL_W);
+	m_wndHistoryList.InsertColumn(9, SAGE_UI_CALC_HIST_COL_TIME, LVCFMT_CENTER, SAGE_CALC_HIST_COL_TIME_W);
 
-	m_wndCopiesEdit.SetLimitText(TAECHANG_CALC_COPIES_INPUT_MAX_LEN);
-	m_wndPagesEdit.SetLimitText(TAECHANG_CALC_COPIES_INPUT_MAX_LEN);
-	m_wndFreightEdit.SetLimitText(TAECHANG_CALC_FREIGHT_INPUT_MAX_LEN);
-	m_wndCompanyCombo.LimitText(TAECHANG_PRICE_COMPANY_MAX_LEN_EN);
+	m_wndCopiesEdit.SetLimitText(SAGE_CALC_COPIES_INPUT_MAX_LEN);
+	m_wndPagesEdit.SetLimitText(SAGE_CALC_COPIES_INPUT_MAX_LEN);
+	m_wndFreightEdit.SetLimitText(SAGE_CALC_FREIGHT_INPUT_MAX_LEN);
+	m_wndCompanyCombo.LimitText(SAGE_PRICE_COMPANY_MAX_LEN_EN);
 	if (CHeaderCtrl* pHeader = m_wndHistoryList.GetHeaderCtrl()) {
 		for (int i = 0; i < pHeader->GetItemCount(); ++i) {
 			HDITEM hdi = {};
@@ -192,150 +192,150 @@ void SagePriceCalcPanel::Layout(const CRect& rectPanel) {
 }
 
 void SagePriceCalcPanel::LayoutChildControls(int nWidth, int nHeight) {
-	int nPad = TAECHANG_CALC_PANEL_PADDING;
-	int nLabelW = TAECHANG_CALC_RESULT_LABEL_WIDTH;
-	int nValW = TAECHANG_CALC_RESULT_VALUE_WIDTH;
-	int nInputLabelW = TAECHANG_CALC_INPUT_LABEL_WIDTH;
-	int nInputEditW = TAECHANG_CALC_COPIES_EDIT_SHORT_W;
-	int nX = TAECHANG_MARGIN;
-	int nY = TAECHANG_MARGIN;
-	int nW = nWidth - TAECHANG_MARGIN * 2;
-	int nInputContentW = nInputLabelW + TAECHANG_LABEL_EDIT_GAP + nInputEditW
-		+ TAECHANG_ROW_GAP + nInputLabelW + TAECHANG_LABEL_EDIT_GAP + nInputEditW;
+	int nPad = SAGE_CALC_PANEL_PADDING;
+	int nLabelW = SAGE_CALC_RESULT_LABEL_WIDTH;
+	int nValW = SAGE_CALC_RESULT_VALUE_WIDTH;
+	int nInputLabelW = SAGE_CALC_INPUT_LABEL_WIDTH;
+	int nInputEditW = SAGE_CALC_COPIES_EDIT_SHORT_W;
+	int nX = SAGE_MARGIN;
+	int nY = SAGE_MARGIN;
+	int nW = nWidth - SAGE_MARGIN * 2;
+	int nInputContentW = nInputLabelW + SAGE_LABEL_EDIT_GAP + nInputEditW
+		+ SAGE_ROW_GAP + nInputLabelW + SAGE_LABEL_EDIT_GAP + nInputEditW;
 	int nInputPanelW = nInputContentW + nPad * 2;
 	if (nInputPanelW > nW)
 		nInputPanelW = nW;
 	auto ApplyCalcEditTextRect = [](CEdit& edit) {
 		CRect rc;
 		edit.GetClientRect(&rc);
-		rc.left += TAECHANG_FORM_EDIT_TEXT_SIDE_PAD;
-		rc.top += TAECHANG_FORM_EDIT_TEXT_TOP_PAD;
-		rc.right -= TAECHANG_FORM_EDIT_TEXT_SIDE_PAD;
-		rc.bottom -= TAECHANG_FORM_EDIT_TEXT_SIDE_PAD;
+		rc.left += SAGE_FORM_EDIT_TEXT_SIDE_PAD;
+		rc.top += SAGE_FORM_EDIT_TEXT_TOP_PAD;
+		rc.right -= SAGE_FORM_EDIT_TEXT_SIDE_PAD;
+		rc.bottom -= SAGE_FORM_EDIT_TEXT_SIDE_PAD;
 		edit.SendMessage(EM_SETRECTNP, 0, reinterpret_cast<LPARAM>(&rc));
 	};
 
-	int nInputPanelH = nPad + TAECHANG_EDIT_HEIGHT + TAECHANG_ROW_GAP + TAECHANG_EDIT_HEIGHT + nPad;
+	int nInputPanelH = nPad + SAGE_EDIT_HEIGHT + SAGE_ROW_GAP + SAGE_EDIT_HEIGHT + nPad;
 	m_rectInputCard = CRect(nX, nY, nX + nInputPanelW, nY + nInputPanelH);
 
 	int nCX = nX + nPad;
 	int nCY = nY + nPad;
-	int nPickBtnGap = TAECHANG_LABEL_EDIT_GAP;
-	int nPickBtnW = TAECHANG_CALC_COMPANY_PICK_BTN_W;
-	int nComboW = min(TAECHANG_CALC_COMBO_WIDTH,
-		nInputContentW - nInputLabelW - TAECHANG_LABEL_EDIT_GAP - nPickBtnW - nPickBtnGap);
+	int nPickBtnGap = SAGE_LABEL_EDIT_GAP;
+	int nPickBtnW = SAGE_CALC_COMPANY_PICK_BTN_W;
+	int nComboW = min(SAGE_CALC_COMBO_WIDTH,
+		nInputContentW - nInputLabelW - SAGE_LABEL_EDIT_GAP - nPickBtnW - nPickBtnGap);
 
-	m_wndCompanyLabel.MoveWindow(nCX, nCY, nInputLabelW, TAECHANG_EDIT_HEIGHT);
-	int nComboX = nCX + nInputLabelW + TAECHANG_LABEL_EDIT_GAP;
-	m_wndCompanyCombo.MoveWindow(nComboX, nCY, nComboW, TAECHANG_EDIT_HEIGHT * TAECHANG_CALC_COMBO_DROP_ROWS);
-	m_wndCompanyPickBtn.MoveWindow(nComboX + nComboW + nPickBtnGap, nCY, nPickBtnW, TAECHANG_BUTTON_HEIGHT);
-	nCY += TAECHANG_EDIT_HEIGHT + TAECHANG_ROW_GAP;
+	m_wndCompanyLabel.MoveWindow(nCX, nCY, nInputLabelW, SAGE_EDIT_HEIGHT);
+	int nComboX = nCX + nInputLabelW + SAGE_LABEL_EDIT_GAP;
+	m_wndCompanyCombo.MoveWindow(nComboX, nCY, nComboW, SAGE_EDIT_HEIGHT * SAGE_CALC_COMBO_DROP_ROWS);
+	m_wndCompanyPickBtn.MoveWindow(nComboX + nComboW + nPickBtnGap, nCY, nPickBtnW, SAGE_BUTTON_HEIGHT);
+	nCY += SAGE_EDIT_HEIGHT + SAGE_ROW_GAP;
 
-	m_wndCopiesLabel.MoveWindow(nCX, nCY, nInputLabelW, TAECHANG_EDIT_HEIGHT);
-	int nCopiesEditX = nCX + nInputLabelW + TAECHANG_LABEL_EDIT_GAP;
-	m_wndCopiesEdit.MoveWindow(nCopiesEditX, nCY, nInputEditW, TAECHANG_EDIT_HEIGHT);
+	m_wndCopiesLabel.MoveWindow(nCX, nCY, nInputLabelW, SAGE_EDIT_HEIGHT);
+	int nCopiesEditX = nCX + nInputLabelW + SAGE_LABEL_EDIT_GAP;
+	m_wndCopiesEdit.MoveWindow(nCopiesEditX, nCY, nInputEditW, SAGE_EDIT_HEIGHT);
 	ApplyCalcEditTextRect(m_wndCopiesEdit);
-	int nPagesLabelX = nCopiesEditX + nInputEditW + TAECHANG_ROW_GAP;
-	m_wndPagesLabel.MoveWindow(nPagesLabelX, nCY, nInputLabelW, TAECHANG_EDIT_HEIGHT);
-	int nPagesEditX = nPagesLabelX + nInputLabelW + TAECHANG_LABEL_EDIT_GAP;
-	m_wndPagesEdit.MoveWindow(nPagesEditX, nCY, nInputEditW, TAECHANG_EDIT_HEIGHT);
+	int nPagesLabelX = nCopiesEditX + nInputEditW + SAGE_ROW_GAP;
+	m_wndPagesLabel.MoveWindow(nPagesLabelX, nCY, nInputLabelW, SAGE_EDIT_HEIGHT);
+	int nPagesEditX = nPagesLabelX + nInputLabelW + SAGE_LABEL_EDIT_GAP;
+	m_wndPagesEdit.MoveWindow(nPagesEditX, nCY, nInputEditW, SAGE_EDIT_HEIGHT);
 	ApplyCalcEditTextRect(m_wndPagesEdit);
-	int nIconBtnW = TAECHANG_CALC_ICON_BTN_W;
-	int nIconBtnH = TAECHANG_CALC_ICON_BTN_H;
-	int nIconBtnGap = TAECHANG_CALC_ICON_BTN_GAP;
+	int nIconBtnW = SAGE_CALC_ICON_BTN_W;
+	int nIconBtnH = SAGE_CALC_ICON_BTN_H;
+	int nIconBtnGap = SAGE_CALC_ICON_BTN_GAP;
 	int nIconBtnTopPad = (nInputPanelH - nIconBtnH * 2 - nIconBtnGap) / 2;
-	int nBtnX = m_rectInputCard.right + TAECHANG_ROW_GAP;
+	int nBtnX = m_rectInputCard.right + SAGE_ROW_GAP;
 	if (nBtnX + nIconBtnW > nX + nW)
 		nBtnX = nX + nW - nIconBtnW;
 	m_wndCalcBtn.MoveWindow(nBtnX, nY + nIconBtnTopPad, nIconBtnW, nIconBtnH);
 	m_wndCalcResetBtn.MoveWindow(nBtnX, nY + nIconBtnTopPad + nIconBtnH + nIconBtnGap, nIconBtnW, nIconBtnH);
 
-	nY += nInputPanelH + TAECHANG_CALC_SECTION_GAP;
+	nY += nInputPanelH + SAGE_CALC_SECTION_GAP;
 
-	int nRowH = TAECHANG_EDIT_HEIGHT + TAECHANG_CALC_RESULT_ROW_GAP;
-	int nDivH = TAECHANG_CALC_DIVIDER_HEIGHT;
-	int nResultPanelH = nPad + nRowH + nRowH + nDivH + TAECHANG_CALC_RESULT_ROW_GAP
-		+ nRowH + nRowH + nDivH + TAECHANG_CALC_RESULT_ROW_GAP
-		+ TAECHANG_CALC_TOTAL_BAND_HEIGHT + TAECHANG_CALC_RESULT_ROW_GAP
-		+ TAECHANG_CALC_RANGE_HINT_HEIGHT + nPad;
+	int nRowH = SAGE_EDIT_HEIGHT + SAGE_CALC_RESULT_ROW_GAP;
+	int nDivH = SAGE_CALC_DIVIDER_HEIGHT;
+	int nResultPanelH = nPad + nRowH + nRowH + nDivH + SAGE_CALC_RESULT_ROW_GAP
+		+ nRowH + nRowH + nDivH + SAGE_CALC_RESULT_ROW_GAP
+		+ SAGE_CALC_TOTAL_BAND_HEIGHT + SAGE_CALC_RESULT_ROW_GAP
+		+ SAGE_CALC_RANGE_HINT_HEIGHT + nPad;
 
 	int nRX = nX + nPad;
 	int nRY = nY + nPad;
-	int nValX = nRX + nLabelW + TAECHANG_LABEL_EDIT_GAP;
+	int nValX = nRX + nLabelW + SAGE_LABEL_EDIT_GAP;
 	int nResultPanelW = nInputPanelW;
 	if (nResultPanelW > nW)
 		nResultPanelW = nW;
 	m_rectResultCard = CRect(nX, nY, nX + nResultPanelW, nY + nResultPanelH);
 	int nContentW = nResultPanelW - nPad * 2;
-	if (nContentW < nLabelW + TAECHANG_LABEL_EDIT_GAP + nValW)
-		nContentW = nLabelW + TAECHANG_LABEL_EDIT_GAP + nValW;
-	int nFreightUnitW = TAECHANG_CALC_FREIGHT_UNIT_WIDTH;
-	int nFreightEditW = nValW - nFreightUnitW - TAECHANG_LABEL_EDIT_GAP;
-	if (nFreightEditW < TAECHANG_CALC_FREIGHT_EDIT_MIN_W)
-		nFreightEditW = TAECHANG_CALC_FREIGHT_EDIT_MIN_W;
+	if (nContentW < nLabelW + SAGE_LABEL_EDIT_GAP + nValW)
+		nContentW = nLabelW + SAGE_LABEL_EDIT_GAP + nValW;
+	int nFreightUnitW = SAGE_CALC_FREIGHT_UNIT_WIDTH;
+	int nFreightEditW = nValW - nFreightUnitW - SAGE_LABEL_EDIT_GAP;
+	if (nFreightEditW < SAGE_CALC_FREIGHT_EDIT_MIN_W)
+		nFreightEditW = SAGE_CALC_FREIGHT_EDIT_MIN_W;
 	int nUnitRightX = nValX + nValW;
 
-	m_wndPrintLabel.MoveWindow(nRX, nRY, nLabelW, TAECHANG_EDIT_HEIGHT);
-	m_wndPrintValue.MoveWindow(nValX, nRY, nValW, TAECHANG_EDIT_HEIGHT);
+	m_wndPrintLabel.MoveWindow(nRX, nRY, nLabelW, SAGE_EDIT_HEIGHT);
+	m_wndPrintValue.MoveWindow(nValX, nRY, nValW, SAGE_EDIT_HEIGHT);
 	nRY += nRowH;
 
-	m_wndCoverLabel.MoveWindow(nRX, nRY, nLabelW, TAECHANG_EDIT_HEIGHT);
-	m_wndCoverValue.MoveWindow(nValX, nRY, nValW, TAECHANG_EDIT_HEIGHT);
+	m_wndCoverLabel.MoveWindow(nRX, nRY, nLabelW, SAGE_EDIT_HEIGHT);
+	m_wndCoverValue.MoveWindow(nValX, nRY, nValW, SAGE_EDIT_HEIGHT);
 	nRY += nRowH;
 
 	m_wndDivider.MoveWindow(nRX, nRY, nContentW, nDivH);
-	nRY += nDivH + TAECHANG_CALC_RESULT_ROW_GAP;
+	nRY += nDivH + SAGE_CALC_RESULT_ROW_GAP;
 
-	m_wndSubtotalLabel.MoveWindow(nRX, nRY, nLabelW, TAECHANG_EDIT_HEIGHT);
-	m_wndSubtotalValue.MoveWindow(nValX, nRY, nValW, TAECHANG_EDIT_HEIGHT);
+	m_wndSubtotalLabel.MoveWindow(nRX, nRY, nLabelW, SAGE_EDIT_HEIGHT);
+	m_wndSubtotalValue.MoveWindow(nValX, nRY, nValW, SAGE_EDIT_HEIGHT);
 	nRY += nRowH;
 
-	m_wndFreightLabel.MoveWindow(nRX, nRY, nLabelW, TAECHANG_EDIT_HEIGHT);
-	m_wndFreightUnitLabel.MoveWindow(nUnitRightX - nFreightUnitW, nRY, nFreightUnitW, TAECHANG_EDIT_HEIGHT);
-	int nFreightEditGap = TAECHANG_CALC_FREIGHT_EDIT_GAP;
+	m_wndFreightLabel.MoveWindow(nRX, nRY, nLabelW, SAGE_EDIT_HEIGHT);
+	m_wndFreightUnitLabel.MoveWindow(nUnitRightX - nFreightUnitW, nRY, nFreightUnitW, SAGE_EDIT_HEIGHT);
+	int nFreightEditGap = SAGE_CALC_FREIGHT_EDIT_GAP;
 	m_wndFreightEdit.MoveWindow(nUnitRightX - nFreightUnitW - nFreightEditGap - nFreightEditW,
-								nRY, nFreightEditW, TAECHANG_EDIT_HEIGHT);
+								nRY, nFreightEditW, SAGE_EDIT_HEIGHT);
 	ApplyCalcEditTextRect(m_wndFreightEdit);
 	nRY += nRowH;
 
 	m_wndTotalDivider.MoveWindow(nRX, nRY, nContentW, nDivH);
-	nRY += nDivH + TAECHANG_CALC_RESULT_ROW_GAP;
+	nRY += nDivH + SAGE_CALC_RESULT_ROW_GAP;
 
-	m_rectTotalBand = CRect(nRX, nRY, nRX + nContentW, nRY + TAECHANG_CALC_TOTAL_BAND_HEIGHT);
-	int nBandTextY = nRY + (TAECHANG_CALC_TOTAL_BAND_HEIGHT - TAECHANG_EDIT_HEIGHT) / 2;
-	m_wndTotalLabel.MoveWindow(nRX + TAECHANG_CALC_TOTAL_BAND_PAD, nBandTextY, nLabelW, TAECHANG_EDIT_HEIGHT);
-	m_wndTotalValue.MoveWindow(nValX, nBandTextY, nValW - TAECHANG_CALC_TOTAL_BAND_PAD, TAECHANG_EDIT_HEIGHT);
-	nRY += TAECHANG_CALC_TOTAL_BAND_HEIGHT + TAECHANG_CALC_RESULT_ROW_GAP;
+	m_rectTotalBand = CRect(nRX, nRY, nRX + nContentW, nRY + SAGE_CALC_TOTAL_BAND_HEIGHT);
+	int nBandTextY = nRY + (SAGE_CALC_TOTAL_BAND_HEIGHT - SAGE_EDIT_HEIGHT) / 2;
+	m_wndTotalLabel.MoveWindow(nRX + SAGE_CALC_TOTAL_BAND_PAD, nBandTextY, nLabelW, SAGE_EDIT_HEIGHT);
+	m_wndTotalValue.MoveWindow(nValX, nBandTextY, nValW - SAGE_CALC_TOTAL_BAND_PAD, SAGE_EDIT_HEIGHT);
+	nRY += SAGE_CALC_TOTAL_BAND_HEIGHT + SAGE_CALC_RESULT_ROW_GAP;
 
-	m_wndRangeHint.MoveWindow(nRX, nRY, nContentW, TAECHANG_CALC_RANGE_HINT_HEIGHT);
+	m_wndRangeHint.MoveWindow(nRX, nRY, nContentW, SAGE_CALC_RANGE_HINT_HEIGHT);
 
-	nY += nResultPanelH + TAECHANG_CALC_SECTION_GAP;
+	nY += nResultPanelH + SAGE_CALC_SECTION_GAP;
 
-	int nHistoryW = TAECHANG_CALC_HIST_COL_COMPANY_W + TAECHANG_CALC_HIST_COL_ITEM_W
-		+ TAECHANG_CALC_HIST_COL_DATE_W
-		+ TAECHANG_CALC_HIST_COL_COPIES_W + TAECHANG_CALC_HIST_COL_PAGES_W
-		+ TAECHANG_CALC_HIST_COL_PRINT_W + TAECHANG_CALC_HIST_COL_COVER_W
-		+ TAECHANG_CALC_HIST_COL_FREIGHT_W + TAECHANG_CALC_HIST_COL_TOTAL_W
-		+ TAECHANG_CALC_HIST_COL_TIME_W + ::GetSystemMetrics(SM_CXVSCROLL) + TAECHANG_CALC_HIST_WIDTH_PAD;
+	int nHistoryW = SAGE_CALC_HIST_COL_COMPANY_W + SAGE_CALC_HIST_COL_ITEM_W
+		+ SAGE_CALC_HIST_COL_DATE_W
+		+ SAGE_CALC_HIST_COL_COPIES_W + SAGE_CALC_HIST_COL_PAGES_W
+		+ SAGE_CALC_HIST_COL_PRINT_W + SAGE_CALC_HIST_COL_COVER_W
+		+ SAGE_CALC_HIST_COL_FREIGHT_W + SAGE_CALC_HIST_COL_TOTAL_W
+		+ SAGE_CALC_HIST_COL_TIME_W + ::GetSystemMetrics(SM_CXVSCROLL) + SAGE_CALC_HIST_WIDTH_PAD;
 	if (nHistoryW > nW)
 		nHistoryW = nW;
-	m_wndHistorySection.MoveWindow(nX, nY, nHistoryW, TAECHANG_SECTION_TITLE_HEIGHT);
-	nY += TAECHANG_SECTION_TITLE_HEIGHT + TAECHANG_PANEL_GAP;
+	m_wndHistorySection.MoveWindow(nX, nY, nHistoryW, SAGE_SECTION_TITLE_HEIGHT);
+	nY += SAGE_SECTION_TITLE_HEIGHT + SAGE_PANEL_GAP;
 
-	int nListH = nHeight - TAECHANG_MARGIN - nY;
-	if (nListH < TAECHANG_RESULT_MIN_HEIGHT)
-		nListH = TAECHANG_RESULT_MIN_HEIGHT;
+	int nListH = nHeight - SAGE_MARGIN - nY;
+	if (nListH < SAGE_RESULT_MIN_HEIGHT)
+		nListH = SAGE_RESULT_MIN_HEIGHT;
 	m_wndHistoryList.MoveWindow(nX, nY, nHistoryW, nListH);
-	m_wndHistoryList.SetColumnWidth(0, TAECHANG_CALC_HIST_COL_COMPANY_W);
-	m_wndHistoryList.SetColumnWidth(1, TAECHANG_CALC_HIST_COL_ITEM_W);
-	m_wndHistoryList.SetColumnWidth(2, TAECHANG_CALC_HIST_COL_DATE_W);
-	m_wndHistoryList.SetColumnWidth(3, TAECHANG_CALC_HIST_COL_COPIES_W);
-	m_wndHistoryList.SetColumnWidth(4, TAECHANG_CALC_HIST_COL_PAGES_W);
-	m_wndHistoryList.SetColumnWidth(5, TAECHANG_CALC_HIST_COL_PRINT_W);
-	m_wndHistoryList.SetColumnWidth(6, TAECHANG_CALC_HIST_COL_COVER_W);
-	m_wndHistoryList.SetColumnWidth(7, TAECHANG_CALC_HIST_COL_FREIGHT_W);
-	m_wndHistoryList.SetColumnWidth(8, TAECHANG_CALC_HIST_COL_TOTAL_W);
-	m_wndHistoryList.SetColumnWidth(9, TAECHANG_CALC_HIST_COL_TIME_W);
+	m_wndHistoryList.SetColumnWidth(0, SAGE_CALC_HIST_COL_COMPANY_W);
+	m_wndHistoryList.SetColumnWidth(1, SAGE_CALC_HIST_COL_ITEM_W);
+	m_wndHistoryList.SetColumnWidth(2, SAGE_CALC_HIST_COL_DATE_W);
+	m_wndHistoryList.SetColumnWidth(3, SAGE_CALC_HIST_COL_COPIES_W);
+	m_wndHistoryList.SetColumnWidth(4, SAGE_CALC_HIST_COL_PAGES_W);
+	m_wndHistoryList.SetColumnWidth(5, SAGE_CALC_HIST_COL_PRINT_W);
+	m_wndHistoryList.SetColumnWidth(6, SAGE_CALC_HIST_COL_COVER_W);
+	m_wndHistoryList.SetColumnWidth(7, SAGE_CALC_HIST_COL_FREIGHT_W);
+	m_wndHistoryList.SetColumnWidth(8, SAGE_CALC_HIST_COL_TOTAL_W);
+	m_wndHistoryList.SetColumnWidth(9, SAGE_CALC_HIST_COL_TIME_W);
 	int nHistoryCount = static_cast<int>(m_arrHistory.GetSize());
 	TrimHistoryToVisibleCapacity();
 	if (m_arrHistory.GetSize() != nHistoryCount)
@@ -345,24 +345,24 @@ void SagePriceCalcPanel::LayoutChildControls(int nWidth, int nHeight) {
 BOOL SagePriceCalcPanel::OnEraseBkgnd(CDC* pDC) {
 	CRect rectClient;
 	GetClientRect(&rectClient);
-	pDC->FillSolidRect(rectClient, TAECHANG_COLOR_APP_BACKGROUND);
+	pDC->FillSolidRect(rectClient, SAGE_COLOR_APP_BACKGROUND);
 	if (!m_rectInputCard.IsRectEmpty()) {
-		pDC->FillSolidRect(m_rectInputCard, TAECHANG_COLOR_PANEL);
-		CBrush brBorder(TAECHANG_COLOR_BORDER);
+		pDC->FillSolidRect(m_rectInputCard, SAGE_COLOR_PANEL);
+		CBrush brBorder(SAGE_COLOR_BORDER);
 		pDC->FrameRect(m_rectInputCard, &brBorder);
 	}
 	if (!m_rectResultCard.IsRectEmpty()) {
-		pDC->FillSolidRect(m_rectResultCard, TAECHANG_COLOR_PANEL);
-		CBrush brBorder(TAECHANG_COLOR_BORDER);
+		pDC->FillSolidRect(m_rectResultCard, SAGE_COLOR_PANEL);
+		CBrush brBorder(SAGE_COLOR_BORDER);
 		pDC->FrameRect(m_rectResultCard, &brBorder);
 		CRect rectTotalDiv;
 		m_wndTotalDivider.GetWindowRect(&rectTotalDiv);
 		ScreenToClient(&rectTotalDiv);
-		pDC->FillSolidRect(rectTotalDiv.left, rectTotalDiv.top - TAECHANG_CALC_DIVIDER_HEIGHT,
-			rectTotalDiv.Width(), TAECHANG_CALC_DIVIDER_HEIGHT, TAECHANG_COLOR_BORDER);
+		pDC->FillSolidRect(rectTotalDiv.left, rectTotalDiv.top - SAGE_CALC_DIVIDER_HEIGHT,
+			rectTotalDiv.Width(), SAGE_CALC_DIVIDER_HEIGHT, SAGE_COLOR_BORDER);
 	}
 	if (!m_rectTotalBand.IsRectEmpty())
-		pDC->FillSolidRect(m_rectTotalBand, TAECHANG_COLOR_ACCENT_SURFACE);
+		pDC->FillSolidRect(m_rectTotalBand, SAGE_COLOR_ACCENT_SURFACE);
 	DrawEditBorder(pDC, m_wndCompanyCombo);
 	DrawEditBorder(pDC, m_wndCopiesEdit);
 	DrawEditBorder(pDC, m_wndPagesEdit);
@@ -377,23 +377,23 @@ void SagePriceCalcPanel::DrawEditBorder(CDC* pDC, CWnd& wnd) {
 	wnd.GetWindowRect(&rect);
 	ScreenToClient(&rect);
 	rect.InflateRect(1, 1);
-	pDC->FillSolidRect(rect.left, rect.top, rect.Width(), 1, TAECHANG_COLOR_BORDER);
-	pDC->FillSolidRect(rect.left, rect.bottom - 1, rect.Width(), 1, TAECHANG_COLOR_BORDER);
-	pDC->FillSolidRect(rect.left, rect.top, 1, rect.Height(), TAECHANG_COLOR_BORDER);
-	pDC->FillSolidRect(rect.right - 1, rect.top, 1, rect.Height(), TAECHANG_COLOR_BORDER);
+	pDC->FillSolidRect(rect.left, rect.top, rect.Width(), 1, SAGE_COLOR_BORDER);
+	pDC->FillSolidRect(rect.left, rect.bottom - 1, rect.Width(), 1, SAGE_COLOR_BORDER);
+	pDC->FillSolidRect(rect.left, rect.top, 1, rect.Height(), SAGE_COLOR_BORDER);
+	pDC->FillSolidRect(rect.right - 1, rect.top, 1, rect.Height(), SAGE_COLOR_BORDER);
 }
 
 HBRUSH SagePriceCalcPanel::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
 	HBRUSH hBrush = CWnd::OnCtlColor(pDC, pWnd, nCtlColor);
 	if (pWnd->IsKindOf(RUNTIME_CLASS(CSageLabel)))
 		return hBrush;
-	pDC->SetTextColor(TAECHANG_COLOR_TEXT);
+	pDC->SetTextColor(SAGE_COLOR_TEXT);
 	if (nCtlColor == CTLCOLOR_STATIC) {
-		pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
+		pDC->SetBkColor(SAGE_COLOR_APP_BACKGROUND);
 		return SageUiResources::GetBrush(SAGE_BG_APP);
 	}
 	if (nCtlColor == CTLCOLOR_EDIT || nCtlColor == CTLCOLOR_LISTBOX) {
-		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
+		pDC->SetBkColor(SAGE_COLOR_PANEL);
 		return SageUiResources::GetBrush(SAGE_BG_PANEL);
 	}
 	return hBrush;
@@ -424,7 +424,7 @@ void SagePriceCalcPanel::RefreshCompanyCombo() {
 	m_wndCompanyCombo.ResetContent();
 	CStringArray arrNames;
 	CString strError;
-	if (sageDBMgr.GetTaechangPriceService()->LoadAllCompanyNames(arrNames, strError) == FALSE)
+	if (sageDBMgr.GetSagePriceService()->LoadAllCompanyNames(arrNames, strError) == FALSE)
 		return;
 	for (int i = 0; i < arrNames.GetSize(); ++i)
 		m_wndCompanyCombo.AddString(arrNames[i]);
@@ -439,10 +439,10 @@ void SagePriceCalcPanel::ClearInputAndResult() {
 
 void SagePriceCalcPanel::ClearResult() {
 	m_calcResult = SagePriceCalcResult();
-	m_wndPrintValue.SetWindowTextW(TAECHANG_UI_PRICE_SUMMARY_EMPTY);
-	m_wndCoverValue.SetWindowTextW(TAECHANG_UI_PRICE_SUMMARY_EMPTY);
-	m_wndSubtotalValue.SetWindowTextW(TAECHANG_UI_PRICE_SUMMARY_EMPTY);
-	m_wndTotalValue.SetWindowTextW(TAECHANG_UI_PRICE_SUMMARY_EMPTY);
+	m_wndPrintValue.SetWindowTextW(SAGE_UI_PRICE_SUMMARY_EMPTY);
+	m_wndCoverValue.SetWindowTextW(SAGE_UI_PRICE_SUMMARY_EMPTY);
+	m_wndSubtotalValue.SetWindowTextW(SAGE_UI_PRICE_SUMMARY_EMPTY);
+	m_wndTotalValue.SetWindowTextW(SAGE_UI_PRICE_SUMMARY_EMPTY);
 	m_wndRangeHint.SetWindowTextW(L"");
 }
 
@@ -456,10 +456,10 @@ void SagePriceCalcPanel::UpdateRangeHint() {
 	CString strCover = FormatPrice(m_calcResult.nCoverPrice);
 	CString strHint;
 	if (m_calcResult.bRangeHasMaxCopies)
-		strHint.Format(TAECHANG_UI_CALC_RANGE_FMT, m_calcResult.nRangeMinCopies,
+		strHint.Format(SAGE_UI_CALC_RANGE_FMT, m_calcResult.nRangeMinCopies,
 			m_calcResult.nRangeMaxCopies, strUnit.GetString(), strCover.GetString());
 	else
-		strHint.Format(TAECHANG_UI_CALC_RANGE_OPEN_FMT, m_calcResult.nRangeMinCopies,
+		strHint.Format(SAGE_UI_CALC_RANGE_OPEN_FMT, m_calcResult.nRangeMinCopies,
 			strUnit.GetString(), strCover.GetString());
 	m_wndRangeHint.SetWindowTextW(strHint);
 }
@@ -469,7 +469,7 @@ BOOL SagePriceCalcPanel::UpdatePreview(BOOL bShowMessage) {
 	if (nSel == CB_ERR) {
 		ClearResult();
 		if (bShowMessage)
-			ShowSageMessageBox(TAECHANG_UI_CALC_SELECT_COMPANY, MB_ICONWARNING);
+			ShowSageMessageBox(SAGE_UI_CALC_SELECT_COMPANY, MB_ICONWARNING);
 		return FALSE;
 	}
 
@@ -482,11 +482,11 @@ BOOL SagePriceCalcPanel::UpdatePreview(BOOL bShowMessage) {
 	if (strCopies.IsEmpty()) {
 		ClearResult();
 		if (bShowMessage)
-			ShowSageMessageBox(TAECHANG_UI_CALC_COPIES_REQUIRED, MB_ICONWARNING);
+			ShowSageMessageBox(SAGE_UI_CALC_COPIES_REQUIRED, MB_ICONWARNING);
 		return FALSE;
 	}
 
-	SagePriceCalcService calcService(sageDBMgr.GetTaechangPriceService());
+	SagePriceCalcService calcService(sageDBMgr.GetSagePriceService());
 	SagePriceCalcFailure nFailure;
 	if (calcService.ValidateCopies(_wtoi(strCopies), nFailure) == FALSE) {
 		ClearResult();
@@ -501,7 +501,7 @@ BOOL SagePriceCalcPanel::UpdatePreview(BOOL bShowMessage) {
 	if (strPages.IsEmpty()) {
 		ClearResult();
 		if (bShowMessage)
-			ShowSageMessageBox(TAECHANG_UI_CALC_PAGES_REQUIRED, MB_ICONWARNING);
+			ShowSageMessageBox(SAGE_UI_CALC_PAGES_REQUIRED, MB_ICONWARNING);
 		return FALSE;
 	}
 
@@ -522,9 +522,9 @@ BOOL SagePriceCalcPanel::UpdatePreview(BOOL bShowMessage) {
 	m_calcResult = result;
 
 	CString strPrint, strCover, strSub;
-	strPrint.Format(TAECHANG_UI_CALC_WON_FORMAT, FormatPrice(m_calcResult.nPrintPrice).GetString());
-	strCover.Format(TAECHANG_UI_CALC_WON_FORMAT, FormatPrice(m_calcResult.nCoverPrice).GetString());
-	strSub.Format(TAECHANG_UI_CALC_WON_FORMAT, FormatPrice(m_calcResult.nSubtotal).GetString());
+	strPrint.Format(SAGE_UI_CALC_WON_FORMAT, FormatPrice(m_calcResult.nPrintPrice).GetString());
+	strCover.Format(SAGE_UI_CALC_WON_FORMAT, FormatPrice(m_calcResult.nCoverPrice).GetString());
+	strSub.Format(SAGE_UI_CALC_WON_FORMAT, FormatPrice(m_calcResult.nSubtotal).GetString());
 	m_wndPrintValue.SetWindowTextW(strPrint);
 	m_wndCoverValue.SetWindowTextW(strCover);
 	m_wndSubtotalValue.SetWindowTextW(strSub);
@@ -536,16 +536,16 @@ BOOL SagePriceCalcPanel::UpdatePreview(BOOL bShowMessage) {
 void SagePriceCalcPanel::ShowFailureMessage(SagePriceCalcFailure nFailure, const CString& strError) const {
 	switch (nFailure) {
 	case SAGE_PRICE_CALC_COPIES_BELOW_MIN:
-		ShowSageMessageBox(TAECHANG_UI_CALC_COPIES_INVALID, MB_ICONWARNING);
+		ShowSageMessageBox(SAGE_UI_CALC_COPIES_INVALID, MB_ICONWARNING);
 		return;
 	case SAGE_PRICE_CALC_COPIES_ABOVE_MAX:
-		ShowSageMessageBox(TAECHANG_UI_PRICE_COPIES_OUT_OF_RANGE, MB_ICONWARNING);
+		ShowSageMessageBox(SAGE_UI_PRICE_COPIES_OUT_OF_RANGE, MB_ICONWARNING);
 		return;
 	case SAGE_PRICE_CALC_PAGES_OUT_OF_RANGE:
-		ShowSageMessageBox(TAECHANG_UI_CALC_PAGES_INVALID, MB_ICONWARNING);
+		ShowSageMessageBox(SAGE_UI_CALC_PAGES_INVALID, MB_ICONWARNING);
 		return;
 	case SAGE_PRICE_CALC_NO_DATA:
-		ShowSageMessageBox(TAECHANG_UI_CALC_NO_DATA, MB_ICONWARNING);
+		ShowSageMessageBox(SAGE_UI_CALC_NO_DATA, MB_ICONWARNING);
 		return;
 	default:
 		ShowSageMessageBox(strError, MB_ICONERROR);
@@ -558,11 +558,11 @@ void SagePriceCalcPanel::UpdateTotal() {
 	m_wndFreightEdit.GetWindowTextW(strFreight);
 	strFreight.Trim();
 
-	SagePriceCalcService calcService(sageDBMgr.GetTaechangPriceService());
+	SagePriceCalcService calcService(sageDBMgr.GetSagePriceService());
 	calcService.ApplyFreight(PriceTextToInt(strFreight), m_calcResult);
 
 	CString strTotal;
-	strTotal.Format(TAECHANG_UI_CALC_WON_FORMAT, FormatPrice(m_calcResult.nTotal).GetString());
+	strTotal.Format(SAGE_UI_CALC_WON_FORMAT, FormatPrice(m_calcResult.nTotal).GetString());
 	m_wndTotalValue.SetWindowTextW(strTotal);
 }
 
@@ -592,22 +592,22 @@ void SagePriceCalcPanel::OnCalc() {
 
 	CString strPluginDir;
 	if (!GetExecutableDirectory(strPluginDir)) {
-		ShowSageMessageBox(TAECHANG_UI_CALC_ESTIMATE_SCRIPT_MISSING, MB_ICONERROR);
+		ShowSageMessageBox(SAGE_UI_CALC_ESTIMATE_SCRIPT_MISSING, MB_ICONERROR);
 		return;
 	}
-	CString strTemplatePath = CombinePath(strPluginDir, TAECHANG_ESTIMATE_TEMPLATE_REL_PATH);
-	CString strScriptPath   = CombinePath(strPluginDir, TAECHANG_CALC_ESTIMATE_SCRIPT_REL_PATH);
+	CString strTemplatePath = CombinePath(strPluginDir, SAGE_ESTIMATE_TEMPLATE_REL_PATH);
+	CString strScriptPath   = CombinePath(strPluginDir, SAGE_CALC_ESTIMATE_SCRIPT_REL_PATH);
 
 	if (!FileExists(strTemplatePath)) {
-		ShowSageMessageBox(TAECHANG_UI_CALC_ESTIMATE_TEMPLATE_MISSING, MB_ICONERROR);
+		ShowSageMessageBox(SAGE_UI_CALC_ESTIMATE_TEMPLATE_MISSING, MB_ICONERROR);
 		return;
 	}
 	if (!FileExists(strScriptPath)) {
-		ShowSageMessageBox(TAECHANG_UI_CALC_ESTIMATE_SCRIPT_MISSING, MB_ICONERROR);
+		ShowSageMessageBox(SAGE_UI_CALC_ESTIMATE_SCRIPT_MISSING, MB_ICONERROR);
 		return;
 	}
 
-	TaechangCalcEstimateDlg dlg(strCompany, nCopies, nPages,
+	SageCalcEstimateDlg dlg(strCompany, nCopies, nPages,
 		m_calcResult.nUnitPrice, m_calcResult.nCoverPrice, nFreight,
 		strTemplatePath, strScriptPath, this);
 	if (dlg.DoModal() == IDOK) {
@@ -652,7 +652,7 @@ void SagePriceCalcPanel::OnCompanyPick() {
 	if (nCurSel != CB_ERR)
 		m_wndCompanyCombo.GetLBText(nCurSel, strCurrent);
 
-	TaechangCalcCompanyPickerDlg dlg(arrNames, strCurrent, this);
+	SageCalcCompanyPickerDlg dlg(arrNames, strCurrent, this);
 	if (dlg.DoModal() == IDOK) {
 		CString strSelected = dlg.GetSelectedName();
 		int nIdx = m_wndCompanyCombo.FindStringExact(-1, strSelected);
@@ -685,11 +685,11 @@ void SagePriceCalcPanel::AddHistory(const CString& strCompany, int nCopies, int 
 
 int SagePriceCalcPanel::GetHistoryVisibleCapacity() const {
 	if (!::IsWindow(m_wndHistoryList.GetSafeHwnd()))
-		return TAECHANG_CALC_MAX_HISTORY;
+		return SAGE_CALC_MAX_HISTORY;
 
 	int nCapacity = m_wndHistoryList.GetCountPerPage();
 	if (nCapacity <= 0)
-		return TAECHANG_CALC_MAX_HISTORY;
+		return SAGE_CALC_MAX_HISTORY;
 	return nCapacity;
 }
 
@@ -705,7 +705,7 @@ void SagePriceCalcPanel::RefreshHistoryList() {
 	int nCount = static_cast<int>(m_arrHistory.GetSize());
 	if (nCount > 0) {
 		CString strCount;
-		strCount.Format(TAECHANG_UI_CALC_HIST_COUNT_FMT, nCount);
+		strCount.Format(SAGE_UI_CALC_HIST_COUNT_FMT, nCount);
 		m_wndHistorySection.SetHintText(strCount);
 	} else {
 		m_wndHistorySection.SetHintText(L"");
@@ -720,24 +720,24 @@ void SagePriceCalcPanel::RefreshHistoryList() {
 		m_wndHistoryList.SetItemText(i, 2, e.strDate);
 
 		CString strCopies;
-		strCopies.Format(TAECHANG_UI_CALC_HIST_COPIES_FMT, e.nCopies);
+		strCopies.Format(SAGE_UI_CALC_HIST_COPIES_FMT, e.nCopies);
 		m_wndHistoryList.SetItemText(i, 3, strCopies);
 
 		CString strPages;
-		strPages.Format(TAECHANG_UI_CALC_HIST_PAGES_FMT, e.nPages);
+		strPages.Format(SAGE_UI_CALC_HIST_PAGES_FMT, e.nPages);
 		m_wndHistoryList.SetItemText(i, 4, strPages);
 
 		CString strPrint, strCover, strFreight, strTotal;
-		strPrint.Format(TAECHANG_UI_CALC_WON_FORMAT, FormatPrice(e.nPrintPrice).GetString());
-		strCover.Format(TAECHANG_UI_CALC_WON_FORMAT, FormatPrice(e.nCoverPrice).GetString());
-		strFreight.Format(TAECHANG_UI_CALC_WON_FORMAT, FormatPrice(e.nFreight).GetString());
-		strTotal.Format(TAECHANG_UI_CALC_WON_FORMAT, FormatPrice(e.nTotal).GetString());
+		strPrint.Format(SAGE_UI_CALC_WON_FORMAT, FormatPrice(e.nPrintPrice).GetString());
+		strCover.Format(SAGE_UI_CALC_WON_FORMAT, FormatPrice(e.nCoverPrice).GetString());
+		strFreight.Format(SAGE_UI_CALC_WON_FORMAT, FormatPrice(e.nFreight).GetString());
+		strTotal.Format(SAGE_UI_CALC_WON_FORMAT, FormatPrice(e.nTotal).GetString());
 		m_wndHistoryList.SetItemText(i, 5, strPrint);
 		m_wndHistoryList.SetItemText(i, 6, strCover);
 		m_wndHistoryList.SetItemText(i, 7, strFreight);
 		m_wndHistoryList.SetItemText(i, 8, strTotal);
 
-		CString strTime = e.timeCalc.Format(TAECHANG_UI_CALC_HIST_TIME_FMT);
+		CString strTime = e.timeCalc.Format(SAGE_UI_CALC_HIST_TIME_FMT);
 		m_wndHistoryList.SetItemText(i, 9, strTime);
 	}
 	m_wndHistoryList.SetRedraw(TRUE);

@@ -1,6 +1,6 @@
 ﻿#include "pch.h"
 #include "app/ui/drawing/SageSummaryBar.h"
-#include "TaechangDefine.h"
+#include "SageDefine.h"
 
 BEGIN_MESSAGE_MAP(CSageSummaryBar, CStatic)
 	ON_WM_SIZE()
@@ -29,7 +29,7 @@ int CSageSummaryBar::FindBadgeItemIndex() const {
 
 CString CSageSummaryBar::BuildBadgeText(const SageSummaryBarItem& item) const {
 	CString strText;
-	strText.Format(TAECHANG_UI_SUMMARY_BADGE_FORMAT,
+	strText.Format(SAGE_UI_SUMMARY_BADGE_FORMAT,
 		static_cast<LPCWSTR>(item.strLabel),
 		static_cast<LPCWSTR>(item.strValue),
 		static_cast<LPCWSTR>(item.strUnit));
@@ -46,9 +46,9 @@ void CSageSummaryBar::ApplyBadgeItem() {
 
 	if (!::IsWindow(m_wndBadge.GetSafeHwnd())) {
 		ModifyStyle(0, WS_CLIPCHILDREN);
-		m_wndBadge.Create(L"", WS_CHILD | SS_OWNERDRAW, CRect(0, 0, 0, 0), this, ID_TAECHANG_SUMMARY_BADGE);
-		m_wndBadge.SetCornerRadius(TAECHANG_BADGE_RADIUS);
-		m_wndBadge.SetSurfaceColor(TAECHANG_COLOR_APP_BACKGROUND);
+		m_wndBadge.Create(L"", WS_CHILD | SS_OWNERDRAW, CRect(0, 0, 0, 0), this, ID_SAGE_SUMMARY_BADGE);
+		m_wndBadge.SetCornerRadius(SAGE_BADGE_RADIUS);
+		m_wndBadge.SetSurfaceColor(SAGE_COLOR_APP_BACKGROUND);
 	}
 
 	const SageSummaryBarItem& item = m_arrItems[nIndex];
@@ -70,11 +70,11 @@ void CSageSummaryBar::LayoutBadge() {
 	int nLeft = rectClient.left;
 	for (int i = 0; i < nIndex; ++i) {
 		if (i > 0)
-			nLeft += TAECHANG_SUMMARY_ITEM_GAP + TAECHANG_BORDER_THICKNESS + TAECHANG_SUMMARY_ITEM_GAP;
+			nLeft += SAGE_SUMMARY_ITEM_GAP + SAGE_BORDER_THICKNESS + SAGE_SUMMARY_ITEM_GAP;
 		nLeft += MeasureItemWidth(&dc, m_arrItems[i]);
 	}
 	if (nIndex > 0)
-		nLeft += TAECHANG_SUMMARY_ITEM_GAP + TAECHANG_BORDER_THICKNESS + TAECHANG_SUMMARY_ITEM_GAP;
+		nLeft += SAGE_SUMMARY_ITEM_GAP + SAGE_BORDER_THICKNESS + SAGE_SUMMARY_ITEM_GAP;
 
 	int nWidth = MeasureItemWidth(&dc, m_arrItems[nIndex]);
 	m_wndBadge.MoveWindow(nLeft, rectClient.top, nWidth, rectClient.Height());
@@ -96,15 +96,15 @@ int CSageSummaryBar::MeasureTextWidth(CDC* pDC, const CString& strText, SageFont
 
 int CSageSummaryBar::MeasureItemWidth(CDC* pDC, const SageSummaryBarItem& item) const {
 	if (item.badge.IsVisible())
-		return MeasureTextWidth(pDC, BuildBadgeText(item), SAGE_FONT_CAPTION) + TAECHANG_BADGE_PAD_X * 2;
+		return MeasureTextWidth(pDC, BuildBadgeText(item), SAGE_FONT_CAPTION) + SAGE_BADGE_PAD_X * 2;
 
 	int nWidth = MeasureTextWidth(pDC, item.strLabel, SAGE_FONT_CAPTION);
 	if (nWidth > 0)
-		nWidth += TAECHANG_SUMMARY_TEXT_GAP;
+		nWidth += SAGE_SUMMARY_TEXT_GAP;
 	nWidth += MeasureTextWidth(pDC, item.strValue, SAGE_FONT_SUMMARY);
 	int nUnitWidth = MeasureTextWidth(pDC, item.strUnit, SAGE_FONT_CAPTION);
 	if (nUnitWidth > 0)
-		nWidth += TAECHANG_SUMMARY_TEXT_GAP + nUnitWidth;
+		nWidth += SAGE_SUMMARY_TEXT_GAP + nUnitWidth;
 	return nWidth;
 }
 
@@ -122,23 +122,23 @@ int CSageSummaryBar::DrawTextSegment(CDC* pDC, int nLeft, const CRect& rectItem,
 }
 
 void CSageSummaryBar::DrawDivider(CDC* pDC, int nLeft, const CRect& rectClient) {
-	int nTop = rectClient.top + (rectClient.Height() - TAECHANG_SUMMARY_DIVIDER_HEIGHT) / 2;
-	pDC->FillSolidRect(nLeft, nTop, TAECHANG_BORDER_THICKNESS, TAECHANG_SUMMARY_DIVIDER_HEIGHT, TAECHANG_COLOR_BORDER);
+	int nTop = rectClient.top + (rectClient.Height() - SAGE_SUMMARY_DIVIDER_HEIGHT) / 2;
+	pDC->FillSolidRect(nLeft, nTop, SAGE_BORDER_THICKNESS, SAGE_SUMMARY_DIVIDER_HEIGHT, SAGE_COLOR_BORDER);
 }
 
 void CSageSummaryBar::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 	CDC* pDC = CDC::FromHandle(lpDrawItemStruct->hDC);
 	CRect rectClient(lpDrawItemStruct->rcItem);
 
-	pDC->FillSolidRect(rectClient, TAECHANG_COLOR_APP_BACKGROUND);
+	pDC->FillSolidRect(rectClient, SAGE_COLOR_APP_BACKGROUND);
 
 	pDC->SetBkMode(TRANSPARENT);
 	int nLeft = rectClient.left;
 	for (int i = 0; i < static_cast<int>(m_arrItems.size()); ++i) {
 		if (i > 0) {
-			nLeft += TAECHANG_SUMMARY_ITEM_GAP;
+			nLeft += SAGE_SUMMARY_ITEM_GAP;
 			DrawDivider(pDC, nLeft, rectClient);
-			nLeft += TAECHANG_BORDER_THICKNESS + TAECHANG_SUMMARY_ITEM_GAP;
+			nLeft += SAGE_BORDER_THICKNESS + SAGE_SUMMARY_ITEM_GAP;
 		}
 
 		const SageSummaryBarItem& item = m_arrItems[i];
@@ -151,16 +151,16 @@ void CSageSummaryBar::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 			continue;
 		}
 
-		nLeft = DrawTextSegment(pDC, nLeft, rectClient, item.strLabel, SAGE_FONT_CAPTION, TAECHANG_COLOR_SECONDARY_TEXT);
+		nLeft = DrawTextSegment(pDC, nLeft, rectClient, item.strLabel, SAGE_FONT_CAPTION, SAGE_COLOR_SECONDARY_TEXT);
 		if (!item.strLabel.IsEmpty())
-			nLeft += TAECHANG_SUMMARY_TEXT_GAP;
+			nLeft += SAGE_SUMMARY_TEXT_GAP;
 
-		COLORREF colorValue = item.bHighlight ? TAECHANG_COLOR_PRIMARY : TAECHANG_COLOR_TEXT;
+		COLORREF colorValue = item.bHighlight ? SAGE_COLOR_PRIMARY : SAGE_COLOR_TEXT;
 		nLeft = DrawTextSegment(pDC, nLeft, rectClient, item.strValue, SAGE_FONT_SUMMARY, colorValue);
 		if (item.strUnit.IsEmpty())
 			continue;
 
-		nLeft += TAECHANG_SUMMARY_TEXT_GAP;
-		nLeft = DrawTextSegment(pDC, nLeft, rectClient, item.strUnit, SAGE_FONT_CAPTION, TAECHANG_COLOR_SECONDARY_TEXT);
+		nLeft += SAGE_SUMMARY_TEXT_GAP;
+		nLeft = DrawTextSegment(pDC, nLeft, rectClient, item.strUnit, SAGE_FONT_CAPTION, SAGE_COLOR_SECONDARY_TEXT);
 	}
 }

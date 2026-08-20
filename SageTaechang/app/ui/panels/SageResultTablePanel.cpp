@@ -2,25 +2,25 @@
 #include "app/ui/panels/SageResultTablePanel.h"
 #include "app/ui/drawing/SageLabel.h"
 #include "app/ui/drawing/SageUiResources.h"
-#include "TaechangDefine.h"
+#include "SageDefine.h"
 #include <uxtheme.h>
 
 BEGIN_MESSAGE_MAP(SageResultTablePanel, CWnd)
 	ON_WM_CREATE()
 	ON_WM_ERASEBKGND()
 	ON_WM_CTLCOLOR()
-	ON_BN_CLICKED(ID_TAECHANG_RESULT_SEARCH_BTN, &SageResultTablePanel::OnSearch)
-	ON_BN_CLICKED(ID_TAECHANG_RESULT_RESET_BTN, &SageResultTablePanel::OnFilterReset)
-	ON_CBN_SELCHANGE(ID_TAECHANG_RESULT_FILTER_CRITERIA, &SageResultTablePanel::OnCriteriaChanged)
-	ON_BN_CLICKED(ID_TAECHANG_SELECT_ALL, &SageResultTablePanel::OnSelectAll)
-	ON_BN_CLICKED(ID_TAECHANG_SELECTION_CLEAR, &SageResultTablePanel::OnSelectionClear)
-	ON_BN_CLICKED(ID_TAECHANG_ESTIMATE_ONE_PAGE, &SageResultTablePanel::OnOnePageOption)
-	ON_NOTIFY(LVN_ITEMCHANGED, ID_TAECHANG_RESULT_LIST, &SageResultTablePanel::OnListItemChanged)
-	ON_NOTIFY(LVN_GETDISPINFO, ID_TAECHANG_RESULT_LIST, &SageResultTablePanel::OnListGetDispInfo)
+	ON_BN_CLICKED(ID_SAGE_RESULT_SEARCH_BTN, &SageResultTablePanel::OnSearch)
+	ON_BN_CLICKED(ID_SAGE_RESULT_RESET_BTN, &SageResultTablePanel::OnFilterReset)
+	ON_CBN_SELCHANGE(ID_SAGE_RESULT_FILTER_CRITERIA, &SageResultTablePanel::OnCriteriaChanged)
+	ON_BN_CLICKED(ID_SAGE_SELECT_ALL, &SageResultTablePanel::OnSelectAll)
+	ON_BN_CLICKED(ID_SAGE_SELECTION_CLEAR, &SageResultTablePanel::OnSelectionClear)
+	ON_BN_CLICKED(ID_SAGE_ESTIMATE_ONE_PAGE, &SageResultTablePanel::OnOnePageOption)
+	ON_NOTIFY(LVN_ITEMCHANGED, ID_SAGE_RESULT_LIST, &SageResultTablePanel::OnListItemChanged)
+	ON_NOTIFY(LVN_GETDISPINFO, ID_SAGE_RESULT_LIST, &SageResultTablePanel::OnListGetDispInfo)
 END_MESSAGE_MAP()
 
 SageResultTablePanel::SageResultTablePanel()
-	: m_nCriteria(TAECHANG_FILTER_CRITERIA_NONE)
+	: m_nCriteria(SAGE_FILTER_CRITERIA_NONE)
 	, m_bTitleVisible(FALSE)
 	, m_bSelectAllVisible(FALSE)
 	, m_bOnePageVisible(FALSE)
@@ -38,7 +38,7 @@ static void AcceptDroppedFiles(CWnd& wnd) {
 	::DragAcceptFiles(hWnd, TRUE);
 	::ChangeWindowMessageFilterEx(hWnd, WM_DROPFILES, MSGFLT_ALLOW, NULL);
 	::ChangeWindowMessageFilterEx(hWnd, WM_COPYDATA, MSGFLT_ALLOW, NULL);
-	::ChangeWindowMessageFilterEx(hWnd, WM_TAECHANG_COPYGLOBALDATA, MSGFLT_ALLOW, NULL);
+	::ChangeWindowMessageFilterEx(hWnd, WM_SAGE_COPYGLOBALDATA, MSGFLT_ALLOW, NULL);
 }
 
 static SageTotalBarCellStyle ToTotalBarCellStyle(SageResultTotalRole nRole) {
@@ -81,26 +81,26 @@ int SageResultTablePanel::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 
 void SageResultTablePanel::CreateControls() {
 	CRect r(0, 0, 0, 0);
-	m_wndTitle.Create(TAECHANG_UI_SECTION_RESULT, WS_CHILD | SS_OWNERDRAW, r, this, ID_TAECHANG_RESULT_SECTION);
-	m_wndSelectionBar.Create(L"", WS_CHILD | SS_OWNERDRAW, r, this, ID_TAECHANG_RESULT_SELECTION_BAR);
-	m_wndSelectionBar.SetCommands(ID_TAECHANG_SELECT_ALL, ID_TAECHANG_SELECTION_CLEAR);
-	m_wndOnePage.Create(TAECHANG_UI_ESTIMATE_ONE_PAGE_CHECK, WS_CHILD | BS_OWNERDRAW, r, this, ID_TAECHANG_ESTIMATE_ONE_PAGE);
-	m_wndOnePage.SetHint(TAECHANG_UI_ESTIMATE_ONE_PAGE_HINT);
+	m_wndTitle.Create(SAGE_UI_SECTION_RESULT, WS_CHILD | SS_OWNERDRAW, r, this, ID_SAGE_RESULT_SECTION);
+	m_wndSelectionBar.Create(L"", WS_CHILD | SS_OWNERDRAW, r, this, ID_SAGE_RESULT_SELECTION_BAR);
+	m_wndSelectionBar.SetCommands(ID_SAGE_SELECT_ALL, ID_SAGE_SELECTION_CLEAR);
+	m_wndOnePage.Create(SAGE_UI_ESTIMATE_ONE_PAGE_CHECK, WS_CHILD | BS_OWNERDRAW, r, this, ID_SAGE_ESTIMATE_ONE_PAGE);
+	m_wndOnePage.SetHint(SAGE_UI_ESTIMATE_ONE_PAGE_HINT);
 
-	m_wndSearch.CreateBox(this, ID_TAECHANG_RESULT_FILTER_BOX, ID_TAECHANG_RESULT_FILTER_EDIT);
-	m_wndSearch.CreateCriteriaCell(ID_TAECHANG_RESULT_FILTER_CRITERIA, TAECHANG_RESULT_CRITERIA_DROP_ROWS);
-	m_wndSearch.SetCommand(ID_TAECHANG_RESULT_SEARCH_BTN);
-	m_wndSearch.SetMaxLength(TAECHANG_RESULT_FILTER_MAX_LENGTH);
-	m_wndSearch.SetPlaceholder(TAECHANG_UI_RESULT_FILTER_PLACEHOLDER);
-	m_wndResetBtn.Create(TAECHANG_UI_RESULT_RESET_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_TAECHANG_RESULT_RESET_BTN);
+	m_wndSearch.CreateBox(this, ID_SAGE_RESULT_FILTER_BOX, ID_SAGE_RESULT_FILTER_EDIT);
+	m_wndSearch.CreateCriteriaCell(ID_SAGE_RESULT_FILTER_CRITERIA, SAGE_RESULT_CRITERIA_DROP_ROWS);
+	m_wndSearch.SetCommand(ID_SAGE_RESULT_SEARCH_BTN);
+	m_wndSearch.SetMaxLength(SAGE_RESULT_FILTER_MAX_LENGTH);
+	m_wndSearch.SetPlaceholder(SAGE_UI_RESULT_FILTER_PLACEHOLDER);
+	m_wndResetBtn.Create(SAGE_UI_RESULT_RESET_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_SAGE_RESULT_RESET_BTN);
 	m_wndResetBtn.SetVariant(SAGE_BUTTON_GHOST);
 	m_wndResetBtn.SetIcon(SAGE_BUTTON_ICON_RESET);
-	m_wndResetBtn.SetSurfaceColor(TAECHANG_COLOR_APP_BACKGROUND);
+	m_wndResetBtn.SetSurfaceColor(SAGE_COLOR_APP_BACKGROUND);
 
-	m_wndSummaryBar.Create(L"", WS_CHILD | SS_OWNERDRAW, r, this, ID_TAECHANG_RESULT_SUMMARY_BAR);
-	m_wndTotalBar.Create(L"", WS_CHILD | SS_OWNERDRAW, r, this, ID_TAECHANG_RESULT_TOTAL_BAR);
+	m_wndSummaryBar.Create(L"", WS_CHILD | SS_OWNERDRAW, r, this, ID_SAGE_RESULT_SUMMARY_BAR);
+	m_wndTotalBar.Create(L"", WS_CHILD | SS_OWNERDRAW, r, this, ID_SAGE_RESULT_TOTAL_BAR);
 
-	m_wndList.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SINGLESEL, r, this, ID_TAECHANG_RESULT_LIST);
+	m_wndList.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SINGLESEL, r, this, ID_SAGE_RESULT_LIST);
 	m_wndList.SetAlternateRowColor(TRUE);
 	m_wndList.SetFirstColumnAlign(SAGE_LIST_FIRST_COLUMN_CENTER);
 	CHeaderCtrl* pHeader = m_wndList.GetHeaderCtrl();
@@ -120,12 +120,12 @@ void SageResultTablePanel::ApplyControlFonts() {
 }
 
 int SageResultTablePanel::GetBandHeight() const {
-	return TAECHANG_RESULT_FILTER_TOP_LIFT + TAECHANG_RESULT_FILTER_BOX_PAD;
+	return SAGE_RESULT_FILTER_TOP_LIFT + SAGE_RESULT_FILTER_BOX_PAD;
 }
 
 int SageResultTablePanel::GetFilterTotalWidth() const {
-	return TAECHANG_SEARCH_CRITERIA_CELL_WIDTH + TAECHANG_RESULT_FILTER_WIDTH
-		+ TAECHANG_SEARCH_ICON_CELL_WIDTH + TAECHANG_ACTION_GAP + TAECHANG_RESULT_RESET_WIDTH;
+	return SAGE_SEARCH_CRITERIA_CELL_WIDTH + SAGE_RESULT_FILTER_WIDTH
+		+ SAGE_SEARCH_ICON_CELL_WIDTH + SAGE_ACTION_GAP + SAGE_RESULT_RESET_WIDTH;
 }
 
 int SageResultTablePanel::GetBandRight() const {
@@ -134,7 +134,7 @@ int SageResultTablePanel::GetBandRight() const {
 	int nWidth = rectClient.Width();
 	if (!m_bFilterVisible)
 		return nWidth;
-	int nBandRight = nWidth - GetFilterTotalWidth() - TAECHANG_ROW_GAP;
+	int nBandRight = nWidth - GetFilterTotalWidth() - SAGE_ROW_GAP;
 	return (nBandRight < 0) ? 0 : nBandRight;
 }
 
@@ -142,17 +142,17 @@ void SageResultTablePanel::LayoutSelectionRow() {
 	if (!m_bSelectAllVisible || !::IsWindow(m_wndSelectionBar.GetSafeHwnd()))
 		return;
 
-	int nRowTop = GetBandHeight() - TAECHANG_BUTTON_VERT_ADJUST;
+	int nRowTop = GetBandHeight() - SAGE_BUTTON_VERT_ADJUST;
 	int nBandRight = GetBandRight();
 	int nBarWidth = m_wndSelectionBar.GetContentWidth();
 	if (nBarWidth > nBandRight)
 		nBarWidth = nBandRight;
-	m_wndSelectionBar.MoveWindow(0, nRowTop, nBarWidth, TAECHANG_BUTTON_HEIGHT);
+	m_wndSelectionBar.MoveWindow(0, nRowTop, nBarWidth, SAGE_BUTTON_HEIGHT);
 	if (!m_bOnePageVisible)
 		return;
 
-	int nOnePageLeft = nBarWidth + TAECHANG_SELECTION_BAR_GAP;
-	m_wndOnePage.MoveWindow(nOnePageLeft, nRowTop, m_wndOnePage.GetContentWidth(), TAECHANG_BUTTON_HEIGHT);
+	int nOnePageLeft = nBarWidth + SAGE_SELECTION_BAR_GAP;
+	m_wndOnePage.MoveWindow(nOnePageLeft, nRowTop, m_wndOnePage.GetContentWidth(), SAGE_BUTTON_HEIGHT);
 }
 
 void SageResultTablePanel::SetTitle(LPCWSTR pszTitle) {
@@ -210,31 +210,31 @@ void SageResultTablePanel::LayoutBandRow() {
 		m_wndTitle.MoveWindow(0, 0, 0, 0);
 		m_wndSummaryBar.MoveWindow(
 			0,
-			nBandTop - TAECHANG_BUTTON_VERT_ADJUST,
+			nBandTop - SAGE_BUTTON_VERT_ADJUST,
 			nBandRight,
-			TAECHANG_SUMMARY_BAR_HEIGHT);
+			SAGE_SUMMARY_BAR_HEIGHT);
 		return;
 	}
 	m_wndSummaryBar.MoveWindow(0, 0, 0, 0);
-	m_wndTitle.MoveWindow(0, nBandTop, nBandRight, TAECHANG_RESULT_HEADER_HEIGHT);
+	m_wndTitle.MoveWindow(0, nBandTop, nBandRight, SAGE_RESULT_HEADER_HEIGHT);
 }
 
 void SageResultTablePanel::Layout(const CRect& rectPanel) {
 	MoveWindow(rectPanel);
 
-	int nBandTop = TAECHANG_RESULT_FILTER_TOP_LIFT + TAECHANG_RESULT_FILTER_BOX_PAD;
+	int nBandTop = SAGE_RESULT_FILTER_TOP_LIFT + SAGE_RESULT_FILTER_BOX_PAD;
 	int nWidth = rectPanel.Width();
 	int nFilterLeft = nWidth - GetFilterTotalWidth();
 
 	LayoutBandRow();
 
 	if (m_bFilterVisible) {
-		int nFilterTop = nBandTop - TAECHANG_BUTTON_VERT_ADJUST;
-		int nBoxWidth = TAECHANG_SEARCH_CRITERIA_CELL_WIDTH + TAECHANG_RESULT_FILTER_WIDTH
-			+ TAECHANG_SEARCH_ICON_CELL_WIDTH;
-		m_wndResetBtn.MoveWindow(nFilterLeft, nFilterTop, TAECHANG_RESULT_RESET_WIDTH, TAECHANG_BUTTON_HEIGHT);
-		int nBoxLeft = nFilterLeft + TAECHANG_RESULT_RESET_WIDTH + TAECHANG_ACTION_GAP;
-		m_wndSearch.MoveWindow(nBoxLeft, nFilterTop, nBoxWidth, TAECHANG_EDIT_HEIGHT);
+		int nFilterTop = nBandTop - SAGE_BUTTON_VERT_ADJUST;
+		int nBoxWidth = SAGE_SEARCH_CRITERIA_CELL_WIDTH + SAGE_RESULT_FILTER_WIDTH
+			+ SAGE_SEARCH_ICON_CELL_WIDTH;
+		m_wndResetBtn.MoveWindow(nFilterLeft, nFilterTop, SAGE_RESULT_RESET_WIDTH, SAGE_BUTTON_HEIGHT);
+		int nBoxLeft = nFilterLeft + SAGE_RESULT_RESET_WIDTH + SAGE_ACTION_GAP;
+		m_wndSearch.MoveWindow(nBoxLeft, nFilterTop, nBoxWidth, SAGE_EDIT_HEIGHT);
 	}
 
 	LayoutTableArea();
@@ -251,19 +251,19 @@ void SageResultTablePanel::LayoutTableArea() {
 	if (nWidth <= 0)
 		return;
 
-	int nListTop = GetBandHeight() + TAECHANG_RESULT_HEADER_HEIGHT;
+	int nListTop = GetBandHeight() + SAGE_RESULT_HEADER_HEIGHT;
 	int nBandBottom = 0;
 	if (m_bSelectAllVisible)
-		nBandBottom = GetBandHeight() - TAECHANG_BUTTON_VERT_ADJUST + TAECHANG_BUTTON_HEIGHT;
+		nBandBottom = GetBandHeight() - SAGE_BUTTON_VERT_ADJUST + SAGE_BUTTON_HEIGHT;
 	else if (m_wndSummaryBar.HasItems())
-		nBandBottom = GetBandHeight() - TAECHANG_BUTTON_VERT_ADJUST + TAECHANG_SUMMARY_BAR_HEIGHT;
-	if (nListTop < nBandBottom + TAECHANG_ROW_GAP)
-		nListTop = nBandBottom + TAECHANG_ROW_GAP;
+		nBandBottom = GetBandHeight() - SAGE_BUTTON_VERT_ADJUST + SAGE_SUMMARY_BAR_HEIGHT;
+	if (nListTop < nBandBottom + SAGE_ROW_GAP)
+		nListTop = nBandBottom + SAGE_ROW_GAP;
 
-	int nTotalBarHeight = m_arrTotalCells.empty() ? 0 : TAECHANG_TOTAL_BAR_HEIGHT;
+	int nTotalBarHeight = m_arrTotalCells.empty() ? 0 : SAGE_TOTAL_BAR_HEIGHT;
 	int nListHeight = nHeight - nListTop - nTotalBarHeight;
-	if (nListHeight < TAECHANG_RESULT_MIN_HEIGHT)
-		nListHeight = TAECHANG_RESULT_MIN_HEIGHT;
+	if (nListHeight < SAGE_RESULT_MIN_HEIGHT)
+		nListHeight = SAGE_RESULT_MIN_HEIGHT;
 	m_wndList.MoveWindow(0, nListTop, nWidth, nListHeight);
 	if (nTotalBarHeight > 0)
 		m_wndTotalBar.MoveWindow(0, nListTop + nListHeight, nWidth, nTotalBarHeight);
@@ -273,7 +273,7 @@ void SageResultTablePanel::LayoutTableArea() {
 BOOL SageResultTablePanel::OnEraseBkgnd(CDC* pDC) {
 	CRect rectClient;
 	GetClientRect(&rectClient);
-	pDC->FillSolidRect(rectClient, TAECHANG_COLOR_APP_BACKGROUND);
+	pDC->FillSolidRect(rectClient, SAGE_COLOR_APP_BACKGROUND);
 	return TRUE;
 }
 
@@ -282,13 +282,13 @@ HBRUSH SageResultTablePanel::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
 	HBRUSH hBrush = CWnd::OnCtlColor(pDC, pWnd, nCtlColor);
 	if (pWnd->IsKindOf(RUNTIME_CLASS(CSageLabel)))
 		return hBrush;
-	pDC->SetTextColor(TAECHANG_COLOR_TEXT);
+	pDC->SetTextColor(SAGE_COLOR_TEXT);
 	if (nCtlColor == CTLCOLOR_STATIC) {
-		pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
+		pDC->SetBkColor(SAGE_COLOR_APP_BACKGROUND);
 		return SageUiResources::GetBrush(SAGE_BG_APP);
 	}
 	if (nCtlColor == CTLCOLOR_EDIT || nCtlColor == CTLCOLOR_LISTBOX) {
-		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
+		pDC->SetBkColor(SAGE_COLOR_PANEL);
 		return SageUiResources::GetBrush(SAGE_BG_PANEL);
 	}
 	return hBrush;
@@ -386,7 +386,7 @@ void SageResultTablePanel::SetFilterCriteria(const std::vector<SageWorkflowFilte
 
 int SageResultTablePanel::GetDefaultCriteria() const {
 	if (m_arrCriteria.empty())
-		return TAECHANG_FILTER_CRITERIA_NONE;
+		return SAGE_FILTER_CRITERIA_NONE;
 	return m_arrCriteria[0].nCriteria;
 }
 
@@ -408,7 +408,7 @@ void SageResultTablePanel::PopulateCriteria() {
 	m_wndSearch.SetCriteriaIndex(nIndex == CB_ERR ? 0 : nIndex);
 }
 
-void SageResultTablePanel::SetRows(const std::vector<TaechangResultRow>& arrRows) {
+void SageResultTablePanel::SetRows(const std::vector<SageResultRow>& arrRows) {
 	m_arrRows = arrRows;
 	RefreshRows();
 }
@@ -420,7 +420,7 @@ void SageResultTablePanel::ClearRows() {
 		m_wndList.DeleteAllItems();
 }
 
-const std::vector<TaechangResultRow>& SageResultTablePanel::GetVisibleRows() const {
+const std::vector<SageResultRow>& SageResultTablePanel::GetVisibleRows() const {
 	return m_arrVisibleRows;
 }
 
@@ -433,9 +433,9 @@ void SageResultTablePanel::SetSummaryItems(const std::vector<SageResultSummaryIt
 		barItem.strUnit = arrItems[i].strUnit;
 		barItem.bHighlight = arrItems[i].bHighlight;
 		if (arrItems[i].bBadge) {
-			barItem.badge.clrBackground = TAECHANG_COLOR_INLINE_WARN_BG;
-			barItem.badge.clrBorder = TAECHANG_COLOR_INLINE_WARN_BORDER;
-			barItem.badge.clrText = TAECHANG_COLOR_WARNING;
+			barItem.badge.clrBackground = SAGE_COLOR_INLINE_WARN_BG;
+			barItem.badge.clrBorder = SAGE_COLOR_INLINE_WARN_BORDER;
+			barItem.badge.clrText = SAGE_COLOR_WARNING;
 		}
 		arrBarItems.push_back(barItem);
 	}
@@ -577,9 +577,9 @@ CString SageResultTablePanel::GetCheckedRowNums() const {
 		if (nSourceRowIndex == 0)
 			continue;
 		CString strNum;
-		strNum.Format(TAECHANG_UI_ROW_NUM_FORMAT, static_cast<unsigned long>(nSourceRowIndex));
+		strNum.Format(SAGE_UI_ROW_NUM_FORMAT, static_cast<unsigned long>(nSourceRowIndex));
 		if (!strCheckedRowNums.IsEmpty())
-			strCheckedRowNums += TAECHANG_UI_ROW_NUM_SEPARATOR;
+			strCheckedRowNums += SAGE_UI_ROW_NUM_SEPARATOR;
 		strCheckedRowNums += strNum;
 	}
 	return strCheckedRowNums;
@@ -596,17 +596,17 @@ void SageResultTablePanel::RestoreCheckedRowNums(const CString& strCheckedRowNum
 		if (nSourceRowIndex == 0)
 			continue;
 		CString strCurrentNum;
-		strCurrentNum.Format(TAECHANG_UI_ROW_NUM_FORMAT, static_cast<unsigned long>(nSourceRowIndex));
+		strCurrentNum.Format(SAGE_UI_ROW_NUM_FORMAT, static_cast<unsigned long>(nSourceRowIndex));
 		CString strRemaining = strCheckedRowNums;
 		int nTokenIndex = 0;
-		CString strToken = strRemaining.Tokenize(TAECHANG_UI_ROW_NUM_SEPARATOR, nTokenIndex);
+		CString strToken = strRemaining.Tokenize(SAGE_UI_ROW_NUM_SEPARATOR, nTokenIndex);
 		while (!strToken.IsEmpty()) {
 			strToken.Trim();
 			if (strToken == strCurrentNum) {
 				m_wndList.SetCheck(i, TRUE);
 				break;
 			}
-			strToken = strRemaining.Tokenize(TAECHANG_UI_ROW_NUM_SEPARATOR, nTokenIndex);
+			strToken = strRemaining.Tokenize(SAGE_UI_ROW_NUM_SEPARATOR, nTokenIndex);
 		}
 	}
 	m_bUpdatingChecks = FALSE;
@@ -631,7 +631,7 @@ void SageResultTablePanel::NotifyStateChanged() {
 	CWnd* pParent = GetParent();
 	if (pParent == NULL || !::IsWindow(pParent->GetSafeHwnd()))
 		return;
-	pParent->SendMessage(WM_TAECHANG_RESULT_TABLE_CHANGED, 0, 0);
+	pParent->SendMessage(WM_SAGE_RESULT_TABLE_CHANGED, 0, 0);
 }
 
 void SageResultTablePanel::SyncSelectionBar() {
@@ -650,7 +650,7 @@ void SageResultTablePanel::NotifySelectionChanged() {
 	CWnd* pParent = GetParent();
 	if (pParent == NULL || !::IsWindow(pParent->GetSafeHwnd()))
 		return;
-	pParent->SendMessage(WM_TAECHANG_RESULT_SELECTION_CHANGED,
+	pParent->SendMessage(WM_SAGE_RESULT_SELECTION_CHANGED,
 		static_cast<WPARAM>(m_nSelectedRowCount), 0);
 }
 
@@ -689,10 +689,10 @@ void SageResultTablePanel::SetAllRowsChecked(BOOL bChecked) {
 void SageResultTablePanel::OnSelectAll() {
 	int nCount = m_wndList.GetItemCount();
 	BOOL bCheck = (GetCheckedRowCount() == nCount && nCount > 0) ? FALSE : TRUE;
-	if (bCheck && IsOnePageChecked() && nCount > TAECHANG_ESTIMATE_ONE_PAGE_MAX_ROWS) {
+	if (bCheck && IsOnePageChecked() && nCount > SAGE_ESTIMATE_ONE_PAGE_MAX_ROWS) {
 		m_bUpdatingChecks = TRUE;
 		for (int i = 0; i < nCount; ++i)
-			m_wndList.SetCheck(i, i < TAECHANG_ESTIMATE_ONE_PAGE_MAX_ROWS ? TRUE : FALSE);
+			m_wndList.SetCheck(i, i < SAGE_ESTIMATE_ONE_PAGE_MAX_ROWS ? TRUE : FALSE);
 		m_bUpdatingChecks = FALSE;
 		NotifySelectionChanged();
 		return;
@@ -722,7 +722,7 @@ void SageResultTablePanel::TrimCheckedRowsToOnePage() {
 		if (!m_wndList.GetCheck(i))
 			continue;
 		++nCheckedCount;
-		if (nCheckedCount > TAECHANG_ESTIMATE_ONE_PAGE_MAX_ROWS)
+		if (nCheckedCount > SAGE_ESTIMATE_ONE_PAGE_MAX_ROWS)
 			m_wndList.SetCheck(i, FALSE);
 	}
 	m_bUpdatingChecks = FALSE;
@@ -743,7 +743,7 @@ void SageResultTablePanel::OnListItemChanged(NMHDR* pNMHDR, LRESULT* pResult) {
 		return;
 
 	if (IsOnePageChecked() && uNewCheck == INDEXTOSTATEIMAGEMASK(2)
-		&& GetCheckedRowCount() > TAECHANG_ESTIMATE_ONE_PAGE_MAX_ROWS) {
+		&& GetCheckedRowCount() > SAGE_ESTIMATE_ONE_PAGE_MAX_ROWS) {
 		m_bUpdatingChecks = TRUE;
 		m_wndList.SetCheck(pList->iItem, FALSE);
 		m_bUpdatingChecks = FALSE;

@@ -11,12 +11,12 @@
 #include "app/ui/workflow/SageWorkflowController.h"
 
 class ISageWorkflowHandler;
-struct TaechangResultRow;
+struct SageResultRow;
 
 struct SageWorkflowUiState {
     SageWorkflowUiState()
-        : nSelectedTaskTab(TAECHANG_TAB_INDEX_INPUT)
-        , nResultFilterCriteria(TAECHANG_FILTER_CRITERIA_NONE)
+        : nSelectedTaskTab(SAGE_TAB_INDEX_INPUT)
+        , nResultFilterCriteria(SAGE_FILTER_CRITERIA_NONE)
         , bEstimateOnePage(FALSE) {}
 
     int nSelectedTaskTab;
@@ -105,7 +105,7 @@ private:
     void UpdateVisibility(const SageWorkspaceVisibility& state);
     SageResultTablePanel* FindResultTable();
     void ApplyResultTableSchema();
-    void SetResultTableRows(const std::vector<TaechangResultRow>& arrRows);
+    void SetResultTableRows(const std::vector<SageResultRow>& arrRows);
     void UpdateResultSummary();
     void UpdateActionButtonState();
     void ApplyActionButtonState(int nSelectedCount);

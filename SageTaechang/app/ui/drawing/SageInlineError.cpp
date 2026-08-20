@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "app/ui/drawing/SageInlineError.h"
 #include "app/ui/drawing/SageUiResources.h"
-#include "TaechangDefine.h"
+#include "SageDefine.h"
 
 BEGIN_MESSAGE_MAP(CSageInlineError, CStatic)
 END_MESSAGE_MAP()
@@ -37,22 +37,22 @@ BOOL CSageInlineError::HasMessage() const {
 
 COLORREF CSageInlineError::GetIconColor() const {
 	return (m_nVariant == SAGE_INLINE_WARNING)
-		? TAECHANG_COLOR_WARNING : TAECHANG_COLOR_ERROR;
+		? SAGE_COLOR_WARNING : SAGE_COLOR_ERROR;
 }
 
 COLORREF CSageInlineError::GetTextColor() const {
 	return (m_nVariant == SAGE_INLINE_WARNING)
-		? TAECHANG_COLOR_INLINE_WARN_TEXT : TAECHANG_COLOR_INLINE_ERROR_TEXT;
+		? SAGE_COLOR_INLINE_WARN_TEXT : SAGE_COLOR_INLINE_ERROR_TEXT;
 }
 
 void CSageInlineError::DrawWarningBox(CDC* pDC, const CRect& rectClient) {
-	CBrush brushFill(TAECHANG_COLOR_INLINE_WARN_BG);
-	CPen penBorder(PS_SOLID, TAECHANG_BORDER_THICKNESS, TAECHANG_COLOR_INLINE_WARN_BORDER);
+	CBrush brushFill(SAGE_COLOR_INLINE_WARN_BG);
+	CPen penBorder(PS_SOLID, SAGE_BORDER_THICKNESS, SAGE_COLOR_INLINE_WARN_BORDER);
 	CBrush* pOldBrush = pDC->SelectObject(&brushFill);
 	CPen* pOldPen = pDC->SelectObject(&penBorder);
 
 	pDC->RoundRect(rectClient,
-		CPoint(TAECHANG_INLINE_MSG_BOX_RADIUS * 2, TAECHANG_INLINE_MSG_BOX_RADIUS * 2));
+		CPoint(SAGE_INLINE_MSG_BOX_RADIUS * 2, SAGE_INLINE_MSG_BOX_RADIUS * 2));
 
 	pDC->SelectObject(pOldPen);
 	pDC->SelectObject(pOldBrush);
@@ -60,17 +60,17 @@ void CSageInlineError::DrawWarningBox(CDC* pDC, const CRect& rectClient) {
 
 void CSageInlineError::DrawMessageIcon(CDC* pDC, const CRect& rectIcon) {
 	COLORREF clrIcon = GetIconColor();
-	CPen penIcon(PS_SOLID, TAECHANG_BORDER_THICKNESS, clrIcon);
+	CPen penIcon(PS_SOLID, SAGE_BORDER_THICKNESS, clrIcon);
 	CPen* pOldPen = pDC->SelectObject(&penIcon);
 	CGdiObject* pOldBrush = pDC->SelectStockObject(NULL_BRUSH);
 
 	CPoint ptCenter = rectIcon.CenterPoint();
-	pDC->Ellipse(ptCenter.x - TAECHANG_INLINE_ICON_RADIUS, ptCenter.y - TAECHANG_INLINE_ICON_RADIUS,
-		ptCenter.x + TAECHANG_INLINE_ICON_RADIUS, ptCenter.y + TAECHANG_INLINE_ICON_RADIUS);
-	pDC->MoveTo(ptCenter.x, rectIcon.top + TAECHANG_INLINE_ICON_STEM_TOP);
-	pDC->LineTo(ptCenter.x, rectIcon.top + TAECHANG_INLINE_ICON_STEM_BOTTOM);
-	pDC->FillSolidRect(ptCenter.x, rectIcon.top + TAECHANG_INLINE_ICON_DOT_TOP,
-		TAECHANG_INLINE_ICON_DOT_SIZE, TAECHANG_INLINE_ICON_DOT_SIZE, clrIcon);
+	pDC->Ellipse(ptCenter.x - SAGE_INLINE_ICON_RADIUS, ptCenter.y - SAGE_INLINE_ICON_RADIUS,
+		ptCenter.x + SAGE_INLINE_ICON_RADIUS, ptCenter.y + SAGE_INLINE_ICON_RADIUS);
+	pDC->MoveTo(ptCenter.x, rectIcon.top + SAGE_INLINE_ICON_STEM_TOP);
+	pDC->LineTo(ptCenter.x, rectIcon.top + SAGE_INLINE_ICON_STEM_BOTTOM);
+	pDC->FillSolidRect(ptCenter.x, rectIcon.top + SAGE_INLINE_ICON_DOT_TOP,
+		SAGE_INLINE_ICON_DOT_SIZE, SAGE_INLINE_ICON_DOT_SIZE, clrIcon);
 
 	pDC->SelectObject(pOldBrush);
 	pDC->SelectObject(pOldPen);
@@ -91,14 +91,14 @@ void CSageInlineError::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 
 	CRect rectIcon(rectClient);
 	if (m_nVariant == SAGE_INLINE_WARNING)
-		rectIcon.left += TAECHANG_INLINE_MSG_BOX_PAD_X;
-	rectIcon.top += (rectClient.Height() - TAECHANG_INLINE_MSG_ICON_SIZE) / 2;
-	rectIcon.right = rectIcon.left + TAECHANG_INLINE_MSG_ICON_SIZE;
-	rectIcon.bottom = rectIcon.top + TAECHANG_INLINE_MSG_ICON_SIZE;
+		rectIcon.left += SAGE_INLINE_MSG_BOX_PAD_X;
+	rectIcon.top += (rectClient.Height() - SAGE_INLINE_MSG_ICON_SIZE) / 2;
+	rectIcon.right = rectIcon.left + SAGE_INLINE_MSG_ICON_SIZE;
+	rectIcon.bottom = rectIcon.top + SAGE_INLINE_MSG_ICON_SIZE;
 	DrawMessageIcon(pDC, rectIcon);
 
 	CRect rectText(rectClient);
-	rectText.left = rectIcon.right + TAECHANG_INLINE_MSG_ICON_GAP;
+	rectText.left = rectIcon.right + SAGE_INLINE_MSG_ICON_GAP;
 	pDC->SetBkMode(TRANSPARENT);
 	pDC->SetTextColor(GetTextColor());
 	pDC->SelectObject(SageUiResources::GetFont(SAGE_FONT_CAPTION));

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "app/ui/drawing/SageFilterPillBar.h"
 #include "app/ui/drawing/SageUiResources.h"
-#include "TaechangDefine.h"
+#include "SageDefine.h"
 
 BEGIN_MESSAGE_MAP(CSageFilterPillBar, CStatic)
 	ON_WM_LBUTTONDOWN()
@@ -41,12 +41,12 @@ void CSageFilterPillBar::BuildPillRects(CDC* pDC, const CRect& rectClient, std::
 	CFont* pOldFont = pDC->SelectObject(SageUiResources::GetFont(SAGE_FONT_CAPTION));
 
 	int nLeft = rectClient.left;
-	int nTop = rectClient.top + (rectClient.Height() - TAECHANG_PILL_HEIGHT) / 2;
+	int nTop = rectClient.top + (rectClient.Height() - SAGE_PILL_HEIGHT) / 2;
 	for (int i = 0; i < static_cast<int>(m_arrLabels.size()); ++i) {
 		CSize sizeText = pDC->GetTextExtent(m_arrLabels[i]);
-		int nWidth = sizeText.cx + TAECHANG_PILL_PAD_X * 2;
-		outRects.push_back(CRect(nLeft, nTop, nLeft + nWidth, nTop + TAECHANG_PILL_HEIGHT));
-		nLeft += nWidth + TAECHANG_PILL_GAP;
+		int nWidth = sizeText.cx + SAGE_PILL_PAD_X * 2;
+		outRects.push_back(CRect(nLeft, nTop, nLeft + nWidth, nTop + SAGE_PILL_HEIGHT));
+		nLeft += nWidth + SAGE_PILL_GAP;
 	}
 
 	pDC->SelectObject(pOldFont);
@@ -54,7 +54,7 @@ void CSageFilterPillBar::BuildPillRects(CDC* pDC, const CRect& rectClient, std::
 
 int CSageFilterPillBar::FindPillAt(CPoint point) const {
 	if (!::IsWindow(GetSafeHwnd()))
-		return TAECHANG_LIST_NO_ITEM;
+		return SAGE_LIST_NO_ITEM;
 
 	CRect rectClient;
 	GetClientRect(&rectClient);
@@ -66,14 +66,14 @@ int CSageFilterPillBar::FindPillAt(CPoint point) const {
 		if (arrRects[i].PtInRect(point))
 			return i;
 	}
-	return TAECHANG_LIST_NO_ITEM;
+	return SAGE_LIST_NO_ITEM;
 }
 
 void CSageFilterPillBar::OnLButtonDown(UINT nFlags, CPoint point) {
 	CStatic::OnLButtonDown(nFlags, point);
 
 	int nIndex = FindPillAt(point);
-	if (nIndex == TAECHANG_LIST_NO_ITEM || nIndex == m_nSelectedIndex)
+	if (nIndex == SAGE_LIST_NO_ITEM || nIndex == m_nSelectedIndex)
 		return;
 
 	m_nSelectedIndex = nIndex;
@@ -84,15 +84,15 @@ void CSageFilterPillBar::OnLButtonDown(UINT nFlags, CPoint point) {
 }
 
 void CSageFilterPillBar::DrawPill(CDC* pDC, const CRect& rectPill, const CString& strLabel, BOOL bSelected) {
-	COLORREF clrFill = bSelected ? TAECHANG_COLOR_ACCENT_SURFACE : TAECHANG_COLOR_PANEL;
-	COLORREF clrBorder = bSelected ? TAECHANG_COLOR_PRIMARY : TAECHANG_COLOR_BORDER;
-	COLORREF clrText = bSelected ? TAECHANG_COLOR_PRIMARY : TAECHANG_COLOR_TEXT_MUTED;
+	COLORREF clrFill = bSelected ? SAGE_COLOR_ACCENT_SURFACE : SAGE_COLOR_PANEL;
+	COLORREF clrBorder = bSelected ? SAGE_COLOR_PRIMARY : SAGE_COLOR_BORDER;
+	COLORREF clrText = bSelected ? SAGE_COLOR_PRIMARY : SAGE_COLOR_TEXT_MUTED;
 
 	CBrush brushFill(clrFill);
-	CPen penBorder(PS_SOLID, TAECHANG_BORDER_THICKNESS, clrBorder);
+	CPen penBorder(PS_SOLID, SAGE_BORDER_THICKNESS, clrBorder);
 	CBrush* pOldBrush = pDC->SelectObject(&brushFill);
 	CPen* pOldPen = pDC->SelectObject(&penBorder);
-	pDC->RoundRect(rectPill, CPoint(TAECHANG_PILL_RADIUS * 2, TAECHANG_PILL_RADIUS * 2));
+	pDC->RoundRect(rectPill, CPoint(SAGE_PILL_RADIUS * 2, SAGE_PILL_RADIUS * 2));
 	pDC->SelectObject(pOldPen);
 	pDC->SelectObject(pOldBrush);
 

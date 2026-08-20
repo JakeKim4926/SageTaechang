@@ -1,8 +1,8 @@
 ﻿#pragma once
 
-#include "TaechangDefine.h"
+#include "SageDefine.h"
 
-struct TaechangResultRow;
+struct SageResultRow;
 
 enum SageColumnAlign
 {
@@ -122,7 +122,7 @@ namespace SageWorkflowResultTable {
 
 int GetGenericColumnCount();
 const SageWorkflowColumn& GetGenericColumn(int nColumnIndex);
-CString GetRowText(const TaechangResultRow& row, SageResultField nField);
+CString GetRowText(const SageResultRow& row, SageResultField nField);
 CString FormatAmountNumber(__int64 nAmount);
 void DistributeColumnWidths(
     const std::vector<SageColumnWidthSpec>& arrSpecs,

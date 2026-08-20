@@ -2,7 +2,7 @@
 
 #include "pch.h"
 #include "app/core/workflow/SageWorkflowResultTable.h"
-#include "app/core/workflow/TaechangWorkflowResultPresenter.h"
+#include "app/core/workflow/SageWorkflowResultPresenter.h"
 #include "app/ui/drawing/SageButton.h"
 #include "app/ui/drawing/SageSearchBox.h"
 #include "app/ui/drawing/SageHeaderCtrl.h"
@@ -37,11 +37,11 @@ public:
 
     void SetColumns(const std::vector<SageWorkflowColumn>& arrColumns, const SageWorkflowResultStyle& style);
     void SetFilterCriteria(const std::vector<SageWorkflowFilterCriteria>& arrCriteria);
-    void SetRows(const std::vector<TaechangResultRow>& arrRows);
+    void SetRows(const std::vector<SageResultRow>& arrRows);
     void ClearRows();
     void BeginBatchUpdate();
     void EndBatchUpdate();
-    const std::vector<TaechangResultRow>& GetVisibleRows() const;
+    const std::vector<SageResultRow>& GetVisibleRows() const;
 
     void SetSummaryItems(const std::vector<SageResultSummaryItem>& arrItems);
     void ClearSummary();
@@ -110,8 +110,8 @@ private:
 private:
     std::vector<SageWorkflowColumn> m_arrColumns;
     std::vector<SageWorkflowFilterCriteria> m_arrCriteria;
-    std::vector<TaechangResultRow> m_arrRows;
-    std::vector<TaechangResultRow> m_arrVisibleRows;
+    std::vector<SageResultRow> m_arrRows;
+    std::vector<SageResultRow> m_arrVisibleRows;
     std::vector<SageResultTotalCell> m_arrTotalCells;
     SageWorkflowResultStyle m_style;
     CString m_strKeyword;

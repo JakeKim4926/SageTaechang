@@ -1,12 +1,12 @@
 ﻿#include "pch.h"
 #include "app/ui/drawing/SageButton.h"
 #include "app/ui/drawing/SageUiStyle.h"
-#include "TaechangDefine.h"
+#include "SageDefine.h"
 
 CSageButton::CSageButton()
 	: m_nVariant(SAGE_BUTTON_SECONDARY)
 	, m_nIcon(SAGE_BUTTON_ICON_NONE)
-	, m_clrSurface(TAECHANG_COLOR_PANEL)
+	, m_clrSurface(SAGE_COLOR_PANEL)
 	, m_bFocusRing(FALSE) {
 }
 
@@ -56,7 +56,7 @@ void CSageButton::SetFocusRing(BOOL bVisible) {
 
 COLORREF CSageButton::GetFocusRingColor() const {
 	return (m_nVariant == SAGE_BUTTON_PRIMARY)
-		? TAECHANG_COLOR_FOCUS_RING_PRIMARY : TAECHANG_COLOR_FOCUS_RING_NEUTRAL;
+		? SAGE_COLOR_FOCUS_RING_PRIMARY : SAGE_COLOR_FOCUS_RING_NEUTRAL;
 }
 
 void CSageButton::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
@@ -68,28 +68,28 @@ void CSageButton::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 	if (m_bFocusRing) {
 		BOOL bFocused = (lpDrawItemStruct->itemState & ODS_FOCUS) != 0;
 		pDC->FillSolidRect(rect, bFocused ? GetFocusRingColor() : m_clrSurface);
-		rect.DeflateRect(TAECHANG_FOCUS_RING_WIDTH, TAECHANG_FOCUS_RING_WIDTH);
+		rect.DeflateRect(SAGE_FOCUS_RING_WIDTH, SAGE_FOCUS_RING_WIDTH);
 	}
 
 	if (m_nVariant == SAGE_BUTTON_PRIMARY) {
-		COLORREF clrBg = bDisabled ? TAECHANG_COLOR_BORDER
-			: bPressed ? TAECHANG_COLOR_PRIMARY_PRESS : TAECHANG_COLOR_PRIMARY;
+		COLORREF clrBg = bDisabled ? SAGE_COLOR_BORDER
+			: bPressed ? SAGE_COLOR_PRIMARY_PRESS : SAGE_COLOR_PRIMARY;
 		pDC->FillSolidRect(rect, clrBg);
-		pDC->SetTextColor(bDisabled ? TAECHANG_COLOR_SECONDARY_TEXT : TAECHANG_COLOR_BUTTON_TEXT);
+		pDC->SetTextColor(bDisabled ? SAGE_COLOR_SECONDARY_TEXT : SAGE_COLOR_BUTTON_TEXT);
 	} else if (m_nVariant == SAGE_BUTTON_GHOST) {
-		pDC->FillSolidRect(rect, bPressed ? TAECHANG_COLOR_LIST_HEADER : m_clrSurface);
-		pDC->SetTextColor(bDisabled ? TAECHANG_COLOR_BORDER : TAECHANG_COLOR_TEXT_MUTED);
+		pDC->FillSolidRect(rect, bPressed ? SAGE_COLOR_LIST_HEADER : m_clrSurface);
+		pDC->SetTextColor(bDisabled ? SAGE_COLOR_BORDER : SAGE_COLOR_TEXT_MUTED);
 	} else {
 		COLORREF clrBorder = (m_nVariant == SAGE_BUTTON_DANGER)
-			? TAECHANG_COLOR_DANGER_BORDER : TAECHANG_COLOR_BUTTON_BORDER;
+			? SAGE_COLOR_DANGER_BORDER : SAGE_COLOR_BUTTON_BORDER;
 		COLORREF clrLabel = (m_nVariant == SAGE_BUTTON_DANGER)
-			? TAECHANG_COLOR_ERROR : TAECHANG_COLOR_TEXT;
+			? SAGE_COLOR_ERROR : SAGE_COLOR_TEXT;
 		pDC->FillSolidRect(rect, bDisabled || bPressed
-			? TAECHANG_COLOR_APP_BACKGROUND : TAECHANG_COLOR_PANEL);
+			? SAGE_COLOR_APP_BACKGROUND : SAGE_COLOR_PANEL);
 		CBrush brBorder;
-		brBorder.CreateSolidBrush(bDisabled ? TAECHANG_COLOR_BORDER : clrBorder);
+		brBorder.CreateSolidBrush(bDisabled ? SAGE_COLOR_BORDER : clrBorder);
 		pDC->FrameRect(rect, &brBorder);
-		pDC->SetTextColor(bDisabled ? TAECHANG_COLOR_SECONDARY_TEXT : clrLabel);
+		pDC->SetTextColor(bDisabled ? SAGE_COLOR_SECONDARY_TEXT : clrLabel);
 	}
 
 	pDC->SetBkMode(TRANSPARENT);
@@ -106,7 +106,7 @@ void CSageButton::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 	CFont* pOldFont = pDC->SelectObject(GetFont());
 
 	if (m_nIcon == SAGE_BUTTON_ICON_NONE) {
-		rect.OffsetRect(0, TAECHANG_BUTTON_TEXT_TOP_OFFSET);
+		rect.OffsetRect(0, SAGE_BUTTON_TEXT_TOP_OFFSET);
 		pDC->DrawText(strText, rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 		if (pOldFont)
 			pDC->SelectObject(pOldFont);
@@ -115,14 +115,14 @@ void CSageButton::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 
 	int nIconSize = GetIconSize();
 	CSize sizeText = pDC->GetTextExtent(strText);
-	int nGroupWidth = nIconSize + TAECHANG_ICON_TEXT_GAP + sizeText.cx;
+	int nGroupWidth = nIconSize + SAGE_ICON_TEXT_GAP + sizeText.cx;
 	int nGroupLeft = rect.left + (rect.Width() - nGroupWidth) / 2;
 
 	DrawIconAt(*pDC, CPoint(nGroupLeft + nIconSize / 2, rect.CenterPoint().y), clrIcon);
 
-	CRect rectText(nGroupLeft + nIconSize + TAECHANG_ICON_TEXT_GAP, rect.top,
+	CRect rectText(nGroupLeft + nIconSize + SAGE_ICON_TEXT_GAP, rect.top,
 		rect.right, rect.bottom);
-	rectText.OffsetRect(0, TAECHANG_BUTTON_TEXT_TOP_OFFSET);
+	rectText.OffsetRect(0, SAGE_BUTTON_TEXT_TOP_OFFSET);
 	pDC->DrawText(strText, rectText, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
 
 	if (pOldFont)
@@ -130,7 +130,7 @@ void CSageButton::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 }
 
 int CSageButton::GetIconSize() const {
-	return (m_nIcon == SAGE_BUTTON_ICON_ADD) ? TAECHANG_ICON_ADD_SIZE : TAECHANG_ICON_SIZE;
+	return (m_nIcon == SAGE_BUTTON_ICON_ADD) ? SAGE_ICON_ADD_SIZE : SAGE_ICON_SIZE;
 }
 
 void CSageButton::DrawIconAt(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon) {
@@ -155,20 +155,20 @@ void CSageButton::DrawSearchIcon(CDC& dc, const CPoint& ptCenter, COLORREF clrIc
 }
 
 void CSageButton::DrawAddIcon(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon) {
-	int nHalfSpan = TAECHANG_ICON_ADD_SPAN / 2;
-	int nHalfStroke = TAECHANG_ICON_STROKE / 2;
+	int nHalfSpan = SAGE_ICON_ADD_SPAN / 2;
+	int nHalfStroke = SAGE_ICON_STROKE / 2;
 
 	dc.FillSolidRect(ptCenter.x - nHalfSpan, ptCenter.y - nHalfStroke,
-		TAECHANG_ICON_ADD_SPAN, TAECHANG_ICON_STROKE, clrIcon);
+		SAGE_ICON_ADD_SPAN, SAGE_ICON_STROKE, clrIcon);
 	dc.FillSolidRect(ptCenter.x - nHalfStroke, ptCenter.y - nHalfSpan,
-		TAECHANG_ICON_STROKE, TAECHANG_ICON_ADD_SPAN, clrIcon);
+		SAGE_ICON_STROKE, SAGE_ICON_ADD_SPAN, clrIcon);
 }
 
 void CSageButton::DrawCloseIcon(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon) {
-	CPen pen(PS_SOLID, TAECHANG_ICON_STROKE, clrIcon);
+	CPen pen(PS_SOLID, SAGE_ICON_STROKE, clrIcon);
 	CPen* pOldPen = dc.SelectObject(&pen);
 
-	int nHalfSpan = TAECHANG_ICON_CLOSE_SPAN / 2;
+	int nHalfSpan = SAGE_ICON_CLOSE_SPAN / 2;
 	dc.MoveTo(ptCenter.x - nHalfSpan, ptCenter.y - nHalfSpan);
 	dc.LineTo(ptCenter.x + nHalfSpan, ptCenter.y + nHalfSpan);
 	dc.MoveTo(ptCenter.x + nHalfSpan, ptCenter.y - nHalfSpan);
@@ -179,19 +179,19 @@ void CSageButton::DrawCloseIcon(CDC& dc, const CPoint& ptCenter, COLORREF clrIco
 }
 
 void CSageButton::DrawArrowIcon(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon, BOOL bUp) {
-	CPen pen(PS_SOLID, TAECHANG_ICON_STROKE, clrIcon);
+	CPen pen(PS_SOLID, SAGE_ICON_STROKE, clrIcon);
 	CPen* pOldPen = dc.SelectObject(&pen);
 
 	int nTipY = bUp
-		? ptCenter.y - TAECHANG_ICON_ARROW_HALF_HEIGHT
-		: ptCenter.y + TAECHANG_ICON_ARROW_HALF_HEIGHT;
+		? ptCenter.y - SAGE_ICON_ARROW_HALF_HEIGHT
+		: ptCenter.y + SAGE_ICON_ARROW_HALF_HEIGHT;
 	int nTailY = bUp
-		? ptCenter.y + TAECHANG_ICON_ARROW_HALF_HEIGHT
-		: ptCenter.y - TAECHANG_ICON_ARROW_HALF_HEIGHT;
+		? ptCenter.y + SAGE_ICON_ARROW_HALF_HEIGHT
+		: ptCenter.y - SAGE_ICON_ARROW_HALF_HEIGHT;
 
-	dc.MoveTo(ptCenter.x - TAECHANG_ICON_ARROW_HALF_WIDTH, nTailY);
+	dc.MoveTo(ptCenter.x - SAGE_ICON_ARROW_HALF_WIDTH, nTailY);
 	dc.LineTo(ptCenter.x, nTipY);
-	dc.LineTo(ptCenter.x + TAECHANG_ICON_ARROW_HALF_WIDTH, nTailY);
+	dc.LineTo(ptCenter.x + SAGE_ICON_ARROW_HALF_WIDTH, nTailY);
 
 	if (pOldPen)
 		dc.SelectObject(pOldPen);
@@ -224,12 +224,12 @@ void CSageButton::DrawCalculateIcon(CDC& dc, const CPoint& ptCenter, COLORREF cl
 }
 
 void CSageButton::DrawResetIcon(CDC& dc, const CPoint& ptCenter, COLORREF clrIcon) {
-	CPen pen(PS_SOLID, TAECHANG_ICON_STROKE, clrIcon);
+	CPen pen(PS_SOLID, SAGE_ICON_STROKE, clrIcon);
 	CPen* pOldPen = dc.SelectObject(&pen);
 	CBrush* pOldBrush = (CBrush*)dc.SelectStockObject(NULL_BRUSH);
 
-	int nRadius = TAECHANG_ICON_RESET_RADIUS;
-	int nArrow = TAECHANG_ICON_RESET_ARROW;
+	int nRadius = SAGE_ICON_RESET_RADIUS;
+	int nArrow = SAGE_ICON_RESET_ARROW;
 	int cx = ptCenter.x;
 	int cy = ptCenter.y;
 

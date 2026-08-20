@@ -2,8 +2,8 @@
 #include "app/ui/panels/SageWorkflowHistoryPanel.h"
 #include "app/ui/drawing/SageUiResources.h"
 #include "app/core/workflow/SageWorkflowResultTable.h"
-#include "app/common/TaechangJson.h"
-#include "TaechangDefine.h"
+#include "app/common/SageJson.h"
+#include "SageDefine.h"
 
 namespace {
 
@@ -15,11 +15,11 @@ struct SageHistoryColumn
 };
 
 const SageHistoryColumn g_historyColumns[] = {
-	{ TAECHANG_UI_HISTORY_COL_TIME,   TAECHANG_HISTORY_TIME_WIDTH,   FALSE },
-	{ TAECHANG_UI_HISTORY_COL_RESULT, TAECHANG_HISTORY_RESULT_WIDTH, FALSE },
-	{ TAECHANG_UI_HISTORY_COL_INPUT,  TAECHANG_HISTORY_INPUT_WIDTH,  TRUE },
-	{ TAECHANG_UI_HISTORY_COL_OUTPUT, TAECHANG_HISTORY_OUTPUT_WIDTH, TRUE },
-	{ TAECHANG_UI_HISTORY_COL_REASON, TAECHANG_HISTORY_REASON_WIDTH, TRUE }
+	{ SAGE_UI_HISTORY_COL_TIME,   SAGE_HISTORY_TIME_WIDTH,   FALSE },
+	{ SAGE_UI_HISTORY_COL_RESULT, SAGE_HISTORY_RESULT_WIDTH, FALSE },
+	{ SAGE_UI_HISTORY_COL_INPUT,  SAGE_HISTORY_INPUT_WIDTH,  TRUE },
+	{ SAGE_UI_HISTORY_COL_OUTPUT, SAGE_HISTORY_OUTPUT_WIDTH, TRUE },
+	{ SAGE_UI_HISTORY_COL_REASON, SAGE_HISTORY_REASON_WIDTH, TRUE }
 };
 
 constexpr int SAGE_HISTORY_COLUMN_COUNT = sizeof(g_historyColumns) / sizeof(g_historyColumns[0]);
@@ -35,7 +35,7 @@ constexpr int SAGE_HISTORY_COLUMN_REASON = 4;
 BEGIN_MESSAGE_MAP(SageWorkflowHistoryPanel, CWnd)
 	ON_WM_CREATE()
 	ON_WM_ERASEBKGND()
-	ON_BN_CLICKED(ID_TAECHANG_DETAIL_FILTER, &SageWorkflowHistoryPanel::OnFilterChanged)
+	ON_BN_CLICKED(ID_SAGE_DETAIL_FILTER, &SageWorkflowHistoryPanel::OnFilterChanged)
 END_MESSAGE_MAP()
 
 BOOL SageWorkflowHistoryPanel::Create(CWnd* pParent, UINT nId) {
@@ -49,13 +49,13 @@ int SageWorkflowHistoryPanel::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 
 	CRect r(0, 0, 0, 0);
 	m_wndList.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SINGLESEL,
-		r, this, ID_TAECHANG_DETAIL_LIST);
+		r, this, ID_SAGE_DETAIL_LIST);
 	m_wndList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
 	m_wndList.SetAlternateRowColor(TRUE);
 	m_wndList.SetRowSeparator(TRUE);
 	m_wndList.SetFirstColumnAlign(SAGE_LIST_FIRST_COLUMN_CENTER);
 	m_wndList.SetBadgeColumn(SAGE_HISTORY_COLUMN_RESULT);
-	m_wndList.SetMutedText(TAECHANG_UI_HISTORY_NO_OUTPUT, TAECHANG_COLOR_TEXT_PLACEHOLDER);
+	m_wndList.SetMutedText(SAGE_UI_HISTORY_NO_OUTPUT, SAGE_COLOR_TEXT_PLACEHOLDER);
 	m_wndList.SetFont(SageUiResources::GetFont(SAGE_FONT_LIST));
 
 	CHeaderCtrl* pHeader = m_wndList.GetHeaderCtrl();
@@ -64,11 +64,11 @@ int SageWorkflowHistoryPanel::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 		SetWindowTheme(m_wndHeader.GetSafeHwnd(), L"", L"");
 	}
 
-	m_wndEmpty.Create(L"", WS_CHILD | SS_OWNERDRAW, r, this, ID_TAECHANG_DETAIL_EMPTY);
-	m_wndEmpty.SetContent(TAECHANG_UI_HISTORY_EMPTY_TITLE, TAECHANG_UI_HISTORY_EMPTY_DESC);
+	m_wndEmpty.Create(L"", WS_CHILD | SS_OWNERDRAW, r, this, ID_SAGE_DETAIL_EMPTY);
+	m_wndEmpty.SetContent(SAGE_UI_HISTORY_EMPTY_TITLE, SAGE_UI_HISTORY_EMPTY_DESC);
 
-	m_wndFilterPills.Create(L"", WS_CHILD | SS_OWNERDRAW | SS_NOTIFY, r, this, ID_TAECHANG_DETAIL_FILTER);
-	m_wndFilterPills.SetCommand(ID_TAECHANG_DETAIL_FILTER);
+	m_wndFilterPills.Create(L"", WS_CHILD | SS_OWNERDRAW | SS_NOTIFY, r, this, ID_SAGE_DETAIL_FILTER);
+	m_wndFilterPills.SetCommand(ID_SAGE_DETAIL_FILTER);
 
 	CreateColumns();
 	ApplyRowStyles();
@@ -87,20 +87,20 @@ void SageWorkflowHistoryPanel::UpdateFilterLabels() {
 
 	std::vector<CString> arrLabels;
 	CString strLabel;
-	strLabel.Format(TAECHANG_UI_HISTORY_FILTER_ALL, nTotalCount);
+	strLabel.Format(SAGE_UI_HISTORY_FILTER_ALL, nTotalCount);
 	arrLabels.push_back(strLabel);
-	strLabel.Format(TAECHANG_UI_HISTORY_FILTER_SUCCESS, nSuccessCount);
+	strLabel.Format(SAGE_UI_HISTORY_FILTER_SUCCESS, nSuccessCount);
 	arrLabels.push_back(strLabel);
-	strLabel.Format(TAECHANG_UI_HISTORY_FILTER_FAILED, nTotalCount - nSuccessCount);
+	strLabel.Format(SAGE_UI_HISTORY_FILTER_FAILED, nTotalCount - nSuccessCount);
 	arrLabels.push_back(strLabel);
 	m_wndFilterPills.SetLabels(arrLabels);
 }
 
 BOOL SageWorkflowHistoryPanel::IsRowVisible(const SageHistoryRow& row) const {
 	int nFilter = m_wndFilterPills.GetSelectedIndex();
-	if (nFilter == TAECHANG_HISTORY_FILTER_SUCCESS)
+	if (nFilter == SAGE_HISTORY_FILTER_SUCCESS)
 		return row.bSuccess;
-	if (nFilter == TAECHANG_HISTORY_FILTER_FAILED)
+	if (nFilter == SAGE_HISTORY_FILTER_FAILED)
 		return row.bSuccess ? FALSE : TRUE;
 	return TRUE;
 }
@@ -129,15 +129,15 @@ void SageWorkflowHistoryPanel::CreateColumns() {
 
 void SageWorkflowHistoryPanel::ApplyRowStyles() {
 	SageListRowStyle styleSuccess;
-	styleSuccess.clrBadgeBackground = TAECHANG_COLOR_BADGE_BG_SUCCESS;
-	styleSuccess.clrBadgeText = TAECHANG_COLOR_STATUS_CARD_TEXT_SUCCESS;
-	m_wndList.SetRowStyle(TAECHANG_HISTORY_STATE_SUCCESS, styleSuccess);
+	styleSuccess.clrBadgeBackground = SAGE_COLOR_BADGE_BG_SUCCESS;
+	styleSuccess.clrBadgeText = SAGE_COLOR_STATUS_CARD_TEXT_SUCCESS;
+	m_wndList.SetRowStyle(SAGE_HISTORY_STATE_SUCCESS, styleSuccess);
 
 	SageListRowStyle styleFailed;
-	styleFailed.clrRowBackground = TAECHANG_COLOR_STATUS_CARD_BG_ERROR;
-	styleFailed.clrBadgeBackground = TAECHANG_COLOR_STATUS_BG_ERROR;
-	styleFailed.clrBadgeText = TAECHANG_COLOR_INLINE_ERROR_TEXT;
-	m_wndList.SetRowStyle(TAECHANG_HISTORY_STATE_FAILED, styleFailed);
+	styleFailed.clrRowBackground = SAGE_COLOR_STATUS_CARD_BG_ERROR;
+	styleFailed.clrBadgeBackground = SAGE_COLOR_STATUS_BG_ERROR;
+	styleFailed.clrBadgeText = SAGE_COLOR_INLINE_ERROR_TEXT;
+	m_wndList.SetRowStyle(SAGE_HISTORY_STATE_FAILED, styleFailed);
 }
 
 void SageWorkflowHistoryPanel::Layout(const CRect& rectPanel) {
@@ -156,8 +156,8 @@ void SageWorkflowHistoryPanel::LayoutChildren() {
 
 	int nTableTop = m_arrRows.empty()
 		? 0
-		: TAECHANG_PILL_HEIGHT + TAECHANG_CARD_ROW_GAP;
-	m_wndFilterPills.MoveWindow(0, 0, rectClient.Width(), TAECHANG_PILL_HEIGHT);
+		: SAGE_PILL_HEIGHT + SAGE_CARD_ROW_GAP;
+	m_wndFilterPills.MoveWindow(0, 0, rectClient.Width(), SAGE_PILL_HEIGHT);
 	m_wndList.MoveWindow(0, nTableTop, rectClient.Width(), rectClient.Height() - nTableTop);
 	m_wndEmpty.MoveWindow(0, nTableTop, rectClient.Width(), rectClient.Height() - nTableTop);
 	UpdateColumnWidths();
@@ -190,77 +190,77 @@ void SageWorkflowHistoryPanel::UpdateEmptyState() {
 		return;
 
 	m_wndEmpty.SetContent(
-		bHasHistory ? TAECHANG_UI_HISTORY_FILTER_EMPTY_TITLE : TAECHANG_UI_HISTORY_EMPTY_TITLE,
-		bHasHistory ? TAECHANG_UI_HISTORY_FILTER_EMPTY_DESC : TAECHANG_UI_HISTORY_EMPTY_DESC);
+		bHasHistory ? SAGE_UI_HISTORY_FILTER_EMPTY_TITLE : SAGE_UI_HISTORY_EMPTY_TITLE,
+		bHasHistory ? SAGE_UI_HISTORY_FILTER_EMPTY_DESC : SAGE_UI_HISTORY_EMPTY_DESC);
 }
 
 SageHistoryRow SageWorkflowHistoryPanel::BuildRow(
 	const CString& strInputPath, const CString& strResponseJson, BOOL bSuccess) const {
 	SageHistoryRow row;
 	row.bSuccess = bSuccess;
-	row.strTime = CTime::GetCurrentTime().Format(TAECHANG_UI_HISTORY_TIME_FORMAT);
-	row.strInputPath = strInputPath.IsEmpty() ? CString(TAECHANG_UI_AMOUNT_EMPTY_MARK) : strInputPath;
+	row.strTime = CTime::GetCurrentTime().Format(SAGE_UI_HISTORY_TIME_FORMAT);
+	row.strInputPath = strInputPath.IsEmpty() ? CString(SAGE_UI_AMOUNT_EMPTY_MARK) : strInputPath;
 
 	if (bSuccess) {
-		row.strOutputPath = JsonExtractString(strResponseJson, TAECHANG_JSON_KEY_FILE_PATH);
+		row.strOutputPath = JsonExtractString(strResponseJson, SAGE_JSON_KEY_FILE_PATH);
 		if (row.strOutputPath.IsEmpty())
-			row.strOutputPath = JsonExtractString(strResponseJson, TAECHANG_JSON_KEY_OUTPUT_FOLDER);
+			row.strOutputPath = JsonExtractString(strResponseJson, SAGE_JSON_KEY_OUTPUT_FOLDER);
 		if (row.strOutputPath.IsEmpty())
-			row.strOutputPath = TAECHANG_UI_HISTORY_NO_OUTPUT;
-		row.strReason = TAECHANG_UI_AMOUNT_EMPTY_MARK;
+			row.strOutputPath = SAGE_UI_HISTORY_NO_OUTPUT;
+		row.strReason = SAGE_UI_AMOUNT_EMPTY_MARK;
 		return row;
 	}
 
-	row.strOutputPath = TAECHANG_UI_AMOUNT_EMPTY_MARK;
-	row.strReason = JsonExtractString(strResponseJson, TAECHANG_JSON_KEY_MESSAGE);
+	row.strOutputPath = SAGE_UI_AMOUNT_EMPTY_MARK;
+	row.strReason = JsonExtractString(strResponseJson, SAGE_JSON_KEY_MESSAGE);
 	if (row.strReason.IsEmpty())
-		row.strReason = JsonExtractString(strResponseJson, TAECHANG_JSON_KEY_CODE);
+		row.strReason = JsonExtractString(strResponseJson, SAGE_JSON_KEY_CODE);
 	if (row.strReason.IsEmpty())
-		row.strReason = TAECHANG_UI_AMOUNT_EMPTY_MARK;
+		row.strReason = SAGE_UI_AMOUNT_EMPTY_MARK;
 	return row;
 }
 
 void SageWorkflowHistoryPanel::InsertRow(int nItem, const SageHistoryRow& row) {
 	m_wndList.InsertItem(nItem, row.strTime);
 	m_wndList.SetItemText(nItem, SAGE_HISTORY_COLUMN_RESULT,
-		row.bSuccess ? TAECHANG_UI_HISTORY_SUCCESS : TAECHANG_UI_HISTORY_FAILED);
+		row.bSuccess ? SAGE_UI_HISTORY_SUCCESS : SAGE_UI_HISTORY_FAILED);
 	m_wndList.SetItemText(nItem, SAGE_HISTORY_COLUMN_INPUT, row.strInputPath);
 	m_wndList.SetItemText(nItem, SAGE_HISTORY_COLUMN_OUTPUT, row.strOutputPath);
 	m_wndList.SetItemText(nItem, SAGE_HISTORY_COLUMN_REASON, row.strReason);
 	m_wndList.SetItemData(nItem,
-		row.bSuccess ? TAECHANG_HISTORY_STATE_SUCCESS : TAECHANG_HISTORY_STATE_FAILED);
+		row.bSuccess ? SAGE_HISTORY_STATE_SUCCESS : SAGE_HISTORY_STATE_FAILED);
 }
 
 SageHistoryRow SageWorkflowHistoryPanel::BuildFileRow(
 	const CString& strInputPath, const CString& strFileJson, BOOL bRunSuccess) const {
 	SageHistoryRow row;
-	row.strTime = CTime::GetCurrentTime().Format(TAECHANG_UI_HISTORY_TIME_FORMAT);
-	row.strInputPath = strInputPath.IsEmpty() ? CString(TAECHANG_UI_AMOUNT_EMPTY_MARK) : strInputPath;
+	row.strTime = CTime::GetCurrentTime().Format(SAGE_UI_HISTORY_TIME_FORMAT);
+	row.strInputPath = strInputPath.IsEmpty() ? CString(SAGE_UI_AMOUNT_EMPTY_MARK) : strInputPath;
 
-	CString strStatus = JsonExtractString(strFileJson, TAECHANG_JSON_KEY_STATUS);
+	CString strStatus = JsonExtractString(strFileJson, SAGE_JSON_KEY_STATUS);
 	row.bSuccess = strStatus.IsEmpty()
 		? bRunSuccess
-		: (strStatus.CompareNoCase(TAECHANG_JSON_VALUE_SUCCESS) == 0 ? TRUE : FALSE);
+		: (strStatus.CompareNoCase(SAGE_JSON_VALUE_SUCCESS) == 0 ? TRUE : FALSE);
 
 	if (row.bSuccess) {
-		row.strOutputPath = JsonExtractString(strFileJson, TAECHANG_JSON_KEY_FILE_PATH);
+		row.strOutputPath = JsonExtractString(strFileJson, SAGE_JSON_KEY_FILE_PATH);
 		if (row.strOutputPath.IsEmpty())
-			row.strOutputPath = TAECHANG_UI_HISTORY_NO_OUTPUT;
-		row.strReason = TAECHANG_UI_AMOUNT_EMPTY_MARK;
+			row.strOutputPath = SAGE_UI_HISTORY_NO_OUTPUT;
+		row.strReason = SAGE_UI_AMOUNT_EMPTY_MARK;
 		return row;
 	}
 
-	row.strOutputPath = TAECHANG_UI_AMOUNT_EMPTY_MARK;
-	row.strReason = JsonExtractString(strFileJson, TAECHANG_JSON_KEY_MESSAGE);
+	row.strOutputPath = SAGE_UI_AMOUNT_EMPTY_MARK;
+	row.strReason = JsonExtractString(strFileJson, SAGE_JSON_KEY_MESSAGE);
 	if (row.strReason.IsEmpty())
-		row.strReason = TAECHANG_UI_AMOUNT_EMPTY_MARK;
+		row.strReason = SAGE_UI_AMOUNT_EMPTY_MARK;
 	return row;
 }
 
 void SageWorkflowHistoryPanel::AppendEntry(
 	const CString& strInputPath, const CString& strResponseJson, BOOL bSuccess) {
 	std::vector<CString> arrFiles;
-	SplitJsonObjectArray(JsonExtractArray(strResponseJson, TAECHANG_JSON_KEY_FILES), arrFiles);
+	SplitJsonObjectArray(JsonExtractArray(strResponseJson, SAGE_JSON_KEY_FILES), arrFiles);
 
 	std::vector<SageHistoryRow> arrNewRows;
 	if (arrFiles.empty()) {
@@ -282,6 +282,6 @@ void SageWorkflowHistoryPanel::AppendEntry(
 BOOL SageWorkflowHistoryPanel::OnEraseBkgnd(CDC* pDC) {
 	CRect rectClient;
 	GetClientRect(&rectClient);
-	pDC->FillSolidRect(rectClient, TAECHANG_COLOR_APP_BACKGROUND);
+	pDC->FillSolidRect(rectClient, SAGE_COLOR_APP_BACKGROUND);
 	return TRUE;
 }

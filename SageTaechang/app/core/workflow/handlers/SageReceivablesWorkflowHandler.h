@@ -20,12 +20,12 @@ public:
     virtual BOOL UsesCustomResultTable(int nTaskType) const;
     virtual BOOL BuildResultSummary(
         int nTaskType,
-        const std::vector<TaechangResultRow>& arrVisibleRows,
+        const std::vector<SageResultRow>& arrVisibleRows,
         const CString& strResponseJson,
         std::vector<SageResultSummaryItem>& outItems) const;
     virtual BOOL BuildResultTotals(
         int nTaskType,
-        const std::vector<TaechangResultRow>& arrVisibleRows,
+        const std::vector<SageResultRow>& arrVisibleRows,
         std::vector<SageResultTotalCell>& outCells) const;
 
     virtual int GetFilterCriteriaCount() const;

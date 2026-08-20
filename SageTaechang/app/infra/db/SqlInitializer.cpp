@@ -1,8 +1,8 @@
 ﻿#include "pch.h"
 #include "app/infra/db/SqlInitializer.h"
-#include "TaechangDefine.h"
-#include "app/infra/db/TaechangUserRepository.h"
-#include "app/core/auth/TaechangUserService.h"
+#include "SageDefine.h"
+#include "app/infra/db/SageUserRepository.h"
+#include "app/core/auth/SageUserService.h"
 
 SqlInitializer::SqlInitializer(SqlContext* pSqlContext) {
     m_pSqlContext = pSqlContext;
@@ -46,29 +46,29 @@ BOOL SqlInitializer::Initialize(CString& strError) {
 }
 
 BOOL SqlInitializer::CreateTables(CString& strError) {
-    if (CreateTaechangPriceTable(strError) == FALSE)
+    if (CreateSagePriceTable(strError) == FALSE)
         return FALSE;
 
-    if (CreateTaechangUserTable(strError) == FALSE)
+    if (CreateSageUserTable(strError) == FALSE)
         return FALSE;
 
-    if (CreateTaechangReceivableCompanyOrderTable(strError) == FALSE)
+    if (CreateSageReceivableCompanyOrderTable(strError) == FALSE)
         return FALSE;
 
-    if (CreateTaechangPriceCompanyTable(strError) == FALSE)
+    if (CreateSagePriceCompanyTable(strError) == FALSE)
         return FALSE;
 
-    if (SeedTaechangPriceCompanies(strError) == FALSE)
+    if (SeedSagePriceCompanies(strError) == FALSE)
         return FALSE;
 
     return TRUE;
 }
 
-BOOL SqlInitializer::CreateTaechangPriceTable(CString& strError) {
+BOOL SqlInitializer::CreateSagePriceTable(CString& strError) {
     CString strSql;
 
     strSql =
-        _T("CREATE TABLE IF NOT EXISTS TaechangPrice (")
+        _T("CREATE TABLE IF NOT EXISTS SagePrice (")
         _T("    price_id INTEGER PRIMARY KEY AUTOINCREMENT,")
         _T("    company_name TEXT NOT NULL,")
         _T("    report_type INTEGER NOT NULL,")
@@ -93,32 +93,32 @@ BOOL SqlInitializer::CreateIndexes(CString& strError) {
     CString strSql;
 
     strSql =
-        _T("CREATE INDEX IF NOT EXISTS idx_TaechangPrice_company ")
-        _T("ON TaechangPrice(company_name, report_type);");
+        _T("CREATE INDEX IF NOT EXISTS idx_SagePrice_company ")
+        _T("ON SagePrice(company_name, report_type);");
 
     if (m_pSqlContext->Execute(strSql, strError) == FALSE) {
         return FALSE;
     }
 
     strSql =
-        _T("CREATE INDEX IF NOT EXISTS idx_TaechangPrice_copies ")
-        _T("ON TaechangPrice(company_name, report_type, min_copies, max_copies);");
+        _T("CREATE INDEX IF NOT EXISTS idx_SagePrice_copies ")
+        _T("ON SagePrice(company_name, report_type, min_copies, max_copies);");
 
     if (m_pSqlContext->Execute(strSql, strError) == FALSE) {
         return FALSE;
     }
 
     strSql =
-        _T("CREATE INDEX IF NOT EXISTS idx_TaechangPrice_price ")
-        _T("ON TaechangPrice(print_price, cover_price);");
+        _T("CREATE INDEX IF NOT EXISTS idx_SagePrice_price ")
+        _T("ON SagePrice(print_price, cover_price);");
 
     if (m_pSqlContext->Execute(strSql, strError) == FALSE) {
         return FALSE;
     }
 
     strSql =
-        _T("CREATE INDEX IF NOT EXISTS idx_TaechangReceivableCompanyOrder_sort ")
-        _T("ON TaechangReceivableCompanyOrder(sort_order, company_name);");
+        _T("CREATE INDEX IF NOT EXISTS idx_SageReceivableCompanyOrder_sort ")
+        _T("ON SageReceivableCompanyOrder(sort_order, company_name);");
 
     if (m_pSqlContext->Execute(strSql, strError) == FALSE) {
         return FALSE;
@@ -127,11 +127,11 @@ BOOL SqlInitializer::CreateIndexes(CString& strError) {
     return TRUE;
 }
 
-BOOL SqlInitializer::CreateTaechangPriceCompanyTable(CString& strError) {
+BOOL SqlInitializer::CreateSagePriceCompanyTable(CString& strError) {
     CString strSql;
 
     strSql =
-        _T("CREATE TABLE IF NOT EXISTS TaechangPriceCompany (")
+        _T("CREATE TABLE IF NOT EXISTS SagePriceCompany (")
         _T("    company_id INTEGER PRIMARY KEY AUTOINCREMENT,")
         _T("    company_name TEXT NOT NULL,")
         _T("    report_type INTEGER NOT NULL,")
@@ -143,21 +143,21 @@ BOOL SqlInitializer::CreateTaechangPriceCompanyTable(CString& strError) {
     return m_pSqlContext->Execute(strSql, strError);
 }
 
-BOOL SqlInitializer::SeedTaechangPriceCompanies(CString& strError) {
+BOOL SqlInitializer::SeedSagePriceCompanies(CString& strError) {
     CString strSql;
 
     strSql =
-        _T("INSERT OR IGNORE INTO TaechangPriceCompany (company_name, report_type) ")
-        _T("SELECT DISTINCT company_name, report_type FROM TaechangPrice;");
+        _T("INSERT OR IGNORE INTO SagePriceCompany (company_name, report_type) ")
+        _T("SELECT DISTINCT company_name, report_type FROM SagePrice;");
 
     return m_pSqlContext->Execute(strSql, strError);
 }
 
-BOOL SqlInitializer::CreateTaechangUserTable(CString& strError) {
+BOOL SqlInitializer::CreateSageUserTable(CString& strError) {
     CString strSql;
 
     strSql =
-        _T("CREATE TABLE IF NOT EXISTS TaechangUser (")
+        _T("CREATE TABLE IF NOT EXISTS SageUser (")
         _T("    user_id   INTEGER PRIMARY KEY AUTOINCREMENT,")
         _T("    login_id  TEXT NOT NULL UNIQUE,")
         _T("    pw_hash   TEXT NOT NULL,")
@@ -180,7 +180,7 @@ BOOL SqlInitializer::SeedDefaultAdmin(CString& strError) {
 
     int nResult = sqlite3_prepare_v2(
         pDb,
-        "SELECT COUNT(*) FROM TaechangUser WHERE login_id = ?;",
+        "SELECT COUNT(*) FROM SageUser WHERE login_id = ?;",
         -1, &pStatement, NULL
     );
 
@@ -189,7 +189,7 @@ BOOL SqlInitializer::SeedDefaultAdmin(CString& strError) {
         return FALSE;
     }
 
-    CStringA strAdminIdA(CT2A(TAECHANG_DEFAULT_ADMIN_ID, CP_UTF8));
+    CStringA strAdminIdA(CT2A(SAGE_DEFAULT_ADMIN_ID, CP_UTF8));
     sqlite3_bind_text(pStatement, 1, strAdminIdA.GetString(), -1, SQLITE_STATIC);
 
     nResult = sqlite3_step(pStatement);
@@ -199,21 +199,21 @@ BOOL SqlInitializer::SeedDefaultAdmin(CString& strError) {
     if (nCount > 0)
         return TRUE;
 
-    TaechangUserRepository repo(m_pSqlContext);
-    TaechangUserDto adminDto;
-    adminDto.strLoginId = TAECHANG_DEFAULT_ADMIN_ID;
-    adminDto.strPwHash = TaechangUserService::HashPassword(TAECHANG_DEFAULT_ADMIN_PW);
+    SageUserRepository repo(m_pSqlContext);
+    SageUserDto adminDto;
+    adminDto.strLoginId = SAGE_DEFAULT_ADMIN_ID;
+    adminDto.strPwHash = SageUserService::HashPassword(SAGE_DEFAULT_ADMIN_PW);
     adminDto.nRole = USER_ROLE_ADMIN;
 
     int nNewId = 0;
     return repo.Insert(adminDto, nNewId, strError);
 }
 
-BOOL SqlInitializer::CreateTaechangReceivableCompanyOrderTable(CString& strError) {
+BOOL SqlInitializer::CreateSageReceivableCompanyOrderTable(CString& strError) {
     CString strSql;
 
     strSql =
-        _T("CREATE TABLE IF NOT EXISTS TaechangReceivableCompanyOrder (")
+        _T("CREATE TABLE IF NOT EXISTS SageReceivableCompanyOrder (")
         _T("    order_id INTEGER PRIMARY KEY AUTOINCREMENT,")
         _T("    company_name TEXT NOT NULL UNIQUE,")
         _T("    sort_order INTEGER NOT NULL,")

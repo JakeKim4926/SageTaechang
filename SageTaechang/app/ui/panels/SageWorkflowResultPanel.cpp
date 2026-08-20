@@ -1,12 +1,12 @@
 ﻿#include "pch.h"
 #include "app/ui/panels/SageWorkflowResultPanel.h"
-#include "TaechangDefine.h"
+#include "SageDefine.h"
 
 BEGIN_MESSAGE_MAP(SageWorkflowResultPanel, CWnd)
 	ON_WM_CREATE()
 	ON_WM_ERASEBKGND()
-	ON_MESSAGE(WM_TAECHANG_RESULT_TABLE_CHANGED, &SageWorkflowResultPanel::OnResultTableChanged)
-	ON_MESSAGE(WM_TAECHANG_RESULT_SELECTION_CHANGED, &SageWorkflowResultPanel::OnResultSelectionChanged)
+	ON_MESSAGE(WM_SAGE_RESULT_TABLE_CHANGED, &SageWorkflowResultPanel::OnResultTableChanged)
+	ON_MESSAGE(WM_SAGE_RESULT_SELECTION_CHANGED, &SageWorkflowResultPanel::OnResultSelectionChanged)
 END_MESSAGE_MAP()
 
 BOOL SageWorkflowResultPanel::Create(CWnd* pParent, UINT nId) {
@@ -18,8 +18,8 @@ int SageWorkflowResultPanel::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	if (CWnd::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-	m_panelResultTable.Create(this, ID_TAECHANG_RESULT_TABLE_PANEL);
-	m_panelResultTable.SetTitle(TAECHANG_UI_SECTION_RESULT);
+	m_panelResultTable.Create(this, ID_SAGE_RESULT_TABLE_PANEL);
+	m_panelResultTable.SetTitle(SAGE_UI_SECTION_RESULT);
 	m_panelResultTable.ShowWindow(SW_SHOW);
 	return 0;
 }
@@ -27,7 +27,7 @@ int SageWorkflowResultPanel::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 BOOL SageWorkflowResultPanel::OnEraseBkgnd(CDC* pDC) {
 	CRect rectClient;
 	GetClientRect(&rectClient);
-	pDC->FillSolidRect(rectClient, TAECHANG_COLOR_APP_BACKGROUND);
+	pDC->FillSolidRect(rectClient, SAGE_COLOR_APP_BACKGROUND);
 	return TRUE;
 }
 
@@ -72,9 +72,9 @@ LRESULT SageWorkflowResultPanel::ForwardToParent(UINT nMessage, WPARAM wParam, L
 }
 
 LRESULT SageWorkflowResultPanel::OnResultTableChanged(WPARAM wParam, LPARAM lParam) {
-	return ForwardToParent(WM_TAECHANG_RESULT_TABLE_CHANGED, wParam, lParam);
+	return ForwardToParent(WM_SAGE_RESULT_TABLE_CHANGED, wParam, lParam);
 }
 
 LRESULT SageWorkflowResultPanel::OnResultSelectionChanged(WPARAM wParam, LPARAM lParam) {
-	return ForwardToParent(WM_TAECHANG_RESULT_SELECTION_CHANGED, wParam, lParam);
+	return ForwardToParent(WM_SAGE_RESULT_SELECTION_CHANGED, wParam, lParam);
 }

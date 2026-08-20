@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "app/ui/dialogs/SageMessageBoxDlg.h"
 #include "app/ui/drawing/SageUiResources.h"
-#include "TaechangDefine.h"
+#include "SageDefine.h"
 
 BEGIN_MESSAGE_MAP(SageMessageBoxDlg, SageFramelessDialog)
 	ON_WM_CTLCOLOR()
@@ -15,7 +15,7 @@ SageMessageBoxDlg::SageMessageBoxDlg(const CString& strMessage, UINT nType, CWnd
 
 INT_PTR SageMessageBoxDlg::DoModal() {
 	BYTE* pTemplate = BuildFramelessTemplate(GetCaptionTitle(),
-		TAECHANG_MSGBOX_TEMPLATE_CX, TAECHANG_MSGBOX_TEMPLATE_CY);
+		SAGE_MSGBOX_TEMPLATE_CX, SAGE_MSGBOX_TEMPLATE_CY);
 	InitModalIndirect((DLGTEMPLATE*)pTemplate, m_pDlgParent);
 	INT_PTR nResult = CDialog::DoModal();
 	delete[] pTemplate;
@@ -45,26 +45,26 @@ SageMessageIcon SageMessageBoxDlg::GetMessageIcon() const {
 
 LPCWSTR SageMessageBoxDlg::GetCaptionTitle() const {
 	if (IsConfirm())
-		return TAECHANG_UI_MSGBOX_TITLE_CONFIRM;
+		return SAGE_UI_MSGBOX_TITLE_CONFIRM;
 
 	SageMessageIcon nIcon = GetMessageIcon();
 	if (nIcon == SAGE_MESSAGE_ICON_ERROR)
-		return TAECHANG_UI_MSGBOX_TITLE_ERROR;
+		return SAGE_UI_MSGBOX_TITLE_ERROR;
 	if (nIcon == SAGE_MESSAGE_ICON_WARNING)
-		return TAECHANG_UI_MSGBOX_TITLE_WARNING;
-	return TAECHANG_UI_MSGBOX_TITLE_INFO;
+		return SAGE_UI_MSGBOX_TITLE_WARNING;
+	return SAGE_UI_MSGBOX_TITLE_INFO;
 }
 
 BOOL SageMessageBoxDlg::OnInitDialog() {
 	CDialog::OnInitDialog();
 
 	SetWindowText(GetCaptionTitle());
-	m_brushBackground.CreateSolidBrush(TAECHANG_COLOR_PANEL);
+	m_brushBackground.CreateSolidBrush(SAGE_COLOR_PANEL);
 
 	CreateCaptionBar(GetCaptionTitle());
 	CreateControls();
 	ApplyStyle();
-	SizeFramelessClient(TAECHANG_MSGBOX_WIDTH, LayoutControls());
+	SizeFramelessClient(SAGE_MSGBOX_WIDTH, LayoutControls());
 
 	if (IsDefaultReject())
 		m_wndRejectBtn.SetFocus();
@@ -80,14 +80,14 @@ void SageMessageBoxDlg::CreateControls() {
 	m_wndBody.Create(NULL, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, rectEmpty, this);
 
 	if (IsConfirm()) {
-		m_wndAcceptBtn.Create(TAECHANG_UI_MSGBOX_YES,
+		m_wndAcceptBtn.Create(SAGE_UI_MSGBOX_YES,
 			WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, IDYES);
-		m_wndRejectBtn.Create(TAECHANG_UI_MSGBOX_NO,
+		m_wndRejectBtn.Create(SAGE_UI_MSGBOX_NO,
 			WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, IDNO);
 		return;
 	}
 
-	m_wndAcceptBtn.Create(TAECHANG_UI_MSGBOX_OK,
+	m_wndAcceptBtn.Create(SAGE_UI_MSGBOX_OK,
 		WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, rectEmpty, this, IDOK);
 }
 
@@ -110,26 +110,26 @@ void SageMessageBoxDlg::ApplyStyle() {
 }
 
 void SageMessageBoxDlg::MoveButton(CSageButton& button, int nLeft, int nTop, BOOL bFocusRing) {
-	int nWidth = TAECHANG_LOGIN_DLG_BTN_WIDTH;
-	int nHeight = TAECHANG_BUTTON_HEIGHT;
+	int nWidth = SAGE_LOGIN_DLG_BTN_WIDTH;
+	int nHeight = SAGE_BUTTON_HEIGHT;
 	if (!bFocusRing) {
 		button.MoveWindow(nLeft, nTop, nWidth, nHeight);
 		return;
 	}
 
 	button.MoveWindow(
-		nLeft - TAECHANG_FOCUS_RING_WIDTH,
-		nTop - TAECHANG_FOCUS_RING_WIDTH,
-		nWidth + TAECHANG_FOCUS_RING_WIDTH * 2,
-		nHeight + TAECHANG_FOCUS_RING_WIDTH * 2);
+		nLeft - SAGE_FOCUS_RING_WIDTH,
+		nTop - SAGE_FOCUS_RING_WIDTH,
+		nWidth + SAGE_FOCUS_RING_WIDTH * 2,
+		nHeight + SAGE_FOCUS_RING_WIDTH * 2);
 }
 
 int SageMessageBoxDlg::LayoutControls() {
-	int nM = TAECHANG_MARGIN;
-	int nGap = TAECHANG_ROW_GAP;
-	int nBtnW = TAECHANG_LOGIN_DLG_BTN_WIDTH;
-	int nBtnH = TAECHANG_BUTTON_HEIGHT;
-	int nClientW = TAECHANG_MSGBOX_WIDTH;
+	int nM = SAGE_MARGIN;
+	int nGap = SAGE_ROW_GAP;
+	int nBtnW = SAGE_LOGIN_DLG_BTN_WIDTH;
+	int nBtnH = SAGE_BUTTON_HEIGHT;
+	int nClientW = SAGE_MSGBOX_WIDTH;
 	int nBodyW = nClientW - nM * 2;
 
 	int nBodyTop = GetContentTop() + nM;
@@ -149,7 +149,7 @@ int SageMessageBoxDlg::LayoutControls() {
 
 	int nContentBottom = nBtnTop + nBtnH;
 	if (IsConfirm())
-		nContentBottom += TAECHANG_FOCUS_RING_WIDTH;
+		nContentBottom += SAGE_FOCUS_RING_WIDTH;
 
 	return nContentBottom + nM;
 }
@@ -183,8 +183,8 @@ void SageMessageBoxDlg::OnCancel() {
 HBRUSH SageMessageBoxDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
 	CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
 
-	pDC->SetTextColor(TAECHANG_COLOR_TEXT);
-	pDC->SetBkColor(TAECHANG_COLOR_PANEL);
+	pDC->SetTextColor(SAGE_COLOR_TEXT);
+	pDC->SetBkColor(SAGE_COLOR_PANEL);
 	return m_brushBackground;
 }
 

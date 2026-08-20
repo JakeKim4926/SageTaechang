@@ -2,7 +2,7 @@
 #include "app/ui/drawing/SageSearchBox.h"
 #include "app/ui/drawing/SageUiResources.h"
 #include "app/ui/drawing/SageUiStyle.h"
-#include "TaechangDefine.h"
+#include "SageDefine.h"
 
 BEGIN_MESSAGE_MAP(CSageSearchBox, CStatic)
 	ON_WM_SIZE()
@@ -30,8 +30,8 @@ BOOL CSageSearchBox::CreateBox(CWnd* pParent, UINT nBoxId, UINT nEditId) {
 
 BOOL CSageSearchBox::CreateCriteriaCell(UINT nCriteriaId, int nDropRows) {
 	CRect rectEmpty(0, 0, 0, 0);
-	m_wndCriteria.SetFieldHeight(TAECHANG_EDIT_HEIGHT
-		- TAECHANG_EDIT_BORDER_WIDTH * 2 - TAECHANG_COMBO_FIELD_INSET);
+	m_wndCriteria.SetFieldHeight(SAGE_EDIT_HEIGHT
+		- SAGE_EDIT_BORDER_WIDTH * 2 - SAGE_COMBO_FIELD_INSET);
 	if (!m_wndCriteria.Create(
 		WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | CBS_OWNERDRAWFIXED | CBS_HASSTRINGS | WS_VSCROLL,
 		rectEmpty, this, nCriteriaId))
@@ -39,8 +39,8 @@ BOOL CSageSearchBox::CreateCriteriaCell(UINT nCriteriaId, int nDropRows) {
 
 	m_nCriteriaId = nCriteriaId;
 	m_wndCriteria.SetFont(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	m_wndCriteria.SetFieldColor(TAECHANG_COLOR_APP_BACKGROUND);
-	m_wndCriteria.MoveWindow(0, 0, TAECHANG_SEARCH_CRITERIA_CELL_WIDTH, TAECHANG_EDIT_HEIGHT * nDropRows);
+	m_wndCriteria.SetFieldColor(SAGE_COLOR_APP_BACKGROUND);
+	m_wndCriteria.MoveWindow(0, 0, SAGE_SEARCH_CRITERIA_CELL_WIDTH, SAGE_EDIT_HEIGHT * nDropRows);
 	LayoutCriteria();
 	LayoutEdit();
 	return TRUE;
@@ -133,14 +133,14 @@ BOOL CSageSearchBox::IsEditMessage(const MSG* pMsg) const {
 }
 
 int CSageSearchBox::GetCriteriaCellWidth() const {
-	return ::IsWindow(m_wndCriteria.GetSafeHwnd()) ? TAECHANG_SEARCH_CRITERIA_CELL_WIDTH : 0;
+	return ::IsWindow(m_wndCriteria.GetSafeHwnd()) ? SAGE_SEARCH_CRITERIA_CELL_WIDTH : 0;
 }
 
 CRect CSageSearchBox::GetCriteriaCellRect(const CRect& rectClient) const {
 	CRect rectCell(rectClient);
 	rectCell.right = rectCell.left + GetCriteriaCellWidth();
-	rectCell.DeflateRect(0, TAECHANG_EDIT_BORDER_WIDTH);
-	rectCell.left += TAECHANG_EDIT_BORDER_WIDTH;
+	rectCell.DeflateRect(0, SAGE_EDIT_BORDER_WIDTH);
+	rectCell.left += SAGE_EDIT_BORDER_WIDTH;
 	return rectCell;
 }
 
@@ -157,9 +157,9 @@ void CSageSearchBox::LayoutCriteria() {
 
 CRect CSageSearchBox::GetIconCellRect(const CRect& rectClient) const {
 	CRect rectCell(rectClient);
-	rectCell.left = rectCell.right - TAECHANG_SEARCH_ICON_CELL_WIDTH;
-	rectCell.DeflateRect(0, TAECHANG_EDIT_BORDER_WIDTH);
-	rectCell.right -= TAECHANG_EDIT_BORDER_WIDTH;
+	rectCell.left = rectCell.right - SAGE_SEARCH_ICON_CELL_WIDTH;
+	rectCell.DeflateRect(0, SAGE_EDIT_BORDER_WIDTH);
+	rectCell.right -= SAGE_EDIT_BORDER_WIDTH;
 	return rectCell;
 }
 
@@ -179,8 +179,8 @@ void CSageSearchBox::LayoutEdit() {
 	CRect rectClient;
 	GetClientRect(&rectClient);
 	int nEditLeft = rectClient.left + GetCriteriaCellWidth()
-		+ TAECHANG_EDIT_BORDER_WIDTH + TAECHANG_EDIT_TEXT_LEFT_PAD;
-	int nEditRight = rectClient.right - TAECHANG_SEARCH_ICON_CELL_WIDTH - TAECHANG_EDIT_TEXT_LEFT_PAD;
+		+ SAGE_EDIT_BORDER_WIDTH + SAGE_EDIT_TEXT_LEFT_PAD;
+	int nEditRight = rectClient.right - SAGE_SEARCH_ICON_CELL_WIDTH - SAGE_EDIT_TEXT_LEFT_PAD;
 	if (nEditRight < nEditLeft)
 		nEditRight = nEditLeft;
 
@@ -215,8 +215,8 @@ void CSageSearchBox::OnLButtonDown(UINT nFlags, CPoint point) {
 HBRUSH CSageSearchBox::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
 	UNREFERENCED_PARAMETER(pWnd);
 	if (nCtlColor == CTLCOLOR_EDIT) {
-		pDC->SetTextColor(TAECHANG_COLOR_TEXT);
-		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
+		pDC->SetTextColor(SAGE_COLOR_TEXT);
+		pDC->SetBkColor(SAGE_COLOR_PANEL);
 		return SageUiResources::GetBrush(SAGE_BG_PANEL);
 	}
 	return CStatic::OnCtlColor(pDC, pWnd, nCtlColor);
@@ -226,23 +226,23 @@ void CSageSearchBox::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 	CDC* pDC = CDC::FromHandle(lpDrawItemStruct->hDC);
 	CRect rectClient(lpDrawItemStruct->rcItem);
 
-	pDC->FillSolidRect(rectClient, TAECHANG_COLOR_PANEL);
+	pDC->FillSolidRect(rectClient, SAGE_COLOR_PANEL);
 
 	if (GetCriteriaCellWidth() > 0) {
 		CRect rectCriteria = GetCriteriaCellRect(rectClient);
-		pDC->FillSolidRect(rectCriteria, TAECHANG_COLOR_APP_BACKGROUND);
+		pDC->FillSolidRect(rectCriteria, SAGE_COLOR_APP_BACKGROUND);
 		pDC->FillSolidRect(
-			rectCriteria.right, rectCriteria.top, TAECHANG_EDIT_BORDER_WIDTH, rectCriteria.Height(),
-			TAECHANG_COLOR_LIST_HEADER_BORDER);
+			rectCriteria.right, rectCriteria.top, SAGE_EDIT_BORDER_WIDTH, rectCriteria.Height(),
+			SAGE_COLOR_LIST_HEADER_BORDER);
 	}
 
 	CRect rectCell = GetIconCellRect(rectClient);
-	pDC->FillSolidRect(rectCell, TAECHANG_COLOR_APP_BACKGROUND);
+	pDC->FillSolidRect(rectCell, SAGE_COLOR_APP_BACKGROUND);
 	pDC->FillSolidRect(
-		rectCell.left, rectCell.top, TAECHANG_EDIT_BORDER_WIDTH, rectCell.Height(),
-		TAECHANG_COLOR_LIST_HEADER_BORDER);
-	SageUiStyle::DrawSearchIcon(*pDC, rectCell.CenterPoint(), TAECHANG_COLOR_TEXT_MUTED);
+		rectCell.left, rectCell.top, SAGE_EDIT_BORDER_WIDTH, rectCell.Height(),
+		SAGE_COLOR_LIST_HEADER_BORDER);
+	SageUiStyle::DrawSearchIcon(*pDC, rectCell.CenterPoint(), SAGE_COLOR_TEXT_MUTED);
 
-	CBrush brushBorder(TAECHANG_COLOR_BUTTON_BORDER);
+	CBrush brushBorder(SAGE_COLOR_BUTTON_BORDER);
 	pDC->FrameRect(rectClient, &brushBorder);
 }

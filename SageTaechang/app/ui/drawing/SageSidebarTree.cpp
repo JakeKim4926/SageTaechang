@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "app/ui/drawing/SageSidebarTree.h"
 #include "app/ui/drawing/SageUiResources.h"
-#include "TaechangDefine.h"
+#include "SageDefine.h"
 
 BEGIN_MESSAGE_MAP(CSageSidebarTree, CTreeCtrl)
 	ON_NOTIFY_REFLECT(NM_CUSTOMDRAW, &CSageSidebarTree::OnNMCustomDraw)
@@ -22,11 +22,11 @@ void CSageSidebarTree::DrawTreeItem(HTREEITEM hItem, BOOL bSelected, NMTVCUSTOMD
 
 	BOOL bHighlight = (!bGroupHeader && bSelected) ? TRUE : FALSE;
 	pDC->FillSolidRect(rcRow,
-		bHighlight ? TAECHANG_COLOR_SIDEBAR_SELECTED : TAECHANG_COLOR_SIDEBAR);
+		bHighlight ? SAGE_COLOR_SIDEBAR_SELECTED : SAGE_COLOR_SIDEBAR);
 	if (bHighlight) {
 		pDC->FillSolidRect(
-			rcRow.left, rcRow.top, TAECHANG_SELECTION_ACCENT_WIDTH, rcRow.Height(),
-			TAECHANG_COLOR_PRIMARY);
+			rcRow.left, rcRow.top, SAGE_SELECTION_ACCENT_WIDTH, rcRow.Height(),
+			SAGE_COLOR_PRIMARY);
 	}
 
 	CFont* pOldFont = pDC->SelectObject(SageUiResources::GetFont(
@@ -34,13 +34,13 @@ void CSageSidebarTree::DrawTreeItem(HTREEITEM hItem, BOOL bSelected, NMTVCUSTOMD
 		: (bSelected ? SAGE_FONT_CONTENT_SEMIBOLD : SAGE_FONT_CONTROL)));
 	int nOldBkMode = pDC->SetBkMode(TRANSPARENT);
 	COLORREF clrOldText = pDC->SetTextColor(bGroupHeader
-		? TAECHANG_COLOR_SIDEBAR_CATEGORY
-		: (bSelected ? TAECHANG_COLOR_SIDEBAR_SELECTED_TEXT : TAECHANG_COLOR_SIDEBAR_TEXT));
+		? SAGE_COLOR_SIDEBAR_CATEGORY
+		: (bSelected ? SAGE_COLOR_SIDEBAR_SELECTED_TEXT : SAGE_COLOR_SIDEBAR_TEXT));
 	int nOldCharExtra = pDC->SetTextCharacterExtra(
-		bGroupHeader ? TAECHANG_SIDEBAR_CATEGORY_CHAR_EXTRA : 0);
+		bGroupHeader ? SAGE_SIDEBAR_CATEGORY_CHAR_EXTRA : 0);
 
 	CRect rcText(rcRow);
-	rcText.left += TAECHANG_SIDEBAR_PAD_X;
+	rcText.left += SAGE_SIDEBAR_PAD_X;
 	pDC->DrawText(GetItemText(hItem), &rcText, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
 
 	pDC->SetTextCharacterExtra(nOldCharExtra);

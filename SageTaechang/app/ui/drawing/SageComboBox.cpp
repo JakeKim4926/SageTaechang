@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "app/ui/drawing/SageComboBox.h"
 #include "app/ui/drawing/SageUiStyle.h"
-#include "TaechangDefine.h"
+#include "SageDefine.h"
 
 BEGIN_MESSAGE_MAP(CSageComboBox, CComboBox)
 	ON_WM_PAINT()
@@ -19,7 +19,7 @@ void CSageComboBox::ApplyFieldHeight() {
 
 	m_bFittingField = TRUE;
 
-	for (int nPass = 0; nPass < TAECHANG_COMBO_FIT_MAX_PASS; ++nPass) {
+	for (int nPass = 0; nPass < SAGE_COMBO_FIT_MAX_PASS; ++nPass) {
 		COMBOBOXINFO info = {};
 		info.cbSize = sizeof(COMBOBOXINFO);
 		if (!GetComboBoxInfo(&info))
@@ -30,7 +30,7 @@ void CSageComboBox::ApplyFieldHeight() {
 			break;
 
 		int nClosedHeight = info.rcItem.bottom + info.rcItem.top;
-		int nDelta = nClosedHeight - TAECHANG_EDIT_HEIGHT;
+		int nDelta = nClosedHeight - SAGE_EDIT_HEIGHT;
 		if (nDelta == 0)
 			break;
 
@@ -93,11 +93,11 @@ void CSageComboBox::OnPaint() {
 
 	CRect rcField = cbi.rcItem;
 	if (!rcField.IsRectEmpty())
-		dc.FillSolidRect(rcField, TAECHANG_COLOR_PANEL);
+		dc.FillSolidRect(rcField, SAGE_COLOR_PANEL);
 
 	CRect rcButton = cbi.rcButton;
 	if (rcButton.IsRectEmpty())
 		return;
-	dc.FillSolidRect(rcButton, TAECHANG_COLOR_APP_BACKGROUND);
+	dc.FillSolidRect(rcButton, SAGE_COLOR_APP_BACKGROUND);
 	SageUiStyle::DrawComboArrow(dc, rcButton);
 }

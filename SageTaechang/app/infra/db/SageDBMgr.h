@@ -5,12 +5,12 @@
 #include "app/infra/db/SqlContext.h"
 #include "app/infra/db/SqlInitializer.h"
 
-#include "app/infra/db/TaechangPriceRepository.h"
-#include "app/core/price/TaechangPriceService.h"
-#include "app/infra/db/TaechangReceivableCompanyOrderRepository.h"
-#include "app/core/receivable/TaechangReceivableCompanyOrderService.h"
-#include "app/infra/db/TaechangUserRepository.h"
-#include "app/core/auth/TaechangUserService.h"
+#include "app/infra/db/SagePriceRepository.h"
+#include "app/core/price/SagePriceService.h"
+#include "app/infra/db/SageReceivableCompanyOrderRepository.h"
+#include "app/core/receivable/SageReceivableCompanyOrderService.h"
+#include "app/infra/db/SageUserRepository.h"
+#include "app/core/auth/SageUserService.h"
 
 #define sageDBMgr SageDBMgr::GetInstance()
 
@@ -35,14 +35,14 @@ public:
 public:
     SqlContext* GetSqlContext();
 
-    TaechangPriceRepository* GetTaechangPriceRepository();
-    TaechangPriceService* GetTaechangPriceService();
+    SagePriceRepository* GetSagePriceRepository();
+    SagePriceService* GetSagePriceService();
 
-    TaechangReceivableCompanyOrderRepository* GetReceivableCompanyOrderRepository();
-    TaechangReceivableCompanyOrderService* GetReceivableCompanyOrderService();
+    SageReceivableCompanyOrderRepository* GetReceivableCompanyOrderRepository();
+    SageReceivableCompanyOrderService* GetReceivableCompanyOrderService();
 
-    TaechangUserRepository* GetUserRepository();
-    TaechangUserService* GetUserService();
+    SageUserRepository* GetUserRepository();
+    SageUserService* GetUserService();
 
 private:
     BOOL CreateRepositories(CString& strError);
@@ -56,12 +56,12 @@ private:
 
     SqlContext m_sqlContext;
 
-    TaechangPriceRepository* m_pTaechangPriceRepository;
-    TaechangPriceService* m_pTaechangPriceService;
+    SagePriceRepository* m_pSagePriceRepository;
+    SagePriceService* m_pSagePriceService;
 
-    TaechangReceivableCompanyOrderRepository* m_pReceivableCompanyOrderRepository;
-    TaechangReceivableCompanyOrderService* m_pReceivableCompanyOrderService;
+    SageReceivableCompanyOrderRepository* m_pReceivableCompanyOrderRepository;
+    SageReceivableCompanyOrderService* m_pReceivableCompanyOrderService;
 
-    TaechangUserRepository* m_pUserRepository;
-    TaechangUserService* m_pUserService;
+    SageUserRepository* m_pUserRepository;
+    SageUserService* m_pUserService;
 };

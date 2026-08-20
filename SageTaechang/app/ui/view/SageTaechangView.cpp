@@ -10,7 +10,7 @@
 #include "app/ui/drawing/SageUiResources.h"
 #include "app/core/workflow/ISageWorkflowHandler.h"
 #include "app/core/workflow/SageWorkflowRegistry.h"
-#include "app/ui/dialogs/TaechangPasswordChangeDlg.h"
+#include "app/ui/dialogs/SagePasswordChangeDlg.h"
 #include <uxtheme.h>
 #pragma comment(lib, "uxtheme.lib")
 
@@ -54,18 +54,18 @@ BEGIN_MESSAGE_MAP(CSageTaechangView, CView)
 	ON_WM_SIZE()
 	ON_WM_ERASEBKGND()
 	ON_WM_CTLCOLOR()
-	ON_MESSAGE(WM_TAECHANG_SIDEBAR_WORKFLOW, &CSageTaechangView::OnSidebarWorkflow)
-	ON_MESSAGE(WM_TAECHANG_SIDEBAR_ACTION, &CSageTaechangView::OnSidebarAction)
-	ON_MESSAGE(WM_TAECHANG_WORKSPACE_TAB_CHANGED, &CSageTaechangView::OnWorkspaceTabChanged)
-	ON_MESSAGE(WM_TAECHANG_WORKSPACE_STATUS, &CSageTaechangView::OnWorkspaceStatus)
-	ON_MESSAGE(WM_TAECHANG_WORKSPACE_STATE_CHANGED, &CSageTaechangView::OnWorkspaceStateChanged)
+	ON_MESSAGE(WM_SAGE_SIDEBAR_WORKFLOW, &CSageTaechangView::OnSidebarWorkflow)
+	ON_MESSAGE(WM_SAGE_SIDEBAR_ACTION, &CSageTaechangView::OnSidebarAction)
+	ON_MESSAGE(WM_SAGE_WORKSPACE_TAB_CHANGED, &CSageTaechangView::OnWorkspaceTabChanged)
+	ON_MESSAGE(WM_SAGE_WORKSPACE_STATUS, &CSageTaechangView::OnWorkspaceStatus)
+	ON_MESSAGE(WM_SAGE_WORKSPACE_STATE_CHANGED, &CSageTaechangView::OnWorkspaceStateChanged)
 	ON_WM_DROPFILES()
 END_MESSAGE_MAP()
 
 CSageTaechangView::CSageTaechangView() noexcept
-	: m_nCurrentWorkflow(TAECHANG_WORKFLOW_DELIVERY)
+	: m_nCurrentWorkflow(SAGE_WORKFLOW_DELIVERY)
 	{
-	m_brushListHeader.CreateSolidBrush(TAECHANG_COLOR_LIST_HEADER);
+	m_brushListHeader.CreateSolidBrush(SAGE_COLOR_LIST_HEADER);
 }
 
 CSageTaechangView::~CSageTaechangView() {}
@@ -92,16 +92,16 @@ int CSageTaechangView::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	CFrameWnd* pFrame = GetParentFrame();
 	if (pFrame != NULL)
 		EnableFileDropForWindow(*pFrame);
-	SetStatusText(TAECHANG_UI_READY);
+	SetStatusText(SAGE_UI_READY);
 	return 0;
 }
 
 void CSageTaechangView::CreateChildControls() {
-	m_panelHeader.Create(this, ID_TAECHANG_HEADER_PANEL);
+	m_panelHeader.Create(this, ID_SAGE_HEADER_PANEL);
 	m_panelHeader.ShowWindow(SW_SHOW);
-	m_panelSidebar.Create(this, ID_TAECHANG_SIDEBAR_PANEL);
+	m_panelSidebar.Create(this, ID_SAGE_SIDEBAR_PANEL);
 	m_panelSidebar.ShowWindow(SW_SHOW);
-	m_panelWorkspace.Create(this, ID_TAECHANG_WORKSPACE_PANEL);
+	m_panelWorkspace.Create(this, ID_SAGE_WORKSPACE_PANEL);
 	m_panelWorkspace.EnableFileDrop();
 	m_panelWorkspace.ShowWindow(SW_SHOW);
 
@@ -122,18 +122,18 @@ void CSageTaechangView::LayoutChildControls() {
 	CRect rectClient;
 	GetClientRect(&rectClient);
 
-	m_panelSidebar.Layout(CRect(0, 0, TAECHANG_SIDEBAR_WIDTH, rectClient.Height()));
+	m_panelSidebar.Layout(CRect(0, 0, SAGE_SIDEBAR_WIDTH, rectClient.Height()));
 	m_panelHeader.Layout(CRect(
-		TAECHANG_SIDEBAR_WIDTH + TAECHANG_BORDER_THICKNESS,
+		SAGE_SIDEBAR_WIDTH + SAGE_BORDER_THICKNESS,
 		0,
 		rectClient.Width(),
-		TAECHANG_HEADER_HEIGHT + TAECHANG_BORDER_THICKNESS));
+		SAGE_HEADER_HEIGHT + SAGE_BORDER_THICKNESS));
 
 	InvalidateContentArea();
 
 	m_panelWorkspace.Layout(CRect(
-		TAECHANG_SIDEBAR_WIDTH + TAECHANG_BORDER_THICKNESS,
-		TAECHANG_HEADER_HEIGHT + TAECHANG_BORDER_THICKNESS,
+		SAGE_SIDEBAR_WIDTH + SAGE_BORDER_THICKNESS,
+		SAGE_HEADER_HEIGHT + SAGE_BORDER_THICKNESS,
 		rectClient.Width(),
 		rectClient.Height()));
 	m_panelWorkspace.RefreshVisibility();
@@ -144,15 +144,15 @@ void CSageTaechangView::OnDraw(CDC* pDC) {
 	ASSERT_VALID(pDoc);
 	CRect rectClient;
 	GetClientRect(&rectClient);
-	pDC->FillSolidRect(rectClient, TAECHANG_COLOR_APP_BACKGROUND);
-	pDC->FillSolidRect(TAECHANG_SIDEBAR_WIDTH, 0, 1, rectClient.Height(), TAECHANG_COLOR_BORDER);
+	pDC->FillSolidRect(rectClient, SAGE_COLOR_APP_BACKGROUND);
+	pDC->FillSolidRect(SAGE_SIDEBAR_WIDTH, 0, 1, rectClient.Height(), SAGE_COLOR_BORDER);
 }
 
 
 void CSageTaechangView::InvalidateContentArea() {
 	CRect rectContent;
 	GetClientRect(&rectContent);
-	rectContent.left += TAECHANG_SIDEBAR_WIDTH;
+	rectContent.left += SAGE_SIDEBAR_WIDTH;
 	InvalidateRect(rectContent, TRUE);
 }
 
@@ -173,17 +173,17 @@ void CSageTaechangView::OnWorkflowChanged() {
 	m_panelHeader.SetCategory(m_panelSidebar.GetSelectedCategory());
 	if (IsPriceWorkflowType(m_nCurrentWorkflow)) {
 		m_panelHeader.SetTitle(
-			m_nCurrentWorkflow == TAECHANG_WORKFLOW_PRICE_MANAGE
-			? TAECHANG_UI_PRICE_MANAGE_NAME
-			: TAECHANG_UI_PRICE_CALC_NAME
+			m_nCurrentWorkflow == SAGE_WORKFLOW_PRICE_MANAGE
+			? SAGE_UI_PRICE_MANAGE_NAME
+			: SAGE_UI_PRICE_CALC_NAME
 		);
-		if (m_nCurrentWorkflow == TAECHANG_WORKFLOW_PRICE_MANAGE)
+		if (m_nCurrentWorkflow == SAGE_WORKFLOW_PRICE_MANAGE)
 			m_panelWorkspace.GetPriceManagePanel().RefreshCompanyList();
 		else
 			m_panelWorkspace.GetPriceCalcPanel().RefreshCompanyCombo();
 		LayoutChildControls();
 		Invalidate(FALSE);
-		SetStatusText(TAECHANG_UI_READY);
+		SetStatusText(SAGE_UI_READY);
 		return;
 	}
 
@@ -194,7 +194,7 @@ void CSageTaechangView::OnWorkflowChanged() {
 	m_panelWorkspace.RebuildResultTable();
 	LayoutChildControls();
 	if (!m_panelWorkspace.IsRunning())
-		SetStatusText(TAECHANG_UI_READY);
+		SetStatusText(SAGE_UI_READY);
 }
 
 LRESULT CSageTaechangView::OnSidebarWorkflow(WPARAM wParam, LPARAM lParam) {
@@ -208,7 +208,7 @@ LRESULT CSageTaechangView::OnSidebarWorkflow(WPARAM wParam, LPARAM lParam) {
 LRESULT CSageTaechangView::OnSidebarAction(WPARAM wParam, LPARAM lParam) {
 	UNREFERENCED_PARAMETER(wParam);
 	UNREFERENCED_PARAMETER(lParam);
-	TaechangPasswordChangeDlg dlg(this);
+	SagePasswordChangeDlg dlg(this);
 	dlg.DoModal();
 	return 0;
 }
@@ -249,10 +249,10 @@ void CSageTaechangView::OnDropFiles(HDROP hDropInfo) {
 BOOL CSageTaechangView::OnEraseBkgnd(CDC* pDC) {
 	CRect rectClient;
 	GetClientRect(&rectClient);
-	pDC->FillSolidRect(rectClient, TAECHANG_COLOR_APP_BACKGROUND);
-	pDC->FillSolidRect(0, 0, TAECHANG_SIDEBAR_WIDTH, rectClient.Height(), TAECHANG_COLOR_SIDEBAR);
-	pDC->FillSolidRect(0, TAECHANG_HEADER_HEIGHT, TAECHANG_SIDEBAR_WIDTH, TAECHANG_BORDER_THICKNESS, TAECHANG_COLOR_SIDEBAR_DIVIDER);
-	pDC->FillSolidRect(TAECHANG_SIDEBAR_WIDTH, 0, 1, rectClient.Height(), TAECHANG_COLOR_BORDER);
+	pDC->FillSolidRect(rectClient, SAGE_COLOR_APP_BACKGROUND);
+	pDC->FillSolidRect(0, 0, SAGE_SIDEBAR_WIDTH, rectClient.Height(), SAGE_COLOR_SIDEBAR);
+	pDC->FillSolidRect(0, SAGE_HEADER_HEIGHT, SAGE_SIDEBAR_WIDTH, SAGE_BORDER_THICKNESS, SAGE_COLOR_SIDEBAR_DIVIDER);
+	pDC->FillSolidRect(SAGE_SIDEBAR_WIDTH, 0, 1, rectClient.Height(), SAGE_COLOR_BORDER);
 	return TRUE;
 }
 
@@ -260,13 +260,13 @@ HBRUSH CSageTaechangView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
 	HBRUSH hBrush = CView::OnCtlColor(pDC, pWnd, nCtlColor);
 	if (pWnd->IsKindOf(RUNTIME_CLASS(CSageLabel)))
 		return hBrush;
-	pDC->SetTextColor(TAECHANG_COLOR_TEXT);
+	pDC->SetTextColor(SAGE_COLOR_TEXT);
 	if (nCtlColor == CTLCOLOR_STATIC) {
-		pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
+		pDC->SetBkColor(SAGE_COLOR_APP_BACKGROUND);
 		return SageUiResources::GetBrush(SAGE_BG_APP);
 	}
 	if (nCtlColor == CTLCOLOR_EDIT || nCtlColor == CTLCOLOR_LISTBOX) {
-		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
+		pDC->SetBkColor(SAGE_COLOR_PANEL);
 		return SageUiResources::GetBrush(SAGE_BG_PANEL);
 	}
 	return hBrush;

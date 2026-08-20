@@ -1,19 +1,19 @@
 ﻿#include "pch.h"
 #include "app/common/SageNumberFormat.h"
-#include "TaechangDefine.h"
+#include "SageDefine.h"
 
 CString FormatPrice(LONGLONG nPrice) {
     CString str;
-    str.Format(TAECHANG_UI_NUMBER_FORMAT, nPrice);
+    str.Format(SAGE_UI_NUMBER_FORMAT, nPrice);
     int nLen = str.GetLength();
-    for (int i = nLen - TAECHANG_THOUSAND_SEPARATOR_STEP; i > 0; i -= TAECHANG_THOUSAND_SEPARATOR_STEP)
-        str.Insert(i, TAECHANG_THOUSAND_SEPARATOR);
+    for (int i = nLen - SAGE_THOUSAND_SEPARATOR_STEP; i > 0; i -= SAGE_THOUSAND_SEPARATOR_STEP)
+        str.Insert(i, SAGE_THOUSAND_SEPARATOR);
     return str;
 }
 
 CString RemovePriceSeparators(const CString& strText) {
     CString strResult = strText;
-    strResult.Remove(TAECHANG_THOUSAND_SEPARATOR);
+    strResult.Remove(SAGE_THOUSAND_SEPARATOR);
     strResult.Trim();
     return strResult;
 }

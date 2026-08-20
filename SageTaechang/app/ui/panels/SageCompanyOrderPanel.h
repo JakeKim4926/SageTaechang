@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "pch.h"
-#include "app/core/receivable/TaechangReceivableCompanyOrderDto.h"
+#include "app/core/receivable/SageReceivableCompanyOrderDto.h"
 #include "app/ui/drawing/SageButton.h"
 #include "app/ui/drawing/SageHeaderCtrl.h"
 #include "app/ui/drawing/SageLabel.h"
@@ -51,7 +51,7 @@ private:
     void AddCompanyOrder(const CString& strCompanyName, const CString& strOrder);
     void MoveSelected(int nOffset);
     int  FindSelectedIndex() const;
-    BOOL FindSelectedDto(TaechangReceivableCompanyOrderDto& outDto) const;
+    BOOL FindSelectedDto(SageReceivableCompanyOrderDto& outDto) const;
 
 private:
     CSageSectionLabel m_wndCrudSection;
@@ -78,5 +78,5 @@ private:
     int m_nPanelState;
     CString m_strSearchKeyword;
     int m_nSelectedOrderId;
-    CArray<TaechangReceivableCompanyOrderDto, TaechangReceivableCompanyOrderDto&> m_arrOrders;
+    CArray<SageReceivableCompanyOrderDto, SageReceivableCompanyOrderDto&> m_arrOrders;
 };

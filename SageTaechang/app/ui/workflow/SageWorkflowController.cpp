@@ -1,11 +1,11 @@
 ﻿#include "pch.h"
 #include "app/ui/workflow/SageWorkflowController.h"
-#include "app/common/TaechangJson.h"
-#include "app/core/workflow/TaechangWorkflowResponse.h"
-#include "app/infra/office/TaechangDeliveryExcelService.h"
-#include "app/infra/office/TaechangEstimateExcelService.h"
-#include "app/infra/office/TaechangReceivablesExcelService.h"
-#include "TaechangDefine.h"
+#include "app/common/SageJson.h"
+#include "app/core/workflow/SageWorkflowResponse.h"
+#include "app/infra/office/SageDeliveryExcelService.h"
+#include "app/infra/office/SageEstimateExcelService.h"
+#include "app/infra/office/SageReceivablesExcelService.h"
+#include "SageDefine.h"
 
 namespace {
 
@@ -24,27 +24,27 @@ CString BuildWorkflowPayload(const CString& strInputPath, const CString& strOutp
 	if (!strOutputFolder.IsEmpty())
 		strPayload += L",\"outputFolder\":\"" + JsonEscapeString(strOutputFolder) + L"\"";
 	if (!strRowNums.IsEmpty())
-		strPayload += L",\"" + CString(TAECHANG_JSON_KEY_ROW_NUMS) + L"\":\"" + JsonEscapeString(strRowNums) + L"\"";
+		strPayload += L",\"" + CString(SAGE_JSON_KEY_ROW_NUMS) + L"\":\"" + JsonEscapeString(strRowNums) + L"\"";
 	if (bEstimateOnePage)
-		strPayload += L",\"" + CString(TAECHANG_JSON_KEY_ESTIMATE_ONE_PAGE) + L"\":true";
+		strPayload += L",\"" + CString(SAGE_JSON_KEY_ESTIMATE_ONE_PAGE) + L"\":true";
 	strPayload += L"}";
 	return strPayload;
 }
 
 CString GetTaskRequestId(const SageWorkflowTask* pTask) {
-	if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE) {
-		if (pTask->m_nTaskType == TAECHANG_TASK_LOAD)
-			return TAECHANG_REQUEST_ESTIMATE_LOAD;
-		return TAECHANG_REQUEST_ESTIMATE_GENERATE;
+	if (pTask->m_nWorkflowType == SAGE_WORKFLOW_ESTIMATE) {
+		if (pTask->m_nTaskType == SAGE_TASK_LOAD)
+			return SAGE_REQUEST_ESTIMATE_LOAD;
+		return SAGE_REQUEST_ESTIMATE_GENERATE;
 	}
-	if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_DELIVERY) {
-		if (pTask->m_nTaskType == TAECHANG_TASK_LOAD)
-			return TAECHANG_REQUEST_DELIVERY_LOAD;
-		return TAECHANG_REQUEST_DELIVERY_GENERATE;
+	if (pTask->m_nWorkflowType == SAGE_WORKFLOW_DELIVERY) {
+		if (pTask->m_nTaskType == SAGE_TASK_LOAD)
+			return SAGE_REQUEST_DELIVERY_LOAD;
+		return SAGE_REQUEST_DELIVERY_GENERATE;
 	}
-	if (pTask->m_nTaskType == TAECHANG_TASK_LOAD)
-		return TAECHANG_REQUEST_RECEIVABLES_LOAD;
-	return TAECHANG_REQUEST_RECEIVABLES_GENERATE;
+	if (pTask->m_nTaskType == SAGE_TASK_LOAD)
+		return SAGE_REQUEST_RECEIVABLES_LOAD;
+	return SAGE_REQUEST_RECEIVABLES_GENERATE;
 }
 
 UINT RunWorkflowWorker(LPVOID pParam) {
@@ -55,37 +55,37 @@ UINT RunWorkflowWorker(LPVOID pParam) {
 
 	try {
 		CString strPayload = BuildWorkflowPayload(pTask->m_strInputPath, pTask->m_strOutputFolder, pTask->m_strSelectedRowNums, pTask->m_bEstimateOnePage);
-		if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_ESTIMATE) {
-			TaechangEstimateExcelService service;
-			if (pTask->m_nTaskType == TAECHANG_TASK_LOAD)
-				pResult->m_strResponseJson = service.BuildLoadInputDataResponse(TAECHANG_REQUEST_ESTIMATE_LOAD, strPayload);
+		if (pTask->m_nWorkflowType == SAGE_WORKFLOW_ESTIMATE) {
+			SageEstimateExcelService service;
+			if (pTask->m_nTaskType == SAGE_TASK_LOAD)
+				pResult->m_strResponseJson = service.BuildLoadInputDataResponse(SAGE_REQUEST_ESTIMATE_LOAD, strPayload);
 			else
-				pResult->m_strResponseJson = service.BuildGenerateResponse(TAECHANG_REQUEST_ESTIMATE_GENERATE, strPayload);
-		} else if (pTask->m_nWorkflowType == TAECHANG_WORKFLOW_DELIVERY) {
-			TaechangDeliveryExcelService service;
-			if (pTask->m_nTaskType == TAECHANG_TASK_LOAD)
-				pResult->m_strResponseJson = service.BuildLoadInputDataResponse(TAECHANG_REQUEST_DELIVERY_LOAD, strPayload);
+				pResult->m_strResponseJson = service.BuildGenerateResponse(SAGE_REQUEST_ESTIMATE_GENERATE, strPayload);
+		} else if (pTask->m_nWorkflowType == SAGE_WORKFLOW_DELIVERY) {
+			SageDeliveryExcelService service;
+			if (pTask->m_nTaskType == SAGE_TASK_LOAD)
+				pResult->m_strResponseJson = service.BuildLoadInputDataResponse(SAGE_REQUEST_DELIVERY_LOAD, strPayload);
 			else
-				pResult->m_strResponseJson = service.BuildGenerateResponse(TAECHANG_REQUEST_DELIVERY_GENERATE, strPayload);
+				pResult->m_strResponseJson = service.BuildGenerateResponse(SAGE_REQUEST_DELIVERY_GENERATE, strPayload);
 		} else {
-			TaechangReceivablesExcelService service;
-			if (pTask->m_nTaskType == TAECHANG_TASK_LOAD)
-				pResult->m_strResponseJson = service.BuildLoadInputDataResponse(TAECHANG_REQUEST_RECEIVABLES_LOAD, strPayload);
+			SageReceivablesExcelService service;
+			if (pTask->m_nTaskType == SAGE_TASK_LOAD)
+				pResult->m_strResponseJson = service.BuildLoadInputDataResponse(SAGE_REQUEST_RECEIVABLES_LOAD, strPayload);
 			else
-				pResult->m_strResponseJson = service.BuildGenerateResponse(TAECHANG_REQUEST_RECEIVABLES_GENERATE, strPayload);
+				pResult->m_strResponseJson = service.BuildGenerateResponse(SAGE_REQUEST_RECEIVABLES_GENERATE, strPayload);
 		}
 	} catch (...) {
 		pResult->m_strResponseJson = BuildErrorResponse(
 			GetTaskRequestId(pTask),
-			TAECHANG_ERROR_CODE_WORKFLOW_EXCEPTION,
-			TAECHANG_UI_WORKFLOW_EXCEPTION);
+			SAGE_ERROR_CODE_WORKFLOW_EXCEPTION,
+			SAGE_UI_WORKFLOW_EXCEPTION);
 	}
 
 	HWND hWnd = pTask->m_hWnd;
 	delete pTask;
 
 	if (!::IsWindow(hWnd) ||
-		!::PostMessageW(hWnd, WM_TAECHANG_WORKFLOW_COMPLETE, 0, reinterpret_cast<LPARAM>(pResult)))
+		!::PostMessageW(hWnd, WM_SAGE_WORKFLOW_COMPLETE, 0, reinterpret_cast<LPARAM>(pResult)))
 		delete pResult;
 
 	return 0;
@@ -106,11 +106,11 @@ BOOL SageWorkflowController::IsRunning() const {
 
 BOOL SageWorkflowController::Start(const SageWorkflowRunRequest& request, CString& strError) {
 	if (m_bRunning) {
-		strError = TAECHANG_UI_WORKFLOW_ALREADY_RUNNING;
+		strError = SAGE_UI_WORKFLOW_ALREADY_RUNNING;
 		return FALSE;
 	}
 	if (!::IsWindow(request.hNotifyWnd)) {
-		strError = TAECHANG_UI_WORKFLOW_START_FAILED;
+		strError = SAGE_UI_WORKFLOW_START_FAILED;
 		return FALSE;
 	}
 
@@ -125,7 +125,7 @@ BOOL SageWorkflowController::Start(const SageWorkflowRunRequest& request, CStrin
 
 	if (AfxBeginThread(RunWorkflowWorker, pTask, THREAD_PRIORITY_NORMAL, 0, 0, NULL) == NULL) {
 		delete pTask;
-		strError = TAECHANG_UI_WORKFLOW_START_FAILED;
+		strError = SAGE_UI_WORKFLOW_START_FAILED;
 		return FALSE;
 	}
 

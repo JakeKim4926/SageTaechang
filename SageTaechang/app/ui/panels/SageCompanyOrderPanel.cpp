@@ -3,7 +3,7 @@
 #include "app/ui/dialogs/SageMessageBoxDlg.h"
 #include "app/ui/drawing/SageUiResources.h"
 #include "app/infra/db/SageDBMgr.h"
-#include "TaechangDefine.h"
+#include "SageDefine.h"
 #include <uxtheme.h>
 
 BEGIN_MESSAGE_MAP(SageCompanyOrderPanel, CWnd)
@@ -24,7 +24,7 @@ SageCompanyOrderPanel::SageCompanyOrderPanel()
 	: m_rectListCard(0, 0, 0, 0)
 	, m_rectEditCard(0, 0, 0, 0)
 	, m_nDividerTop(0)
-	, m_nPanelState(TAECHANG_CO_PANEL_IDLE)
+	, m_nPanelState(SAGE_CO_PANEL_IDLE)
 	, m_nSelectedOrderId(0) {
 }
 
@@ -64,40 +64,40 @@ BOOL SageCompanyOrderPanel::PreTranslateMessage(MSG* pMsg) {
 
 void SageCompanyOrderPanel::CreateControls() {
 	CRect r(0, 0, 0, 0);
-	m_wndCrudSection.Create(TAECHANG_UI_CO_CRUD_SECTION, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, r, this, ID_COORDER_CRUD_SECTION);
-	m_wndListSection.Create(TAECHANG_UI_CO_LIST_SECTION, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, r, this, ID_COORDER_LIST_SECTION);
-	m_wndAddBtn.Create(TAECHANG_UI_CO_ADD_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_COORDER_ADD_BTN);
+	m_wndCrudSection.Create(SAGE_UI_CO_CRUD_SECTION, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, r, this, ID_COORDER_CRUD_SECTION);
+	m_wndListSection.Create(SAGE_UI_CO_LIST_SECTION, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, r, this, ID_COORDER_LIST_SECTION);
+	m_wndAddBtn.Create(SAGE_UI_CO_ADD_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_COORDER_ADD_BTN);
 	m_wndAddBtn.SetVariant(SAGE_BUTTON_PRIMARY);
 	m_wndAddBtn.SetIcon(SAGE_BUTTON_ICON_ADD);
-	m_wndSaveBtn.Create(TAECHANG_UI_CO_SAVE_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_COORDER_SAVE_BTN);
+	m_wndSaveBtn.Create(SAGE_UI_CO_SAVE_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_COORDER_SAVE_BTN);
 	m_wndSaveBtn.SetVariant(SAGE_BUTTON_PRIMARY);
-	m_wndDeleteBtn.Create(TAECHANG_UI_CO_DELETE_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_COORDER_DELETE_BTN);
+	m_wndDeleteBtn.Create(SAGE_UI_CO_DELETE_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_COORDER_DELETE_BTN);
 	m_wndDeleteBtn.SetVariant(SAGE_BUTTON_DANGER);
-	m_wndCancelBtn.Create(TAECHANG_UI_CO_CANCEL_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_COORDER_CANCEL_BTN);
+	m_wndCancelBtn.Create(SAGE_UI_CO_CANCEL_BTN, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_COORDER_CANCEL_BTN);
 	m_wndMoveUpBtn.Create(L"", WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_COORDER_MOVE_UP_BTN);
 	m_wndMoveUpBtn.SetIcon(SAGE_BUTTON_ICON_MOVE_UP);
-	m_wndMoveUpBtn.SetTooltip(TAECHANG_UI_TIP_MOVE_UP);
+	m_wndMoveUpBtn.SetTooltip(SAGE_UI_TIP_MOVE_UP);
 	m_wndMoveDownBtn.Create(L"", WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_COORDER_MOVE_DOWN_BTN);
 	m_wndMoveDownBtn.SetIcon(SAGE_BUTTON_ICON_MOVE_DOWN);
-	m_wndMoveDownBtn.SetTooltip(TAECHANG_UI_TIP_MOVE_DOWN);
+	m_wndMoveDownBtn.SetTooltip(SAGE_UI_TIP_MOVE_DOWN);
 	m_wndSearch.CreateBox(this, ID_COORDER_SEARCH_BOX, ID_COORDER_SEARCH_EDIT);
 	m_wndSearch.SetCommand(ID_COORDER_SEARCH_BTN);
-	m_wndSearch.SetPlaceholder(TAECHANG_UI_CO_SEARCH_PLACEHOLDER);
-	m_wndSearch.SetMaxLength(TAECHANG_CO_COMPANY_NAME_MAX);
-	m_wndOrderLabel.Create(TAECHANG_UI_CO_ORDER_LABEL, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, r, this);
+	m_wndSearch.SetPlaceholder(SAGE_UI_CO_SEARCH_PLACEHOLDER);
+	m_wndSearch.SetMaxLength(SAGE_CO_COMPANY_NAME_MAX);
+	m_wndOrderLabel.Create(SAGE_UI_CO_ORDER_LABEL, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, r, this);
 	m_wndOrderEdit.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_NUMBER | ES_RIGHT, r, this, ID_COORDER_ORDER_EDIT);
-	m_wndOrderEdit.LimitText(TAECHANG_CO_ORDER_TEXT_MAX);
-	m_wndNameLabel.Create(TAECHANG_UI_CO_NAME_LABEL, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, r, this);
+	m_wndOrderEdit.LimitText(SAGE_CO_ORDER_TEXT_MAX);
+	m_wndNameLabel.Create(SAGE_UI_CO_NAME_LABEL, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, r, this);
 	m_wndCompanyEdit.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOHSCROLL, r, this, ID_COORDER_COMPANY_EDIT);
-	m_wndCompanyEdit.LimitText(TAECHANG_CO_COMPANY_NAME_MAX);
-	m_wndGuide.Create(TAECHANG_UI_CO_GUIDE, WS_CHILD | WS_VISIBLE | SS_LEFT, r, this);
+	m_wndCompanyEdit.LimitText(SAGE_CO_COMPANY_NAME_MAX);
+	m_wndGuide.Create(SAGE_UI_CO_GUIDE, WS_CHILD | WS_VISIBLE | SS_LEFT, r, this);
 	m_wndList.Create(WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SHOWSELALWAYS | LVS_SINGLESEL, r, this, ID_COORDER_LIST);
 	m_wndList.SetAlternateRowColor(TRUE);
 	m_wndList.SetFirstColumnAlign(SAGE_LIST_FIRST_COLUMN_CENTER);
 	m_wndList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
 	m_wndList.SetRowSeparator(TRUE);
-	m_wndList.InsertColumn(0, TAECHANG_UI_CO_COL_ORDER, LVCFMT_CENTER, TAECHANG_CO_ORDER_COL_WIDTH);
-	m_wndList.InsertColumn(1, TAECHANG_UI_CO_COL_COMPANY, LVCFMT_CENTER, TAECHANG_CO_ORDER_COL_WIDTH);
+	m_wndList.InsertColumn(0, SAGE_UI_CO_COL_ORDER, LVCFMT_CENTER, SAGE_CO_ORDER_COL_WIDTH);
+	m_wndList.InsertColumn(1, SAGE_UI_CO_COL_COMPANY, LVCFMT_CENTER, SAGE_CO_ORDER_COL_WIDTH);
 
 	CHeaderCtrl* pHeader = m_wndList.GetHeaderCtrl();
 	if (pHeader == NULL)
@@ -137,17 +137,17 @@ void SageCompanyOrderPanel::ApplyLabelRoles() {
 void SageCompanyOrderPanel::ApplyOrderEditTextRect() {
 	CRect rcFmt;
 	m_wndOrderEdit.GetClientRect(&rcFmt);
-	rcFmt.DeflateRect(TAECHANG_EDIT_TEXT_LEFT_PAD, 0);
-	rcFmt.top += TAECHANG_EDIT_TEXT_TOP_PAD;
+	rcFmt.DeflateRect(SAGE_EDIT_TEXT_LEFT_PAD, 0);
+	rcFmt.top += SAGE_EDIT_TEXT_TOP_PAD;
 	m_wndOrderEdit.SendMessage(EM_SETRECT, 0, reinterpret_cast<LPARAM>(&rcFmt));
 }
 
 void SageCompanyOrderPanel::ApplyEditTextRect(CEdit& wndEdit, int nLeftPad) {
 	CRect rcFmt;
 	wndEdit.GetClientRect(&rcFmt);
-	rcFmt.top += TAECHANG_EDIT_TEXT_TOP_PAD;
+	rcFmt.top += SAGE_EDIT_TEXT_TOP_PAD;
 	rcFmt.left += nLeftPad;
-	rcFmt.right = TAECHANG_EDIT_FORMAT_MAX_WIDTH;
+	rcFmt.right = SAGE_EDIT_FORMAT_MAX_WIDTH;
 	wndEdit.SendMessage(EM_SETRECT, 0, reinterpret_cast<LPARAM>(&rcFmt));
 }
 
@@ -161,90 +161,90 @@ void SageCompanyOrderPanel::Layout(const CRect& rectPanel) {
 	if (rectClient.IsRectEmpty())
 		return;
 
-	int nListCardWidth = rectClient.Width() - TAECHANG_CO_CARD_GAP - TAECHANG_CO_EDIT_CARD_WIDTH;
-	if (nListCardWidth > TAECHANG_CO_LIST_CARD_WIDTH)
-		nListCardWidth = TAECHANG_CO_LIST_CARD_WIDTH;
-	int nEditCardLeft = nListCardWidth + TAECHANG_CO_CARD_GAP;
+	int nListCardWidth = rectClient.Width() - SAGE_CO_CARD_GAP - SAGE_CO_EDIT_CARD_WIDTH;
+	if (nListCardWidth > SAGE_CO_LIST_CARD_WIDTH)
+		nListCardWidth = SAGE_CO_LIST_CARD_WIDTH;
+	int nEditCardLeft = nListCardWidth + SAGE_CO_CARD_GAP;
 
 	CRect rectListCard(0, 0, nListCardWidth, rectClient.Height());
 	LayoutListCard(rectListCard);
 
-	int nEditCardBottom = LayoutEditCard(nEditCardLeft, TAECHANG_CO_EDIT_CARD_WIDTH);
+	int nEditCardBottom = LayoutEditCard(nEditCardLeft, SAGE_CO_EDIT_CARD_WIDTH);
 	SetCardRects(rectListCard,
-		CRect(nEditCardLeft, 0, nEditCardLeft + TAECHANG_CO_EDIT_CARD_WIDTH, nEditCardBottom));
+		CRect(nEditCardLeft, 0, nEditCardLeft + SAGE_CO_EDIT_CARD_WIDTH, nEditCardBottom));
 }
 
 void SageCompanyOrderPanel::LayoutListCard(const CRect& rectCard) {
 	m_wndListSection.MoveWindow(
-		rectCard.left, rectCard.top, rectCard.Width(), TAECHANG_CARD_HEADER_HEIGHT);
+		rectCard.left, rectCard.top, rectCard.Width(), SAGE_CARD_HEADER_HEIGHT);
 
-	int nRowTop = rectCard.top + TAECHANG_CARD_HEADER_HEIGHT;
-	int nSearchTop = nRowTop + (TAECHANG_CO_SEARCH_ROW_HEIGHT - TAECHANG_EDIT_HEIGHT) / 2;
-	int nContentLeft = rectCard.left + TAECHANG_CARD_PADDING;
-	int nContentRight = rectCard.right - TAECHANG_CARD_PADDING;
+	int nRowTop = rectCard.top + SAGE_CARD_HEADER_HEIGHT;
+	int nSearchTop = nRowTop + (SAGE_CO_SEARCH_ROW_HEIGHT - SAGE_EDIT_HEIGHT) / 2;
+	int nContentLeft = rectCard.left + SAGE_CARD_PADDING;
+	int nContentRight = rectCard.right - SAGE_CARD_PADDING;
 
-	int nAddBtnLeft = nContentRight - TAECHANG_CO_ADD_BTN_WIDTH;
-	m_wndAddBtn.MoveWindow(nAddBtnLeft, nSearchTop, TAECHANG_CO_ADD_BTN_WIDTH, TAECHANG_BUTTON_HEIGHT);
+	int nAddBtnLeft = nContentRight - SAGE_CO_ADD_BTN_WIDTH;
+	m_wndAddBtn.MoveWindow(nAddBtnLeft, nSearchTop, SAGE_CO_ADD_BTN_WIDTH, SAGE_BUTTON_HEIGHT);
 
 	m_wndSearch.MoveWindow(
 		nContentLeft, nSearchTop,
-		nAddBtnLeft - TAECHANG_ACTION_GAP - nContentLeft, TAECHANG_EDIT_HEIGHT);
+		nAddBtnLeft - SAGE_ACTION_GAP - nContentLeft, SAGE_EDIT_HEIGHT);
 
-	int nListTop = nRowTop + TAECHANG_CO_SEARCH_ROW_HEIGHT;
-	int nListHeight = rectCard.bottom - nListTop - TAECHANG_EDIT_BORDER_WIDTH;
-	if (nListHeight < TAECHANG_RESULT_MIN_HEIGHT)
-		nListHeight = TAECHANG_RESULT_MIN_HEIGHT;
+	int nListTop = nRowTop + SAGE_CO_SEARCH_ROW_HEIGHT;
+	int nListHeight = rectCard.bottom - nListTop - SAGE_EDIT_BORDER_WIDTH;
+	if (nListHeight < SAGE_RESULT_MIN_HEIGHT)
+		nListHeight = SAGE_RESULT_MIN_HEIGHT;
 	m_wndList.MoveWindow(
-		rectCard.left + TAECHANG_EDIT_BORDER_WIDTH,
+		rectCard.left + SAGE_EDIT_BORDER_WIDTH,
 		nListTop,
-		rectCard.Width() - TAECHANG_EDIT_BORDER_WIDTH * 2,
+		rectCard.Width() - SAGE_EDIT_BORDER_WIDTH * 2,
 		nListHeight);
 	UpdateListColumns();
 }
 
 int SageCompanyOrderPanel::LayoutEditCard(int nLeft, int nWidth) {
-	m_wndCrudSection.MoveWindow(nLeft, 0, nWidth, TAECHANG_CARD_HEADER_HEIGHT);
+	m_wndCrudSection.MoveWindow(nLeft, 0, nWidth, SAGE_CARD_HEADER_HEIGHT);
 
-	int nContentLeft = nLeft + TAECHANG_CARD_PADDING;
-	int nContentRight = nLeft + nWidth - TAECHANG_CARD_PADDING;
-	int nTop = TAECHANG_CARD_HEADER_HEIGHT + TAECHANG_CARD_PADDING;
+	int nContentLeft = nLeft + SAGE_CARD_PADDING;
+	int nContentRight = nLeft + nWidth - SAGE_CARD_PADDING;
+	int nTop = SAGE_CARD_HEADER_HEIGHT + SAGE_CARD_PADDING;
 
 	m_wndOrderLabel.MoveWindow(
-		nContentLeft, nTop, TAECHANG_CO_FORM_LABEL_WIDTH, TAECHANG_EDIT_HEIGHT);
+		nContentLeft, nTop, SAGE_CO_FORM_LABEL_WIDTH, SAGE_EDIT_HEIGHT);
 	m_wndOrderEdit.MoveWindow(
-		nContentLeft + TAECHANG_CO_FORM_LABEL_WIDTH + TAECHANG_CARD_ROW_GAP, nTop,
-		TAECHANG_CO_ORDER_EDIT_WIDTH, TAECHANG_EDIT_HEIGHT);
+		nContentLeft + SAGE_CO_FORM_LABEL_WIDTH + SAGE_CARD_ROW_GAP, nTop,
+		SAGE_CO_ORDER_EDIT_WIDTH, SAGE_EDIT_HEIGHT);
 	ApplyOrderEditTextRect();
 
-	int nMoveLeft = nContentLeft + TAECHANG_CO_FORM_LABEL_WIDTH + TAECHANG_CARD_ROW_GAP
-		+ TAECHANG_CO_ORDER_EDIT_WIDTH + TAECHANG_ACTION_GAP;
-	m_wndMoveUpBtn.MoveWindow(nMoveLeft, nTop, TAECHANG_ICON_BUTTON_SIZE, TAECHANG_ICON_BUTTON_SIZE);
+	int nMoveLeft = nContentLeft + SAGE_CO_FORM_LABEL_WIDTH + SAGE_CARD_ROW_GAP
+		+ SAGE_CO_ORDER_EDIT_WIDTH + SAGE_ACTION_GAP;
+	m_wndMoveUpBtn.MoveWindow(nMoveLeft, nTop, SAGE_ICON_BUTTON_SIZE, SAGE_ICON_BUTTON_SIZE);
 	m_wndMoveDownBtn.MoveWindow(
-		nMoveLeft + TAECHANG_ICON_BUTTON_SIZE + TAECHANG_ACTION_GAP, nTop,
-		TAECHANG_ICON_BUTTON_SIZE, TAECHANG_ICON_BUTTON_SIZE);
+		nMoveLeft + SAGE_ICON_BUTTON_SIZE + SAGE_ACTION_GAP, nTop,
+		SAGE_ICON_BUTTON_SIZE, SAGE_ICON_BUTTON_SIZE);
 
-	nTop += TAECHANG_EDIT_HEIGHT + TAECHANG_CARD_ROW_GAP;
+	nTop += SAGE_EDIT_HEIGHT + SAGE_CARD_ROW_GAP;
 	m_wndNameLabel.MoveWindow(
-		nContentLeft, nTop, TAECHANG_CO_FORM_LABEL_WIDTH, TAECHANG_EDIT_HEIGHT);
-	int nNameEditLeft = nContentLeft + TAECHANG_CO_FORM_LABEL_WIDTH + TAECHANG_CARD_ROW_GAP;
+		nContentLeft, nTop, SAGE_CO_FORM_LABEL_WIDTH, SAGE_EDIT_HEIGHT);
+	int nNameEditLeft = nContentLeft + SAGE_CO_FORM_LABEL_WIDTH + SAGE_CARD_ROW_GAP;
 	m_wndCompanyEdit.MoveWindow(
-		nNameEditLeft, nTop, nContentRight - nNameEditLeft, TAECHANG_EDIT_HEIGHT);
-	ApplyEditTextRect(m_wndCompanyEdit, TAECHANG_CO_NAME_TEXT_LEFT_PAD);
+		nNameEditLeft, nTop, nContentRight - nNameEditLeft, SAGE_EDIT_HEIGHT);
+	ApplyEditTextRect(m_wndCompanyEdit, SAGE_CO_NAME_TEXT_LEFT_PAD);
 
-	nTop += TAECHANG_EDIT_HEIGHT + TAECHANG_CARD_ROW_GAP;
+	nTop += SAGE_EDIT_HEIGHT + SAGE_CARD_ROW_GAP;
 	m_nDividerTop = nTop;
-	nTop += TAECHANG_CO_DIVIDER_HEIGHT + TAECHANG_CARD_ROW_GAP;
-	int nHalfWidth = (nContentRight - nContentLeft - TAECHANG_ACTION_GAP) / 2;
-	m_wndSaveBtn.MoveWindow(nContentLeft, nTop, nHalfWidth, TAECHANG_BUTTON_HEIGHT);
+	nTop += SAGE_CO_DIVIDER_HEIGHT + SAGE_CARD_ROW_GAP;
+	int nHalfWidth = (nContentRight - nContentLeft - SAGE_ACTION_GAP) / 2;
+	m_wndSaveBtn.MoveWindow(nContentLeft, nTop, nHalfWidth, SAGE_BUTTON_HEIGHT);
 	m_wndCancelBtn.MoveWindow(
-		nContentLeft + nHalfWidth + TAECHANG_ACTION_GAP, nTop, nHalfWidth, TAECHANG_BUTTON_HEIGHT);
+		nContentLeft + nHalfWidth + SAGE_ACTION_GAP, nTop, nHalfWidth, SAGE_BUTTON_HEIGHT);
 
-	nTop += TAECHANG_BUTTON_HEIGHT + TAECHANG_CARD_ROW_GAP;
-	m_wndDeleteBtn.MoveWindow(nContentLeft, nTop, nContentRight - nContentLeft, TAECHANG_BUTTON_HEIGHT);
+	nTop += SAGE_BUTTON_HEIGHT + SAGE_CARD_ROW_GAP;
+	m_wndDeleteBtn.MoveWindow(nContentLeft, nTop, nContentRight - nContentLeft, SAGE_BUTTON_HEIGHT);
 
-	nTop += TAECHANG_BUTTON_HEIGHT + TAECHANG_CARD_ROW_GAP;
-	m_wndGuide.MoveWindow(nContentLeft, nTop, nContentRight - nContentLeft, TAECHANG_CO_GUIDE_HEIGHT);
-	return nTop + TAECHANG_CO_GUIDE_HEIGHT + TAECHANG_CARD_PADDING;
+	nTop += SAGE_BUTTON_HEIGHT + SAGE_CARD_ROW_GAP;
+	m_wndGuide.MoveWindow(nContentLeft, nTop, nContentRight - nContentLeft, SAGE_CO_GUIDE_HEIGHT);
+	return nTop + SAGE_CO_GUIDE_HEIGHT + SAGE_CARD_PADDING;
 }
 
 void SageCompanyOrderPanel::SetCardRects(const CRect& rectList, const CRect& rectEdit) {
@@ -260,29 +260,29 @@ void SageCompanyOrderPanel::SetCardRects(const CRect& rectList, const CRect& rec
 	if (rectStale.IsRectEmpty())
 		return;
 
-	rectStale.InflateRect(TAECHANG_CARD_REPAINT_MARGIN, TAECHANG_CARD_REPAINT_MARGIN);
+	rectStale.InflateRect(SAGE_CARD_REPAINT_MARGIN, SAGE_CARD_REPAINT_MARGIN);
 	InvalidateRect(rectStale, TRUE);
 }
 
 BOOL SageCompanyOrderPanel::OnEraseBkgnd(CDC* pDC) {
 	CRect rectClient;
 	GetClientRect(&rectClient);
-	pDC->FillSolidRect(rectClient, TAECHANG_COLOR_APP_BACKGROUND);
+	pDC->FillSolidRect(rectClient, SAGE_COLOR_APP_BACKGROUND);
 
-	CBrush brushCard(TAECHANG_COLOR_BORDER);
+	CBrush brushCard(SAGE_COLOR_BORDER);
 	if (!m_rectListCard.IsRectEmpty()) {
-		pDC->FillSolidRect(m_rectListCard, TAECHANG_COLOR_PANEL);
+		pDC->FillSolidRect(m_rectListCard, SAGE_COLOR_PANEL);
 		pDC->FrameRect(m_rectListCard, &brushCard);
 	}
 	if (!m_rectEditCard.IsRectEmpty()) {
-		pDC->FillSolidRect(m_rectEditCard, TAECHANG_COLOR_PANEL);
+		pDC->FillSolidRect(m_rectEditCard, SAGE_COLOR_PANEL);
 		pDC->FrameRect(m_rectEditCard, &brushCard);
 		pDC->FillSolidRect(
-			m_rectEditCard.left + TAECHANG_CARD_PADDING,
+			m_rectEditCard.left + SAGE_CARD_PADDING,
 			m_nDividerTop,
-			m_rectEditCard.Width() - TAECHANG_CARD_PADDING * 2,
-			TAECHANG_CO_DIVIDER_HEIGHT,
-			TAECHANG_COLOR_LIST_GRID);
+			m_rectEditCard.Width() - SAGE_CARD_PADDING * 2,
+			SAGE_CO_DIVIDER_HEIGHT,
+			SAGE_COLOR_LIST_GRID);
 	}
 	DrawEditBorder(pDC, m_wndOrderEdit);
 	DrawEditBorder(pDC, m_wndCompanyEdit);
@@ -295,24 +295,24 @@ void SageCompanyOrderPanel::DrawEditBorder(CDC* pDC, CWnd& wnd) {
 	CRect rect;
 	wnd.GetWindowRect(&rect);
 	ScreenToClient(&rect);
-	rect.InflateRect(TAECHANG_EDIT_BORDER_WIDTH, TAECHANG_EDIT_BORDER_WIDTH);
-	pDC->FillSolidRect(rect.left, rect.top, rect.Width(), TAECHANG_EDIT_BORDER_WIDTH, TAECHANG_COLOR_BORDER);
-	pDC->FillSolidRect(rect.left, rect.bottom - TAECHANG_EDIT_BORDER_WIDTH, rect.Width(), TAECHANG_EDIT_BORDER_WIDTH, TAECHANG_COLOR_BORDER);
-	pDC->FillSolidRect(rect.left, rect.top, TAECHANG_EDIT_BORDER_WIDTH, rect.Height(), TAECHANG_COLOR_BORDER);
-	pDC->FillSolidRect(rect.right - TAECHANG_EDIT_BORDER_WIDTH, rect.top, TAECHANG_EDIT_BORDER_WIDTH, rect.Height(), TAECHANG_COLOR_BORDER);
+	rect.InflateRect(SAGE_EDIT_BORDER_WIDTH, SAGE_EDIT_BORDER_WIDTH);
+	pDC->FillSolidRect(rect.left, rect.top, rect.Width(), SAGE_EDIT_BORDER_WIDTH, SAGE_COLOR_BORDER);
+	pDC->FillSolidRect(rect.left, rect.bottom - SAGE_EDIT_BORDER_WIDTH, rect.Width(), SAGE_EDIT_BORDER_WIDTH, SAGE_COLOR_BORDER);
+	pDC->FillSolidRect(rect.left, rect.top, SAGE_EDIT_BORDER_WIDTH, rect.Height(), SAGE_COLOR_BORDER);
+	pDC->FillSolidRect(rect.right - SAGE_EDIT_BORDER_WIDTH, rect.top, SAGE_EDIT_BORDER_WIDTH, rect.Height(), SAGE_COLOR_BORDER);
 }
 
 HBRUSH SageCompanyOrderPanel::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
 	HBRUSH hBrush = CWnd::OnCtlColor(pDC, pWnd, nCtlColor);
 	if (pWnd->IsKindOf(RUNTIME_CLASS(CSageLabel)))
 		return hBrush;
-	pDC->SetTextColor(TAECHANG_COLOR_TEXT);
+	pDC->SetTextColor(SAGE_COLOR_TEXT);
 	if (nCtlColor == CTLCOLOR_STATIC) {
-		pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
+		pDC->SetBkColor(SAGE_COLOR_APP_BACKGROUND);
 		return SageUiResources::GetBrush(SAGE_BG_APP);
 	}
 	if (nCtlColor == CTLCOLOR_EDIT || nCtlColor == CTLCOLOR_LISTBOX) {
-		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
+		pDC->SetBkColor(SAGE_COLOR_PANEL);
 		return SageUiResources::GetBrush(SAGE_BG_PANEL);
 	}
 	return hBrush;
@@ -324,12 +324,12 @@ void SageCompanyOrderPanel::UpdateListColumns() {
 
 	CRect rectList;
 	m_wndList.GetClientRect(&rectList);
-	m_wndList.SetColumnWidth(0, TAECHANG_CO_ORDER_COL_WIDTH);
-	m_wndList.SetColumnWidth(1, max(0, rectList.Width() - TAECHANG_CO_ORDER_COL_WIDTH));
+	m_wndList.SetColumnWidth(0, SAGE_CO_ORDER_COL_WIDTH);
+	m_wndList.SetColumnWidth(1, max(0, rectList.Width() - SAGE_CO_ORDER_COL_WIDTH));
 }
 
 void SageCompanyOrderPanel::UpdatePanelState() {
-	BOOL bAdding = (m_nPanelState == TAECHANG_CO_PANEL_ADD) ? TRUE : FALSE;
+	BOOL bAdding = (m_nPanelState == SAGE_CO_PANEL_ADD) ? TRUE : FALSE;
 	BOOL bHasSelection = (m_nSelectedOrderId > 0) ? TRUE : FALSE;
 
 	m_wndAddBtn.EnableWindow(!bAdding ? TRUE : FALSE);
@@ -341,21 +341,21 @@ void SageCompanyOrderPanel::UpdatePanelState() {
 	m_wndSearch.EnableWindow(!bAdding ? TRUE : FALSE);
 
 	int nSelectedIndex = FindSelectedIndex();
-	BOOL bCanMove = (!bAdding && nSelectedIndex != TAECHANG_LIST_NO_ITEM) ? TRUE : FALSE;
+	BOOL bCanMove = (!bAdding && nSelectedIndex != SAGE_LIST_NO_ITEM) ? TRUE : FALSE;
 	m_wndMoveUpBtn.EnableWindow((bCanMove && nSelectedIndex > 0) ? TRUE : FALSE);
 	m_wndMoveDownBtn.EnableWindow(
 		(bCanMove && nSelectedIndex < m_arrOrders.GetSize() - 1) ? TRUE : FALSE);
 
 	CString strCount;
-	strCount.Format(TAECHANG_UI_CO_COUNT_FORMAT, static_cast<int>(m_arrOrders.GetSize()));
+	strCount.Format(SAGE_UI_CO_COUNT_FORMAT, static_cast<int>(m_arrOrders.GetSize()));
 	m_wndListSection.SetHintText(strCount);
 }
 
 void SageCompanyOrderPanel::FillEditFromSelection() {
-	TaechangReceivableCompanyOrderDto dto;
+	SageReceivableCompanyOrderDto dto;
 	if (m_nSelectedOrderId > 0 && FindSelectedDto(dto)) {
 		CString strOrder;
-		strOrder.Format(TAECHANG_UI_CO_ORDER_FORMAT, dto.nSortOrder);
+		strOrder.Format(SAGE_UI_CO_ORDER_FORMAT, dto.nSortOrder);
 		m_wndOrderEdit.SetWindowTextW(strOrder);
 		m_wndCompanyEdit.SetWindowTextW(dto.strCompanyName);
 		return;
@@ -364,7 +364,7 @@ void SageCompanyOrderPanel::FillEditFromSelection() {
 	m_wndCompanyEdit.SetWindowTextW(CString());
 }
 
-BOOL SageCompanyOrderPanel::FindSelectedDto(TaechangReceivableCompanyOrderDto& outDto) const {
+BOOL SageCompanyOrderPanel::FindSelectedDto(SageReceivableCompanyOrderDto& outDto) const {
 	for (int i = 0; i < m_arrOrders.GetSize(); ++i) {
 		if (m_arrOrders[i].nOrderId == m_nSelectedOrderId) {
 			outDto = m_arrOrders[i];
@@ -389,7 +389,7 @@ void SageCompanyOrderPanel::RefreshList() {
 	CString strFilterLower = m_strSearchKeyword;
 	strFilterLower.MakeLower();
 	for (int i = 0; i < m_arrOrders.GetSize(); ++i) {
-		const TaechangReceivableCompanyOrderDto& dto = m_arrOrders[i];
+		const SageReceivableCompanyOrderDto& dto = m_arrOrders[i];
 		if (!strFilterLower.IsEmpty()) {
 			CString strNameLower = dto.strCompanyName;
 			strNameLower.MakeLower();
@@ -398,7 +398,7 @@ void SageCompanyOrderPanel::RefreshList() {
 		}
 		int nItem = m_wndList.InsertItem(m_wndList.GetItemCount(), L"");
 		CString strOrder;
-		strOrder.Format(TAECHANG_UI_CO_ORDER_FORMAT, dto.nSortOrder);
+		strOrder.Format(SAGE_UI_CO_ORDER_FORMAT, dto.nSortOrder);
 		m_wndList.SetItemText(nItem, 0, strOrder);
 		m_wndList.SetItemText(nItem, 1, dto.strCompanyName);
 		m_wndList.SetItemData(nItem, static_cast<DWORD_PTR>(dto.nOrderId));
@@ -419,9 +419,9 @@ void SageCompanyOrderPanel::RefreshList() {
 }
 
 void SageCompanyOrderPanel::OnAdd() {
-	m_nPanelState = TAECHANG_CO_PANEL_ADD;
+	m_nPanelState = SAGE_CO_PANEL_ADD;
 	m_nSelectedOrderId = 0;
-	m_wndList.SetItemState(TAECHANG_LIST_NO_ITEM, 0, LVIS_SELECTED);
+	m_wndList.SetItemState(SAGE_LIST_NO_ITEM, 0, LVIS_SELECTED);
 	m_wndOrderEdit.SetWindowTextW(CString());
 	m_wndCompanyEdit.SetWindowTextW(CString());
 	UpdatePanelState();
@@ -430,7 +430,7 @@ void SageCompanyOrderPanel::OnAdd() {
 }
 
 void SageCompanyOrderPanel::AddCompanyOrder(const CString& strCompanyName, const CString& strOrder) {
-	int nSortOrder = TAECHANG_CO_ORDER_FIRST;
+	int nSortOrder = SAGE_CO_ORDER_FIRST;
 	CString strOrderStr = strOrder;
 	strOrderStr.Trim();
 	if (strOrderStr.IsEmpty()) {
@@ -442,7 +442,7 @@ void SageCompanyOrderPanel::AddCompanyOrder(const CString& strCompanyName, const
 		nSortOrder = _wtoi(strOrderStr);
 	}
 
-	TaechangReceivableCompanyOrderDto dto;
+	SageReceivableCompanyOrderDto dto;
 	dto.strCompanyName = strCompanyName;
 	dto.nSortOrder = nSortOrder;
 	int nNewOrderId = 0;
@@ -452,9 +452,9 @@ void SageCompanyOrderPanel::AddCompanyOrder(const CString& strCompanyName, const
 		return;
 	}
 
-	m_nPanelState = TAECHANG_CO_PANEL_IDLE;
+	m_nPanelState = SAGE_CO_PANEL_IDLE;
 	m_nSelectedOrderId = nNewOrderId;
-	m_wndList.SetItemState(TAECHANG_LIST_NO_ITEM, 0, LVIS_SELECTED);
+	m_wndList.SetItemState(SAGE_LIST_NO_ITEM, 0, LVIS_SELECTED);
 	RefreshList();
 }
 
@@ -465,22 +465,22 @@ void SageCompanyOrderPanel::OnSave() {
 	m_wndOrderEdit.GetWindowTextW(strOrderStr);
 	strCompanyName.Trim();
 	if (strCompanyName.IsEmpty()) {
-		ShowSageMessageBox(TAECHANG_UI_CO_COMPANY_REQUIRED, MB_ICONWARNING);
+		ShowSageMessageBox(SAGE_UI_CO_COMPANY_REQUIRED, MB_ICONWARNING);
 		m_wndCompanyEdit.SetFocus();
 		return;
 	}
 
-	if (m_nPanelState == TAECHANG_CO_PANEL_ADD) {
+	if (m_nPanelState == SAGE_CO_PANEL_ADD) {
 		AddCompanyOrder(strCompanyName, strOrderStr);
 		return;
 	}
 
 	if (m_nSelectedOrderId <= 0) {
-		ShowSageMessageBox(TAECHANG_UI_CO_SELECT_REQUIRED, MB_ICONWARNING);
+		ShowSageMessageBox(SAGE_UI_CO_SELECT_REQUIRED, MB_ICONWARNING);
 		return;
 	}
 
-	TaechangReceivableCompanyOrderDto dto;
+	SageReceivableCompanyOrderDto dto;
 	if (!FindSelectedDto(dto))
 		return;
 
@@ -494,21 +494,21 @@ void SageCompanyOrderPanel::OnSave() {
 		ShowSageMessageBox(strError, MB_ICONERROR);
 		return;
 	}
-	m_nPanelState = TAECHANG_CO_PANEL_IDLE;
+	m_nPanelState = SAGE_CO_PANEL_IDLE;
 	RefreshList();
 }
 
 void SageCompanyOrderPanel::OnDelete() {
 	if (m_nSelectedOrderId <= 0) {
-		ShowSageMessageBox(TAECHANG_UI_CO_SELECT_REQUIRED, MB_ICONWARNING);
+		ShowSageMessageBox(SAGE_UI_CO_SELECT_REQUIRED, MB_ICONWARNING);
 		return;
 	}
 
-	TaechangReceivableCompanyOrderDto dto;
+	SageReceivableCompanyOrderDto dto;
 	FindSelectedDto(dto);
 
 	CString strConfirm;
-	strConfirm.Format(TAECHANG_UI_CO_DELETE_CONFIRM_FMT, dto.strCompanyName.GetString());
+	strConfirm.Format(SAGE_UI_CO_DELETE_CONFIRM_FMT, dto.strCompanyName.GetString());
 	if (ShowSageMessageBox(strConfirm, MB_YESNO | MB_ICONWARNING) != IDYES)
 		return;
 
@@ -524,8 +524,8 @@ void SageCompanyOrderPanel::OnDelete() {
 }
 
 void SageCompanyOrderPanel::OnCancel() {
-	if (m_nPanelState == TAECHANG_CO_PANEL_ADD) {
-		m_nPanelState = TAECHANG_CO_PANEL_IDLE;
+	if (m_nPanelState == SAGE_CO_PANEL_ADD) {
+		m_nPanelState = SAGE_CO_PANEL_IDLE;
 		FillEditFromSelection();
 		UpdatePanelState();
 		Invalidate(FALSE);
@@ -533,7 +533,7 @@ void SageCompanyOrderPanel::OnCancel() {
 	}
 
 	m_nSelectedOrderId = 0;
-	m_wndList.SetItemState(TAECHANG_LIST_NO_ITEM, 0, LVIS_SELECTED);
+	m_wndList.SetItemState(SAGE_LIST_NO_ITEM, 0, LVIS_SELECTED);
 	FillEditFromSelection();
 	UpdatePanelState();
 	Invalidate(FALSE);
@@ -544,12 +544,12 @@ int SageCompanyOrderPanel::FindSelectedIndex() const {
 		if (m_arrOrders[i].nOrderId == m_nSelectedOrderId)
 			return i;
 	}
-	return TAECHANG_LIST_NO_ITEM;
+	return SAGE_LIST_NO_ITEM;
 }
 
 void SageCompanyOrderPanel::MoveSelected(int nOffset) {
 	int nIndex = FindSelectedIndex();
-	if (nIndex == TAECHANG_LIST_NO_ITEM)
+	if (nIndex == SAGE_LIST_NO_ITEM)
 		return;
 
 	int nTargetIndex = nIndex + nOffset;
@@ -587,9 +587,9 @@ void SageCompanyOrderPanel::OnListSelChanged(NMHDR* pNMHDR, LRESULT* pResult) {
 	UNREFERENCED_PARAMETER(pNMHDR);
 	*pResult = 0;
 
-	int nSel = m_wndList.GetNextItem(TAECHANG_LIST_NO_ITEM, LVNI_SELECTED);
+	int nSel = m_wndList.GetNextItem(SAGE_LIST_NO_ITEM, LVNI_SELECTED);
 	m_nSelectedOrderId = (nSel >= 0) ? static_cast<int>(m_wndList.GetItemData(nSel)) : 0;
-	if (m_nPanelState != TAECHANG_CO_PANEL_IDLE) {
+	if (m_nPanelState != SAGE_CO_PANEL_IDLE) {
 		UpdatePanelState();
 		return;
 	}

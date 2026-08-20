@@ -2,7 +2,7 @@
 #include "app/ui/drawing/SageOptionCheck.h"
 #include "app/ui/drawing/SageUiResources.h"
 #include "app/ui/drawing/SageUiStyle.h"
-#include "TaechangDefine.h"
+#include "SageDefine.h"
 
 BEGIN_MESSAGE_MAP(CSageOptionCheck, CButton)
 	ON_CONTROL_REFLECT_EX(BN_CLICKED, &CSageOptionCheck::OnClicked)
@@ -19,7 +19,7 @@ void CSageOptionCheck::SetFrameVisible(BOOL bVisible) {
 }
 
 int CSageOptionCheck::GetSidePadding() const {
-	return m_bFrameVisible ? TAECHANG_OPTION_CHECK_PADDING : 0;
+	return m_bFrameVisible ? SAGE_OPTION_CHECK_PADDING : 0;
 }
 
 void CSageOptionCheck::SetHint(LPCWSTR pszHint) {
@@ -47,11 +47,11 @@ int CSageOptionCheck::GetContentWidth() const {
 	CClientDC dc(const_cast<CSageOptionCheck*>(this));
 
 	CFont* pOldFont = dc.SelectObject(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	int nWidth = GetSidePadding() + TAECHANG_LIST_CHECK_BOX_SIZE
-		+ TAECHANG_ICON_TEXT_GAP + dc.GetTextExtent(strLabel).cx;
+	int nWidth = GetSidePadding() + SAGE_LIST_CHECK_BOX_SIZE
+		+ SAGE_ICON_TEXT_GAP + dc.GetTextExtent(strLabel).cx;
 	if (!m_strHint.IsEmpty()) {
 		dc.SelectObject(SageUiResources::GetFont(SAGE_FONT_CAPTION));
-		nWidth += TAECHANG_ICON_TEXT_GAP + dc.GetTextExtent(m_strHint).cx;
+		nWidth += SAGE_ICON_TEXT_GAP + dc.GetTextExtent(m_strHint).cx;
 	}
 	dc.SelectObject(pOldFont);
 	return nWidth + GetSidePadding();
@@ -67,16 +67,16 @@ void CSageOptionCheck::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 	CRect rectClient(lpDrawItemStruct->rcItem);
 	BOOL bDisabled = (lpDrawItemStruct->itemState & ODS_DISABLED) ? TRUE : FALSE;
 
-	pDC->FillSolidRect(rectClient, TAECHANG_COLOR_PANEL);
+	pDC->FillSolidRect(rectClient, SAGE_COLOR_PANEL);
 	if (m_bFrameVisible) {
-		CBrush brushBorder(TAECHANG_COLOR_BUTTON_BORDER);
+		CBrush brushBorder(SAGE_COLOR_BUTTON_BORDER);
 		pDC->FrameRect(rectClient, &brushBorder);
 	}
 
-	CRect rectBox(0, 0, TAECHANG_LIST_CHECK_BOX_SIZE, TAECHANG_LIST_CHECK_BOX_SIZE);
+	CRect rectBox(0, 0, SAGE_LIST_CHECK_BOX_SIZE, SAGE_LIST_CHECK_BOX_SIZE);
 	rectBox.OffsetRect(
 		rectClient.left + GetSidePadding(),
-		rectClient.top + (rectClient.Height() - TAECHANG_LIST_CHECK_BOX_SIZE) / 2);
+		rectClient.top + (rectClient.Height() - SAGE_LIST_CHECK_BOX_SIZE) / 2);
 	SageUiStyle::DrawCheckBox(*pDC, rectBox, m_bChecked);
 
 	CString strLabel;
@@ -84,11 +84,11 @@ void CSageOptionCheck::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 
 	pDC->SetBkMode(TRANSPARENT);
 	CFont* pOldFont = pDC->SelectObject(SageUiResources::GetFont(SAGE_FONT_CONTENT));
-	pDC->SetTextColor(bDisabled ? TAECHANG_COLOR_TEXT_PLACEHOLDER : TAECHANG_COLOR_TEXT);
+	pDC->SetTextColor(bDisabled ? SAGE_COLOR_TEXT_PLACEHOLDER : SAGE_COLOR_TEXT);
 	CSize sizeLabel = pDC->GetTextExtent(strLabel);
 	CRect rectLabel(
-		rectBox.right + TAECHANG_ICON_TEXT_GAP, rectClient.top,
-		rectBox.right + TAECHANG_ICON_TEXT_GAP + sizeLabel.cx, rectClient.bottom);
+		rectBox.right + SAGE_ICON_TEXT_GAP, rectClient.top,
+		rectBox.right + SAGE_ICON_TEXT_GAP + sizeLabel.cx, rectClient.bottom);
 	pDC->DrawText(strLabel, &rectLabel, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
 	pDC->SelectObject(pOldFont);
 
@@ -96,9 +96,9 @@ void CSageOptionCheck::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 		return;
 
 	pOldFont = pDC->SelectObject(SageUiResources::GetFont(SAGE_FONT_CAPTION));
-	pDC->SetTextColor(TAECHANG_COLOR_SECONDARY_TEXT);
+	pDC->SetTextColor(SAGE_COLOR_SECONDARY_TEXT);
 	CRect rectHint(
-		rectLabel.right + TAECHANG_ICON_TEXT_GAP, rectClient.top,
+		rectLabel.right + SAGE_ICON_TEXT_GAP, rectClient.top,
 		rectClient.right - GetSidePadding(), rectClient.bottom);
 	pDC->DrawText(m_strHint, &rectHint, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
 	pDC->SelectObject(pOldFont);

@@ -32,7 +32,7 @@ END_MESSAGE_MAP()
 // CSageTaechangApp 생성
 
 CSageTaechangApp::CSageTaechangApp() noexcept {
-	for (int i = 0; i < TAECHANG_PRIVATE_FONT_COUNT; ++i)
+	for (int i = 0; i < SAGE_PRIVATE_FONT_COUNT; ++i)
 		m_hPrivateFonts[i] = NULL;
 
 	// 다시 시작 관리자 지원
@@ -135,7 +135,7 @@ HANDLE CSageTaechangApp::LoadPrivateFont(UINT nResourceId) {
 }
 
 void CSageTaechangApp::LoadPrivateFonts() {
-	const UINT nFontResourceIds[TAECHANG_PRIVATE_FONT_COUNT] = {
+	const UINT nFontResourceIds[SAGE_PRIVATE_FONT_COUNT] = {
 		IDR_GMARKET_SANS_TTF_BOLD,
 		IDR_GMARKET_SANS_TTF_LIGHT,
 		IDR_GMARKET_SANS_TTF_MEDIUM,
@@ -143,12 +143,12 @@ void CSageTaechangApp::LoadPrivateFonts() {
 		IDR_PRETENDARD_TTF_SEMIBOLD,
 		IDR_PRETENDARD_TTF_BOLD
 	};
-	for (int i = 0; i < TAECHANG_PRIVATE_FONT_COUNT; ++i)
+	for (int i = 0; i < SAGE_PRIVATE_FONT_COUNT; ++i)
 		m_hPrivateFonts[i] = LoadPrivateFont(nFontResourceIds[i]);
 }
 
 void CSageTaechangApp::ReleasePrivateFonts() {
-	for (int i = 0; i < TAECHANG_PRIVATE_FONT_COUNT; ++i) {
+	for (int i = 0; i < SAGE_PRIVATE_FONT_COUNT; ++i) {
 		if (m_hPrivateFonts[i] != NULL)
 			::RemoveFontMemResourceEx(m_hPrivateFonts[i]);
 		m_hPrivateFonts[i] = NULL;

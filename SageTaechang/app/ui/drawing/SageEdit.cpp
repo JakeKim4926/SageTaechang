@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "app/ui/drawing/SageEdit.h"
-#include "TaechangDefine.h"
+#include "SageDefine.h"
 
 #include <uxtheme.h>
 
@@ -25,7 +25,7 @@ int CSageEdit::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 void CSageEdit::OnNcCalcSize(BOOL bCalcValidRects, NCCALCSIZE_PARAMS* lpncsp) {
 	CEdit::OnNcCalcSize(bCalcValidRects, lpncsp);
 	::InflateRect(&lpncsp->rgrc[0],
-		-TAECHANG_BORDER_THICKNESS, -TAECHANG_BORDER_THICKNESS);
+		-SAGE_BORDER_THICKNESS, -SAGE_BORDER_THICKNESS);
 }
 
 void CSageEdit::SetState(SageEditState nState) {
@@ -44,6 +44,6 @@ void CSageEdit::OnNcPaint() {
 
 	CWindowDC dc(this);
 	CBrush brushFrame(m_nState == SAGE_EDIT_ERROR
-		? TAECHANG_COLOR_ERROR : TAECHANG_COLOR_BORDER);
+		? SAGE_COLOR_ERROR : SAGE_COLOR_BORDER);
 	dc.FrameRect(rectFrame, &brushFrame);
 }

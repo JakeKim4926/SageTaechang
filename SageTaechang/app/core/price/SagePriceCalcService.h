@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-class TaechangPriceService;
+class SagePriceService;
 
 enum SagePriceCalcFailure {
     SAGE_PRICE_CALC_NONE,
@@ -38,7 +38,7 @@ struct SagePriceCalcResult {
 
 class SagePriceCalcService {
 public:
-    SagePriceCalcService(TaechangPriceService* pPriceService);
+    SagePriceCalcService(SagePriceService* pPriceService);
 
 public:
     BOOL Calculate(
@@ -59,5 +59,5 @@ private:
     int ClampFreight(int nFreight) const;
 
 private:
-    TaechangPriceService* m_pPriceService;
+    SagePriceService* m_pPriceService;
 };

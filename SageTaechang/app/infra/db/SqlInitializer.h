@@ -16,11 +16,11 @@ private:
     BOOL CreateIndexes(CString& strError);
 
 private:
-    BOOL CreateTaechangPriceTable(CString& strError);
-    BOOL CreateTaechangUserTable(CString& strError);
-    BOOL CreateTaechangReceivableCompanyOrderTable(CString& strError);
-    BOOL CreateTaechangPriceCompanyTable(CString& strError);
-    BOOL SeedTaechangPriceCompanies(CString& strError);
+    BOOL CreateSagePriceTable(CString& strError);
+    BOOL CreateSageUserTable(CString& strError);
+    BOOL CreateSageReceivableCompanyOrderTable(CString& strError);
+    BOOL CreateSagePriceCompanyTable(CString& strError);
+    BOOL SeedSagePriceCompanies(CString& strError);
 
 private:
     BOOL SeedDefaultAdmin(CString& strError);

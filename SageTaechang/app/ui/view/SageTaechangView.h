@@ -1,7 +1,7 @@
 ﻿
 #pragma once
 
-#include "TaechangDefine.h"
+#include "SageDefine.h"
 #include "app/ui/panels/SageWorkspacePanel.h"
 #include "app/ui/drawing/SageLabel.h"
 #include "app/ui/drawing/SageUiResources.h"

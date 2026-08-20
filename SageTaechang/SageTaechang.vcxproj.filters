@@ -243,7 +243,7 @@
     <ClCompile Include="app\ui\drawing\SageSidebarTree.cpp">
       <Filter>소스 파일\app\ui\drawing</Filter>
     </ClCompile>
-    <ClCompile Include="app\infra\office\TaechangReceivablesExcelService.cpp">
+    <ClCompile Include="app\infra\office\SageReceivablesExcelService.cpp">
       <Filter>소스 파일\app\infra\office</Filter>
     </ClCompile>
     <ClCompile Include="app\common\SageNumberFormat.cpp">
@@ -285,25 +285,25 @@
     <ClCompile Include="app\ui\workflow\SageWorkflowController.cpp">
       <Filter>소스 파일\app\ui\workflow</Filter>
     </ClCompile>
-    <ClCompile Include="app\common\TaechangJson.cpp">
+    <ClCompile Include="app\common\SageJson.cpp">
       <Filter>소스 파일\app\common</Filter>
     </ClCompile>
-    <ClCompile Include="app\infra\file\TaechangFileUtils.cpp">
+    <ClCompile Include="app\infra\file\SageFileUtils.cpp">
       <Filter>소스 파일\app\infra\file</Filter>
     </ClCompile>
-    <ClCompile Include="app\common\TaechangDialogHelper.cpp">
+    <ClCompile Include="app\common\SageDialogHelper.cpp">
       <Filter>소스 파일\app\common</Filter>
     </ClCompile>
-    <ClCompile Include="app\core\workflow\TaechangWorkflowResponse.cpp">
+    <ClCompile Include="app\core\workflow\SageWorkflowResponse.cpp">
       <Filter>소스 파일\app\core\workflow</Filter>
     </ClCompile>
-    <ClCompile Include="app\infra\office\TaechangDeliveryExcelService.cpp">
+    <ClCompile Include="app\infra\office\SageDeliveryExcelService.cpp">
       <Filter>소스 파일\app\infra\office</Filter>
     </ClCompile>
-    <ClCompile Include="app\infra\office\TaechangEstimateExcelService.cpp">
+    <ClCompile Include="app\infra\office\SageEstimateExcelService.cpp">
       <Filter>소스 파일\app\infra\office</Filter>
     </ClCompile>
-    <ClCompile Include="app\infra\file\TaechangAppSettingsService.cpp">
+    <ClCompile Include="app\infra\file\SageAppSettingsService.cpp">
       <Filter>소스 파일\app\infra\file</Filter>
     </ClCompile>
     <ClCompile Include="app\core\workflow\SageWorkflowResultTable.cpp">
@@ -321,7 +321,7 @@
     <ClCompile Include="app\core\workflow\handlers\SageEstimateWorkflowHandler.cpp">
       <Filter>소스 파일\app\core\workflow\handlers</Filter>
     </ClCompile>
-    <ClCompile Include="app\core\workflow\TaechangWorkflowResultPresenter.cpp">
+    <ClCompile Include="app\core\workflow\SageWorkflowResultPresenter.cpp">
       <Filter>소스 파일\app\core\workflow</Filter>
     </ClCompile>
     <ClCompile Include="app\infra\db\SqlContext.cpp">
@@ -330,49 +330,49 @@
     <ClCompile Include="app\infra\db\SqlInitializer.cpp">
       <Filter>소스 파일\app\infra\db</Filter>
     </ClCompile>
-    <ClCompile Include="app\infra\db\TaechangPriceRepository.cpp">
+    <ClCompile Include="app\infra\db\SagePriceRepository.cpp">
       <Filter>소스 파일\app\infra\db</Filter>
     </ClCompile>
-    <ClCompile Include="app\core\price\TaechangPriceService.cpp">
+    <ClCompile Include="app\core\price\SagePriceService.cpp">
       <Filter>소스 파일\app\core\price</Filter>
     </ClCompile>
     <ClCompile Include="app\core\price\SagePriceCalcService.cpp">
       <Filter>소스 파일\app\core\price</Filter>
     </ClCompile>
-    <ClCompile Include="app\infra\db\TaechangReceivableCompanyOrderRepository.cpp">
+    <ClCompile Include="app\infra\db\SageReceivableCompanyOrderRepository.cpp">
       <Filter>소스 파일\app\infra\db</Filter>
     </ClCompile>
-    <ClCompile Include="app\core\receivable\TaechangReceivableCompanyOrderService.cpp">
+    <ClCompile Include="app\core\receivable\SageReceivableCompanyOrderService.cpp">
       <Filter>소스 파일\app\core\receivable</Filter>
     </ClCompile>
-    <ClCompile Include="app\infra\db\TaechangUserRepository.cpp">
+    <ClCompile Include="app\infra\db\SageUserRepository.cpp">
       <Filter>소스 파일\app\infra\db</Filter>
     </ClCompile>
-    <ClCompile Include="app\core\auth\TaechangUserService.cpp">
+    <ClCompile Include="app\core\auth\SageUserService.cpp">
       <Filter>소스 파일\app\core\auth</Filter>
     </ClCompile>
-    <ClCompile Include="app\core\auth\TaechangAuthSession.cpp">
+    <ClCompile Include="app\core\auth\SageAuthSession.cpp">
       <Filter>소스 파일\app\core\auth</Filter>
     </ClCompile>
-    <ClCompile Include="app\ui\dialogs\TaechangLoginDlg.cpp">
+    <ClCompile Include="app\ui\dialogs\SageLoginDlg.cpp">
       <Filter>소스 파일\app\ui\dialogs</Filter>
     </ClCompile>
-    <ClCompile Include="app\ui\dialogs\TaechangPasswordChangeDlg.cpp">
+    <ClCompile Include="app\ui\dialogs\SagePasswordChangeDlg.cpp">
       <Filter>소스 파일\app\ui\dialogs</Filter>
     </ClCompile>
-    <ClCompile Include="app\ui\dialogs\TaechangCompanyDlg.cpp">
+    <ClCompile Include="app\ui\dialogs\SageCompanyDlg.cpp">
       <Filter>소스 파일\app\ui\dialogs</Filter>
     </ClCompile>
-    <ClCompile Include="app\ui\dialogs\TaechangPriceRangeDlg.cpp">
+    <ClCompile Include="app\ui\dialogs\SagePriceRangeDlg.cpp">
       <Filter>소스 파일\app\ui\dialogs</Filter>
     </ClCompile>
-    <ClCompile Include="app\ui\dialogs\TaechangPriceSimpleDlg.cpp">
+    <ClCompile Include="app\ui\dialogs\SagePriceSimpleDlg.cpp">
       <Filter>소스 파일\app\ui\dialogs</Filter>
     </ClCompile>
-    <ClCompile Include="app\ui\dialogs\TaechangCalcCompanyPickerDlg.cpp">
+    <ClCompile Include="app\ui\dialogs\SageCalcCompanyPickerDlg.cpp">
       <Filter>소스 파일\app\ui\dialogs</Filter>
     </ClCompile>
-    <ClCompile Include="app\ui\dialogs\TaechangCalcEstimateDlg.cpp">
+    <ClCompile Include="app\ui\dialogs\SageCalcEstimateDlg.cpp">
       <Filter>소스 파일\app\ui\dialogs</Filter>
     </ClCompile>
   </ItemGroup>
@@ -494,67 +494,67 @@
     <ClInclude Include="app\infra\db\SqlInitializer.h">
       <Filter>헤더 파일\app\infra\db</Filter>
     </ClInclude>
-    <ClInclude Include="app\core\price\TaechangPriceDto.h">
+    <ClInclude Include="app\core\price\SagePriceDto.h">
       <Filter>헤더 파일\app\core\price</Filter>
     </ClInclude>
-    <ClInclude Include="app\infra\db\TaechangPriceRepository.h">
+    <ClInclude Include="app\infra\db\SagePriceRepository.h">
       <Filter>헤더 파일\app\infra\db</Filter>
     </ClInclude>
-    <ClInclude Include="app\core\price\TaechangPriceService.h">
+    <ClInclude Include="app\core\price\SagePriceService.h">
       <Filter>헤더 파일\app\core\price</Filter>
     </ClInclude>
     <ClInclude Include="app\core\price\SagePriceCalcService.h">
       <Filter>헤더 파일\app\core\price</Filter>
     </ClInclude>
-    <ClInclude Include="app\core\receivable\TaechangReceivableCompanyOrderDto.h">
+    <ClInclude Include="app\core\receivable\SageReceivableCompanyOrderDto.h">
       <Filter>헤더 파일\app\core\receivable</Filter>
     </ClInclude>
-    <ClInclude Include="app\infra\db\TaechangReceivableCompanyOrderRepository.h">
+    <ClInclude Include="app\infra\db\SageReceivableCompanyOrderRepository.h">
       <Filter>헤더 파일\app\infra\db</Filter>
     </ClInclude>
-    <ClInclude Include="app\core\receivable\TaechangReceivableCompanyOrderService.h">
+    <ClInclude Include="app\core\receivable\SageReceivableCompanyOrderService.h">
       <Filter>헤더 파일\app\core\receivable</Filter>
     </ClInclude>
-    <ClInclude Include="app\core\auth\TaechangUserDto.h">
+    <ClInclude Include="app\core\auth\SageUserDto.h">
       <Filter>헤더 파일\app\core\auth</Filter>
     </ClInclude>
-    <ClInclude Include="app\infra\db\TaechangUserRepository.h">
+    <ClInclude Include="app\infra\db\SageUserRepository.h">
       <Filter>헤더 파일\app\infra\db</Filter>
     </ClInclude>
-    <ClInclude Include="app\core\auth\TaechangUserService.h">
+    <ClInclude Include="app\core\auth\SageUserService.h">
       <Filter>헤더 파일\app\core\auth</Filter>
     </ClInclude>
-    <ClInclude Include="app\core\auth\TaechangAuthSession.h">
+    <ClInclude Include="app\core\auth\SageAuthSession.h">
       <Filter>헤더 파일\app\core\auth</Filter>
     </ClInclude>
-    <ClInclude Include="app\ui\dialogs\TaechangLoginDlg.h">
+    <ClInclude Include="app\ui\dialogs\SageLoginDlg.h">
       <Filter>헤더 파일\app\ui\dialogs</Filter>
     </ClInclude>
-    <ClInclude Include="app\ui\dialogs\TaechangPasswordChangeDlg.h">
+    <ClInclude Include="app\ui\dialogs\SagePasswordChangeDlg.h">
       <Filter>헤더 파일\app\ui\dialogs</Filter>
     </ClInclude>
-    <ClInclude Include="app\ui\dialogs\TaechangCompanyDlg.h">
+    <ClInclude Include="app\ui\dialogs\SageCompanyDlg.h">
       <Filter>헤더 파일\app\ui\dialogs</Filter>
     </ClInclude>
-    <ClInclude Include="app\ui\dialogs\TaechangPriceRangeDlg.h">
+    <ClInclude Include="app\ui\dialogs\SagePriceRangeDlg.h">
       <Filter>헤더 파일\app\ui\dialogs</Filter>
     </ClInclude>
-    <ClInclude Include="app\ui\dialogs\TaechangPriceSimpleDlg.h">
+    <ClInclude Include="app\ui\dialogs\SagePriceSimpleDlg.h">
       <Filter>헤더 파일\app\ui\dialogs</Filter>
     </ClInclude>
-    <ClInclude Include="app\ui\dialogs\TaechangCalcCompanyPickerDlg.h">
+    <ClInclude Include="app\ui\dialogs\SageCalcCompanyPickerDlg.h">
       <Filter>헤더 파일\app\ui\dialogs</Filter>
     </ClInclude>
-    <ClInclude Include="app\ui\dialogs\TaechangCalcEstimateDlg.h">
+    <ClInclude Include="app\ui\dialogs\SageCalcEstimateDlg.h">
       <Filter>헤더 파일\app\ui\dialogs</Filter>
     </ClInclude>
     <ClInclude Include="targetver.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="TaechangDefine.h">
+    <ClInclude Include="SageDefine.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="app\infra\office\TaechangReceivablesExcelService.h">
+    <ClInclude Include="app\infra\office\SageReceivablesExcelService.h">
       <Filter>헤더 파일\app\infra\office</Filter>
     </ClInclude>
     <ClInclude Include="app\common\SageNumberFormat.h">
@@ -596,25 +596,25 @@
     <ClInclude Include="app\ui\workflow\SageWorkflowController.h">
       <Filter>헤더 파일\app\ui\workflow</Filter>
     </ClInclude>
-    <ClInclude Include="app\common\TaechangJson.h">
+    <ClInclude Include="app\common\SageJson.h">
       <Filter>헤더 파일\app\common</Filter>
     </ClInclude>
-    <ClInclude Include="app\infra\file\TaechangFileUtils.h">
+    <ClInclude Include="app\infra\file\SageFileUtils.h">
       <Filter>헤더 파일\app\infra\file</Filter>
     </ClInclude>
-    <ClInclude Include="app\common\TaechangDialogHelper.h">
+    <ClInclude Include="app\common\SageDialogHelper.h">
       <Filter>헤더 파일\app\common</Filter>
     </ClInclude>
-    <ClInclude Include="app\core\workflow\TaechangWorkflowResponse.h">
+    <ClInclude Include="app\core\workflow\SageWorkflowResponse.h">
       <Filter>헤더 파일\app\core\workflow</Filter>
     </ClInclude>
-    <ClInclude Include="app\infra\office\TaechangDeliveryExcelService.h">
+    <ClInclude Include="app\infra\office\SageDeliveryExcelService.h">
       <Filter>헤더 파일\app\infra\office</Filter>
     </ClInclude>
-    <ClInclude Include="app\infra\office\TaechangEstimateExcelService.h">
+    <ClInclude Include="app\infra\office\SageEstimateExcelService.h">
       <Filter>헤더 파일\app\infra\office</Filter>
     </ClInclude>
-    <ClInclude Include="app\infra\file\TaechangAppSettingsService.h">
+    <ClInclude Include="app\infra\file\SageAppSettingsService.h">
       <Filter>헤더 파일\app\infra\file</Filter>
     </ClInclude>
     <ClInclude Include="app\core\workflow\SageWorkflowTab.h">
@@ -638,7 +638,7 @@
     <ClInclude Include="app\core\workflow\handlers\SageEstimateWorkflowHandler.h">
       <Filter>헤더 파일\app\core\workflow\handlers</Filter>
     </ClInclude>
-    <ClInclude Include="app\core\workflow\TaechangWorkflowResultPresenter.h">
+    <ClInclude Include="app\core\workflow\SageWorkflowResultPresenter.h">
       <Filter>헤더 파일\app\core\workflow</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,9 +1,9 @@
 ﻿#include "pch.h"
 #include "app/core/price/SagePriceCalcService.h"
-#include "app/core/price/TaechangPriceService.h"
-#include "TaechangDefine.h"
+#include "app/core/price/SagePriceService.h"
+#include "SageDefine.h"
 
-SagePriceCalcService::SagePriceCalcService(TaechangPriceService* pPriceService) {
+SagePriceCalcService::SagePriceCalcService(SagePriceService* pPriceService) {
     m_pPriceService = pPriceService;
 }
 
@@ -16,7 +16,7 @@ BOOL SagePriceCalcService::Calculate(
     SagePriceCalcFailure& outFailure,
     CString& strError
 ) {
-    TaechangPriceDto dto;
+    SagePriceDto dto;
     BOOL bFound;
 
     outResult = SagePriceCalcResult();
@@ -27,7 +27,7 @@ BOOL SagePriceCalcService::Calculate(
         return FALSE;
     }
 
-    if (nPages < 1 || nPages > TAECHANG_PRICE_COPIES_MAX) {
+    if (nPages < 1 || nPages > SAGE_PRICE_COPIES_MAX) {
         outFailure = SAGE_PRICE_CALC_PAGES_OUT_OF_RANGE;
         return FALSE;
     }
@@ -61,7 +61,7 @@ BOOL SagePriceCalcService::ValidateCopies(int nCopies, SagePriceCalcFailure& out
         return FALSE;
     }
 
-    if (nCopies > TAECHANG_PRICE_COPIES_MAX) {
+    if (nCopies > SAGE_PRICE_COPIES_MAX) {
         outFailure = SAGE_PRICE_CALC_COPIES_ABOVE_MAX;
         return FALSE;
     }
@@ -77,7 +77,7 @@ void SagePriceCalcService::ApplyFreight(int nFreight, SagePriceCalcResult& resul
 int SagePriceCalcService::ClampFreight(int nFreight) const {
     if (nFreight < 0)
         return 0;
-    if (nFreight > TAECHANG_PRICE_AMOUNT_MAX)
-        return TAECHANG_PRICE_AMOUNT_MAX;
+    if (nFreight > SAGE_PRICE_AMOUNT_MAX)
+        return SAGE_PRICE_AMOUNT_MAX;
     return nFreight;
 }

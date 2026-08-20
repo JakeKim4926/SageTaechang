@@ -1,17 +1,17 @@
 #include "pch.h"
 #include "app/ui/drawing/SageBadge.h"
 #include "app/ui/drawing/SageUiResources.h"
-#include "TaechangDefine.h"
+#include "SageDefine.h"
 
 BEGIN_MESSAGE_MAP(CSageBadge, CStatic)
 END_MESSAGE_MAP()
 
 CSageBadge::CSageBadge()
-	: m_clrBackground(TAECHANG_COLOR_LIST_HEADER)
-	, m_clrBorder(TAECHANG_COLOR_LIST_HEADER_BORDER)
-	, m_clrText(TAECHANG_COLOR_PRIMARY)
-	, m_clrSurface(TAECHANG_COLOR_PANEL)
-	, m_nCornerRadius(TAECHANG_BADGE_HEIGHT) {
+	: m_clrBackground(SAGE_COLOR_LIST_HEADER)
+	, m_clrBorder(SAGE_COLOR_LIST_HEADER_BORDER)
+	, m_clrText(SAGE_COLOR_PRIMARY)
+	, m_clrSurface(SAGE_COLOR_PANEL)
+	, m_nCornerRadius(SAGE_BADGE_HEIGHT) {
 }
 
 void CSageBadge::SetCornerRadius(int nRadius) {
@@ -44,7 +44,7 @@ int CSageBadge::GetContentWidth() const {
 	CFont* pOldFont = dc.SelectObject(SageUiResources::GetFont(SAGE_FONT_CAPTION));
 	CSize sizeText = dc.GetTextExtent(m_strText);
 	dc.SelectObject(pOldFont);
-	return sizeText.cx + TAECHANG_BADGE_PAD_X * 2;
+	return sizeText.cx + SAGE_BADGE_PAD_X * 2;
 }
 
 void CSageBadge::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
@@ -56,11 +56,11 @@ void CSageBadge::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 		return;
 
 	CRect rectBadge(rectClient);
-	rectBadge.top += (rectClient.Height() - TAECHANG_BADGE_HEIGHT) / 2;
-	rectBadge.bottom = rectBadge.top + TAECHANG_BADGE_HEIGHT;
+	rectBadge.top += (rectClient.Height() - SAGE_BADGE_HEIGHT) / 2;
+	rectBadge.bottom = rectBadge.top + SAGE_BADGE_HEIGHT;
 
 	CBrush brushFill(m_clrBackground);
-	CPen penBorder(PS_SOLID, TAECHANG_BORDER_THICKNESS, m_clrBorder);
+	CPen penBorder(PS_SOLID, SAGE_BORDER_THICKNESS, m_clrBorder);
 	CBrush* pOldBrush = pDC->SelectObject(&brushFill);
 	CPen* pOldPen = pDC->SelectObject(&penBorder);
 	pDC->RoundRect(rectBadge, CPoint(m_nCornerRadius, m_nCornerRadius));

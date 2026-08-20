@@ -1,20 +1,20 @@
 ﻿#include "pch.h"
 #include "app/ui/panels/SageWorkflowInputPanel.h"
 #include "app/ui/drawing/SageUiResources.h"
-#include "TaechangDefine.h"
+#include "SageDefine.h"
 
 BEGIN_MESSAGE_MAP(SageWorkflowInputPanel, CWnd)
 	ON_WM_CREATE()
 	ON_WM_ERASEBKGND()
 	ON_WM_CTLCOLOR()
 	ON_WM_TIMER()
-	ON_BN_CLICKED(ID_TAECHANG_SELECT_INPUT, &SageWorkflowInputPanel::OnSelectInput)
-	ON_BN_CLICKED(ID_TAECHANG_SELECT_OUTPUT, &SageWorkflowInputPanel::OnSelectOutput)
-	ON_BN_CLICKED(ID_TAECHANG_GENERATE_WORKFLOW, &SageWorkflowInputPanel::OnGenerateWorkflow)
-	ON_BN_CLICKED(ID_TAECHANG_INPUT_RESET_BTN, &SageWorkflowInputPanel::OnInputReset)
-	ON_BN_CLICKED(ID_TAECHANG_OPEN_OUTPUT_FOLDER, &SageWorkflowInputPanel::OnOpenOutputFolder)
-	ON_MESSAGE(WM_TAECHANG_RESULT_TABLE_CHANGED, &SageWorkflowInputPanel::OnResultTableChanged)
-	ON_MESSAGE(WM_TAECHANG_RESULT_SELECTION_CHANGED, &SageWorkflowInputPanel::OnResultSelectionChanged)
+	ON_BN_CLICKED(ID_SAGE_SELECT_INPUT, &SageWorkflowInputPanel::OnSelectInput)
+	ON_BN_CLICKED(ID_SAGE_SELECT_OUTPUT, &SageWorkflowInputPanel::OnSelectOutput)
+	ON_BN_CLICKED(ID_SAGE_GENERATE_WORKFLOW, &SageWorkflowInputPanel::OnGenerateWorkflow)
+	ON_BN_CLICKED(ID_SAGE_INPUT_RESET_BTN, &SageWorkflowInputPanel::OnInputReset)
+	ON_BN_CLICKED(ID_SAGE_OPEN_OUTPUT_FOLDER, &SageWorkflowInputPanel::OnOpenOutputFolder)
+	ON_MESSAGE(WM_SAGE_RESULT_TABLE_CHANGED, &SageWorkflowInputPanel::OnResultTableChanged)
+	ON_MESSAGE(WM_SAGE_RESULT_SELECTION_CHANGED, &SageWorkflowInputPanel::OnResultSelectionChanged)
 END_MESSAGE_MAP()
 
 SageWorkflowInputPanel::SageWorkflowInputPanel()
@@ -33,7 +33,7 @@ static void AcceptDroppedFiles(CWnd& wnd) {
 	::DragAcceptFiles(hWnd, TRUE);
 	::ChangeWindowMessageFilterEx(hWnd, WM_DROPFILES, MSGFLT_ALLOW, NULL);
 	::ChangeWindowMessageFilterEx(hWnd, WM_COPYDATA, MSGFLT_ALLOW, NULL);
-	::ChangeWindowMessageFilterEx(hWnd, WM_TAECHANG_COPYGLOBALDATA, MSGFLT_ALLOW, NULL);
+	::ChangeWindowMessageFilterEx(hWnd, WM_SAGE_COPYGLOBALDATA, MSGFLT_ALLOW, NULL);
 }
 
 BOOL SageWorkflowInputPanel::Create(CWnd* pParent, UINT nId) {
@@ -67,26 +67,26 @@ int SageWorkflowInputPanel::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 
 void SageWorkflowInputPanel::CreateControls() {
 	CRect r(0, 0, 0, 0);
-	m_wndCardHeader.Create(TAECHANG_UI_INPUT_CARD_TITLE, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, r, this, ID_TAECHANG_INPUT_SECTION);
-	m_wndInputLabel.Create(TAECHANG_UI_SECTION_INPUT, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, r, this);
-	m_wndOutputLabel.Create(TAECHANG_UI_SECTION_OUTPUT, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, r, this);
-	m_wndInputPath.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_READONLY, r, this, ID_TAECHANG_INPUT_EDIT);
-	m_wndOutputFolder.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_READONLY, r, this, ID_TAECHANG_OUTPUT_EDIT);
-	m_wndSelectInput.Create(TAECHANG_UI_INPUT_BUTTON, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_TAECHANG_SELECT_INPUT);
-	m_wndSelectOutput.Create(TAECHANG_UI_OUTPUT_BUTTON, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_TAECHANG_SELECT_OUTPUT);
-	m_wndGenerate.Create(TAECHANG_UI_RECEIVABLES_GENERATE_BUTTON, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_TAECHANG_GENERATE_WORKFLOW);
+	m_wndCardHeader.Create(SAGE_UI_INPUT_CARD_TITLE, WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, r, this, ID_SAGE_INPUT_SECTION);
+	m_wndInputLabel.Create(SAGE_UI_SECTION_INPUT, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, r, this);
+	m_wndOutputLabel.Create(SAGE_UI_SECTION_OUTPUT, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, r, this);
+	m_wndInputPath.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_READONLY, r, this, ID_SAGE_INPUT_EDIT);
+	m_wndOutputFolder.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_READONLY, r, this, ID_SAGE_OUTPUT_EDIT);
+	m_wndSelectInput.Create(SAGE_UI_INPUT_BUTTON, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_SAGE_SELECT_INPUT);
+	m_wndSelectOutput.Create(SAGE_UI_OUTPUT_BUTTON, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_SAGE_SELECT_OUTPUT);
+	m_wndGenerate.Create(SAGE_UI_RECEIVABLES_GENERATE_BUTTON, WS_CHILD | WS_VISIBLE | BS_OWNERDRAW, r, this, ID_SAGE_GENERATE_WORKFLOW);
 	m_wndGenerate.SetVariant(SAGE_BUTTON_PRIMARY);
-	m_wndInputReset.Create(TAECHANG_UI_INPUT_RESET_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_TAECHANG_INPUT_RESET_BTN);
+	m_wndInputReset.Create(SAGE_UI_INPUT_RESET_BTN, WS_CHILD | BS_OWNERDRAW, r, this, ID_SAGE_INPUT_RESET_BTN);
 	m_wndInputReset.SetVariant(SAGE_BUTTON_GHOST);
-	m_wndInputReset.SetSurfaceColor(TAECHANG_COLOR_PANEL);
-	m_wndStatusCard.Create(L"", WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, r, this, ID_TAECHANG_STATUS_CARD);
-	m_wndStatusCard.SetOpenFolderCommand(ID_TAECHANG_OPEN_OUTPUT_FOLDER);
-	m_wndStatusCard.SetIdle(TAECHANG_UI_STATUS_CARD_IDLE);
-	m_wndEmptyStateHint.Create(TAECHANG_UI_EMPTY_STATE_HINT, WS_CHILD | WS_VISIBLE | SS_CENTER | SS_CENTERIMAGE, r, this);
+	m_wndInputReset.SetSurfaceColor(SAGE_COLOR_PANEL);
+	m_wndStatusCard.Create(L"", WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, r, this, ID_SAGE_STATUS_CARD);
+	m_wndStatusCard.SetOpenFolderCommand(ID_SAGE_OPEN_OUTPUT_FOLDER);
+	m_wndStatusCard.SetIdle(SAGE_UI_STATUS_CARD_IDLE);
+	m_wndEmptyStateHint.Create(SAGE_UI_EMPTY_STATE_HINT, WS_CHILD | WS_VISIBLE | SS_CENTER | SS_CENTERIMAGE, r, this);
 	m_wndEmptyStateHint.SetTextColorRole(SAGE_TEXT_SECONDARY);
 	m_wndEmptyStateHint.SetFontRole(SAGE_FONT_CONTENT);
 
-	m_panelInputTable.Create(this, ID_TAECHANG_INPUT_TABLE_PANEL);
+	m_panelInputTable.Create(this, ID_SAGE_INPUT_TABLE_PANEL);
 	m_panelInputTable.SetTitle(NULL);
 }
 
@@ -113,20 +113,20 @@ void SageWorkflowInputPanel::ApplyLabelRoles() {
 int SageWorkflowInputPanel::GetContentWidth() const {
 	CRect rectClient;
 	GetClientRect(&rectClient);
-	return rectClient.Width() - TAECHANG_EDIT_BORDER_WIDTH;
+	return rectClient.Width() - SAGE_EDIT_BORDER_WIDTH;
 }
 
 int SageWorkflowInputPanel::GetInputCardHeight() const {
-	return TAECHANG_CARD_HEADER_HEIGHT
-		+ TAECHANG_CARD_PADDING
-		+ TAECHANG_EDIT_HEIGHT + TAECHANG_CARD_ROW_GAP
-		+ TAECHANG_EDIT_HEIGHT + TAECHANG_CARD_ROW_GAP
-		+ TAECHANG_CARD_ACTION_BUTTON_HEIGHT
-		+ TAECHANG_CARD_PADDING;
+	return SAGE_CARD_HEADER_HEIGHT
+		+ SAGE_CARD_PADDING
+		+ SAGE_EDIT_HEIGHT + SAGE_CARD_ROW_GAP
+		+ SAGE_EDIT_HEIGHT + SAGE_CARD_ROW_GAP
+		+ SAGE_CARD_ACTION_BUTTON_HEIGHT
+		+ SAGE_CARD_PADDING;
 }
 
 int SageWorkflowInputPanel::GetTableAreaTop() const {
-	return GetInputCardHeight() + TAECHANG_CARD_GAP + TAECHANG_STATUS_CARD_HEIGHT + TAECHANG_CARD_GAP;
+	return GetInputCardHeight() + SAGE_CARD_GAP + SAGE_STATUS_CARD_HEIGHT + SAGE_CARD_GAP;
 }
 
 void SageWorkflowInputPanel::Layout(const CRect& rectPanel) {
@@ -147,35 +147,35 @@ void SageWorkflowInputPanel::LayoutTableArea() {
 		return;
 
 	int nTop = GetTableAreaTop();
-	int nBodyHeight = max(TAECHANG_RESULT_MIN_HEIGHT, rectClient.Height() - nTop - TAECHANG_RESULT_HEADER_HEIGHT);
+	int nBodyHeight = max(SAGE_RESULT_MIN_HEIGHT, rectClient.Height() - nTop - SAGE_RESULT_HEADER_HEIGHT);
 	m_panelInputTable.Layout(CRect(
 		0,
 		nTop - m_panelInputTable.GetBandHeight(),
 		nWidth,
-		nTop + TAECHANG_RESULT_HEADER_HEIGHT + nBodyHeight));
+		nTop + SAGE_RESULT_HEADER_HEIGHT + nBodyHeight));
 	m_wndEmptyStateHint.MoveWindow(0, nTop, nWidth, nBodyHeight);
 }
 
 void SageWorkflowInputPanel::LayoutFormRow(int nTop, int nWidth, CSageLabel& wndLabel, CEdit& wndEdit, CSageButton& wndButton) {
-	int nLabelLeft = TAECHANG_CARD_PADDING;
-	int nEditLeft = nLabelLeft + TAECHANG_FORM_LABEL_WIDTH + TAECHANG_CARD_ROW_GAP;
-	int nButtonLeft = nWidth - TAECHANG_CARD_PADDING - TAECHANG_BUTTON_WIDTH;
-	int nEditWidth = nButtonLeft - TAECHANG_CARD_ROW_GAP - nEditLeft;
-	if (nEditWidth < TAECHANG_CO_COMPANY_EDIT_MIN_WIDTH)
-		nEditWidth = TAECHANG_CO_COMPANY_EDIT_MIN_WIDTH;
+	int nLabelLeft = SAGE_CARD_PADDING;
+	int nEditLeft = nLabelLeft + SAGE_FORM_LABEL_WIDTH + SAGE_CARD_ROW_GAP;
+	int nButtonLeft = nWidth - SAGE_CARD_PADDING - SAGE_BUTTON_WIDTH;
+	int nEditWidth = nButtonLeft - SAGE_CARD_ROW_GAP - nEditLeft;
+	if (nEditWidth < SAGE_CO_COMPANY_EDIT_MIN_WIDTH)
+		nEditWidth = SAGE_CO_COMPANY_EDIT_MIN_WIDTH;
 
-	wndLabel.MoveWindow(nLabelLeft, nTop, TAECHANG_FORM_LABEL_WIDTH, TAECHANG_EDIT_HEIGHT);
-	wndEdit.MoveWindow(nEditLeft, nTop, nEditWidth, TAECHANG_EDIT_HEIGHT);
+	wndLabel.MoveWindow(nLabelLeft, nTop, SAGE_FORM_LABEL_WIDTH, SAGE_EDIT_HEIGHT);
+	wndEdit.MoveWindow(nEditLeft, nTop, nEditWidth, SAGE_EDIT_HEIGHT);
 	ApplyEditTextRect(wndEdit);
-	wndButton.MoveWindow(nButtonLeft, nTop, TAECHANG_BUTTON_WIDTH, TAECHANG_BUTTON_HEIGHT);
+	wndButton.MoveWindow(nButtonLeft, nTop, SAGE_BUTTON_WIDTH, SAGE_BUTTON_HEIGHT);
 }
 
 void SageWorkflowInputPanel::LayoutInputCard(int nWidth) {
-	m_wndCardHeader.MoveWindow(0, 0, nWidth, TAECHANG_CARD_HEADER_HEIGHT);
+	m_wndCardHeader.MoveWindow(0, 0, nWidth, SAGE_CARD_HEADER_HEIGHT);
 
-	int nTop = TAECHANG_CARD_HEADER_HEIGHT + TAECHANG_CARD_PADDING;
+	int nTop = SAGE_CARD_HEADER_HEIGHT + SAGE_CARD_PADDING;
 	LayoutFormRow(nTop, nWidth, m_wndInputLabel, m_wndInputPath, m_wndSelectInput);
-	nTop += TAECHANG_EDIT_HEIGHT + TAECHANG_CARD_ROW_GAP;
+	nTop += SAGE_EDIT_HEIGHT + SAGE_CARD_ROW_GAP;
 	LayoutFormRow(nTop, nWidth, m_wndOutputLabel, m_wndOutputFolder, m_wndSelectOutput);
 }
 
@@ -187,41 +187,41 @@ void SageWorkflowInputPanel::LayoutActionSection() {
 	if (nWidth <= 0)
 		return;
 
-	int nActionTop = TAECHANG_CARD_HEADER_HEIGHT + TAECHANG_CARD_PADDING
-		+ (TAECHANG_EDIT_HEIGHT + TAECHANG_CARD_ROW_GAP) * 2;
-	int nX = TAECHANG_CARD_PADDING + TAECHANG_FORM_LABEL_WIDTH + TAECHANG_CARD_ROW_GAP;
-	m_wndGenerate.MoveWindow(nX, nActionTop, TAECHANG_BUTTON_WIDTH, TAECHANG_CARD_ACTION_BUTTON_HEIGHT);
-	nX += TAECHANG_BUTTON_WIDTH + TAECHANG_ACTION_GAP;
+	int nActionTop = SAGE_CARD_HEADER_HEIGHT + SAGE_CARD_PADDING
+		+ (SAGE_EDIT_HEIGHT + SAGE_CARD_ROW_GAP) * 2;
+	int nX = SAGE_CARD_PADDING + SAGE_FORM_LABEL_WIDTH + SAGE_CARD_ROW_GAP;
+	m_wndGenerate.MoveWindow(nX, nActionTop, SAGE_BUTTON_WIDTH, SAGE_CARD_ACTION_BUTTON_HEIGHT);
+	nX += SAGE_BUTTON_WIDTH + SAGE_ACTION_GAP;
 	if (m_bInputResetVisible)
-		m_wndInputReset.MoveWindow(nX, nActionTop, TAECHANG_INPUT_RESET_WIDTH, TAECHANG_CARD_ACTION_BUTTON_HEIGHT);
+		m_wndInputReset.MoveWindow(nX, nActionTop, SAGE_INPUT_RESET_WIDTH, SAGE_CARD_ACTION_BUTTON_HEIGHT);
 
 	m_wndStatusCard.MoveWindow(
 		0,
-		GetInputCardHeight() + TAECHANG_CARD_GAP,
+		GetInputCardHeight() + SAGE_CARD_GAP,
 		nWidth,
-		TAECHANG_STATUS_CARD_HEIGHT);
+		SAGE_STATUS_CARD_HEIGHT);
 }
 
 void SageWorkflowInputPanel::ApplyEditTextRect(CEdit& wndEdit) {
 	CRect rcFmt;
 	wndEdit.GetClientRect(&rcFmt);
-	rcFmt.left += TAECHANG_EDIT_TEXT_LEFT_PAD;
-	rcFmt.top += TAECHANG_EDIT_TEXT_TOP_PAD;
-	rcFmt.right = TAECHANG_EDIT_FORMAT_MAX_WIDTH;
+	rcFmt.left += SAGE_EDIT_TEXT_LEFT_PAD;
+	rcFmt.top += SAGE_EDIT_TEXT_TOP_PAD;
+	rcFmt.right = SAGE_EDIT_FORMAT_MAX_WIDTH;
 	wndEdit.SendMessage(EM_SETRECT, 0, reinterpret_cast<LPARAM>(&rcFmt));
 }
 
 BOOL SageWorkflowInputPanel::OnEraseBkgnd(CDC* pDC) {
 	CRect rectClient;
 	GetClientRect(&rectClient);
-	pDC->FillSolidRect(rectClient, TAECHANG_COLOR_APP_BACKGROUND);
+	pDC->FillSolidRect(rectClient, SAGE_COLOR_APP_BACKGROUND);
 
 	int nCardWidth = GetContentWidth();
 	int nCardHeight = GetInputCardHeight();
 	if (nCardWidth > 0) {
 		CRect rectCard(0, 0, nCardWidth, nCardHeight);
-		pDC->FillSolidRect(rectCard, TAECHANG_COLOR_PANEL);
-		CBrush brushCard(TAECHANG_COLOR_BORDER);
+		pDC->FillSolidRect(rectCard, SAGE_COLOR_PANEL);
+		CBrush brushCard(SAGE_COLOR_BORDER);
 		pDC->FrameRect(rectCard, &brushCard);
 	}
 
@@ -236,24 +236,24 @@ void SageWorkflowInputPanel::DrawEditBorder(CDC* pDC, CWnd& wnd) {
 	CRect rect;
 	wnd.GetWindowRect(&rect);
 	ScreenToClient(&rect);
-	rect.InflateRect(TAECHANG_EDIT_BORDER_WIDTH, TAECHANG_EDIT_BORDER_WIDTH);
-	pDC->FillSolidRect(rect.left, rect.top, rect.Width(), TAECHANG_EDIT_BORDER_WIDTH, TAECHANG_COLOR_BORDER);
-	pDC->FillSolidRect(rect.left, rect.bottom - TAECHANG_EDIT_BORDER_WIDTH, rect.Width(), TAECHANG_EDIT_BORDER_WIDTH, TAECHANG_COLOR_BORDER);
-	pDC->FillSolidRect(rect.left, rect.top, TAECHANG_EDIT_BORDER_WIDTH, rect.Height(), TAECHANG_COLOR_BORDER);
-	pDC->FillSolidRect(rect.right - TAECHANG_EDIT_BORDER_WIDTH, rect.top, TAECHANG_EDIT_BORDER_WIDTH, rect.Height(), TAECHANG_COLOR_BORDER);
+	rect.InflateRect(SAGE_EDIT_BORDER_WIDTH, SAGE_EDIT_BORDER_WIDTH);
+	pDC->FillSolidRect(rect.left, rect.top, rect.Width(), SAGE_EDIT_BORDER_WIDTH, SAGE_COLOR_BORDER);
+	pDC->FillSolidRect(rect.left, rect.bottom - SAGE_EDIT_BORDER_WIDTH, rect.Width(), SAGE_EDIT_BORDER_WIDTH, SAGE_COLOR_BORDER);
+	pDC->FillSolidRect(rect.left, rect.top, SAGE_EDIT_BORDER_WIDTH, rect.Height(), SAGE_COLOR_BORDER);
+	pDC->FillSolidRect(rect.right - SAGE_EDIT_BORDER_WIDTH, rect.top, SAGE_EDIT_BORDER_WIDTH, rect.Height(), SAGE_COLOR_BORDER);
 }
 
 HBRUSH SageWorkflowInputPanel::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
 	HBRUSH hBrush = CWnd::OnCtlColor(pDC, pWnd, nCtlColor);
 	if (pWnd->IsKindOf(RUNTIME_CLASS(CSageLabel)))
 		return hBrush;
-	pDC->SetTextColor(TAECHANG_COLOR_TEXT);
+	pDC->SetTextColor(SAGE_COLOR_TEXT);
 	if (nCtlColor == CTLCOLOR_STATIC) {
-		pDC->SetBkColor(TAECHANG_COLOR_APP_BACKGROUND);
+		pDC->SetBkColor(SAGE_COLOR_APP_BACKGROUND);
 		return SageUiResources::GetBrush(SAGE_BG_APP);
 	}
 	if (nCtlColor == CTLCOLOR_EDIT || nCtlColor == CTLCOLOR_LISTBOX) {
-		pDC->SetBkColor(TAECHANG_COLOR_PANEL);
+		pDC->SetBkColor(SAGE_COLOR_PANEL);
 		return SageUiResources::GetBrush(SAGE_BG_PANEL);
 	}
 	return hBrush;
@@ -306,12 +306,12 @@ void SageWorkflowInputPanel::SetRunningState(BOOL bRunning) {
 	m_wndInputReset.EnableWindow(!bRunning);
 	m_panelInputTable.EnableSelectionControls(!bRunning);
 	if (bRunning) {
-		m_wndStatusCard.SetRunning(TAECHANG_UI_STATUS_CARD_RUNNING);
+		m_wndStatusCard.SetRunning(SAGE_UI_STATUS_CARD_RUNNING);
 		UpdateProgressPercent(0);
-		SetTimer(ID_TAECHANG_PROGRESS_TIMER, TAECHANG_PROGRESS_TIMER_MS, NULL);
+		SetTimer(ID_SAGE_PROGRESS_TIMER, SAGE_PROGRESS_TIMER_MS, NULL);
 		return;
 	}
-	KillTimer(ID_TAECHANG_PROGRESS_TIMER);
+	KillTimer(ID_SAGE_PROGRESS_TIMER);
 }
 
 void SageWorkflowInputPanel::UpdateActionVisibility(BOOL bInputResetVisible) {
@@ -340,11 +340,11 @@ LRESULT SageWorkflowInputPanel::ForwardToParent(UINT nMessage, WPARAM wParam, LP
 }
 
 LRESULT SageWorkflowInputPanel::OnResultTableChanged(WPARAM wParam, LPARAM lParam) {
-	return ForwardToParent(WM_TAECHANG_RESULT_TABLE_CHANGED, wParam, lParam);
+	return ForwardToParent(WM_SAGE_RESULT_TABLE_CHANGED, wParam, lParam);
 }
 
 LRESULT SageWorkflowInputPanel::OnResultSelectionChanged(WPARAM wParam, LPARAM lParam) {
-	return ForwardToParent(WM_TAECHANG_RESULT_SELECTION_CHANGED, wParam, lParam);
+	return ForwardToParent(WM_SAGE_RESULT_SELECTION_CHANGED, wParam, lParam);
 }
 
 void SageWorkflowInputPanel::EnableGenerateButton(BOOL bEnable) {
@@ -352,7 +352,7 @@ void SageWorkflowInputPanel::EnableGenerateButton(BOOL bEnable) {
 }
 
 void SageWorkflowInputPanel::ResetStatusCard() {
-	m_wndStatusCard.SetIdle(TAECHANG_UI_STATUS_CARD_IDLE);
+	m_wndStatusCard.SetIdle(SAGE_UI_STATUS_CARD_IDLE);
 }
 
 void SageWorkflowInputPanel::SetStatusResult(BOOL bSuccess, const CString& strMessage, const CString& strDetail) {
@@ -365,11 +365,11 @@ void SageWorkflowInputPanel::UpdateProgressPercent(int nPercent) {
 }
 
 void SageWorkflowInputPanel::OnTimer(UINT_PTR nIDEvent) {
-	if (nIDEvent == ID_TAECHANG_PROGRESS_TIMER) {
-		if (m_bRunning && m_nProgressPercent < TAECHANG_PROGRESS_RUNNING_MAX) {
-			int nNextPercent = m_nProgressPercent + TAECHANG_PROGRESS_STEP;
-			if (nNextPercent > TAECHANG_PROGRESS_RUNNING_MAX)
-				nNextPercent = TAECHANG_PROGRESS_RUNNING_MAX;
+	if (nIDEvent == ID_SAGE_PROGRESS_TIMER) {
+		if (m_bRunning && m_nProgressPercent < SAGE_PROGRESS_RUNNING_MAX) {
+			int nNextPercent = m_nProgressPercent + SAGE_PROGRESS_STEP;
+			if (nNextPercent > SAGE_PROGRESS_RUNNING_MAX)
+				nNextPercent = SAGE_PROGRESS_RUNNING_MAX;
 			UpdateProgressPercent(nNextPercent);
 		}
 		return;
@@ -381,35 +381,35 @@ void SageWorkflowInputPanel::RequestRun(int nTaskType) {
 	CWnd* pParent = GetParent();
 	if (pParent == NULL || !::IsWindow(pParent->GetSafeHwnd()))
 		return;
-	pParent->SendMessage(WM_TAECHANG_WORKFLOW_RUN_REQUESTED, static_cast<WPARAM>(nTaskType), 0);
+	pParent->SendMessage(WM_SAGE_WORKFLOW_RUN_REQUESTED, static_cast<WPARAM>(nTaskType), 0);
 }
 
 void SageWorkflowInputPanel::OnSelectInput() {
-	CFileDialog dlg(TRUE, TAECHANG_UI_EXCEL_DEFAULT_EXT, NULL, OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST, TAECHANG_UI_EXCEL_FILTER, this);
+	CFileDialog dlg(TRUE, SAGE_UI_EXCEL_DEFAULT_EXT, NULL, OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST, SAGE_UI_EXCEL_FILTER, this);
 	dlg.m_ofn.lpstrTitle = m_strInputDialogTitle;
 	if (dlg.DoModal() != IDOK)
 		return;
 
 	m_wndInputPath.SetWindowTextW(dlg.GetPathName());
 	if (m_bAutoLoadOnInput)
-		RequestRun(TAECHANG_TASK_LOAD);
+		RequestRun(SAGE_TASK_LOAD);
 }
 
 void SageWorkflowInputPanel::OnSelectOutput() {
 	CFolderPickerDialog dlg(NULL, OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST, this, 0);
-	dlg.m_ofn.lpstrTitle = TAECHANG_UI_SELECT_OUTPUT_TITLE;
+	dlg.m_ofn.lpstrTitle = SAGE_UI_SELECT_OUTPUT_TITLE;
 	if (dlg.DoModal() == IDOK)
 		m_wndOutputFolder.SetWindowTextW(dlg.GetPathName());
 }
 
 void SageWorkflowInputPanel::OnGenerateWorkflow() {
-	RequestRun(TAECHANG_TASK_GENERATE);
+	RequestRun(SAGE_TASK_GENERATE);
 }
 
 void SageWorkflowInputPanel::OnInputReset() {
-	ForwardToParent(WM_TAECHANG_WORKFLOW_INPUT_RESET, 0, 0);
+	ForwardToParent(WM_SAGE_WORKFLOW_INPUT_RESET, 0, 0);
 }
 
 void SageWorkflowInputPanel::OnOpenOutputFolder() {
-	ForwardToParent(WM_TAECHANG_OPEN_OUTPUT_FOLDER, 0, 0);
+	ForwardToParent(WM_SAGE_OPEN_OUTPUT_FOLDER, 0, 0);
 }

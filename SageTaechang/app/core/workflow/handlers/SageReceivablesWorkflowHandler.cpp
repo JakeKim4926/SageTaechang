@@ -1,46 +1,46 @@
 ﻿#include "pch.h"
 #include "app/core/workflow/handlers/SageReceivablesWorkflowHandler.h"
-#include "app/core/workflow/TaechangWorkflowResultPresenter.h"
-#include "app/common/TaechangJson.h"
-#include "TaechangDefine.h"
+#include "app/core/workflow/SageWorkflowResultPresenter.h"
+#include "app/common/SageJson.h"
+#include "SageDefine.h"
 
 namespace {
 
 const SageWorkflowTab g_tabs[] = {
-	{ TAECHANG_TAB_INDEX_INPUT, TAECHANG_UI_TAB_INPUT },
-	{ TAECHANG_TAB_INDEX_DOCUMENT_RESULT, TAECHANG_UI_TAB_RESULT },
-	{ TAECHANG_TAB_INDEX_DOCUMENT_HISTORY, TAECHANG_UI_TAB_HISTORY },
-	{ TAECHANG_TAB_INDEX_DOCUMENT_DATA_MANAGE, TAECHANG_UI_TAB_DATA_MANAGE }
+	{ SAGE_TAB_INDEX_INPUT, SAGE_UI_TAB_INPUT },
+	{ SAGE_TAB_INDEX_DOCUMENT_RESULT, SAGE_UI_TAB_RESULT },
+	{ SAGE_TAB_INDEX_DOCUMENT_HISTORY, SAGE_UI_TAB_HISTORY },
+	{ SAGE_TAB_INDEX_DOCUMENT_DATA_MANAGE, SAGE_UI_TAB_DATA_MANAGE }
 };
 
 constexpr int SAGE_RECEIVABLES_TAB_COUNT = sizeof(g_tabs) / sizeof(g_tabs[0]);
 
 const SageWorkflowColumn g_resultColumns[] = {
-	{ TAECHANG_UI_RECEIVABLES_COL_COMPANY, SAGE_COLUMN_ALIGN_CENTER, TAECHANG_RECEIVABLES_COMPANY_WIDTH, FALSE, SAGE_RESULT_FIELD_COMPANY_NAME },
-	{ TAECHANG_UI_RECEIVABLES_COL_MANAGER, SAGE_COLUMN_ALIGN_CENTER, TAECHANG_RECEIVABLES_MANAGER_WIDTH, FALSE, SAGE_RESULT_FIELD_MANAGER },
-	{ TAECHANG_UI_RECEIVABLES_COL_ISSUE_DATE, SAGE_COLUMN_ALIGN_CENTER, TAECHANG_RECEIVABLES_DATE_WIDTH, FALSE, SAGE_RESULT_FIELD_ISSUE_DATE },
-	{ TAECHANG_UI_RECEIVABLES_COL_ITEM, SAGE_COLUMN_ALIGN_CENTER, TAECHANG_RECEIVABLES_ITEM_WIDTH, FALSE, SAGE_RESULT_FIELD_ITEM_NAME },
-	{ TAECHANG_UI_RECEIVABLES_COL_ISSUE_TYPE, SAGE_COLUMN_ALIGN_CENTER, TAECHANG_RECEIVABLES_TYPE_WIDTH, FALSE, SAGE_RESULT_FIELD_ISSUE_TYPE },
-	{ TAECHANG_UI_RECEIVABLES_COL_TOTAL_AMOUNT, SAGE_COLUMN_ALIGN_CENTER, TAECHANG_RECEIVABLES_AMOUNT_WIDTH, FALSE, SAGE_RESULT_FIELD_TOTAL_AMOUNT },
-	{ TAECHANG_UI_RECEIVABLES_COL_DEPOSIT_AMOUNT, SAGE_COLUMN_ALIGN_CENTER, TAECHANG_RECEIVABLES_AMOUNT_WIDTH, FALSE, SAGE_RESULT_FIELD_DEPOSIT_AMOUNT },
-	{ TAECHANG_UI_RECEIVABLES_COL_RECEIVABLE_AMOUNT, SAGE_COLUMN_ALIGN_CENTER, TAECHANG_RECEIVABLES_AMOUNT_WIDTH, FALSE, SAGE_RESULT_FIELD_RECEIVABLE_AMOUNT },
-	{ TAECHANG_UI_RECEIVABLES_COL_BANK, SAGE_COLUMN_ALIGN_CENTER, TAECHANG_RECEIVABLES_BANK_WIDTH, FALSE, SAGE_RESULT_FIELD_BANK_NAME },
-	{ TAECHANG_UI_RECEIVABLES_COL_NOTE, SAGE_COLUMN_ALIGN_CENTER, TAECHANG_RECEIVABLES_NOTE_WIDTH, FALSE, SAGE_RESULT_FIELD_NOTE }
+	{ SAGE_UI_RECEIVABLES_COL_COMPANY, SAGE_COLUMN_ALIGN_CENTER, SAGE_RECEIVABLES_COMPANY_WIDTH, FALSE, SAGE_RESULT_FIELD_COMPANY_NAME },
+	{ SAGE_UI_RECEIVABLES_COL_MANAGER, SAGE_COLUMN_ALIGN_CENTER, SAGE_RECEIVABLES_MANAGER_WIDTH, FALSE, SAGE_RESULT_FIELD_MANAGER },
+	{ SAGE_UI_RECEIVABLES_COL_ISSUE_DATE, SAGE_COLUMN_ALIGN_CENTER, SAGE_RECEIVABLES_DATE_WIDTH, FALSE, SAGE_RESULT_FIELD_ISSUE_DATE },
+	{ SAGE_UI_RECEIVABLES_COL_ITEM, SAGE_COLUMN_ALIGN_CENTER, SAGE_RECEIVABLES_ITEM_WIDTH, FALSE, SAGE_RESULT_FIELD_ITEM_NAME },
+	{ SAGE_UI_RECEIVABLES_COL_ISSUE_TYPE, SAGE_COLUMN_ALIGN_CENTER, SAGE_RECEIVABLES_TYPE_WIDTH, FALSE, SAGE_RESULT_FIELD_ISSUE_TYPE },
+	{ SAGE_UI_RECEIVABLES_COL_TOTAL_AMOUNT, SAGE_COLUMN_ALIGN_CENTER, SAGE_RECEIVABLES_AMOUNT_WIDTH, FALSE, SAGE_RESULT_FIELD_TOTAL_AMOUNT },
+	{ SAGE_UI_RECEIVABLES_COL_DEPOSIT_AMOUNT, SAGE_COLUMN_ALIGN_CENTER, SAGE_RECEIVABLES_AMOUNT_WIDTH, FALSE, SAGE_RESULT_FIELD_DEPOSIT_AMOUNT },
+	{ SAGE_UI_RECEIVABLES_COL_RECEIVABLE_AMOUNT, SAGE_COLUMN_ALIGN_CENTER, SAGE_RECEIVABLES_AMOUNT_WIDTH, FALSE, SAGE_RESULT_FIELD_RECEIVABLE_AMOUNT },
+	{ SAGE_UI_RECEIVABLES_COL_BANK, SAGE_COLUMN_ALIGN_CENTER, SAGE_RECEIVABLES_BANK_WIDTH, FALSE, SAGE_RESULT_FIELD_BANK_NAME },
+	{ SAGE_UI_RECEIVABLES_COL_NOTE, SAGE_COLUMN_ALIGN_CENTER, SAGE_RECEIVABLES_NOTE_WIDTH, FALSE, SAGE_RESULT_FIELD_NOTE }
 };
 
 constexpr int SAGE_RECEIVABLES_RESULT_COLUMN_COUNT = sizeof(g_resultColumns) / sizeof(g_resultColumns[0]);
 
 const SageWorkflowFilterCriteria g_filterCriteria[] = {
-	{ TAECHANG_FILTER_CRITERIA_COMPANY, TAECHANG_UI_FILTER_CRITERIA_COMPANY, SAGE_RESULT_FIELD_COMPANY_NAME },
-	{ TAECHANG_FILTER_CRITERIA_MANAGER, TAECHANG_UI_FILTER_CRITERIA_MANAGER, SAGE_RESULT_FIELD_MANAGER },
-	{ TAECHANG_FILTER_CRITERIA_ITEM, TAECHANG_UI_FILTER_CRITERIA_ITEM, SAGE_RESULT_FIELD_ITEM_NAME }
+	{ SAGE_FILTER_CRITERIA_COMPANY, SAGE_UI_FILTER_CRITERIA_COMPANY, SAGE_RESULT_FIELD_COMPANY_NAME },
+	{ SAGE_FILTER_CRITERIA_MANAGER, SAGE_UI_FILTER_CRITERIA_MANAGER, SAGE_RESULT_FIELD_MANAGER },
+	{ SAGE_FILTER_CRITERIA_ITEM, SAGE_UI_FILTER_CRITERIA_ITEM, SAGE_RESULT_FIELD_ITEM_NAME }
 };
 
 constexpr int SAGE_RECEIVABLES_FILTER_CRITERIA_COUNT = sizeof(g_filterCriteria) / sizeof(g_filterCriteria[0]);
 
 CString FormatCountText(int nCount) {
 	CString strCount;
-	strCount.Format(TAECHANG_UI_SUMMARY_COUNT_FORMAT, nCount);
+	strCount.Format(SAGE_UI_SUMMARY_COUNT_FORMAT, nCount);
 	return strCount;
 }
 
@@ -87,10 +87,10 @@ struct SageReceivablesTotals
 	__int64 nReceivableAmount;
 };
 
-SageReceivablesTotals SumVisibleRows(const std::vector<TaechangResultRow>& arrVisibleRows) {
+SageReceivablesTotals SumVisibleRows(const std::vector<SageResultRow>& arrVisibleRows) {
 	SageReceivablesTotals totals;
 	for (int i = 0; i < static_cast<int>(arrVisibleRows.size()); ++i) {
-		if (arrVisibleRows[i].m_strCompanyName == TAECHANG_UI_SEPARATOR_MARK)
+		if (arrVisibleRows[i].m_strCompanyName == SAGE_UI_SEPARATOR_MARK)
 			continue;
 		++totals.nRowCount;
 		totals.nTotalAmount += arrVisibleRows[i].m_nTotalAmount;
@@ -103,19 +103,19 @@ SageReceivablesTotals SumVisibleRows(const std::vector<TaechangResultRow>& arrVi
 }
 
 int SageReceivablesWorkflowHandler::GetWorkflowType() const {
-	return TAECHANG_WORKFLOW_RECEIVABLES;
+	return SAGE_WORKFLOW_RECEIVABLES;
 }
 
 LPCWSTR SageReceivablesWorkflowHandler::GetHeaderTitle() const {
-	return TAECHANG_UI_RECEIVABLES_NAME;
+	return SAGE_UI_RECEIVABLES_NAME;
 }
 
 LPCWSTR SageReceivablesWorkflowHandler::GetInputSectionLabel() const {
-	return TAECHANG_UI_SECTION_INPUT;
+	return SAGE_UI_SECTION_INPUT;
 }
 
 LPCWSTR SageReceivablesWorkflowHandler::GetActionButtonLabel() const {
-	return TAECHANG_UI_RECEIVABLES_GENERATE_BUTTON;
+	return SAGE_UI_RECEIVABLES_GENERATE_BUTTON;
 }
 
 int SageReceivablesWorkflowHandler::GetTabCount() const {
@@ -143,20 +143,20 @@ SageWorkflowResultStyle SageReceivablesWorkflowHandler::GetResultStyle(int nTask
 	if (!UsesCustomResultTable(nTaskType))
 		return style;
 	style.bGridLines = TRUE;
-	style.nHighlightStart = TAECHANG_RECEIVABLES_COL_IDX_RECEIVABLE_AMOUNT;
-	style.nHighlightCount = TAECHANG_RECEIVABLES_HIGHLIGHT_COL_COUNT;
+	style.nHighlightStart = SAGE_RECEIVABLES_COL_IDX_RECEIVABLE_AMOUNT;
+	style.nHighlightCount = SAGE_RECEIVABLES_HIGHLIGHT_COL_COUNT;
 	return style;
 }
 
 BOOL SageReceivablesWorkflowHandler::UsesCustomResultTable(int nTaskType) const {
-	if (nTaskType == TAECHANG_TASK_LOAD)
+	if (nTaskType == SAGE_TASK_LOAD)
 		return TRUE;
-	return (nTaskType == TAECHANG_TASK_GENERATE) ? TRUE : FALSE;
+	return (nTaskType == SAGE_TASK_GENERATE) ? TRUE : FALSE;
 }
 
 BOOL SageReceivablesWorkflowHandler::BuildResultSummary(
 	int nTaskType,
-	const std::vector<TaechangResultRow>& arrVisibleRows,
+	const std::vector<SageResultRow>& arrVisibleRows,
 	const CString& strResponseJson,
 	std::vector<SageResultSummaryItem>& outItems) const {
 	outItems.clear();
@@ -167,21 +167,21 @@ BOOL SageReceivablesWorkflowHandler::BuildResultSummary(
 
 	std::vector<CString> arrMissingCompanies;
 	JsonSplitStringArray(
-		JsonExtractArray(strResponseJson, TAECHANG_JSON_KEY_MISSING_COMPANIES),
+		JsonExtractArray(strResponseJson, SAGE_JSON_KEY_MISSING_COMPANIES),
 		arrMissingCompanies);
 
-	AddSummaryItem(outItems, TAECHANG_UI_RECEIVABLES_SUMMARY_TOTAL,
-		FormatCountText(totals.nRowCount), TAECHANG_UI_SUMMARY_UNIT_COUNT, FALSE, FALSE);
-	AddSummaryItem(outItems, TAECHANG_UI_RECEIVABLES_SUMMARY_RECEIVABLE,
-		SageWorkflowResultTable::FormatAmountNumber(totals.nReceivableAmount), TAECHANG_UI_SUMMARY_UNIT_AMOUNT, TRUE, FALSE);
-	AddSummaryItem(outItems, TAECHANG_UI_RECEIVABLES_MISSING_COMPANIES,
-		FormatCountText(static_cast<int>(arrMissingCompanies.size())), TAECHANG_UI_SUMMARY_UNIT_COUNT, FALSE, TRUE);
+	AddSummaryItem(outItems, SAGE_UI_RECEIVABLES_SUMMARY_TOTAL,
+		FormatCountText(totals.nRowCount), SAGE_UI_SUMMARY_UNIT_COUNT, FALSE, FALSE);
+	AddSummaryItem(outItems, SAGE_UI_RECEIVABLES_SUMMARY_RECEIVABLE,
+		SageWorkflowResultTable::FormatAmountNumber(totals.nReceivableAmount), SAGE_UI_SUMMARY_UNIT_AMOUNT, TRUE, FALSE);
+	AddSummaryItem(outItems, SAGE_UI_RECEIVABLES_MISSING_COMPANIES,
+		FormatCountText(static_cast<int>(arrMissingCompanies.size())), SAGE_UI_SUMMARY_UNIT_COUNT, FALSE, TRUE);
 	return TRUE;
 }
 
 BOOL SageReceivablesWorkflowHandler::BuildResultTotals(
 	int nTaskType,
-	const std::vector<TaechangResultRow>& arrVisibleRows,
+	const std::vector<SageResultRow>& arrVisibleRows,
 	std::vector<SageResultTotalCell>& outCells) const {
 	outCells.clear();
 	if (!UsesCustomResultTable(nTaskType))
@@ -189,15 +189,15 @@ BOOL SageReceivablesWorkflowHandler::BuildResultTotals(
 
 	SageReceivablesTotals totals = SumVisibleRows(arrVisibleRows);
 
-	AddTotalCell(outCells, TAECHANG_RECEIVABLES_COL_IDX_COMPANY,
-		TAECHANG_UI_RECEIVABLES_TOTAL_LABEL, SAGE_RESULT_TOTAL_LABEL);
-	AddTotalCell(outCells, TAECHANG_RECEIVABLES_COL_IDX_ITEM,
-		FormatCountText(totals.nRowCount) + TAECHANG_UI_SUMMARY_UNIT_COUNT, SAGE_RESULT_TOTAL_COUNT);
-	AddTotalCell(outCells, TAECHANG_RECEIVABLES_COL_IDX_TOTAL_AMOUNT,
+	AddTotalCell(outCells, SAGE_RECEIVABLES_COL_IDX_COMPANY,
+		SAGE_UI_RECEIVABLES_TOTAL_LABEL, SAGE_RESULT_TOTAL_LABEL);
+	AddTotalCell(outCells, SAGE_RECEIVABLES_COL_IDX_ITEM,
+		FormatCountText(totals.nRowCount) + SAGE_UI_SUMMARY_UNIT_COUNT, SAGE_RESULT_TOTAL_COUNT);
+	AddTotalCell(outCells, SAGE_RECEIVABLES_COL_IDX_TOTAL_AMOUNT,
 		SageWorkflowResultTable::FormatAmountNumber(totals.nTotalAmount), SAGE_RESULT_TOTAL_AMOUNT);
-	AddTotalCell(outCells, TAECHANG_RECEIVABLES_COL_IDX_DEPOSIT_AMOUNT,
+	AddTotalCell(outCells, SAGE_RECEIVABLES_COL_IDX_DEPOSIT_AMOUNT,
 		SageWorkflowResultTable::FormatAmountNumber(totals.nDepositAmount), SAGE_RESULT_TOTAL_AMOUNT);
-	AddTotalCell(outCells, TAECHANG_RECEIVABLES_COL_IDX_RECEIVABLE_AMOUNT,
+	AddTotalCell(outCells, SAGE_RECEIVABLES_COL_IDX_RECEIVABLE_AMOUNT,
 		SageWorkflowResultTable::FormatAmountNumber(totals.nReceivableAmount), SAGE_RESULT_TOTAL_AMOUNT_HIGHLIGHT);
 	return TRUE;
 }
@@ -211,7 +211,7 @@ const SageWorkflowFilterCriteria& SageReceivablesWorkflowHandler::GetFilterCrite
 }
 
 LPCWSTR SageReceivablesWorkflowHandler::GetInputDialogTitle() const {
-	return TAECHANG_UI_SELECT_RECEIVABLES_INPUT_TITLE;
+	return SAGE_UI_SELECT_RECEIVABLES_INPUT_TITLE;
 }
 
 BOOL SageReceivablesWorkflowHandler::UsesInputTable() const {

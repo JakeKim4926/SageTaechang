@@ -1,11 +1,11 @@
 #include "pch.h"
 #include "app/ui/dialogs/SageFramelessDialog.h"
 #include "app/ui/dialogs/SageDialogSizer.h"
-#include "TaechangDefine.h"
+#include "SageDefine.h"
 
 BEGIN_MESSAGE_MAP(SageFramelessDialog, CDialog)
     ON_WM_NCHITTEST()
-    ON_BN_CLICKED(ID_TAECHANG_DLG_CLOSE, &SageFramelessDialog::OnCaptionClose)
+    ON_BN_CLICKED(ID_SAGE_DLG_CLOSE, &SageFramelessDialog::OnCaptionClose)
 END_MESSAGE_MAP()
 
 SageFramelessDialog::SageFramelessDialog(CWnd* pParent)
@@ -13,8 +13,8 @@ SageFramelessDialog::SageFramelessDialog(CWnd* pParent)
 }
 
 BYTE* SageFramelessDialog::BuildFramelessTemplate(LPCWSTR pszTitle, int nTemplateCx, int nTemplateCy) {
-    const WCHAR* szFont = TAECHANG_CONTROL_FONT_FACE;
-    const WORD wFontSize = TAECHANG_LOGIN_DLG_FONT_PT;
+    const WCHAR* szFont = SAGE_CONTROL_FONT_FACE;
+    const WORD wFontSize = SAGE_LOGIN_DLG_FONT_PT;
 
     size_t nTitleLen = wcslen(pszTitle) + 1;
     size_t nFontLen = wcslen(szFont) + 1;
@@ -53,11 +53,11 @@ BYTE* SageFramelessDialog::BuildFramelessTemplate(LPCWSTR pszTitle, int nTemplat
 }
 
 BOOL SageFramelessDialog::CreateCaptionBar(LPCWSTR pszTitle) {
-    return m_wndCaption.Create(this, pszTitle, ID_TAECHANG_DLG_CLOSE);
+    return m_wndCaption.Create(this, pszTitle, ID_SAGE_DLG_CLOSE);
 }
 
 int SageFramelessDialog::GetContentTop() const {
-    return TAECHANG_DLG_CAPTION_HEIGHT;
+    return SAGE_DLG_CAPTION_HEIGHT;
 }
 
 void SageFramelessDialog::SizeFramelessClient(int nClientWidth, int nContentBottom) {
@@ -72,7 +72,7 @@ LRESULT SageFramelessDialog::OnNcHitTest(CPoint point) {
 
     CPoint ptClient = point;
     ScreenToClient(&ptClient);
-    if (ptClient.y < TAECHANG_DLG_CAPTION_HEIGHT)
+    if (ptClient.y < SAGE_DLG_CAPTION_HEIGHT)
         return HTCAPTION;
 
     return nHit;
