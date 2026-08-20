@@ -1,4 +1,12 @@
-﻿## [2026-08-21] fix/legacy-table-migration
+﻿## [2026-08-21] Release v2.0 (develop -> main)
+- **목적**: 디자인 개선안 적용과 구조 리팩토링을 한 버전으로 묶어 배포한다
+- **변경 내용**: v1.1 이후 **312커밋**(docs 146 · refactor 53 · style 49 · fix 44 · feat 17 · perf 2 · chore 1). 로그인·권한, 워크플로 상태 카드, 실행 기록 표(산출물 단위), 요약 바·합계 밴드, 앱 스타일 메시지 박스, 검색 통합 박스, 단가 법인 테이블, Pretendard 전환과 색·크기 규격 통일. 리소스 표시 버전과 `FILEVERSION`/`PRODUCTVERSION`을 **2.0**으로 올렸다(`.rc`는 UTF-16LE이라 인코딩 보존해서 수정)
+- **머지 방식**: `git merge --no-ff` + `Release: develop -> main (...)` 메시지. squash하지 않아 `develop` 히스토리를 보존했다. `main`에 **`v2.0` 태그**
+- **PR 링크**: 없음
+- **결과**: merged — `main` = `30257c9`, 태그 `v2.0`. 푸시는 하지 않았다
+- **배포 시 확인**: 기존 `data\estimate.db`를 **복사해 두고** 첫 실행 후 **법인 목록이 예전과 같은지** 본다. 테이블 이름 마이그레이션이 첫 실행에서 돌고 옛 테이블은 지우지 않는다
+
+## [2026-08-21] fix/legacy-table-migration
 - **목적**: Release 빌드로 실행하니 기존 법인·단가가 사라진 것처럼 보이는 문제를 고친다
 - **원인**: `Taechang` → `Sage` 이름 치환이 **테이블 이름까지** 바꿨다. 기존 DB에는 `TaechangPrice` · `TaechangUser` · `TaechangReceivableCompanyOrder`가 있는데 새 코드는 `SagePrice` 등을 찾으므로, `CREATE TABLE IF NOT EXISTS`가 **빈 테이블을 만들고** 그것을 조회했다. DB 파일을 열어 확인한 결과 옛 테이블과 데이터(법인명 105건)는 **그대로 남아 있었다** — 돌아간 SQL이 `CREATE ... IF NOT EXISTS`와 `SELECT`뿐이어서 삭제·덮어쓰기는 없었다
 - **변경 내용**: `SqlInitializer::MigrateLegacyTableNames`를 추가해 시작 시(테이블 생성 **전**, 기존 트랜잭션 안) 옛 이름을 새 이름으로 잇는다. 새 테이블이 없으면 `ALTER TABLE ... RENAME TO`, 이미 있고 **비어 있으면** `INSERT INTO ... SELECT *`로 복사, 데이터가 있으면 **아무것도 하지 않는다**(합치는 판단을 코드가 임의로 하지 않는다). 옛 테이블은 지우지 않는다
