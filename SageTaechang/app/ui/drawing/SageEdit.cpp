@@ -18,6 +18,12 @@ CSageEdit::CSageEdit()
 	: m_nState(SAGE_EDIT_NORMAL) {
 }
 
+BOOL CSageEdit::PreTranslateMessage(MSG* pMsg) {
+	if (SageHandleEditSelectAll(pMsg))
+		return TRUE;
+	return CEdit::PreTranslateMessage(pMsg);
+}
+
 int CSageEdit::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	if (CEdit::OnCreate(lpCreateStruct) == -1)
 		return -1;
@@ -62,4 +68,18 @@ void CSageEdit::OnNcPaint() {
 	CBrush brushFrame(m_nState == SAGE_EDIT_ERROR
 		? SAGE_COLOR_ERROR : SAGE_COLOR_BORDER);
 	dc.FrameRect(rectFrame, &brushFrame);
+}
+
+BOOL SageHandleEditSelectAll(MSG* pMsg) {
+	if (pMsg == NULL || pMsg->message != WM_KEYDOWN)
+		return FALSE;
+	if (pMsg->wParam != SAGE_KEY_SELECT_ALL || ::GetKeyState(VK_CONTROL) >= 0)
+		return FALSE;
+
+	CWnd* pWnd = CWnd::FromHandlePermanent(pMsg->hwnd);
+	if (pWnd == NULL || !pWnd->IsKindOf(RUNTIME_CLASS(CEdit)))
+		return FALSE;
+
+	static_cast<CEdit*>(pWnd)->SetSel(0, -1);
+	return TRUE;
 }

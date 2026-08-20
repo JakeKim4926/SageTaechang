@@ -7,6 +7,7 @@
 
 #include "app/ui/frame/SageTaechangDoc.h"
 #include "app/ui/view/SageTaechangView.h"
+#include "app/ui/drawing/SageEdit.h"
 #include "app/ui/drawing/SageUiResources.h"
 #include "app/core/workflow/ISageWorkflowHandler.h"
 #include "app/core/workflow/SageWorkflowRegistry.h"
@@ -80,6 +81,8 @@ BOOL CSageTaechangView::PreTranslateMessage(MSG* pMsg) {
 		OnDropFiles(reinterpret_cast<HDROP>(pMsg->wParam));
 		return TRUE;
 	}
+	if (SageHandleEditSelectAll(pMsg))
+		return TRUE;
 	return CView::PreTranslateMessage(pMsg);
 }
 
